@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "DeclutterChallenge",
+    "slug": "declutter-challenge",
+    "sdkVersion": "50.0.0",
+    "platforms": ["android"],
+    "android": {
+      "googleServicesFile": "./google-services.json",
+      "package": "com.example.declutterchallenge"
+    }
+  }
+}

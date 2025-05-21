@@ -1,0 +1,4 @@
+node_modules/
+.expo/
+.gradle/
+android-app/google-services.json
