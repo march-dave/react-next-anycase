@@ -1,0 +1,812 @@
+[
+  {
+    "id": 1,
+    "dayOffset": 1,
+    "text": "Purge outdated documents",
+    "tip": "Short task, big impact.",
+    "theme": "Office",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 2,
+    "dayOffset": 2,
+    "text": "Remove old calendar events",
+    "tip": "Stay focused!",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 3,
+    "dayOffset": 3,
+    "text": "Bundle magazines to donate",
+    "tip": "Small steps add up!",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 4,
+    "dayOffset": 4,
+    "text": "Organize reading stack",
+    "tip": "Keep it simple.",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 5,
+    "dayOffset": 5,
+    "text": "Group hair accessories",
+    "tip": "Clear space, clear mind.",
+    "theme": "Bathroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 6,
+    "dayOffset": 6,
+    "text": "Check batteries in remotes",
+    "tip": "One drawer at a time.",
+    "theme": "Misc",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 7,
+    "dayOffset": 7,
+    "text": "Clear expired fridge items",
+    "tip": "Short task, big impact.",
+    "theme": "Kitchen",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 8,
+    "dayOffset": 8,
+    "text": "Gather empty hangers",
+    "tip": "Keep it simple.",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 9,
+    "dayOffset": 9,
+    "text": "Toss worn-out socks",
+    "tip": "Quick win today.",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 10,
+    "dayOffset": 10,
+    "text": "Sweep front porch",
+    "tip": "Quick win today.",
+    "theme": "Misc",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 11,
+    "dayOffset": 11,
+    "text": "Purge expired coupons",
+    "tip": "Clear space, clear mind.",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 12,
+    "dayOffset": 12,
+    "text": "Clean coffee maker carafe",
+    "tip": "Short task, big impact.",
+    "theme": "Kitchen",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 13,
+    "dayOffset": 13,
+    "text": "Clean toothbrush holder",
+    "tip": "Lighten your load.",
+    "theme": "Bathroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 14,
+    "dayOffset": 14,
+    "text": "Organize desktop files",
+    "tip": "Short task, big impact.",
+    "theme": "Digital",
+    "timeBucket": "<5 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 15,
+    "dayOffset": 15,
+    "text": "Dust keyboard",
+    "tip": "Clear space, clear mind.",
+    "theme": "Office",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 16,
+    "dayOffset": 16,
+    "text": "Sort jewelry box",
+    "tip": "One drawer at a time.",
+    "theme": "Bedroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 17,
+    "dayOffset": 17,
+    "text": "Wipe monitor screen",
+    "tip": "You got this!",
+    "theme": "Office",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 18,
+    "dayOffset": 18,
+    "text": "Clean out toolbox",
+    "tip": "Small steps add up!",
+    "theme": "Misc",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 19,
+    "dayOffset": 19,
+    "text": "Sort one drawer",
+    "tip": "Breathe and declutter.",
+    "theme": "Closet",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 20,
+    "dayOffset": 20,
+    "text": "Check expiration dates",
+    "tip": "Stay focused!",
+    "theme": "Bathroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 21,
+    "dayOffset": 21,
+    "text": "Sort utensil drawer",
+    "tip": "One drawer at a time.",
+    "theme": "Kitchen",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 22,
+    "dayOffset": 22,
+    "text": "Clear nightstand clutter",
+    "tip": "Keep it simple.",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 23,
+    "dayOffset": 23,
+    "text": "Delete unused apps",
+    "tip": "Short task, big impact.",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 24,
+    "dayOffset": 24,
+    "text": "Recycle old catalogs",
+    "tip": "Short task, big impact.",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 25,
+    "dayOffset": 25,
+    "text": "Discard old makeup",
+    "tip": "You got this!",
+    "theme": "Bathroom",
+    "timeBucket": "<5 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 26,
+    "dayOffset": 26,
+    "text": "Fold t-shirts neatly",
+    "tip": "One drawer at a time.",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 27,
+    "dayOffset": 27,
+    "text": "Group spices alphabetically",
+    "tip": "Clear space, clear mind.",
+    "theme": "Kitchen",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 28,
+    "dayOffset": 28,
+    "text": "Clear desk inbox tray",
+    "tip": "Quick win today.",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 29,
+    "dayOffset": 29,
+    "text": "Dust picture frames",
+    "tip": "Breathe and declutter.",
+    "theme": "Bedroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 30,
+    "dayOffset": 30,
+    "text": "Match food storage containers",
+    "tip": "One drawer at a time.",
+    "theme": "Misc",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 31,
+    "dayOffset": 31,
+    "text": "Update phone software",
+    "tip": "Small steps add up!",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 32,
+    "dayOffset": 32,
+    "text": "Remove trash",
+    "tip": "Small steps add up!",
+    "theme": "Office",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 33,
+    "dayOffset": 33,
+    "text": "Discard old condiments",
+    "tip": "Quick win today.",
+    "theme": "Kitchen",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 34,
+    "dayOffset": 34,
+    "text": "Tidy craft supplies",
+    "tip": "Quick win today.",
+    "theme": "Misc",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 35,
+    "dayOffset": 35,
+    "text": "Clean email inbox",
+    "tip": "Lighten your load.",
+    "theme": "Digital",
+    "timeBucket": "<5 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 36,
+    "dayOffset": 36,
+    "text": "Scan medical records",
+    "tip": "Quick win today.",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 37,
+    "dayOffset": 37,
+    "text": "Organize belts",
+    "tip": "Quick win today.",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 38,
+    "dayOffset": 38,
+    "text": "Gather loose change",
+    "tip": "Small steps add up!",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 39,
+    "dayOffset": 39,
+    "text": "Organize charging cables",
+    "tip": "Breathe and declutter.",
+    "theme": "Office",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 40,
+    "dayOffset": 40,
+    "text": "Toss empty shampoo bottles",
+    "tip": "One drawer at a time.",
+    "theme": "Bathroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 41,
+    "dayOffset": 41,
+    "text": "Tidy supply shelf",
+    "tip": "Small steps add up!",
+    "theme": "Office",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 42,
+    "dayOffset": 42,
+    "text": "Organize board games",
+    "tip": "Stay focused!",
+    "theme": "Misc",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 43,
+    "dayOffset": 43,
+    "text": "Toss chipped mugs",
+    "tip": "Clear space, clear mind.",
+    "theme": "Kitchen",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 44,
+    "dayOffset": 44,
+    "text": "Sweep closet floor",
+    "tip": "Clear space, clear mind.",
+    "theme": "Closet",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 45,
+    "dayOffset": 45,
+    "text": "Make the bed neatly",
+    "tip": "Stay focused!",
+    "theme": "Bedroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 46,
+    "dayOffset": 46,
+    "text": "Sort bookmarks",
+    "tip": "You got this!",
+    "theme": "Digital",
+    "timeBucket": "<5 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 47,
+    "dayOffset": 47,
+    "text": "File paid bills",
+    "tip": "Lighten your load.",
+    "theme": "Paperwork",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 48,
+    "dayOffset": 48,
+    "text": "Replace old towels",
+    "tip": "Stay focused!",
+    "theme": "Bathroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 49,
+    "dayOffset": 49,
+    "text": "Wipe counters",
+    "tip": "Lighten your load.",
+    "theme": "Kitchen",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 50,
+    "dayOffset": 50,
+    "text": "Dust lamps and shades",
+    "tip": "You got this!",
+    "theme": "Bedroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 51,
+    "dayOffset": 51,
+    "text": "Change weak passwords",
+    "tip": "Lighten your load.",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 52,
+    "dayOffset": 52,
+    "text": "Match stray shoes",
+    "tip": "One drawer at a time.",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 53,
+    "dayOffset": 53,
+    "text": "Clip important articles",
+    "tip": "Lighten your load.",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 54,
+    "dayOffset": 54,
+    "text": "Wipe bathroom mirror",
+    "tip": "Stay focused!",
+    "theme": "Bathroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 55,
+    "dayOffset": 55,
+    "text": "Clear desk drawer",
+    "tip": "Quick win today.",
+    "theme": "Office",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 56,
+    "dayOffset": 56,
+    "text": "Gather donation box items",
+    "tip": "Small steps add up!",
+    "theme": "Misc",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 57,
+    "dayOffset": 57,
+    "text": "Straighten dresser top",
+    "tip": "Short task, big impact.",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 58,
+    "dayOffset": 58,
+    "text": "Dust picture ledges",
+    "tip": "Clear space, clear mind.",
+    "theme": "Misc",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 59,
+    "dayOffset": 59,
+    "text": "Group baking tools",
+    "tip": "Short task, big impact.",
+    "theme": "Kitchen",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 60,
+    "dayOffset": 60,
+    "text": "Pick out clothes to repair",
+    "tip": "Stay focused!",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 61,
+    "dayOffset": 61,
+    "text": "Swap worn bath mats",
+    "tip": "Breathe and declutter.",
+    "theme": "Bathroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 62,
+    "dayOffset": 62,
+    "text": "Unsubscribe from newsletters",
+    "tip": "Quick win today.",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 63,
+    "dayOffset": 63,
+    "text": "Archive warranty papers",
+    "tip": "Quick win today.",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 64,
+    "dayOffset": 64,
+    "text": "Arrange books by topic",
+    "tip": "Stay focused!",
+    "theme": "Office",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 65,
+    "dayOffset": 65,
+    "text": "Shred junk mail",
+    "tip": "Stay focused!",
+    "theme": "Paperwork",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 66,
+    "dayOffset": 66,
+    "text": "Rename confusing files",
+    "tip": "You got this!",
+    "theme": "Digital",
+    "timeBucket": "<5 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 67,
+    "dayOffset": 67,
+    "text": "Sort pens and markers",
+    "tip": "Stay focused!",
+    "theme": "Office",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 68,
+    "dayOffset": 68,
+    "text": "Empty trash can",
+    "tip": "One drawer at a time.",
+    "theme": "Kitchen",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 69,
+    "dayOffset": 69,
+    "text": "Sort car glove box",
+    "tip": "Short task, big impact.",
+    "theme": "Misc",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 70,
+    "dayOffset": 70,
+    "text": "Group hangers",
+    "tip": "Short task, big impact.",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 71,
+    "dayOffset": 71,
+    "text": "Tidy under-bed storage",
+    "tip": "Clear space, clear mind.",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 72,
+    "dayOffset": 72,
+    "text": "Sort medicine cabinet",
+    "tip": "Quick win today.",
+    "theme": "Bathroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 73,
+    "dayOffset": 73,
+    "text": "Wipe sink area",
+    "tip": "Breathe and declutter.",
+    "theme": "Bathroom",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 74,
+    "dayOffset": 74,
+    "text": "Fold spare blankets",
+    "tip": "Breathe and declutter.",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 75,
+    "dayOffset": 75,
+    "text": "Donate one item",
+    "tip": "Small steps add up!",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 76,
+    "dayOffset": 76,
+    "text": "Wipe microwave interior",
+    "tip": "You got this!",
+    "theme": "Kitchen",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 77,
+    "dayOffset": 77,
+    "text": "Recycle empty jars",
+    "tip": "Clear space, clear mind.",
+    "theme": "Misc",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 78,
+    "dayOffset": 78,
+    "text": "Backup photos to cloud",
+    "tip": "Clear space, clear mind.",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 79,
+    "dayOffset": 79,
+    "text": "Label file folders",
+    "tip": "Small steps add up!",
+    "theme": "Paperwork",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 80,
+    "dayOffset": 80,
+    "text": "Recycle old notes",
+    "tip": "Small steps add up!",
+    "theme": "Office",
+    "timeBucket": "5-10 min",
+    "taskType": "Dispose"
+  },
+  {
+    "id": 81,
+    "dayOffset": 81,
+    "text": "Put away laundry pile",
+    "tip": "You got this!",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 82,
+    "dayOffset": 82,
+    "text": "Clear downloads folder",
+    "tip": "Small steps add up!",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  },
+  {
+    "id": 83,
+    "dayOffset": 83,
+    "text": "Check pantry for duplicates",
+    "tip": "Small steps add up!",
+    "theme": "Kitchen",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 84,
+    "dayOffset": 84,
+    "text": "Clean pet feeding area",
+    "tip": "Keep it simple.",
+    "theme": "Misc",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 85,
+    "dayOffset": 85,
+    "text": "Clear purse or bag",
+    "tip": "You got this!",
+    "theme": "Closet",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 86,
+    "dayOffset": 86,
+    "text": "Sort receipts by month",
+    "tip": "One drawer at a time.",
+    "theme": "Paperwork",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 87,
+    "dayOffset": 87,
+    "text": "File stray papers",
+    "tip": "You got this!",
+    "theme": "Office",
+    "timeBucket": "<5 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 88,
+    "dayOffset": 88,
+    "text": "Rinse shower floor",
+    "tip": "Stay focused!",
+    "theme": "Bathroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 89,
+    "dayOffset": 89,
+    "text": "Empty wastebasket",
+    "tip": "Keep it simple.",
+    "theme": "Bedroom",
+    "timeBucket": "5-10 min",
+    "taskType": "Organize"
+  },
+  {
+    "id": 90,
+    "dayOffset": 90,
+    "text": "Empty recycle bin",
+    "tip": "Lighten your load.",
+    "theme": "Digital",
+    "timeBucket": "5-10 min",
+    "taskType": "Digital"
+  }
+]
