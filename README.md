@@ -12,3 +12,16 @@ npm run dev
 ```
 
 Then open `http://localhost:3000` in your browser.
+
+## Android App
+
+An Expo-based React Native project lives in `android-app` for Android only.
+Install dependencies and run on a device or emulator:
+
+```bash
+cd android-app
+npm install
+npm run android
+```
+
+`npm run build` generates a production AAB using EAS.
