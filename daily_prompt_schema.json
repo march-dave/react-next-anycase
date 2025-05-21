@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "dayOffset", "text", "tip", "theme", "timeBucket", "taskType"],
+    "properties": {
+      "id": {"type": "integer", "minimum": 1},
+      "dayOffset": {"type": "integer", "minimum": 1},
+      "text": {"type": "string"},
+      "tip": {"type": "string"},
+      "theme": {"type": "string"},
+      "timeBucket": {"type": "string", "enum": ["<5 min", "5-10 min"]},
+      "taskType": {"type": "string", "enum": ["Dispose", "Organize", "Digital"]}
+    }
+  }
+}
