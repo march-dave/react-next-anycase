@@ -25,3 +25,6 @@ npm run android
 ```
 
 `npm run build` generates a production AAB using EAS.
+
+The Android project integrates AdMob ads via `react-native-google-mobile-ads` and
+includes a simple PDF viewer component powered by `react-native-pdf`.

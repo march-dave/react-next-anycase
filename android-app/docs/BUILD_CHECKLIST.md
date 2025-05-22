@@ -5,3 +5,4 @@
 - [ ] AdMob App ID set via `google-services.json`.
 - [ ] Production Ad Unit IDs stored in env variables.
 - [ ] Daily push notification scheduled at 9 AM.
+- [ ] PDF viewer renders sample document.
