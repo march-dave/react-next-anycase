@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "모자이크 퍼즐 게임",
+    "slug": "mosaic-puzzle-game",
+    "sdkVersion": "50.0.0",
+    "platforms": ["android"],
+    "android": {
+      "googleServicesFile": "./google-services.json",
+      "package": "com.example.mosaicpuzzlegame"
+    }
+  }
+}

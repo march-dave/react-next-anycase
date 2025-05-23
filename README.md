@@ -28,3 +28,17 @@ npm run android
 
 The Android project integrates AdMob ads via `react-native-google-mobile-ads` and
 includes a simple PDF viewer component powered by `react-native-pdf`.
+
+## Mosaic Puzzle Game
+
+Another React Native project using version 0.74 lives in `mosaic-puzzle-game`.
+Run it on Android with the same commands:
+
+```bash
+cd mosaic-puzzle-game
+npm install
+npm run android
+```
+
+This app displays all text in English and integrates Google Mobile Ads
+(`react-native-google-mobile-ads` @14.7.2).
