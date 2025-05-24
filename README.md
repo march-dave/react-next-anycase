@@ -42,3 +42,15 @@ npm run android
 
 This app displays all text in English and integrates Google Mobile Ads
 (`react-native-google-mobile-ads` @14.7.2).
+
+## Reflex Rush App
+
+A reaction time game using React Native 0.78 in `ReflexRushApp`. Run on Android with:
+
+```bash
+cd ReflexRushApp
+npm install
+npm run android
+```
+
+Google Mobile Ads (`react-native-google-mobile-ads` @15.2.0) is integrated and all user text is in English.
