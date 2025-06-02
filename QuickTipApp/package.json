@@ -1,0 +1,15 @@
+{
+  "name": "quick-tip-app",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.78.2",
+    "react-native-google-mobile-ads": "^15.2.0"
+  }
+}
