@@ -65,3 +65,5 @@ OPENAI_API_KEY=your-key npm run dev
 ```
 
 Then open `http://localhost:3000/chatgpt` in your browser.
+
+A variant at `/gpt` lets you choose the OpenAI model (e.g. `gpt-4`).
