@@ -8,7 +8,8 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
     return;
   }
-  const { messages } = req.body;
+  const { messages, model } = req.body;
+  const chosenModel = typeof model === 'string' && model.trim() ? model.trim() : 'gpt-3.5-turbo';
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: chosenModel,
         messages,
       }),
     });
