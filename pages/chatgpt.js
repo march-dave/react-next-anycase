@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import ChatBubble from '@/components/ChatBubble';
 
@@ -6,6 +6,13 @@ export default function ChatGptPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    if (endRef.current) {
+      endRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,13 +46,14 @@ export default function ChatGptPage() {
         <title>ChatGPT UI</title>
       </Head>
       <div className="flex flex-col h-screen">
-        <div className="flex-1 overflow-y-auto bg-gray-100">
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-4">
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} message={msg} />
           ))}
           {loading && (
             <ChatBubble message={{ role: 'assistant', text: 'Loading...' }} />
           )}
+          <div ref={endRef} />
         </div>
         <form onSubmit={handleSubmit} className="p-4 border-t bg-white flex gap-2">
           <textarea

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import ChatBubble from '@/components/ChatBubble';
 
@@ -9,6 +9,13 @@ export default function GptUIPage() {
   const [input, setInput] = useState('');
   const [model, setModel] = useState(MODELS[0]);
   const [loading, setLoading] = useState(false);
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    if (endRef.current) {
+      endRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,13 +50,14 @@ export default function GptUIPage() {
         <title>GPT UI</title>
       </Head>
       <div className="flex flex-col h-screen">
-        <div className="flex-1 overflow-y-auto bg-gray-100">
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-4">
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} message={msg} />
           ))}
           {loading && (
             <ChatBubble message={{ role: 'assistant', text: 'Loading...' }} />
           )}
+          <div ref={endRef} />
         </div>
         <form onSubmit={handleSubmit} className="p-4 border-t bg-white flex gap-2 items-start">
           <select
