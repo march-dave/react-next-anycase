@@ -58,12 +58,15 @@ Google Mobile Ads (`react-native-google-mobile-ads` @15.2.0) is integrated and a
 ## ChatGPT UI
 
 A simple chat interface using OpenAI's ChatGPT API is available at `/chatgpt`.
-Set the `OPENAI_API_KEY` environment variable before starting the dev server:
 
-```bash
-OPENAI_API_KEY=your-key npm run dev
-```
+To run it locally:
 
-Then open `http://localhost:3000/chatgpt` in your browser.
+1. Set the `OPENAI_API_KEY` environment variable.
+2. Start the dev server:
 
-A variant at `/gpt` lets you choose the OpenAI model (e.g. `gpt-4`).
+   ```bash
+   npm run dev
+   ```
+3. Open `http://localhost:3000/chatgpt` in your browser.
+
+You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
