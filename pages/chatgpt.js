@@ -7,12 +7,25 @@ export default function ChatGptPage() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, loading]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,13 +70,19 @@ export default function ChatGptPage() {
         </div>
         <form onSubmit={handleSubmit} className="p-4 border-t bg-white flex gap-2">
           <textarea
+            ref={inputRef}
             rows={1}
             className="w-full border border-gray-300 rounded p-2 resize-none"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Send a message"
           />
-          <button type="submit" className="bg-blue-500 text-white rounded px-4 py-2" disabled={loading}>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white rounded px-4 py-2"
+            disabled={loading}
+            aria-label="Send message"
+          >
             Send
           </button>
         </form>

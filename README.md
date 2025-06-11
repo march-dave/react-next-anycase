@@ -70,3 +70,14 @@ To run it locally:
 3. Open `http://localhost:3000/chatgpt` in your browser.
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
+
+### UX Design Tips
+
+Here are a few guidelines that informed the simple chat interface:
+
+1. **Simplicity** – Keep the layout focused on the conversation with minimal clutter.
+2. **Visual hierarchy** – Differentiate user and assistant messages with distinct backgrounds.
+3. **Accessibility** – Ensure readable fonts and keyboard navigation. The input area automatically receives focus.
+4. **Feedback** – While waiting for a reply, a loading message appears and the send button is disabled.
+5. **Scrolling behavior** – New messages scroll into view so context is maintained.
+6. **Customization** – Choose a different model on the `/gpt` page.
