@@ -71,6 +71,13 @@ To run it locally:
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 
+Key files implementing the chat interface:
+
+- `pages/chatgpt.js` – renders the chat UI.
+- `pages/api/chatgpt.js` – API route that sends prompts to OpenAI.
+- `components/ChatBubble.js` – the message bubble component.
+- `pages/gpt.js` – variant with a model selector.
+
 ### UX Design Tips
 
 Here are a few guidelines that informed the simple chat interface:
