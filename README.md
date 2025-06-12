@@ -78,6 +78,38 @@ Key files implementing the chat interface:
 - `components/ChatBubble.js` – the message bubble component.
 - `pages/gpt.js` – variant with a model selector.
 
+Below is a short excerpt from the `handleSubmit` function in
+`pages/chatgpt.js`. It shows how each message is sent to the `/api/chatgpt`
+endpoint and how the assistant's reply (or any error) gets appended to the
+conversation:
+
+```javascript
+const userMsg = { role: 'user', text: input };
+setMessages((prev) => [...prev, userMsg]);
+setInput('');
+setLoading(true);
+try {
+  const res = await fetch('/api/chatgpt', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages: [...messages, userMsg].map((m) => ({
+        role: m.role,
+        content: m.text,
+      })),
+    }),
+  });
+  const data = await res.json();
+  const botMsg = { role: 'assistant', text: data.text || 'No response' };
+  setMessages((prev) => [...prev, botMsg]);
+} catch (err) {
+  const errorMsg = { role: 'assistant', text: 'Error: ' + err.message };
+  setMessages((prev) => [...prev, errorMsg]);
+} finally {
+  setLoading(false);
+}
+```
+
 ### UX Design Tips
 
 Here are a few guidelines that informed the simple chat interface:
