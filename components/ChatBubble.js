@@ -4,7 +4,7 @@ export default function ChatBubble({ message }) {
   const isUser = message.role === 'user';
 
   return (
-    <div className={isUser ? 'bg-white' : 'bg-gray-50'}>
+    <div className={isUser ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}>
       <div
         className={`max-w-2xl mx-auto py-3 flex ${
           isUser ? 'justify-end' : 'justify-start'
@@ -17,8 +17,8 @@ export default function ChatBubble({ message }) {
           <p
             className={`rounded-md px-4 py-2 border whitespace-pre-wrap ${
               isUser
-                ? 'bg-gray-100 text-gray-900 border-gray-300'
-                : 'bg-white text-gray-900 border-gray-200'
+                ? 'bg-gray-100 text-gray-900 border-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700'
+                : 'bg-white text-gray-900 border-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600'
             }`}
           >
             {message.text}

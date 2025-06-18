@@ -71,6 +71,7 @@ To run it locally:
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
+All chat pages now include a **Dark Mode** toggle in the header.
 
 Key files implementing the chat interface:
 
