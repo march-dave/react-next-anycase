@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import ChatBubble from '@/components/ChatBubble';
+import DarkModeToggle from '@/components/DarkModeToggle';
 
 const MODELS = ['gpt-3.5-turbo', 'gpt-4'];
 
@@ -62,8 +63,11 @@ export default function GptUIPage() {
       <Head>
         <title>GPT UI</title>
       </Head>
-      <div className="flex flex-col h-screen">
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-4">
+      <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700">
+          <DarkModeToggle />
+        </div>
+        <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} message={msg} />
           ))}
@@ -72,11 +76,11 @@ export default function GptUIPage() {
           )}
           <div ref={endRef} />
         </div>
-        <form onSubmit={handleSubmit} className="p-4 border-t bg-white flex gap-2 items-start">
+        <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2 items-start">
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="border border-gray-300 rounded p-2"
+            className="border border-gray-300 dark:border-gray-700 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           >
             {MODELS.map((m) => (
               <option key={m} value={m}>{m}</option>
@@ -85,14 +89,14 @@ export default function GptUIPage() {
           <textarea
             ref={inputRef}
             rows={1}
-            className="w-full border border-gray-300 rounded p-2 resize-none"
+            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Send a message"
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white rounded px-4 py-2"
+            className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50"
             disabled={loading}
             aria-label="Send message"
           >
