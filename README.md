@@ -57,7 +57,8 @@ Google Mobile Ads (`react-native-google-mobile-ads` @15.2.0) is integrated and a
 
 ## ChatGPT UI
 
-A simple chat interface using OpenAI's ChatGPT API is available at `/chatgpt`.
+The site now defaults to a simple ChatGPT interface on the home page (`/`). You
+can also access it directly via `/chatgpt`.
 
 To run it locally:
 
@@ -67,7 +68,7 @@ To run it locally:
    ```bash
    npm run dev
    ```
-3. Open `http://localhost:3000/chatgpt` in your browser.
+3. Open `http://localhost:3000` in your browser.
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
