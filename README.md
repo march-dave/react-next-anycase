@@ -72,6 +72,7 @@ To run it locally:
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
+A Korean interface is available at `/chatgpt-ko`.
 All chat pages now include a **Dark Mode** toggle in the header.
 
 Key files implementing the chat interface:
@@ -81,6 +82,7 @@ Key files implementing the chat interface:
 - `components/ChatBubble.js` – the message bubble component.
 - `pages/gpt.js` – variant with a model selector.
 - `pages/chatgpt-ui.js` – version that stores messages in local storage.
+- `pages/chatgpt-ko.js` – Korean language interface.
 
 Below is a short excerpt from the `handleSubmit` function in
 `pages/chatgpt.js`. It shows how each message is sent to the `/api/chatgpt`
