@@ -83,6 +83,8 @@ Key files implementing the chat interface:
 - `pages/gpt.js` – variant with a model selector.
 - `pages/chatgpt-ui.js` – version that stores messages in local storage.
 - `pages/chatgpt-ko.js` – Korean language interface.
+- `pages/chatgpt-stream.js` – streams responses token by token.
+- `pages/api/chatgpt-stream.js` – API route powering the streaming UI.
 
 Below is a short excerpt from the `handleSubmit` function in
 `pages/chatgpt.js`. It shows how each message is sent to the `/api/chatgpt`
