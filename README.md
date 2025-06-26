@@ -62,13 +62,18 @@ can also access it directly via `/chatgpt`.
 
 To run it locally:
 
-1. Set the `OPENAI_API_KEY` environment variable.
-2. Start the dev server:
+1. Install dependencies if needed:
+
+   ```bash
+   npm install
+   ```
+2. Set the `OPENAI_API_KEY` environment variable.
+3. Start the dev server:
 
    ```bash
    npm run dev
    ```
-3. Open `http://localhost:3000` in your browser.
+4. Open `http://localhost:3000` in your browser.
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
