@@ -24,4 +24,4 @@ Other pages to explore:
 - `/chatgpt-ui` – messages persist across reloads.
 - `/chatgpt-ko` – Korean interface.
 
-All chat pages include a **Dark Mode** toggle.
+All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation.

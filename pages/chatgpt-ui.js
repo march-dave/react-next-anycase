@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import ChatBubble from '@/components/ChatBubble';
 import DarkModeToggle from '@/components/DarkModeToggle';
+import ClearChatButton from '@/components/ClearChatButton';
 
 const STORAGE_KEY = 'chatgptMessages';
 
@@ -11,6 +12,15 @@ export default function ChatGptUIPersist() {
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   const inputRef = useRef(null);
+
+  const handleClear = () => {
+    setMessages([]);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (err) {
+      // ignore
+    }
+  };
 
   // Load messages from local storage on mount
   useEffect(() => {
@@ -83,8 +93,9 @@ export default function ChatGptUIPersist() {
         <title>ChatGPT UI (Persistent)</title>
       </Head>
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700">
+        <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
           <DarkModeToggle />
+          <ClearChatButton onClear={handleClear} />
         </div>
         <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
           {messages.map((msg, idx) => (
