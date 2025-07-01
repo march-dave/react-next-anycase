@@ -1,6 +1,6 @@
 # ChatGPT UI Quick Start
 
-This repository includes a simple ChatGPT interface built with Next.js and the OpenAI API. Follow these steps to run it locally:
+This repository includes a simple ChatGPT interface built with Next.js and the OpenAI API. The home page now defaults to this chat interface (also available at `/chatgpt`). Follow these steps to run it locally:
 
 1. Install dependencies if needed:
 
@@ -8,14 +8,19 @@ This repository includes a simple ChatGPT interface built with Next.js and the O
 npm install
 ```
 
-2. Set the `OPENAI_API_KEY` environment variable to your OpenAI API key.
-3. Start the development server:
+2. Set the `OPENAI_API_KEY` environment variable to your OpenAI API key and start the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open `http://localhost:3000/` in your browser.
+   You can also run the server inline with the key:
+
+```bash
+OPENAI_API_KEY=your-key npm run dev
+```
+
+3. Open `http://localhost:3000/` in your browser.
 
 Other pages to explore:
 
