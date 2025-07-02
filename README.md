@@ -80,6 +80,7 @@ A Korean interface is available at `/chatgpt-ko`.
 All chat pages now include a **Dark Mode** toggle in the header.
 You can also reset the conversation anytime using the new **Clear** button.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
+Korean instructions are available in [README_KO.md](./README_KO.md).
 
 Key files implementing the chat interface:
 
