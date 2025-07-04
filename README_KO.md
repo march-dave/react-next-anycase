@@ -8,13 +8,14 @@
    ```bash
    npm install
    ```
-2. `OPENAI_API_KEY` 환경 변수를 설정한 후 개발 서버를 실행합니다:
+2. `OPENAI_API_KEY` 환경 변수를 설정하고,
+   기본 모델을 변경하려면 `OPENAI_MODEL` 도 지정한 후 개발 서버를 실행합니다:
    ```bash
    npm run dev
    ```
    또는 다음처럼 한 줄로 실행할 수 있습니다:
    ```bash
-   OPENAI_API_KEY=your-key npm run dev
+   OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 npm run dev
    ```
 3. 브라우저에서 `http://localhost:3000` 을 열어 대화를 시작합니다.
 
