@@ -9,7 +9,10 @@ export default async function handler(req, res) {
     return;
   }
   const { messages, model } = req.body;
-  const chosenModel = typeof model === 'string' && model.trim() ? model.trim() : 'gpt-3.5-turbo';
+  const defaultModel = process.env.OPENAI_MODEL || 'gpt-3.5-turbo';
+  const chosenModel = typeof model === 'string' && model.trim()
+    ? model.trim()
+    : defaultModel;
   try {
     const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

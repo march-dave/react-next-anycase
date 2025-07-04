@@ -63,9 +63,10 @@ can also access it directly via `/chatgpt`.
 To run it locally:
 
 1. Set the `OPENAI_API_KEY` environment variable.
+   Optionally specify `OPENAI_MODEL` to change the default model.
    You can also run the server inline with the key:
    ```bash
-   OPENAI_API_KEY=your-key npm run dev
+   OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 npm run dev
    ```
 2. Start the dev server:
 
