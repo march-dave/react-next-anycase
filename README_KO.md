@@ -8,8 +8,8 @@
    ```bash
    npm install
    ```
-2. `OPENAI_API_KEY` 환경 변수를 설정하고,
-   기본 모델을 변경하려면 `OPENAI_MODEL` 도 지정한 후 개발 서버를 실행합니다:
+2. `.env.example` 파일을 `.env.local`로 복사한 뒤 `OPENAI_API_KEY`를 입력합니다.
+   기본 모델을 변경하려면 `OPENAI_MODEL`도 지정한 후 개발 서버를 실행합니다:
    ```bash
    npm run dev
    ```
@@ -26,3 +26,6 @@
 - `/chatgpt-ko` : 한국어 인터페이스
 
 모든 채팅 페이지에서 다크 모드 전환과 대화 초기화(Clear) 버튼을 사용할 수 있습니다.
+
+더 자세한 내용은 [README.md](./README.md)와 간단한 사용법을 정리한
+[CHATGPT_UI.md](./CHATGPT_UI.md)를 참고하세요.
