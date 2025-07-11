@@ -17,6 +17,13 @@ export default function ChatUI() {
     setInput('');
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -34,6 +41,7 @@ export default function ChatUI() {
             className="w-full border border-gray-300 rounded p-2 resize-none"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Send a message"
           />
           <button type="submit" className="bg-blue-500 text-white rounded px-4 py-2">
