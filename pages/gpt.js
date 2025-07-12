@@ -3,6 +3,7 @@ import Head from 'next/head';
 import ChatBubble from '@/components/ChatBubble';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import ClearChatButton from '@/components/ClearChatButton';
+import ExportChatButton from '@/components/ExportChatButton';
 
 const MODELS = ['gpt-3.5-turbo', 'gpt-4'];
 
@@ -79,6 +80,7 @@ export default function GptUIPage() {
         <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
           <DarkModeToggle />
           <ClearChatButton onClear={handleClear} />
+          <ExportChatButton messages={messages} />
         </div>
         <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
           {messages.map((msg, idx) => (
