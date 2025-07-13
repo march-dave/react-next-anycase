@@ -4,6 +4,7 @@ import ChatBubble from '@/components/ChatBubble';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import ClearChatButton from '@/components/ClearChatButton';
 import ExportChatButton from '@/components/ExportChatButton';
+import DownloadChatButton from '@/components/DownloadChatButton';
 
 export default function ChatGptPage() {
   const [messages, setMessages] = useState([]);
@@ -77,6 +78,7 @@ export default function ChatGptPage() {
           <DarkModeToggle />
           <ClearChatButton onClear={handleClear} />
           <ExportChatButton messages={messages} />
+          <DownloadChatButton messages={messages} />
         </div>
         <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
           {messages.map((msg, idx) => (
