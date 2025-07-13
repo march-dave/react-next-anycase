@@ -4,6 +4,7 @@ import ChatBubble from '@/components/ChatBubbleKo';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import ClearChatButton from '@/components/ClearChatButton';
 import ExportChatButton from '@/components/ExportChatButton';
+import DownloadChatButton from '@/components/DownloadChatButton';
 
 const STORAGE_KEY = 'chatgptMessages';
 
@@ -105,6 +106,7 @@ export default function ChatGptKoPage() {
           <DarkModeToggle />
           <ClearChatButton onClear={handleClear} label="초기화" />
           <ExportChatButton messages={messages} label="내보내기" />
+          <DownloadChatButton messages={messages} label="다운로드" />
         </div>
         <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
           {messages.map((msg, idx) => (
