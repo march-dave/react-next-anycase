@@ -79,7 +79,8 @@ To run it locally:
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
 A Korean interface is available at `/chatgpt-ko`.
-All chat pages now include a **Dark Mode** toggle in the header.
+All chat pages now include a **Dark Mode** toggle in the header. If you haven't
+set a preference, the toggle follows your system's color scheme by default.
 You can also reset the conversation anytime using the new **Clear** button.
 An **Export** button copies the current conversation to your clipboard.
 There's also a **Download** button to save the conversation as a text file.
