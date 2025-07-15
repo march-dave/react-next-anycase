@@ -78,6 +78,7 @@ To run it locally:
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
+A streaming version with persistence is available at `/chatgpt-ui-stream`.
 A Korean interface is available at `/chatgpt-ko`.
 All chat pages now include a **Dark Mode** toggle in the header. If you haven't
 set a preference, the toggle follows your system's color scheme by default.
@@ -96,6 +97,7 @@ Key files implementing the chat interface:
 - `pages/chatgpt-ui.js` – version that stores messages in local storage.
 - `pages/chatgpt-ko.js` – Korean language interface.
 - `pages/chatgpt-stream.js` – streams responses token by token.
+- `pages/chatgpt-ui-stream.js` – combines streaming replies with persistent messages.
 - `pages/api/chatgpt-stream.js` – API route powering the streaming UI.
 
 Below is a short excerpt from the `handleSubmit` function in
