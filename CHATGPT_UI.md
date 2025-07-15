@@ -28,6 +28,7 @@ Other pages to explore:
 - `/chatgpt` – same interface as the home page.
 - `/gpt` – select a different model.
 - `/chatgpt-ui` – messages persist across reloads.
+- `/chatgpt-ui-stream` – streaming replies with persistent history.
 - `/chatgpt-ko` – Korean interface.
 
 All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation.
