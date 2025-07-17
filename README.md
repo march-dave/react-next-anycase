@@ -85,6 +85,7 @@ set a preference, the toggle follows your system's color scheme by default.
 You can also reset the conversation anytime using the new **Clear** button.
 An **Export** button copies the current conversation to your clipboard.
 There's also a **Download** button to save the conversation as a text file.
+Each message now has a small **Copy** button so you can quickly copy its text.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
 Korean instructions are available in [README_KO.md](./README_KO.md).
 
