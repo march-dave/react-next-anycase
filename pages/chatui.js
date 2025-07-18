@@ -4,15 +4,15 @@ import ChatBubble from '@/components/ChatBubble';
 
 export default function ChatUI() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Welcome! How can I help?' }
+    { role: 'assistant', text: 'Welcome! How can I help?', time: new Date().toLocaleTimeString() }
   ]);
   const [input, setInput] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    const userMsg = { role: 'user', text: input };
-    const botMsg = { role: 'assistant', text: `You said: ${input}` };
+    const userMsg = { role: 'user', text: input, time: new Date().toLocaleTimeString() };
+    const botMsg = { role: 'assistant', text: `You said: ${input}`, time: new Date().toLocaleTimeString() };
     setMessages((prev) => [...prev, userMsg, botMsg]);
     setInput('');
   };

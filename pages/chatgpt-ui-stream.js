@@ -66,11 +66,11 @@ export default function ChatGptUIStream() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    const userMsg = { role: 'user', text: input };
+    const userMsg = { role: 'user', text: input, time: new Date().toLocaleTimeString() };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setLoading(true);
-    let botMsg = { role: 'assistant', text: '' };
+    let botMsg = { role: 'assistant', text: '', time: new Date().toLocaleTimeString() };
     setMessages((prev) => [...prev, botMsg]);
     try {
       const res = await fetch('/api/chatgpt-stream', {
@@ -107,7 +107,10 @@ export default function ChatGptUIStream() {
         }
       }
     } catch (err) {
-      setMessages((prev) => [...prev, { role: 'assistant', text: 'Error: ' + err.message }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', text: 'Error: ' + err.message, time: new Date().toLocaleTimeString() },
+      ]);
     } finally {
       setLoading(false);
     }
