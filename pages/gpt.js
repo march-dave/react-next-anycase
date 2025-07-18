@@ -40,7 +40,7 @@ export default function GptUIPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    const userMsg = { role: 'user', text: input };
+    const userMsg = { role: 'user', text: input, time: new Date().toLocaleTimeString() };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setLoading(true);
@@ -54,10 +54,10 @@ export default function GptUIPage() {
         }),
       });
       const data = await res.json();
-      const botMsg = { role: 'assistant', text: data.text || 'No response' };
+      const botMsg = { role: 'assistant', text: data.text || 'No response', time: new Date().toLocaleTimeString() };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
-      const errorMsg = { role: 'assistant', text: 'Error: ' + err.message };
+      const errorMsg = { role: 'assistant', text: 'Error: ' + err.message, time: new Date().toLocaleTimeString() };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setLoading(false);

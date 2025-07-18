@@ -21,6 +21,9 @@ export default function ChatBubble({ message }) {
         <div className="space-y-1 max-w-full">
           <span className="text-xs text-gray-500">
             {isUser ? 'You' : 'Assistant'}
+            {message.time && (
+              <span className="ml-1 text-gray-400">{message.time}</span>
+            )}
           </span>
           <div className="flex items-start gap-2">
             <p
