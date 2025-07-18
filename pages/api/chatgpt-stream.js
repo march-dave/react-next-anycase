@@ -13,6 +13,10 @@ export default async function handler(req, res) {
   const chosenModel = typeof model === 'string' && model.trim()
     ? model.trim()
     : defaultModel;
+  const systemPrompt = process.env.OPENAI_SYSTEM_MESSAGE;
+  const allMessages = systemPrompt
+    ? [{ role: 'system', content: systemPrompt }, ...messages]
+    : messages;
   try {
     const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -22,7 +26,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: chosenModel,
-        messages,
+        messages: allMessages,
         stream: true,
       }),
     });
