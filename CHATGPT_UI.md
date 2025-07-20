@@ -29,6 +29,7 @@ Other pages to explore:
 
 - `/chatgpt` – same interface as the home page.
 - `/gpt` – select a different model.
+- `/chatgpt-advanced` – set a custom system prompt.
 - `/chatgpt-ui` – messages persist across reloads.
 - `/chatgpt-ui-stream` – streaming replies with persistent history.
 - `/chatgpt-ko` – Korean interface.
