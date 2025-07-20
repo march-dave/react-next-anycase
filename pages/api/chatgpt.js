@@ -8,14 +8,18 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
     return;
   }
-  const { messages, model } = req.body;
+  const { messages, model, systemPrompt } = req.body;
   const defaultModel = process.env.OPENAI_MODEL || 'gpt-3.5-turbo';
   const chosenModel = typeof model === 'string' && model.trim()
     ? model.trim()
     : defaultModel;
-  const systemPrompt = process.env.OPENAI_SYSTEM_MESSAGE;
-  const allMessages = systemPrompt
-    ? [{ role: 'system', content: systemPrompt }, ...messages]
+  const envPrompt = process.env.OPENAI_SYSTEM_MESSAGE;
+  const finalPrompt =
+    typeof systemPrompt === 'string' && systemPrompt.trim()
+      ? systemPrompt.trim()
+      : envPrompt;
+  const allMessages = finalPrompt
+    ? [{ role: 'system', content: finalPrompt }, ...messages]
     : messages;
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
