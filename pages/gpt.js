@@ -14,6 +14,7 @@ export default function GptUIPage() {
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   const inputRef = useRef(null);
+  const disableSend = loading || !input.trim();
 
   const handleClear = () => {
     setMessages([]);
@@ -113,7 +114,7 @@ export default function GptUIPage() {
           <button
             type="submit"
             className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50"
-            disabled={loading}
+            disabled={disableSend}
             aria-label="Send message"
           >
             Send
