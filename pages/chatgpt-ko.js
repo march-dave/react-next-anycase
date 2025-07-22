@@ -14,6 +14,7 @@ export default function ChatGptKoPage() {
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   const inputRef = useRef(null);
+  const disableSend = loading || !input.trim();
 
   const handleClear = () => {
     setMessages([]);
@@ -134,7 +135,7 @@ export default function ChatGptKoPage() {
           <button
             type="submit"
             className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50"
-            disabled={loading}
+            disabled={disableSend}
             aria-label="메시지 전송"
           >
             전송

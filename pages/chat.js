@@ -7,6 +7,7 @@ export default function ChatPage() {
     { role: 'assistant', text: 'Hello, how can I help you today?', time: new Date().toLocaleTimeString() }
   ]);
   const [input, setInput] = useState('');
+  const disableSend = !input.trim();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,7 +45,7 @@ export default function ChatPage() {
             onKeyDown={handleKeyDown}
             placeholder="Send a message"
           />
-          <button type="submit" className="bg-blue-500 text-white rounded px-4 py-2">
+          <button type="submit" className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50" disabled={disableSend}>
             Send
           </button>
         </form>
