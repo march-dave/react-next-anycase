@@ -28,6 +28,7 @@ OPENAI_SYSTEM_MESSAGE="You are a helpful assistant." npm run dev
 Other pages to explore:
 
 - `/chatgpt` – same interface as the home page.
+- `/chatgpt-simple` – minimal interface without dark mode or extras.
 - `/gpt` – select a different model.
 - `/chatgpt-advanced` – set a custom system prompt.
 - `/chatgpt-ui` – messages persist across reloads.
