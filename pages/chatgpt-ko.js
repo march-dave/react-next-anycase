@@ -109,7 +109,11 @@ export default function ChatGptKoPage() {
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
           <DarkModeToggle />
-          <ClearChatButton onClear={handleClear} label="초기화" />
+          <ClearChatButton
+            onClear={handleClear}
+            label="초기화"
+            confirmMessage="대화를 초기화할까요?"
+          />
           <ExportChatButton messages={messages} label="내보내기" />
           <DownloadChatButton messages={messages} label="다운로드" />
         </div>
