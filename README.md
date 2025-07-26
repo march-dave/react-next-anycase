@@ -80,6 +80,7 @@ To run it locally:
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 A minimalist version is available at `/chatgpt-simple`.
+A lightweight interface is available at `/chatgpt-lite`.
 An advanced page at `/chatgpt-advanced` lets you set a custom system prompt.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
 A streaming version with persistence is available at `/chatgpt-ui-stream`.
@@ -98,6 +99,7 @@ Key files implementing the chat interface:
 
 - `pages/chatgpt.js` – renders the chat UI.
 - `pages/chatgpt-simple.js` – minimal ChatGPT interface.
+- `pages/chatgpt-lite.js` – ultra-lightweight interface.
 - `pages/api/chatgpt.js` – API route that sends prompts to OpenAI.
 - `components/ChatBubble.js` – the message bubble component.
 - `pages/gpt.js` – variant with a model selector.
