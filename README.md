@@ -82,6 +82,7 @@ You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 A minimalist version is available at `/chatgpt-simple`.
 A lightweight interface is available at `/chatgpt-lite`.
 An advanced page at `/chatgpt-advanced` lets you set a custom system prompt.
+A simplified persistent page is available at `/chatgpt-persistent`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
 A streaming version with persistence is available at `/chatgpt-ui-stream`.
 A Korean interface is available at `/chatgpt-ko`.
@@ -104,6 +105,7 @@ Key files implementing the chat interface:
 - `components/ChatBubble.js` – the message bubble component.
 - `pages/gpt.js` – variant with a model selector.
 - `pages/chatgpt-ui.js` – version that stores messages in local storage.
+- `pages/chatgpt-persistent.js` – simplified UI that also persists messages.
 - `pages/chatgpt-ko.js` – Korean language interface.
 - `pages/chatgpt-stream.js` – streams responses token by token.
 - `pages/chatgpt-ui-stream.js` – combines streaming replies with persistent messages.
