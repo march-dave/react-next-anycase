@@ -34,6 +34,7 @@ Other pages to explore:
 - `/chatgpt-ui` – messages persist across reloads.
 - `/chatgpt-persistent` – simplified persistent interface.
 - `/chatgpt-ui-stream` – streaming replies with persistent history.
+- `/chatgpt-markdown` – renders replies using Markdown.
 - `/chatgpt-ko` – Korean interface.
 
 All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation.
