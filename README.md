@@ -85,6 +85,7 @@ An advanced page at `/chatgpt-advanced` lets you set a custom system prompt.
 A simplified persistent page is available at `/chatgpt-persistent`.
 For conversations that persist across page reloads, visit `/chatgpt-ui`.
 A streaming version with persistence is available at `/chatgpt-ui-stream`.
+A Markdown-enabled version is at `/chatgpt-markdown`.
 A Korean interface is available at `/chatgpt-ko`.
 All chat pages now include a **Dark Mode** toggle in the header. If you haven't
 set a preference, the toggle follows your system's color scheme by default.
@@ -103,12 +104,14 @@ Key files implementing the chat interface:
 - `pages/chatgpt-lite.js` – ultra-lightweight interface.
 - `pages/api/chatgpt.js` – API route that sends prompts to OpenAI.
 - `components/ChatBubble.js` – the message bubble component.
+- `components/ChatBubbleMarkdown.js` – bubble with Markdown support.
 - `pages/gpt.js` – variant with a model selector.
 - `pages/chatgpt-ui.js` – version that stores messages in local storage.
 - `pages/chatgpt-persistent.js` – simplified UI that also persists messages.
 - `pages/chatgpt-ko.js` – Korean language interface.
 - `pages/chatgpt-stream.js` – streams responses token by token.
 - `pages/chatgpt-ui-stream.js` – combines streaming replies with persistent messages.
+- `pages/chatgpt-markdown.js` – renders messages using Markdown.
 - `pages/chatgpt-advanced.js` – choose a model and system prompt.
 - `pages/api/chatgpt-stream.js` – API route powering the streaming UI.
 
