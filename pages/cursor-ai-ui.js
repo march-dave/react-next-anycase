@@ -14,6 +14,7 @@ export default function CursorAiUI() {
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   const inputRef = useRef(null);
+  const textareaRef = useRef(null);
   const disableSend = loading || !input.trim();
 
   const handleClear = () => {
@@ -57,6 +58,14 @@ export default function CursorAiUI() {
       inputRef.current.focus();
     }
   }, []);
+
+  // auto-resize the textarea to fit its content
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
 
   useEffect(() => {
     if (!loading && inputRef.current) {
@@ -124,13 +133,17 @@ export default function CursorAiUI() {
         </div>
         <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
           <textarea
-            ref={inputRef}
+            ref={(el) => {
+              inputRef.current = el;
+              textareaRef.current = el;
+            }}
             rows={1}
             className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Send a message"
+            aria-label="Chat input"
           />
           <button
             type="submit"
