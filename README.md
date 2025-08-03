@@ -57,8 +57,8 @@ Google Mobile Ads (`react-native-google-mobile-ads` @15.2.0) is integrated and a
 
 ## ChatGPT UI
 
-The site now defaults to a simple ChatGPT interface on the home page (`/`). You
-can also access it directly via `/chatgpt`.
+The site now defaults to the persistent ChatGPT UI on the home page (`/`).
+You can still access the simple, non-persistent interface at `/chatgpt`.
 
 To run it locally:
 
@@ -83,7 +83,7 @@ A minimalist version is available at `/chatgpt-simple`.
 A lightweight interface is available at `/chatgpt-lite`.
 An advanced page at `/chatgpt-advanced` lets you set a custom system prompt.
 A simplified persistent page is available at `/chatgpt-persistent`.
-For conversations that persist across page reloads, visit `/chatgpt-ui`.
+The default persistent interface lives at `/chatgpt-ui`.
 A streaming version with persistence is available at `/chatgpt-ui-stream`.
 A Markdown-enabled version is at `/chatgpt-markdown`.
 A Korean interface is available at `/chatgpt-ko`.
@@ -107,7 +107,7 @@ Key files implementing the chat interface:
 - `components/ChatBubble.js` – the message bubble component.
 - `components/ChatBubbleMarkdown.js` – bubble with Markdown support.
 - `pages/gpt.js` – variant with a model selector.
-- `pages/chatgpt-ui.js` – version that stores messages in local storage.
+- `pages/chatgpt-ui.js` – version that stores messages in local storage (default home page).
 - `pages/chatgpt-persistent.js` – simplified UI that also persists messages.
 - `pages/chatgpt-ko.js` – Korean language interface.
 - `pages/cursor-ai-ui.js` – Cursor AI interface with persistent messages and Up-arrow recall.
