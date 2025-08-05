@@ -16,6 +16,14 @@ export default function ChatGptUIPersist() {
   const inputRef = useRef(null);
   const disableSend = loading || !input.trim();
 
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+    }
+  };
+
   const handleClear = () => {
     setMessages([]);
     try {
@@ -70,6 +78,9 @@ export default function ChatGptUIPersist() {
     const userMsg = { role: 'user', text: input, time: new Date().toLocaleTimeString() };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/chatgpt', {
@@ -126,9 +137,10 @@ export default function ChatGptUIPersist() {
           <textarea
             ref={inputRef}
             rows={1}
-            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            style={{ height: 'auto' }}
+            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none overflow-hidden bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="Send a message"
           />

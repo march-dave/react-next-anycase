@@ -41,3 +41,4 @@ All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start
 A new **Export** button lets you copy the chat history to your clipboard.
 You can also save the chat as a text file using the **Download** button.
 Each message now shows a timestamp for when it was sent.
+The message input automatically expands to fit longer content.
