@@ -2,7 +2,9 @@ import React from 'react';
 
 export default function DownloadChatButton({ messages, label = 'Download' }) {
   const handleDownload = () => {
-    const text = messages.map(m => `${m.role}: ${m.text}`).join('\n');
+    const text = messages
+      .map(m => `${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`)
+      .join('\n');
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
