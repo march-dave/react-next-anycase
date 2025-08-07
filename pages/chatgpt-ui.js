@@ -124,7 +124,11 @@ export default function ChatGptUIPersist() {
           <ExportChatButton messages={messages} />
           <DownloadChatButton messages={messages} />
         </div>
-        <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
+        <div
+          className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4"
+          role="log"
+          aria-live="polite"
+        >
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} message={msg} />
           ))}
