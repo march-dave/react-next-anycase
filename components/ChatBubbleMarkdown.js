@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 export default function ChatBubbleMarkdown({ message }) {
   const isUser = message.role === 'user';
+  const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(message.text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       // ignore errors
     }
@@ -35,7 +38,7 @@ export default function ChatBubbleMarkdown({ message }) {
               className="text-xs text-blue-500 hover:underline mt-1"
               aria-label="Copy message"
             >
-              Copy
+              {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
         </div>
