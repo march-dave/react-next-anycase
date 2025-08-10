@@ -134,7 +134,7 @@ export default function ChatGptKoPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="메시지를 입력하세요"
+            placeholder="메시지를 입력하세요 (Shift+Enter로 줄바꿈)"
           />
           <button
             type="submit"

@@ -118,7 +118,7 @@ export default function ChatGptAdvanced() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Send a message"
+            placeholder="Send a message (Shift+Enter for newline)"
           />
           <button
             type="submit"

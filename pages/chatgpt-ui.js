@@ -146,7 +146,7 @@ export default function ChatGptUIPersist() {
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Send a message"
+            placeholder="Send a message (Shift+Enter for newline)"
           />
           <button
             type="submit"

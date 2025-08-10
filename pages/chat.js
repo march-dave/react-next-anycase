@@ -43,7 +43,7 @@ export default function ChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Send a message"
+            placeholder="Send a message (Shift+Enter for newline)"
           />
           <button type="submit" className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50" disabled={disableSend}>
             Send
