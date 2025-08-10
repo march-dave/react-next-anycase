@@ -94,6 +94,7 @@ You can also reset the conversation anytime using the **Clear** button, which no
 An **Export** button copies the current conversation—including timestamps—to your clipboard.
 There's also a **Download** button to save the conversation as a timestamped text file.
 Each message now has a small **Copy** button so you can quickly copy its text.
+The message input supports multi-line entries; press Shift+Enter for a new line.
 The **Send** button stays disabled until you type a message or while waiting for a reply.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
 Korean instructions are available in [README_KO.md](./README_KO.md).

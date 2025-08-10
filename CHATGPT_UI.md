@@ -42,3 +42,4 @@ An **Export** button lets you copy the chat history—including timestamps—to 
 You can also save the chat with timestamps as a text file using the **Download** button.
 Each message now shows a timestamp for when it was sent.
 The message input automatically expands to fit longer content.
+Press Shift+Enter to add a newline.
