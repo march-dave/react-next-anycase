@@ -31,6 +31,10 @@ export default function ChatGptUIPersist() {
     } catch (err) {
       // ignore
     }
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.style.height = 'auto';
+    }
   };
 
   // Load messages from local storage on mount
@@ -143,6 +147,7 @@ export default function ChatGptUIPersist() {
             rows={1}
             style={{ height: 'auto' }}
             className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none overflow-hidden bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            aria-label="Message input"
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
