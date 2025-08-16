@@ -102,6 +102,7 @@ Korean instructions are available in [README_KO.md](./README_KO.md).
 Key files implementing the chat interface:
 
 - `pages/chatgpt.js` – renders the chat UI.
+- `pages/chatui.js` – stripped-down ChatGPT UI without dark mode or extras.
 - `pages/chatgpt-simple.js` – minimal ChatGPT interface.
 - `pages/chatgpt-lite.js` – ultra-lightweight interface.
 - `pages/api/chatgpt.js` – API route that sends prompts to OpenAI.
