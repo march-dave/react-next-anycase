@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
-import ChatBubble from '@/components/ChatBubble';
+import ChatBubbleMarkdown from '@/components/ChatBubbleMarkdown';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import ClearChatButton from '@/components/ClearChatButton';
 import ExportChatButton from '@/components/ExportChatButton';
@@ -135,7 +135,7 @@ export default function ChatGptUIPersist() {
           aria-live="polite"
         >
           {messages.map((msg, idx) => (
-            <ChatBubble key={idx} message={msg} />
+            <ChatBubbleMarkdown key={idx} message={msg} />
           ))}
           {loading && <TypingIndicator />}
           <div ref={endRef} />
