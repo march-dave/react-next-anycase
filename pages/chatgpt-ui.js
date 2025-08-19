@@ -5,6 +5,7 @@ import DarkModeToggle from '@/components/DarkModeToggle';
 import ClearChatButton from '@/components/ClearChatButton';
 import ExportChatButton from '@/components/ExportChatButton';
 import DownloadChatButton from '@/components/DownloadChatButton';
+import TypingIndicator from '@/components/TypingIndicator';
 
 const STORAGE_KEY = 'chatgptMessages';
 
@@ -136,9 +137,7 @@ export default function ChatGptUIPersist() {
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} message={msg} />
           ))}
-          {loading && (
-            <ChatBubble message={{ role: 'assistant', text: 'Loading...' }} />
-          )}
+          {loading && <TypingIndicator />}
           <div ref={endRef} />
         </div>
         <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
