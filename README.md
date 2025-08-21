@@ -58,7 +58,7 @@ Google Mobile Ads (`react-native-google-mobile-ads` @15.2.0) is integrated and a
 ## ChatGPT UI
 
 The site now defaults to the persistent ChatGPT UI on the home page (`/`).
-This interface renders replies using Markdown, so code blocks and formatting appear as expected.
+This interface renders replies using GitHub-flavored Markdown, so code blocks, tables, and formatting appear as expected.
 You can still access the simple, non-persistent interface at `/chatgpt`.
 
 To run it locally:
@@ -86,7 +86,7 @@ An advanced page at `/chatgpt-advanced` lets you set a custom system prompt.
 A simplified persistent page is available at `/chatgpt-persistent`.
 The default persistent interface lives at `/chatgpt-ui`.
 A streaming version with persistence is available at `/chatgpt-ui-stream`.
-A Markdown-enabled version is at `/chatgpt-markdown`.
+A GitHub-flavored Markdown version is at `/chatgpt-markdown`.
 A Korean interface is available at `/chatgpt-ko`.
 A Cursor-inspired interface is available at `/cursor-ai-ui`, with persistent messages, auto-resizing input, and Up-arrow recall of your last prompt.
 All chat pages now include a **Dark Mode** toggle in the header. If you haven't
@@ -108,7 +108,7 @@ Key files implementing the chat interface:
 - `pages/chatgpt-lite.js` – ultra-lightweight interface.
 - `pages/api/chatgpt.js` – API route that sends prompts to OpenAI.
 - `components/ChatBubble.js` – the message bubble component.
-- `components/ChatBubbleMarkdown.js` – bubble with Markdown support.
+- `components/ChatBubbleMarkdown.js` – bubble with GitHub-flavored Markdown support.
 - `pages/gpt.js` – variant with a model selector.
 - `pages/chatgpt-ui.js` – version that stores messages in local storage (default home page).
 - `pages/chatgpt-persistent.js` – simplified UI that also persists messages.
@@ -116,7 +116,7 @@ Key files implementing the chat interface:
 - `pages/cursor-ai-ui.js` – Cursor AI interface with persistent messages and Up-arrow recall.
 - `pages/chatgpt-stream.js` – streams responses token by token.
 - `pages/chatgpt-ui-stream.js` – combines streaming replies with persistent messages.
-- `pages/chatgpt-markdown.js` – renders messages using Markdown.
+- `pages/chatgpt-markdown.js` – renders messages using GitHub-flavored Markdown.
 - `pages/chatgpt-advanced.js` – choose a model and system prompt.
 - `pages/api/chatgpt-stream.js` – API route powering the streaming UI.
 

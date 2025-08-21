@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatBubbleMarkdown({ message }) {
   const isUser = message.role === 'user';
@@ -31,7 +32,7 @@ export default function ChatBubbleMarkdown({ message }) {
                   : 'bg-white text-gray-900 border-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600'
               }`}
             >
-              <ReactMarkdown>{message.text}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
             </div>
             <button
               onClick={handleCopy}

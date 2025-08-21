@@ -1,6 +1,6 @@
 # ChatGPT UI Quick Start
 
-This repository includes a ChatGPT UI with persistent conversations built with Next.js and the OpenAI API. The home page now defaults to this interface (also available at `/chatgpt-ui`) and renders replies using Markdown for formatted output. A basic non-persistent interface remains available at `/chatgpt`. Follow these steps to run it locally:
+This repository includes a ChatGPT UI with persistent conversations built with Next.js and the OpenAI API. The home page now defaults to this interface (also available at `/chatgpt-ui`) and renders replies using GitHub-flavored Markdown for formatted output. A basic non-persistent interface remains available at `/chatgpt`. Follow these steps to run it locally:
 
 1. Install dependencies if needed:
 
@@ -34,7 +34,7 @@ Other pages to explore:
 - `/chatgpt-ui` – same interface as the home page with persistent messages.
 - `/chatgpt-persistent` – simplified persistent interface.
 - `/chatgpt-ui-stream` – streaming replies with persistent history.
-- `/chatgpt-markdown` – renders replies using Markdown.
+- `/chatgpt-markdown` – renders replies using GitHub-flavored Markdown.
 - `/chatgpt-ko` – Korean interface.
 
 All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; the message input refocuses automatically.
