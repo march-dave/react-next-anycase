@@ -32,7 +32,16 @@ export default function ChatBubbleMarkdown({ message }) {
                   : 'bg-white text-gray-900 border-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600'
               }`}
             >
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: (props) => (
+                    <a {...props} target="_blank" rel="noopener noreferrer" />
+                  ),
+                }}
+              >
+                {message.text}
+              </ReactMarkdown>
             </div>
             <button
               onClick={handleCopy}

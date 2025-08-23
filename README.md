@@ -58,7 +58,7 @@ Google Mobile Ads (`react-native-google-mobile-ads` @15.2.0) is integrated and a
 ## ChatGPT UI
 
 The site now defaults to the persistent ChatGPT UI on the home page (`/`).
-This interface renders replies using GitHub-flavored Markdown, so code blocks, tables, and formatting appear as expected.
+This interface renders replies using GitHub-flavored Markdown, so code blocks, tables, and formatting appear as expected. Links in responses automatically open in a new tab.
 You can still access the simple, non-persistent interface at `/chatgpt`.
 
 To run it locally:
