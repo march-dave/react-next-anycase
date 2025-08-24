@@ -133,6 +133,7 @@ export default function ChatGptUIPersist() {
           className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4"
           role="log"
           aria-live="polite"
+          aria-busy={loading}
         >
           {messages.map((msg, idx) => (
             <ChatBubbleMarkdown key={idx} message={msg} />
