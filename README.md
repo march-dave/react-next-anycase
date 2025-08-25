@@ -66,11 +66,12 @@ To run it locally:
 1. Set the required `OPENAI_API_KEY` environment variable. You can copy
    `.env.example` to `.env.local` and add your key there. Optionally
    specify `OPENAI_MODEL` to change the default model and
-   `OPENAI_SYSTEM_MESSAGE` to include a custom system prompt. You can also run
-   the server inline with the key:
+   `OPENAI_SYSTEM_MESSAGE` to include a custom system prompt. To show the active model name in the header, set `NEXT_PUBLIC_OPENAI_MODEL`.
+   You can also run the server inline with the key:
    ```bash
    OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 \
-   OPENAI_SYSTEM_MESSAGE="You are a helpful assistant." npm run dev
+   OPENAI_SYSTEM_MESSAGE="You are a helpful assistant." \
+   NEXT_PUBLIC_OPENAI_MODEL=gpt-4 npm run dev
    ```
 2. Start the dev server:
 

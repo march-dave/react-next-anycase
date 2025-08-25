@@ -9,13 +9,14 @@
    npm install
    ```
 2. `.env.example` 파일을 `.env.local`로 복사한 뒤 `OPENAI_API_KEY`를 입력합니다.
-   기본 모델을 변경하려면 `OPENAI_MODEL`도 지정한 후 개발 서버를 실행합니다:
+   기본 모델을 변경하려면 `OPENAI_MODEL`도 지정하고,
+   헤더에 모델 이름을 표시하려면 `NEXT_PUBLIC_OPENAI_MODEL`도 설정한 후 개발 서버를 실행합니다:
    ```bash
    npm run dev
    ```
    또는 다음처럼 한 줄로 실행할 수 있습니다:
    ```bash
-   OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 npm run dev
+   OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 NEXT_PUBLIC_OPENAI_MODEL=gpt-4 npm run dev
    ```
 3. 브라우저에서 `http://localhost:3000` 을 열어 대화를 시작합니다.
 
