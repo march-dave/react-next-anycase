@@ -23,6 +23,13 @@ OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 \
 OPENAI_SYSTEM_MESSAGE="You are a helpful assistant." npm run dev
 ```
 
+   To display the active model name in the header, also set
+   `NEXT_PUBLIC_OPENAI_MODEL`:
+
+```bash
+NEXT_PUBLIC_OPENAI_MODEL=gpt-4 npm run dev
+```
+
 3. Open `http://localhost:3000/` in your browser.
 
 Other pages to explore:
