@@ -129,9 +129,17 @@ export default function ChatGptUIPersist() {
         <ClearChatButton onClear={handleClear} />
         <ExportChatButton messages={messages} />
         <DownloadChatButton messages={messages} />
-        {modelName && (
+        {messages.length > 0 && (
           <span
             className="ml-auto text-sm text-gray-500 dark:text-gray-400 self-center"
+            aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
+          >
+            {messages.length} {messages.length === 1 ? 'message' : 'messages'}
+          </span>
+        )}
+        {modelName && (
+          <span
+            className={`${messages.length > 0 ? '' : 'ml-auto '}text-sm text-gray-500 dark:text-gray-400 self-center`}
             aria-label={`Model ${modelName}`}
           >
             Model: {modelName}
