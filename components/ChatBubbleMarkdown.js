@@ -48,7 +48,7 @@ export default function ChatBubbleMarkdown({ message }) {
               className="text-xs text-blue-500 hover:underline mt-1"
               aria-label="Copy message"
             >
-              {copied ? 'Copied!' : 'Copy'}
+              <span aria-live="polite">{copied ? 'Copied!' : 'Copy'}</span>
             </button>
           </div>
         </div>
