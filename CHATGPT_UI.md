@@ -48,7 +48,7 @@ All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start
 An **Export** button lets you copy the chat history—including timestamps—to your clipboard.
 You can also save the chat with timestamps as a text file using the **Download** button.
 Each message now shows a timestamp for when it was sent.
-Each message includes a **Copy** button that briefly displays "Copied!" after copying.
+Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation.
 The message input automatically expands to fit longer content.
 The chat log announces updates to screen readers and indicates when a response is loading.
