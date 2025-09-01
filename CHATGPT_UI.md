@@ -52,5 +52,6 @@ Each message includes a **Copy** button that briefly displays "Copied!" after co
 The header displays the current number of messages in the conversation.
 The message input automatically expands to fit longer content.
 The chat log announces updates to screen readers and indicates when a response is loading.
+If there are no messages yet, a placeholder invites you to start the conversation.
 Press Shift+Enter to add a newline.
 An animated typing indicator appears while waiting for a response.

@@ -152,6 +152,14 @@ export default function ChatGptUIPersist() {
         aria-live="polite"
           aria-busy={loading}
         >
+          {messages.length === 0 && !loading && (
+            <div
+              className="text-center text-gray-500 dark:text-gray-400 mt-4"
+              aria-label="No messages yet"
+            >
+              No messages yet. Start the conversation below.
+            </div>
+          )}
           {messages.map((msg, idx) => (
             <ChatBubbleMarkdown key={idx} message={msg} />
           ))}
