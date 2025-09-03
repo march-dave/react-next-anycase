@@ -98,6 +98,7 @@ There's also a **Download** button to save the conversation as a timestamped tex
 Each message now has a small **Copy** button that briefly shows "Copied!" after you copy its text.
 The message input supports multi-line entries; press Shift+Enter for a new line.
 The **Send** button stays disabled until you type a message or while waiting for a reply.
+The page title updates with the current number of messages so you can track activity from other browser tabs.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
 Korean instructions are available in [README_KO.md](./README_KO.md).
 

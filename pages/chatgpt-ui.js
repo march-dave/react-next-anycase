@@ -17,6 +17,8 @@ export default function ChatGptUIPersist() {
   const inputRef = useRef(null);
   const disableSend = loading || !input.trim();
   const modelName = process.env.NEXT_PUBLIC_OPENAI_MODEL;
+  const messageCount = messages.length;
+  const title = `ChatGPT UI (Persistent)${messageCount ? ` - ${messageCount} message${messageCount > 1 ? 's' : ''}` : ''}`;
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -121,7 +123,7 @@ export default function ChatGptUIPersist() {
   return (
     <>
       <Head>
-        <title>ChatGPT UI (Persistent)</title>
+        <title>{title}</title>
       </Head>
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
