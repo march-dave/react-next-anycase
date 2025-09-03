@@ -49,7 +49,7 @@ An **Export** button lets you copy the chat history—including timestamps—to 
 You can also save the chat with timestamps as a text file using the **Download** button.
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
-The header displays the current number of messages in the conversation.
+The header displays the current number of messages in the conversation and announces updates to screen readers.
 The message input automatically expands to fit longer content.
 The chat log announces updates to screen readers and indicates when a response is loading.
 If there are no messages yet, a placeholder invites you to start the conversation.
