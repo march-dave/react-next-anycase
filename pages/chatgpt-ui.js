@@ -133,6 +133,7 @@ export default function ChatGptUIPersist() {
           <span
             className="ml-auto text-sm text-gray-500 dark:text-gray-400 self-center"
             aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
+            aria-live="polite"
           >
             {messages.length} {messages.length === 1 ? 'message' : 'messages'}
           </span>
