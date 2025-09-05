@@ -43,6 +43,10 @@ Other pages to explore:
 - `/chatgpt-ui-stream` – streaming replies with persistent history.
 - `/chatgpt-markdown` – renders replies using GitHub-flavored Markdown.
 - `/chatgpt-ko` – Korean interface.
+- `/chatgpt-stream` – streams replies token by token without persistence.
+- `/chatgpt-lite` – ultra-lightweight interface.
+- `/chatgpt-ui-markdown` – persistent UI with GitHub-flavored Markdown.
+- `/cursor-ai-ui` – Cursor-inspired interface with persistent history and Up-arrow recall.
 
 All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; the message input refocuses automatically.
 An **Export** button lets you copy the chat history—including timestamps—to your clipboard.
