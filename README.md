@@ -99,6 +99,10 @@ Each message now has a small **Copy** button that briefly shows "Copied!" after 
 The message input supports multi-line entries; press Shift+Enter for a new line.
 The **Send** button stays disabled until you type a message or while waiting for a reply.
 The page title updates with the current number of messages so you can track activity from other browser tabs.
+Each message now displays a timestamp for when it was sent.
+The header shows the current message count and, if set, the active model name.
+An animated typing indicator appears while waiting for a response, and the chat log announces updates to screen readers while indicating when a reply is loading.
+If there are no messages yet, a placeholder invites you to start the conversation, and the message input automatically expands to fit longer content.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
 Korean instructions are available in [README_KO.md](./README_KO.md).
 
