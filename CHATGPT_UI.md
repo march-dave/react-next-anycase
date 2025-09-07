@@ -49,6 +49,7 @@ Other pages to explore:
 - `/cursor-ai-ui` – Cursor-inspired interface with persistent history and Up-arrow recall.
 
 All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; the message input refocuses automatically.
+Press **Alt+Shift+C** to clear the chat from anywhere on the page after a confirmation prompt.
 An **Export** button lets you copy the chat history—including timestamps—to your clipboard.
 You can also save the chat with timestamps as a text file using the **Download** button.
 Each message now shows a timestamp for when it was sent.

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import ChatBubbleMarkdown from '@/components/ChatBubbleMarkdown';
 import DarkModeToggle from '@/components/DarkModeToggle';
@@ -28,7 +28,7 @@ export default function ChatGptUIPersist() {
     }
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setMessages([]);
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -39,7 +39,20 @@ export default function ChatGptUIPersist() {
       inputRef.current.focus();
       inputRef.current.style.height = 'auto';
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const shortcutHandler = (e) => {
+      if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        if (window.confirm('Clear chat history?')) {
+          handleClear();
+        }
+      }
+    };
+    window.addEventListener('keydown', shortcutHandler);
+    return () => window.removeEventListener('keydown', shortcutHandler);
+  }, [handleClear]);
 
   // Load messages from local storage on mount
   useEffect(() => {
