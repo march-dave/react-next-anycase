@@ -97,6 +97,7 @@ An **Export** button copies the current conversation—including timestamps—to
 There's also a **Download** button to save the conversation as a timestamped text file.
 Each message now has a small **Copy** button that briefly shows "Copied!" after you copy its text.
 The message input supports multi-line entries; press Shift+Enter for a new line.
+Press Up-arrow in an empty input to recall your last message.
 The **Send** button stays disabled until you type a message or while waiting for a reply.
 The page title updates with the current number of messages so you can track activity from other browser tabs.
 Each message now displays a timestamp for when it was sent.
@@ -116,7 +117,7 @@ Key files implementing the chat interface:
 - `components/ChatBubble.js` – the message bubble component.
 - `components/ChatBubbleMarkdown.js` – bubble with GitHub-flavored Markdown support.
 - `pages/gpt.js` – variant with a model selector.
-- `pages/chatgpt-ui.js` – version that stores messages in local storage (default home page).
+  - `pages/chatgpt-ui.js` – version that stores messages in local storage with Up-arrow recall (default home page).
 - `pages/chatgpt-persistent.js` – simplified UI that also persists messages.
 - `pages/chatgpt-ko.js` – Korean language interface.
 - `pages/cursor-ai-ui.js` – Cursor AI interface with persistent messages and Up-arrow recall.

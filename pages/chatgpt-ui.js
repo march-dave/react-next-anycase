@@ -127,7 +127,18 @@ export default function ChatGptUIPersist() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'ArrowUp' && !input.trim()) {
+      const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+      if (lastUser) {
+        setInput(lastUser.text);
+        requestAnimationFrame(() => {
+          if (inputRef.current) {
+            inputRef.current.style.height = 'auto';
+            inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+          }
+        });
+      }
+    } else if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
