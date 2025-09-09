@@ -18,7 +18,8 @@ export default function ChatGptUIPersist() {
   const disableSend = loading || !input.trim();
   const modelName = process.env.NEXT_PUBLIC_OPENAI_MODEL;
   const messageCount = messages.length;
-  const title = `ChatGPT UI (Persistent)${messageCount ? ` - ${messageCount} message${messageCount > 1 ? 's' : ''}` : ''}`;
+  const titleBase = `ChatGPT UI (Persistent)${modelName ? ` - ${modelName}` : ''}`;
+  const title = `${titleBase}${messageCount ? ` - ${messageCount} message${messageCount > 1 ? 's' : ''}` : ''}`;
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
