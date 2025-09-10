@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import ChatBubble from '@/components/ChatBubble';
 import DarkModeToggle from '@/components/DarkModeToggle';
@@ -16,6 +16,10 @@ export default function ChatGptUIStream() {
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const disableSend = loading || !input.trim();
+  const modelName = process.env.NEXT_PUBLIC_OPENAI_MODEL;
+  const messageCount = messages.length;
+  const titleBase = `ChatGPT Stream UI (Persistent)${modelName ? ` - ${modelName}` : ''}`;
+  const title = `${titleBase}${messageCount ? ` - ${messageCount} message${messageCount > 1 ? 's' : ''}` : ''}`;
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -25,14 +29,31 @@ export default function ChatGptUIStream() {
     }
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setMessages([]);
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch (err) {
       // ignore
     }
-  };
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.style.height = 'auto';
+    }
+  }, []);
+
+  useEffect(() => {
+    const shortcutHandler = (e) => {
+      if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        if (window.confirm('Clear chat history?')) {
+          handleClear();
+        }
+      }
+    };
+    window.addEventListener('keydown', shortcutHandler);
+    return () => window.removeEventListener('keydown', shortcutHandler);
+  }, [handleClear]);
 
   // Load messages from local storage on mount
   useEffect(() => {
@@ -130,7 +151,18 @@ export default function ChatGptUIStream() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'ArrowUp' && !input.trim()) {
+      const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+      if (lastUser) {
+        setInput(lastUser.text);
+        requestAnimationFrame(() => {
+          if (inputRef.current) {
+            inputRef.current.style.height = 'auto';
+            inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+          }
+        });
+      }
+    } else if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -139,7 +171,7 @@ export default function ChatGptUIStream() {
   return (
     <>
       <Head>
-        <title>ChatGPT Stream UI (Persistent)</title>
+        <title>{title}</title>
       </Head>
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
@@ -147,8 +179,30 @@ export default function ChatGptUIStream() {
           <ClearChatButton onClear={handleClear} />
           <ExportChatButton messages={messages} />
           <DownloadChatButton messages={messages} />
+          {messages.length > 0 && (
+            <span
+              className="ml-auto text-sm text-gray-500 dark:text-gray-400 self-center"
+              aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
+              aria-live="polite"
+            >
+              {messages.length} {messages.length === 1 ? 'message' : 'messages'}
+            </span>
+          )}
+          {modelName && (
+            <span
+              className={`${messages.length > 0 ? '' : 'ml-auto '}text-sm text-gray-500 dark:text-gray-400 self-center`}
+              aria-label={`Model ${modelName}`}
+            >
+              Model: {modelName}
+            </span>
+          )}
         </div>
-        <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
+        <div
+          className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4"
+          role="log"
+          aria-live="polite"
+          aria-busy={loading}
+        >
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} message={msg} />
           ))}
