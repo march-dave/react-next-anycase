@@ -50,8 +50,8 @@ Other pages to explore:
 
 All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; the message input refocuses automatically.
 Press **Alt+Shift+C** to clear the chat from anywhere on the page after a confirmation prompt.
-An **Export** button lets you copy the chat history—including timestamps—to your clipboard.
-You can also save the chat with timestamps as a text file using the **Download** button.
+An **Export** button copies the chat history—including timestamps—to your clipboard and briefly confirms success.
+You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message.
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation and announces updates to screen readers.

@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function ExportChatButton({ messages, label = 'Export' }) {
+  const [status, setStatus] = useState('');
+
   const handleExport = async () => {
     const text = messages
-      .map(m => `${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`)
+      .map((m) => `${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`)
       .join('\n');
     try {
       await navigator.clipboard.writeText(text);
-      alert('Chat copied to clipboard');
+      setStatus('Copied!');
     } catch (err) {
-      alert('Failed to copy chat: ' + err.message);
+      setStatus('Copy failed');
     }
+    setTimeout(() => setStatus(''), 2000);
   };
 
   return (
@@ -19,7 +22,7 @@ export default function ExportChatButton({ messages, label = 'Export' }) {
       className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
       aria-label={label}
     >
-      {label}
+      <span aria-live="polite">{status || label}</span>
     </button>
   );
 }
