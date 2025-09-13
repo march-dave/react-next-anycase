@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function DownloadChatButton({ messages, label = 'Download' }) {
+  const [status, setStatus] = useState('');
+
   const handleDownload = () => {
     const text = messages
-      .map(m => `${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`)
+      .map((m) => `${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`)
       .join('\n');
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -12,6 +14,8 @@ export default function DownloadChatButton({ messages, label = 'Download' }) {
     a.download = 'chat.txt';
     a.click();
     URL.revokeObjectURL(url);
+    setStatus('Downloaded!');
+    setTimeout(() => setStatus(''), 2000);
   };
 
   return (
@@ -20,7 +24,7 @@ export default function DownloadChatButton({ messages, label = 'Download' }) {
       className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
       aria-label={label}
     >
-      {label}
+      <span aria-live="polite">{status || label}</span>
     </button>
   );
 }
