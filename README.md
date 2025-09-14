@@ -92,7 +92,7 @@ A Korean interface is available at `/chatgpt-ko`.
 A Cursor-inspired interface is available at `/cursor-ai-ui`, with persistent messages, auto-resizing input, and Up-arrow recall of your last prompt.
 All chat pages now include a **Dark Mode** toggle in the header. If you haven't
 set a preference, the toggle follows your system's color scheme by default.
-You can also reset the conversation anytime using the **Clear** button, which now asks for confirmation before deleting the chat.
+You can also reset the conversation anytime using the **Clear** button, which asks for confirmation and briefly shows "Cleared!" after removing the chat.
 An **Export** button copies the current conversation—including timestamps—to your clipboard.
 There's also a **Download** button to save the conversation as a timestamped text file.
 Each message now has a small **Copy** button that briefly shows "Copied!" after you copy its text.

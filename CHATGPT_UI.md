@@ -48,7 +48,7 @@ Other pages to explore:
 - `/chatgpt-ui-markdown` – persistent UI with GitHub-flavored Markdown.
 - `/cursor-ai-ui` – Cursor-inspired interface with persistent history and Up-arrow recall.
 
-All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; the message input refocuses automatically.
+All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; after clearing it briefly shows "Cleared!" and the message input refocuses automatically.
 Press **Alt+Shift+C** to clear the chat from anywhere on the page after a confirmation prompt.
 An **Export** button copies the chat history—including timestamps—to your clipboard and briefly confirms success.
 You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message.

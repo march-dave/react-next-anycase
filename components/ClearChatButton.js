@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function ClearChatButton({
   onClear,
   label = 'Clear',
   confirmMessage = 'Clear chat history?'
 }) {
+  const [status, setStatus] = useState('');
   const handleClick = () => {
     if (window.confirm(confirmMessage)) {
       onClear();
+      setStatus('Cleared!');
+      setTimeout(() => setStatus(''), 2000);
     }
   };
 
@@ -17,7 +20,7 @@ export default function ClearChatButton({
       className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
       aria-label={label}
     >
-      {label}
+      <span aria-live="polite">{status || label}</span>
     </button>
   );
 }
