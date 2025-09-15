@@ -62,4 +62,5 @@ The chat log announces updates to screen readers and indicates when a response i
 If there are no messages yet, a placeholder invites you to start the conversation.
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
+Press Escape to clear the message input.
 An animated typing indicator appears while waiting for a response.

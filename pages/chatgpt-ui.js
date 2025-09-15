@@ -139,6 +139,11 @@ export default function ChatGptUIPersist() {
           }
         });
       }
+    } else if (e.key === 'Escape') {
+      setInput('');
+      if (inputRef.current) {
+        inputRef.current.style.height = 'auto';
+      }
     } else if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
