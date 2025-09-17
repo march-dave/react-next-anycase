@@ -49,9 +49,13 @@ Other pages to explore:
 - `/cursor-ai-ui` – Cursor-inspired interface with persistent history and Up-arrow recall.
 
 All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; after clearing it briefly shows "Cleared!" and the message input refocuses automatically.
+Use the **Settings** button in the header to define a custom system prompt. The prompt is saved locally, applied to every
+message you send, and included in exports or downloads so you retain full context when sharing conversations.
 Press **Alt+Shift+C** to clear the chat from anywhere on the page after a confirmation prompt.
-An **Export** button copies the chat history—including timestamps—to your clipboard and briefly confirms success.
-You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message.
+An **Export** button copies the chat history—including timestamps and the custom system prompt when set—to your clipboard and
+briefly confirms success.
+You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message
+and now names the file using the current timestamp.
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation and announces updates to screen readers.
@@ -59,7 +63,8 @@ The page title also updates with the current message count so you can see new ac
 If `NEXT_PUBLIC_OPENAI_MODEL` is set, the active model name appears in the header and page title.
 The message input automatically expands to fit longer content.
 The chat log announces updates to screen readers and indicates when a response is loading.
-If there are no messages yet, a placeholder invites you to start the conversation.
+If there are no messages yet, a placeholder invites you to start the conversation and now displays quick-start prompt cards for
+common workflows.
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
 Press Escape to clear the message input.

@@ -61,6 +61,10 @@ The site now defaults to the persistent ChatGPT UI on the home page (`/`).
 This interface renders replies using GitHub-flavored Markdown, so code blocks, tables, and formatting appear as expected. Links in responses automatically open in a new tab.
 You can still access the simple, non-persistent interface at `/chatgpt`.
 
+Open the **Settings** button in the header to define a custom system prompt. The prompt is saved locally, applied to every
+message you send, and included whenever you export or download the transcript. A few starter prompts now appear on an empty
+conversation so you can jump into common workflows without typing everything from scratch.
+
 To run it locally:
 
 1. Set the required `OPENAI_API_KEY` environment variable. You can copy
@@ -95,6 +99,7 @@ set a preference, the toggle follows your system's color scheme by default.
 You can also reset the conversation anytime using the **Clear** button, which asks for confirmation and briefly shows "Cleared!" after removing the chat.
 An **Export** button copies the current conversation—including timestamps—to your clipboard.
 There's also a **Download** button to save the conversation as a timestamped text file.
+Exports and downloads now include the active system prompt (when set) so you have the full context later.
 Each message now has a small **Copy** button that briefly shows "Copied!" after you copy its text.
 The message input supports multi-line entries; press Shift+Enter for a new line.
 Press Up-arrow in an empty input to recall your last message.
@@ -104,6 +109,7 @@ Each message now displays a timestamp for when it was sent.
 The header shows the current message count and, if set, the active model name.
 An animated typing indicator appears while waiting for a response, and the chat log announces updates to screen readers while indicating when a reply is loading.
 If there are no messages yet, a placeholder invites you to start the conversation, and the message input automatically expands to fit longer content.
+Quick-start prompt cards also appear to help you compose your first message.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
 Korean instructions are available in [README_KO.md](./README_KO.md).
 
