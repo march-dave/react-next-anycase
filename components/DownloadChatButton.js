@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 
-export default function DownloadChatButton({ messages, label = 'Download' }) {
+export default function DownloadChatButton({ messages, label = 'Download', systemPrompt = '' }) {
   const [status, setStatus] = useState('');
 
   const handleDownload = () => {
-    const text = messages
-      .map((m) => `${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`)
-      .join('\n');
-    const blob = new Blob([text], { type: 'text/plain' });
+    const formatted = buildTranscript(messages, systemPrompt);
+    const blob = new Blob([formatted], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'chat.txt';
+    a.download = createFilename();
     a.click();
     URL.revokeObjectURL(url);
     setStatus('Downloaded!');
@@ -27,4 +25,21 @@ export default function DownloadChatButton({ messages, label = 'Download' }) {
       <span aria-live="polite">{status || label}</span>
     </button>
   );
+}
+
+function buildTranscript(messages, systemPrompt) {
+  const trimmedPrompt = typeof systemPrompt === 'string' ? systemPrompt.trim() : '';
+  const lines = [];
+  if (trimmedPrompt) {
+    lines.push(`system: ${trimmedPrompt}`);
+  }
+  for (const m of messages) {
+    lines.push(`${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`);
+  }
+  return lines.join('\n');
+}
+
+function createFilename() {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  return `chat-${timestamp}.txt`;
 }

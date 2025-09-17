@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Head from 'next/head';
 import ChatBubbleMarkdown from '@/components/ChatBubbleMarkdown';
 import DarkModeToggle from '@/components/DarkModeToggle';
@@ -8,11 +8,41 @@ import DownloadChatButton from '@/components/DownloadChatButton';
 import TypingIndicator from '@/components/TypingIndicator';
 
 const STORAGE_KEY = 'chatgptMessages';
+const SETTINGS_KEY = 'chatgptUiSettings';
+
+const promptSuggestions = [
+  {
+    title: 'Summarize a meeting',
+    description: 'Turn long notes into concise action items.',
+    prompt:
+      'Summarize the following meeting transcript into concise action items and key decisions:\n\n',
+  },
+  {
+    title: 'Draft release notes',
+    description: 'Highlight what changed in a friendly tone.',
+    prompt:
+      'Create release notes for the following list of updates. Include a short intro and grouped bullet points:\n\n',
+  },
+  {
+    title: 'Explain a concept',
+    description: 'Request an accessible explanation with examples.',
+    prompt:
+      'Explain the following concept to a new developer. Use a real-world analogy and list common pitfalls:\n\n',
+  },
+  {
+    title: 'Brainstorm ideas',
+    description: 'Generate creative approaches for a problem.',
+    prompt:
+      'Brainstorm five creative feature ideas for a productivity app that helps remote teams collaborate asynchronously.',
+  },
+];
 
 export default function ChatGptUIPersist() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const disableSend = loading || !input.trim();
@@ -20,13 +50,24 @@ export default function ChatGptUIPersist() {
   const messageCount = messages.length;
   const titleBase = `ChatGPT UI (Persistent)${modelName ? ` - ${modelName}` : ''}`;
   const title = `${titleBase}${messageCount ? ` - ${messageCount} message${messageCount > 1 ? 's' : ''}` : ''}`;
+  const trimmedSystemPrompt = useMemo(() => systemPrompt.trim(), [systemPrompt]);
+  const systemPromptPreview = useMemo(() => {
+    if (!trimmedSystemPrompt) return '';
+    return trimmedSystemPrompt.length > 80
+      ? `${trimmedSystemPrompt.slice(0, 77)}...`
+      : trimmedSystemPrompt;
+  }, [trimmedSystemPrompt]);
 
-  const handleInputChange = (e) => {
-    setInput(e.target.value);
+  const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
       inputRef.current.style.height = 'auto';
       inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
+  }, []);
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+    requestAnimationFrame(adjustInputHeight);
   };
 
   const handleClear = useCallback(() => {
@@ -38,9 +79,29 @@ export default function ChatGptUIPersist() {
     }
     if (inputRef.current) {
       inputRef.current.focus();
-      inputRef.current.style.height = 'auto';
     }
-  }, []);
+    requestAnimationFrame(adjustInputHeight);
+  }, [adjustInputHeight]);
+
+  const applySuggestedPrompt = (prompt) => {
+    setInput(prompt);
+    requestAnimationFrame(() => {
+      adjustInputHeight();
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const length = prompt.length;
+        inputRef.current.setSelectionRange(length, length);
+      }
+    });
+  };
+
+  const handleSystemPromptChange = (e) => {
+    setSystemPrompt(e.target.value);
+  };
+
+  const handleResetSystemPrompt = () => {
+    setSystemPrompt('');
+  };
 
   useEffect(() => {
     const shortcutHandler = (e) => {
@@ -76,6 +137,33 @@ export default function ChatGptUIPersist() {
     }
   }, [messages]);
 
+  // Load settings (currently only the system prompt) once on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.systemPrompt === 'string') {
+          setSystemPrompt(parsed.systemPrompt);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load chat settings', err);
+    }
+  }, []);
+
+  // Persist the system prompt locally so it survives refreshes
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify({ systemPrompt })
+      );
+    } catch (err) {
+      console.error('Failed to save chat settings', err);
+    }
+  }, [systemPrompt]);
+
   useEffect(() => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -86,13 +174,18 @@ export default function ChatGptUIPersist() {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+    adjustInputHeight();
+  }, [adjustInputHeight]);
 
   useEffect(() => {
     if (!loading && inputRef.current) {
       inputRef.current.focus();
     }
   }, [loading]);
+
+  useEffect(() => {
+    adjustInputHeight();
+  }, [input, adjustInputHeight]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,12 +198,16 @@ export default function ChatGptUIPersist() {
     }
     setLoading(true);
     try {
+      const payload = {
+        messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.text })),
+      };
+      if (trimmedSystemPrompt) {
+        payload.systemPrompt = trimmedSystemPrompt;
+      }
       const res = await fetch('/api/chatgpt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.text }))
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       const botMsg = { role: 'assistant', text: data.text || 'No response', time: new Date().toLocaleTimeString() };
@@ -133,17 +230,12 @@ export default function ChatGptUIPersist() {
       if (lastUser) {
         setInput(lastUser.text);
         requestAnimationFrame(() => {
-          if (inputRef.current) {
-            inputRef.current.style.height = 'auto';
-            inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
-          }
+          adjustInputHeight();
         });
       }
     } else if (e.key === 'Escape') {
       setInput('');
-      if (inputRef.current) {
-        inputRef.current.style.height = 'auto';
-      }
+      requestAnimationFrame(adjustInputHeight);
     } else if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -156,29 +248,75 @@ export default function ChatGptUIPersist() {
         <title>{title}</title>
       </Head>
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
+      <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex flex-wrap gap-2 items-center">
         <DarkModeToggle />
         <ClearChatButton onClear={handleClear} />
-        <ExportChatButton messages={messages} />
-        <DownloadChatButton messages={messages} />
-        {messages.length > 0 && (
-          <span
-            className="ml-auto text-sm text-gray-500 dark:text-gray-400 self-center"
-            aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
-            aria-live="polite"
-          >
-            {messages.length} {messages.length === 1 ? 'message' : 'messages'}
-          </span>
-        )}
-        {modelName && (
-          <span
-            className={`${messages.length > 0 ? '' : 'ml-auto '}text-sm text-gray-500 dark:text-gray-400 self-center`}
-            aria-label={`Model ${modelName}`}
-          >
-            Model: {modelName}
-          </span>
-        )}
+        <ExportChatButton messages={messages} systemPrompt={systemPrompt} />
+        <DownloadChatButton messages={messages} systemPrompt={systemPrompt} />
+        <button
+          type="button"
+          onClick={() => setShowSettings((prev) => !prev)}
+          className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
+          aria-expanded={showSettings}
+          aria-controls="chat-settings"
+        >
+          {showSettings ? 'Hide settings' : 'Settings'}
+        </button>
+        <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
+          {messages.length > 0 && (
+            <span
+              className="self-center"
+              aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
+              aria-live="polite"
+            >
+              {messages.length} {messages.length === 1 ? 'message' : 'messages'}
+            </span>
+          )}
+          {modelName && (
+            <span className="self-center" aria-label={`Model ${modelName}`}>
+              Model: {modelName}
+            </span>
+          )}
+          {trimmedSystemPrompt && (
+            <span
+              className="text-xs text-blue-600 dark:text-blue-300"
+              title={trimmedSystemPrompt}
+              aria-live="polite"
+            >
+              Custom system prompt active
+            </span>
+          )}
+        </div>
       </div>
+      {showSettings && (
+        <div
+          id="chat-settings"
+          className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 p-4 space-y-2"
+        >
+          <label htmlFor="system-prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+            Custom system prompt
+          </label>
+          <textarea
+            id="system-prompt"
+            value={systemPrompt}
+            onChange={handleSystemPromptChange}
+            rows={3}
+            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            placeholder="Set the assistant's behavior. Leave blank to use the default prompt."
+          />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-gray-500 dark:text-gray-400">
+            <button
+              type="button"
+              onClick={handleResetSystemPrompt}
+              className="self-start border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100 disabled:opacity-50"
+              disabled={!trimmedSystemPrompt}
+            >
+              Clear custom prompt
+            </button>
+            <span>Saved locally and applied to every message in this conversation.</span>
+          </div>
+        </div>
+      )}
       <div
         className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4"
         role="log"
@@ -187,10 +325,39 @@ export default function ChatGptUIPersist() {
         >
           {messages.length === 0 && !loading && (
             <div
-              className="text-center text-gray-500 dark:text-gray-400 mt-4"
+              className="text-center text-gray-500 dark:text-gray-400 mt-4 space-y-6"
               aria-label="No messages yet"
             >
-              No messages yet. Start the conversation below.
+              <div>
+                <p>No messages yet. Start the conversation below.</p>
+                {trimmedSystemPrompt && (
+                  <p className="mt-2 text-xs text-blue-600 dark:text-blue-300">
+                    Using custom system prompt: <span className="font-medium">{systemPromptPreview}</span>
+                  </p>
+                )}
+              </div>
+              <div className="max-w-3xl mx-auto text-left">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                  Try one of these starters
+                </h2>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {promptSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion.title}
+                      type="button"
+                      onClick={() => applySuggestedPrompt(suggestion.prompt)}
+                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-left bg-white dark:bg-gray-800 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    >
+                      <span className="block font-medium text-gray-900 dark:text-gray-100">
+                        {suggestion.title}
+                      </span>
+                      <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                        {suggestion.description}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
           {messages.map((msg, idx) => (

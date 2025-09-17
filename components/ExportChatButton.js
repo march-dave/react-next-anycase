@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 
-export default function ExportChatButton({ messages, label = 'Export' }) {
+export default function ExportChatButton({ messages, label = 'Export', systemPrompt = '' }) {
   const [status, setStatus] = useState('');
 
   const handleExport = async () => {
-    const text = messages
-      .map((m) => `${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`)
-      .join('\n');
+    const formatted = buildTranscript(messages, systemPrompt);
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(formatted);
       setStatus('Copied!');
     } catch (err) {
       setStatus('Copy failed');
@@ -25,4 +23,16 @@ export default function ExportChatButton({ messages, label = 'Export' }) {
       <span aria-live="polite">{status || label}</span>
     </button>
   );
+}
+
+function buildTranscript(messages, systemPrompt) {
+  const trimmedPrompt = typeof systemPrompt === 'string' ? systemPrompt.trim() : '';
+  const lines = [];
+  if (trimmedPrompt) {
+    lines.push(`system: ${trimmedPrompt}`);
+  }
+  for (const m of messages) {
+    lines.push(`${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`);
+  }
+  return lines.join('\n');
 }
