@@ -65,6 +65,8 @@ The message input automatically expands to fit longer content.
 The chat log announces updates to screen readers and indicates when a response is loading.
 If there are no messages yet, a placeholder invites you to start the conversation and now displays quick-start prompt cards for
 common workflows.
+Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords before
+dropping them into the chat.
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
 Press Escape to clear the message input.

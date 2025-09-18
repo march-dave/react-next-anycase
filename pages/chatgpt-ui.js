@@ -42,9 +42,14 @@ export default function ChatGptUIPersist() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showPromptLibrary, setShowPromptLibrary] = useState(false);
+  const [promptSearch, setPromptSearch] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
+  const promptLibraryButtonRef = useRef(null);
+  const promptLibrarySearchRef = useRef(null);
+  const promptLibraryHasOpened = useRef(false);
   const disableSend = loading || !input.trim();
   const modelName = process.env.NEXT_PUBLIC_OPENAI_MODEL;
   const messageCount = messages.length;
@@ -94,6 +99,16 @@ export default function ChatGptUIPersist() {
       }
     });
   };
+
+  const filteredPromptSuggestions = useMemo(() => {
+    const search = promptSearch.trim().toLowerCase();
+    if (!search) return promptSuggestions;
+    return promptSuggestions.filter((suggestion) =>
+      suggestion.title.toLowerCase().includes(search) ||
+      suggestion.description.toLowerCase().includes(search) ||
+      suggestion.prompt.toLowerCase().includes(search)
+    );
+  }, [promptSearch]);
 
   const handleSystemPromptChange = (e) => {
     setSystemPrompt(e.target.value);
@@ -187,6 +202,35 @@ export default function ChatGptUIPersist() {
     adjustInputHeight();
   }, [input, adjustInputHeight]);
 
+  useEffect(() => {
+    if (!showPromptLibrary) {
+      setPromptSearch('');
+      if (promptLibraryHasOpened.current && promptLibraryButtonRef.current) {
+        promptLibraryButtonRef.current.focus();
+      }
+      return;
+    }
+
+    promptLibraryHasOpened.current = true;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowPromptLibrary(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    requestAnimationFrame(() => {
+      if (promptLibrarySearchRef.current) {
+        promptLibrarySearchRef.current.focus();
+      }
+    });
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showPromptLibrary]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -248,79 +292,90 @@ export default function ChatGptUIPersist() {
         <title>{title}</title>
       </Head>
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex flex-wrap gap-2 items-center">
-        <DarkModeToggle />
-        <ClearChatButton onClear={handleClear} />
-        <ExportChatButton messages={messages} systemPrompt={systemPrompt} />
-        <DownloadChatButton messages={messages} systemPrompt={systemPrompt} />
-        <button
-          type="button"
-          onClick={() => setShowSettings((prev) => !prev)}
-          className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
-          aria-expanded={showSettings}
-          aria-controls="chat-settings"
-        >
-          {showSettings ? 'Hide settings' : 'Settings'}
-        </button>
-        <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
-          {messages.length > 0 && (
-            <span
-              className="self-center"
-              aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
-              aria-live="polite"
-            >
-              {messages.length} {messages.length === 1 ? 'message' : 'messages'}
-            </span>
-          )}
-          {modelName && (
-            <span className="self-center" aria-label={`Model ${modelName}`}>
-              Model: {modelName}
-            </span>
-          )}
-          {trimmedSystemPrompt && (
-            <span
-              className="text-xs text-blue-600 dark:text-blue-300"
-              title={trimmedSystemPrompt}
-              aria-live="polite"
-            >
-              Custom system prompt active
-            </span>
-          )}
-        </div>
-      </div>
-      {showSettings && (
-        <div
-          id="chat-settings"
-          className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 p-4 space-y-2"
-        >
-          <label htmlFor="system-prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Custom system prompt
-          </label>
-          <textarea
-            id="system-prompt"
-            value={systemPrompt}
-            onChange={handleSystemPromptChange}
-            rows={3}
-            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            placeholder="Set the assistant's behavior. Leave blank to use the default prompt."
-          />
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-gray-500 dark:text-gray-400">
-            <button
-              type="button"
-              onClick={handleResetSystemPrompt}
-              className="self-start border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100 disabled:opacity-50"
-              disabled={!trimmedSystemPrompt}
-            >
-              Clear custom prompt
-            </button>
-            <span>Saved locally and applied to every message in this conversation.</span>
+        <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex flex-wrap gap-2 items-center">
+          <DarkModeToggle />
+          <ClearChatButton onClear={handleClear} />
+          <ExportChatButton messages={messages} systemPrompt={systemPrompt} />
+          <DownloadChatButton messages={messages} systemPrompt={systemPrompt} />
+          <button
+            type="button"
+            ref={promptLibraryButtonRef}
+            onClick={() => setShowPromptLibrary(true)}
+            className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
+            aria-haspopup="dialog"
+            aria-expanded={showPromptLibrary}
+            aria-controls="prompt-library"
+          >
+            Prompt library
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowSettings((prev) => !prev)}
+            className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
+            aria-expanded={showSettings}
+            aria-controls="chat-settings"
+          >
+            {showSettings ? 'Hide settings' : 'Settings'}
+          </button>
+          <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
+            {messages.length > 0 && (
+              <span
+                className="self-center"
+                aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
+                aria-live="polite"
+              >
+                {messages.length} {messages.length === 1 ? 'message' : 'messages'}
+              </span>
+            )}
+            {modelName && (
+              <span className="self-center" aria-label={`Model ${modelName}`}>
+                Model: {modelName}
+              </span>
+            )}
+            {trimmedSystemPrompt && (
+              <span
+                className="text-xs text-blue-600 dark:text-blue-300"
+                title={trimmedSystemPrompt}
+                aria-live="polite"
+              >
+                Custom system prompt active
+              </span>
+            )}
           </div>
         </div>
-      )}
-      <div
-        className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4"
-        role="log"
-        aria-live="polite"
+        {showSettings && (
+          <div
+            id="chat-settings"
+            className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 p-4 space-y-2"
+          >
+            <label htmlFor="system-prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+              Custom system prompt
+            </label>
+            <textarea
+              id="system-prompt"
+              value={systemPrompt}
+              onChange={handleSystemPromptChange}
+              rows={3}
+              className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              placeholder="Set the assistant's behavior. Leave blank to use the default prompt."
+            />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-gray-500 dark:text-gray-400">
+              <button
+                type="button"
+                onClick={handleResetSystemPrompt}
+                className="self-start border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100 disabled:opacity-50"
+                disabled={!trimmedSystemPrompt}
+              >
+                Clear custom prompt
+              </button>
+              <span>Saved locally and applied to every message in this conversation.</span>
+            </div>
+          </div>
+        )}
+        <div
+          className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4"
+          role="log"
+          aria-live="polite"
           aria-busy={loading}
         >
           {messages.length === 0 && !loading && (
@@ -357,6 +412,9 @@ export default function ChatGptUIPersist() {
                     </button>
                   ))}
                 </div>
+                <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                  Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter.
+                </p>
               </div>
             </div>
           )}
@@ -388,6 +446,85 @@ export default function ChatGptUIPersist() {
           </button>
         </form>
       </div>
+      {showPromptLibrary && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="prompt-library-title"
+          id="prompt-library"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40"
+            aria-label="Close prompt library"
+            tabIndex={-1}
+            onClick={() => setShowPromptLibrary(false)}
+          />
+          <div className="relative max-h-full w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-800">
+            <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+              <div>
+                <h2 id="prompt-library-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Prompt library
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Browse curated starters or search to quickly reuse a favorite request.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={() => setShowPromptLibrary(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="border-b border-gray-200 px-6 py-3 dark:border-gray-700">
+              <label htmlFor="prompt-library-search" className="sr-only">
+                Search prompts
+              </label>
+              <input
+                id="prompt-library-search"
+                ref={promptLibrarySearchRef}
+                type="search"
+                value={promptSearch}
+                onChange={(event) => setPromptSearch(event.target.value)}
+                placeholder="Search prompts by title or keyword"
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+              />
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto px-6 py-4 space-y-4">
+              {filteredPromptSuggestions.length === 0 ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No prompts match your search yet. Try a different keyword.
+                </p>
+              ) : (
+                <ul className="space-y-3">
+                  {filteredPromptSuggestions.map((suggestion) => (
+                    <li key={suggestion.title}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          applySuggestedPrompt(suggestion.prompt);
+                          setShowPromptLibrary(false);
+                        }}
+                        className="block w-full rounded-lg border border-gray-200 bg-white p-3 text-left transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900"
+                      >
+                        <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
+                          {suggestion.title}
+                        </span>
+                        <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                          {suggestion.description}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
