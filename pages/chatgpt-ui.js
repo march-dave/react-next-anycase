@@ -16,24 +16,36 @@ const promptSuggestions = [
     description: 'Turn long notes into concise action items.',
     prompt:
       'Summarize the following meeting transcript into concise action items and key decisions:\n\n',
+    tags: ['Meetings', 'Summaries'],
   },
   {
     title: 'Draft release notes',
     description: 'Highlight what changed in a friendly tone.',
     prompt:
       'Create release notes for the following list of updates. Include a short intro and grouped bullet points:\n\n',
+    tags: ['Product', 'Announcements'],
   },
   {
     title: 'Explain a concept',
     description: 'Request an accessible explanation with examples.',
     prompt:
       'Explain the following concept to a new developer. Use a real-world analogy and list common pitfalls:\n\n',
+    tags: ['Education', 'Guides'],
+  },
+  {
+    title: 'Draft a pull request summary',
+    description: 'Capture key changes and how they were tested.',
+    prompt:
+      'Write a concise pull request summary for the following changes. Call out the motivation, key updates, and any tests run:' +
+      '\n\n',
+    tags: ['Collaboration', 'Pull Request'],
   },
   {
     title: 'Brainstorm ideas',
     description: 'Generate creative approaches for a problem.',
     prompt:
       'Brainstorm five creative feature ideas for a productivity app that helps remote teams collaborate asynchronously.',
+    tags: ['Productivity', 'Ideation'],
   },
 ];
 
@@ -103,11 +115,17 @@ export default function ChatGptUIPersist() {
   const filteredPromptSuggestions = useMemo(() => {
     const search = promptSearch.trim().toLowerCase();
     if (!search) return promptSuggestions;
-    return promptSuggestions.filter((suggestion) =>
-      suggestion.title.toLowerCase().includes(search) ||
-      suggestion.description.toLowerCase().includes(search) ||
-      suggestion.prompt.toLowerCase().includes(search)
-    );
+    return promptSuggestions.filter((suggestion) => {
+      if (
+        suggestion.title.toLowerCase().includes(search) ||
+        suggestion.description.toLowerCase().includes(search) ||
+        suggestion.prompt.toLowerCase().includes(search)
+      ) {
+        return true;
+      }
+      if (!suggestion.tags?.length) return false;
+      return suggestion.tags.some((tag) => tag.toLowerCase().includes(search));
+    });
   }, [promptSearch]);
 
   const handleSystemPromptChange = (e) => {
@@ -409,11 +427,23 @@ export default function ChatGptUIPersist() {
                       <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
                         {suggestion.description}
                       </span>
+                      {suggestion.tags?.length > 0 && (
+                        <span className="mt-2 flex flex-wrap gap-1">
+                          {suggestion.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
                 <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                  Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter.
+                  Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. The badges show the themes each prompt is best suited for.
                 </p>
               </div>
             </div>
@@ -468,7 +498,8 @@ export default function ChatGptUIPersist() {
                   Prompt library
                 </h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Browse curated starters or search to quickly reuse a favorite request.
+                  Browse curated starters or search to quickly reuse a favorite request. Results match titles, descriptions,
+                  prompts, and badges.
                 </p>
               </div>
               <button
@@ -489,7 +520,7 @@ export default function ChatGptUIPersist() {
                 type="search"
                 value={promptSearch}
                 onChange={(event) => setPromptSearch(event.target.value)}
-                placeholder="Search prompts by title or keyword"
+                placeholder="Search prompts by title, keyword, or tag"
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               />
             </div>
@@ -516,6 +547,18 @@ export default function ChatGptUIPersist() {
                         <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
                           {suggestion.description}
                         </span>
+                        {suggestion.tags?.length > 0 && (
+                          <span className="mt-2 flex flex-wrap gap-1">
+                            {suggestion.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </span>
+                        )}
                       </button>
                     </li>
                   ))}
