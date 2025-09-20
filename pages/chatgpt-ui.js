@@ -41,6 +41,13 @@ const promptSuggestions = [
     tags: ['Collaboration', 'Pull Request'],
   },
   {
+    title: 'Outline verification steps',
+    description: 'List the manual and automated checks to run before shipping.',
+    prompt:
+      'Given the following feature work, outline a test plan that lists the manual checks, automated suites, and any follow-up verification needed before release. Close with expected outcomes for each step.\n\n',
+    tags: ['Quality', 'Pull Request'],
+  },
+  {
     title: 'Brainstorm ideas',
     description: 'Generate creative approaches for a problem.',
     prompt:
@@ -49,19 +56,35 @@ const promptSuggestions = [
   },
 ];
 
+const DEFAULT_PR_TEMPLATE = `Summary
+* Key outcome 1
+* Key outcome 2
+
+Testing
+* ✅ ${'`'}command or suite${'`'}
+* ✅ Manual flow description
+
+`;
+
 export default function ChatGptUIPersist() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPromptLibrary, setShowPromptLibrary] = useState(false);
+  const [showPrHelper, setShowPrHelper] = useState(false);
   const [promptSearch, setPromptSearch] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
+  const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
+  const [prCopyStatus, setPrCopyStatus] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
   const promptLibrarySearchRef = useRef(null);
   const promptLibraryHasOpened = useRef(false);
+  const prHelperButtonRef = useRef(null);
+  const prHelperTextareaRef = useRef(null);
+  const prHelperHasOpened = useRef(false);
   const disableSend = loading || !input.trim();
   const modelName = process.env.NEXT_PUBLIC_OPENAI_MODEL;
   const messageCount = messages.length;
@@ -134,6 +157,43 @@ export default function ChatGptUIPersist() {
 
   const handleResetSystemPrompt = () => {
     setSystemPrompt('');
+  };
+
+  const handleCopyPrTemplate = async () => {
+    try {
+      await navigator.clipboard.writeText(prTemplateText);
+      setPrCopyStatus('Copied!');
+    } catch (err) {
+      setPrCopyStatus('Copy failed');
+    }
+    setTimeout(() => setPrCopyStatus(''), 2000);
+  };
+
+  const handleInsertPrTemplate = () => {
+    setInput((prev) => {
+      const trimmedPrev = prev.trimEnd();
+      const next = trimmedPrev ? `${trimmedPrev}\n\n${prTemplateText}` : prTemplateText;
+      return next;
+    });
+    setShowPrHelper(false);
+    requestAnimationFrame(() => {
+      adjustInputHeight();
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const length = inputRef.current.value.length;
+        inputRef.current.setSelectionRange(length, length);
+      }
+    });
+  };
+
+  const handleResetPrTemplate = () => {
+    setPrTemplateText(DEFAULT_PR_TEMPLATE);
+    requestAnimationFrame(() => {
+      if (prHelperTextareaRef.current) {
+        prHelperTextareaRef.current.focus();
+        prHelperTextareaRef.current.select();
+      }
+    });
   };
 
   useEffect(() => {
@@ -249,6 +309,36 @@ export default function ChatGptUIPersist() {
     };
   }, [showPromptLibrary]);
 
+  useEffect(() => {
+    if (!showPrHelper) {
+      setPrCopyStatus('');
+      if (prHelperHasOpened.current && prHelperButtonRef.current) {
+        prHelperButtonRef.current.focus();
+      }
+      return;
+    }
+
+    prHelperHasOpened.current = true;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowPrHelper(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    requestAnimationFrame(() => {
+      if (prHelperTextareaRef.current) {
+        prHelperTextareaRef.current.focus();
+        prHelperTextareaRef.current.select();
+      }
+    });
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showPrHelper]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -325,6 +415,17 @@ export default function ChatGptUIPersist() {
             aria-controls="prompt-library"
           >
             Prompt library
+          </button>
+          <button
+            type="button"
+            ref={prHelperButtonRef}
+            onClick={() => setShowPrHelper(true)}
+            className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
+            aria-haspopup="dialog"
+            aria-expanded={showPrHelper}
+            aria-controls="pr-helper"
+          >
+            PR helper
           </button>
           <button
             type="button"
@@ -445,6 +546,9 @@ export default function ChatGptUIPersist() {
                 <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. The badges show the themes each prompt is best suited for.
                 </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary and testing template you can copy or drop into the composer.
+                </p>
               </div>
             </div>
           )}
@@ -564,6 +668,82 @@ export default function ChatGptUIPersist() {
                   ))}
                 </ul>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {showPrHelper && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="pr-helper-title"
+          id="pr-helper"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40"
+            aria-label="Close PR helper"
+            tabIndex={-1}
+            onClick={() => setShowPrHelper(false)}
+          />
+          <div className="relative max-h-full w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-800">
+            <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+              <div>
+                <h2 id="pr-helper-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Pull request helper
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Keep your summaries and testing notes consistent. Edit the template, copy it, or insert it directly into the message box.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={() => setShowPrHelper(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="px-6 py-4 space-y-4">
+              <div>
+                <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
+                  Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, and replace the placeholders with project details.
+                </p>
+                <textarea
+                  ref={prHelperTextareaRef}
+                  value={prTemplateText}
+                  onChange={(event) => setPrTemplateText(event.target.value)}
+                  aria-describedby="pr-helper-tip"
+                  rows={8}
+                  className="mt-3 w-full rounded border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={handleCopyPrTemplate}
+                    className="border border-blue-500 bg-blue-500 px-3 py-2 font-medium text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <span aria-live="polite">{prCopyStatus || 'Copy template'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleInsertPrTemplate}
+                    className="border border-gray-300 px-3 py-2 rounded bg-white text-gray-900 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  >
+                    Insert into chat
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResetPrTemplate}
+                  className="self-start text-xs text-gray-500 underline hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  Reset template
+                </button>
+              </div>
             </div>
           </div>
         </div>
