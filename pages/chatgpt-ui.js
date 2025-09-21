@@ -34,9 +34,9 @@ const promptSuggestions = [
   },
   {
     title: 'Draft a pull request summary',
-    description: 'Capture key changes and how they were tested.',
+    description: 'Capture key changes, test coverage, and where to cite supporting context.',
     prompt:
-      'Write a concise pull request summary for the following changes. Call out the motivation, key updates, and any tests run:' +
+      'Write a concise pull request summary for the following changes. Include the motivation, the key updates, tests that ran, and call out where the supporting files or logs should be cited:' +
       '\n\n',
     tags: ['Collaboration', 'Pull Request'],
   },
@@ -57,12 +57,12 @@ const promptSuggestions = [
 ];
 
 const DEFAULT_PR_TEMPLATE = `Summary
-* Key outcome 1
-* Key outcome 2
+* Highlight 1. 【F:path/to/file†L#-L#】
+* Highlight 2. 【F:path/to/file†L#-L#】
 
 Testing
-* ✅ ${'`'}command or suite${'`'}
-* ✅ Manual flow description
+* ✅ ${'`'}command or suite${'`'} – passed. 【chunk†L#-L#】
+* ✅ Manual verification notes. 【chunk†L#-L#】
 
 `;
 
@@ -547,7 +547,7 @@ export default function ChatGptUIPersist() {
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. The badges show the themes each prompt is best suited for.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary and testing template you can copy or drop into the composer.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary and testing template complete with citation placeholders you can copy or drop into the composer.
                 </p>
               </div>
             </div>
@@ -708,7 +708,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-4">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, and replace the placeholders with project details.
+                  Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, replace the placeholders with project details, and update the citation markers with the relevant files or command output.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
