@@ -113,7 +113,7 @@ Quick-start prompt cards also appear to help you compose your first message.
 Each card shows themed badges so you can quickly spot the right starting point, including a new prompt for drafting pull request summaries with testing notes.
 Need inspiration mid-conversation? Tap the **Prompt library** button in the header to browse every starter or search by keyword
 or tag before inserting it into the chat box.
-Need a quick pull request outline? Open the **PR helper** from the header to copy or tweak a ready-made Summary and Testing template—complete with citation placeholders—before sharing updates.
+Need a quick pull request outline? Open the **PR helper** from the header to copy or tweak a ready-made Summary, Screenshots, and Testing template—complete with citation placeholders and reminders to document UI changes—before sharing updates.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
 Korean instructions are available in [README_KO.md](./README_KO.md).
 
