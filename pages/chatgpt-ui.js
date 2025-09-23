@@ -56,18 +56,29 @@ const promptSuggestions = [
   },
 ];
 
-const DEFAULT_PR_TEMPLATE = `Summary
-* Highlight 1. 【F:path/to/file†L#-L#】
-* Highlight 2. 【F:path/to/file†L#-L#】
+const DEFAULT_PR_TEMPLATE = [
+  'Summary',
+  '* Highlight 1. 【F:path/to/file†L#-L#】',
+  '* Highlight 2. 【F:path/to/file†L#-L#】',
+  '',
+  'Impact',
+  '* Note the user benefit, risk mitigation, or motivation for the change.',
+  '',
+  'Screenshots (if applicable)',
+  '* ![Screenshot description](artifacts/filename.png)',
+  '',
+  'Testing',
+  '* ✅ `command or suite` – Passed locally. 【chunk†L#-L#】',
+  '',
+  'Notes',
+  '* Additional context, rollout details, or follow-up items.',
+].join('\n');
 
-Screenshots (if applicable)
-* ![Screenshot description](artifacts/filename.png)
-
-Testing
-* ✅ ${'`'}command or suite${'`'} – passed. 【chunk†L#-L#】
-* ✅ Manual verification notes. 【chunk†L#-L#】
-
-`;
+const PR_TEST_SNIPPETS = {
+  pass: '* ✅ `command or suite` – Passed locally. 【chunk†L#-L#】',
+  warn: '* ⚠️ `command or suite` – Needs follow-up or is flaky. 【chunk†L#-L#】',
+  fail: '* ❌ `command or suite` – Failing and requires attention. 【chunk†L#-L#】',
+};
 
 export default function ChatGptUIPersist() {
   const [messages, setMessages] = useState([]);
@@ -100,6 +111,33 @@ export default function ChatGptUIPersist() {
       ? `${trimmedSystemPrompt.slice(0, 77)}...`
       : trimmedSystemPrompt;
   }, [trimmedSystemPrompt]);
+  const messageStats = useMemo(() => {
+    if (messages.length === 0) {
+      return {
+        total: 0,
+        userCount: 0,
+        assistantCount: 0,
+        lastTimestamp: '',
+      };
+    }
+
+    let userCount = 0;
+    let assistantCount = 0;
+    for (const message of messages) {
+      if (message.role === 'user') {
+        userCount += 1;
+      } else if (message.role === 'assistant') {
+        assistantCount += 1;
+      }
+    }
+
+    return {
+      total: messages.length,
+      userCount,
+      assistantCount,
+      lastTimestamp: messages[messages.length - 1]?.time || '',
+    };
+  }, [messages]);
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -198,6 +236,52 @@ export default function ChatGptUIPersist() {
       }
     });
   };
+  const appendTestingLine = useCallback(
+    (status) => {
+      const snippet = PR_TEST_SNIPPETS[status];
+      if (!snippet) {
+        return;
+      }
+
+      setPrTemplateText((prev) => {
+        const trimmedPrev = prev.replace(/\s+$/, '');
+        if (!trimmedPrev) {
+          return `Testing\n${snippet}\n`;
+        }
+
+        const testingHeading = 'Testing';
+        const headingIndex = trimmedPrev.indexOf(testingHeading);
+
+        if (headingIndex === -1) {
+          return `${trimmedPrev}\n\nTesting\n${snippet}\n`;
+        }
+
+        const firstLineBreakAfterHeading = trimmedPrev.indexOf('\n', headingIndex + testingHeading.length);
+        if (firstLineBreakAfterHeading === -1) {
+          return `${trimmedPrev}\n${snippet}\n`;
+        }
+
+        const remainder = trimmedPrev.slice(firstLineBreakAfterHeading + 1);
+        const nextSectionOffset = remainder.indexOf('\n\n');
+        if (nextSectionOffset === -1) {
+          return `${trimmedPrev}\n${snippet}\n`;
+        }
+
+        const insertionPoint = firstLineBreakAfterHeading + 1 + nextSectionOffset;
+        return `${trimmedPrev.slice(0, insertionPoint)}\n${snippet}${trimmedPrev.slice(insertionPoint)}`;
+      });
+
+      requestAnimationFrame(() => {
+        if (prHelperTextareaRef.current) {
+          const { current: textarea } = prHelperTextareaRef;
+          textarea.focus();
+          const length = textarea.value.length;
+          textarea.setSelectionRange(length, length);
+        }
+      });
+    },
+    [setPrTemplateText]
+  );
 
   useEffect(() => {
     const shortcutHandler = (e) => {
@@ -561,26 +645,43 @@ export default function ChatGptUIPersist() {
           {loading && <TypingIndicator />}
           <div ref={endRef} />
         </div>
-        <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
-          <textarea
-            ref={inputRef}
-            rows={1}
-            style={{ height: 'auto' }}
-            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none overflow-hidden bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            aria-label="Message input"
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Send a message (Shift+Enter for newline, Up Arrow to recall last message)"
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50"
-            disabled={disableSend}
-            aria-label="Send message"
-          >
-            Send
-          </button>
+        <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1 flex flex-col gap-2">
+              <textarea
+                ref={inputRef}
+                rows={1}
+                style={{ height: 'auto' }}
+                className="w-full min-h-[3rem] border border-gray-300 dark:border-gray-700 rounded p-2 resize-none overflow-hidden bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                aria-label="Message input"
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Send a message (Shift+Enter for newline, Up Arrow to recall last message)"
+              />
+              <div className="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+                <span aria-live="polite">
+                  {messageStats.total
+                    ? `${messageStats.total} message${messageStats.total === 1 ? '' : 's'} · ${messageStats.userCount} you / ${messageStats.assistantCount} assistant${
+                        messageStats.lastTimestamp ? ` · Last reply ${messageStats.lastTimestamp}` : ''
+                      }`
+                    : 'Draft your first request to start a new conversation.'}
+                </span>
+                <div className="flex flex-wrap gap-x-3 gap-y-1">
+                  <span>{trimmedSystemPrompt ? 'Custom system prompt active' : 'Default system prompt'}</span>
+                  <span>Autosaves locally</span>
+                </div>
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50 self-start sm:self-auto"
+              disabled={disableSend}
+              aria-label="Send message"
+            >
+              Send
+            </button>
+          </div>
         </form>
       </div>
       {showPromptLibrary && (
@@ -711,7 +812,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-4">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, replace the placeholders with project details, call out screenshots when you tweak the UI, and update the citation markers with the relevant files or command output.
+                  Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact and Notes sections with project specifics, and refresh the citation placeholders with the right files or command output. Use the quick-add buttons below to drop in more testing rows.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -721,6 +822,34 @@ export default function ChatGptUIPersist() {
                   rows={8}
                   className="mt-3 w-full rounded border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Need another testing entry? Quick add a status and update the command and citation details before sharing.
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => appendTestingLine('pass')}
+                    className="rounded border border-green-500 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-500/20 focus:outline-none focus:ring-2 focus:ring-green-500 dark:border-green-400 dark:text-green-300"
+                  >
+                    Add ✅ Passed check
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => appendTestingLine('warn')}
+                    className="rounded border border-yellow-500 bg-yellow-500/10 px-3 py-1 text-xs font-medium text-yellow-700 hover:bg-yellow-500/20 focus:outline-none focus:ring-2 focus:ring-yellow-500 dark:border-yellow-400 dark:text-yellow-300"
+                  >
+                    Add ⚠️ Needs follow-up
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => appendTestingLine('fail')}
+                    className="rounded border border-red-500 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:border-red-400 dark:text-red-300"
+                  >
+                    Add ❌ Failing check
+                  </button>
+                </div>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
