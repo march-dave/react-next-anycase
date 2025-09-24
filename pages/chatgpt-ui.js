@@ -57,20 +57,20 @@ const promptSuggestions = [
 ];
 
 const DEFAULT_PR_TEMPLATE = [
-  'Summary',
+  '**Summary**',
   '* Highlight 1. 【F:path/to/file†L#-L#】',
   '* Highlight 2. 【F:path/to/file†L#-L#】',
   '',
-  'Impact',
+  '**Impact**',
   '* Note the user benefit, risk mitigation, or motivation for the change.',
   '',
-  'Screenshots (if applicable)',
+  '**Screenshots (if applicable)**',
   '* ![Screenshot description](artifacts/filename.png)',
   '',
-  'Testing',
+  '**Testing**',
   '* ✅ `command or suite` – Passed locally. 【chunk†L#-L#】',
   '',
-  'Notes',
+  '**Notes**',
   '* Additional context, rollout details, or follow-up items.',
 ].join('\n');
 
@@ -246,29 +246,27 @@ export default function ChatGptUIPersist() {
       setPrTemplateText((prev) => {
         const trimmedPrev = prev.replace(/\s+$/, '');
         if (!trimmedPrev) {
-          return `Testing\n${snippet}\n`;
+          return `**Testing**\n${snippet}\n`;
         }
 
-        const testingHeading = 'Testing';
-        const headingIndex = trimmedPrev.indexOf(testingHeading);
+        const sections = trimmedPrev.split(/\n{2,}/);
+        let updated = false;
+        const updatedSections = sections.map((section) => {
+          const [firstLine, ...rest] = section.split('\n');
+          const heading = firstLine.trim().replace(/\*/g, '').toLowerCase();
+          if (!updated && heading === 'testing') {
+            updated = true;
+            const sectionBody = rest.length ? `\n${rest.join('\n')}` : '';
+            return `${firstLine}${sectionBody}\n${snippet}`;
+          }
+          return section;
+        });
 
-        if (headingIndex === -1) {
-          return `${trimmedPrev}\n\nTesting\n${snippet}\n`;
+        if (!updated) {
+          updatedSections.push(`**Testing**\n${snippet}`);
         }
 
-        const firstLineBreakAfterHeading = trimmedPrev.indexOf('\n', headingIndex + testingHeading.length);
-        if (firstLineBreakAfterHeading === -1) {
-          return `${trimmedPrev}\n${snippet}\n`;
-        }
-
-        const remainder = trimmedPrev.slice(firstLineBreakAfterHeading + 1);
-        const nextSectionOffset = remainder.indexOf('\n\n');
-        if (nextSectionOffset === -1) {
-          return `${trimmedPrev}\n${snippet}\n`;
-        }
-
-        const insertionPoint = firstLineBreakAfterHeading + 1 + nextSectionOffset;
-        return `${trimmedPrev.slice(0, insertionPoint)}\n${snippet}${trimmedPrev.slice(insertionPoint)}`;
+        return `${updatedSections.join('\n\n')}\n`;
       });
 
       requestAnimationFrame(() => {
@@ -634,7 +632,7 @@ export default function ChatGptUIPersist() {
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. The badges show the themes each prompt is best suited for.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, screenshot, and testing template complete with citation placeholders you can copy or drop into the composer.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, screenshot, and testing template with bold section headings and citation placeholders you can copy or drop into the composer.
                 </p>
               </div>
             </div>
@@ -812,7 +810,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-4">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact and Notes sections with project specifics, and refresh the citation placeholders with the right files or command output. Use the quick-add buttons below to drop in more testing rows.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact and Notes sections with project specifics, and refresh the citation placeholders with the right files or command output. Use the quick-add buttons below to drop in more testing rows.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
