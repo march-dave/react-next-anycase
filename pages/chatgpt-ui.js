@@ -61,17 +61,20 @@ const DEFAULT_PR_TEMPLATE = [
   '* Highlight 1. 【F:path/to/file†L#-L#】',
   '* Highlight 2. 【F:path/to/file†L#-L#】',
   '',
-  '**Impact**',
-  '* Note the user benefit, risk mitigation, or motivation for the change.',
+  '**Impact & Risks**',
+  '* Who is affected and what trade-offs or mitigations should reviewers note?',
   '',
-  '**Screenshots (if applicable)**',
+  '**Screenshots / Recordings**',
   '* ![Screenshot description](artifacts/filename.png)',
   '',
   '**Testing**',
   '* ✅ `command or suite` – Passed locally. 【chunk†L#-L#】',
   '',
-  '**Notes**',
-  '* Additional context, rollout details, or follow-up items.',
+  '**Rollout / Follow-up**',
+  '* Launch steps, feature flags, or clean-up tasks.',
+  '',
+  '**Known issues**',
+  '* Outstanding bugs, limitations, or tickets to monitor.',
 ].join('\n');
 
 const PR_TEST_SNIPPETS = {
@@ -79,6 +82,37 @@ const PR_TEST_SNIPPETS = {
   warn: '* ⚠️ `command or suite` – Needs follow-up or is flaky. 【chunk†L#-L#】',
   fail: '* ❌ `command or suite` – Failing and requires attention. 【chunk†L#-L#】',
 };
+
+const PR_SECTION_SNIPPETS = [
+  {
+    id: 'impact',
+    label: 'Impact & Risks',
+    heading: '**Impact & Risks**',
+    helperText: 'Spell out user benefit, technical trade-offs, and mitigations.',
+    snippet: ['**Impact & Risks**', '* Who is affected and what trade-offs or mitigations should reviewers note?'].join('\n'),
+  },
+  {
+    id: 'accessibility',
+    label: 'Accessibility',
+    heading: '**Accessibility**',
+    helperText: 'Capture screen reader notes, color contrast, or keyboard navigation results.',
+    snippet: ['**Accessibility**', '* Screen reader / keyboard checks and any follow-up tasks.'].join('\n'),
+  },
+  {
+    id: 'perf',
+    label: 'Performance',
+    heading: '**Performance**',
+    helperText: 'Describe metrics, load-testing snapshots, or profiling takeaways.',
+    snippet: ['**Performance**', '* Benchmarks, profiling output, or observed regressions.'].join('\n'),
+  },
+  {
+    id: 'rollout',
+    label: 'Rollout plan',
+    heading: '**Rollout / Follow-up**',
+    helperText: 'List launch steps, flags, alerts, or communications to coordinate.',
+    snippet: ['**Rollout / Follow-up**', '* Launch steps, feature flags, or clean-up tasks.'].join('\n'),
+  },
+];
 
 export default function ChatGptUIPersist() {
   const [messages, setMessages] = useState([]);
@@ -236,6 +270,17 @@ export default function ChatGptUIPersist() {
       }
     });
   };
+  const focusPrHelperTextarea = useCallback(() => {
+    requestAnimationFrame(() => {
+      if (prHelperTextareaRef.current) {
+        const { current: textarea } = prHelperTextareaRef;
+        textarea.focus();
+        const length = textarea.value.length;
+        textarea.setSelectionRange(length, length);
+      }
+    });
+  }, []);
+
   const appendTestingLine = useCallback(
     (status) => {
       const snippet = PR_TEST_SNIPPETS[status];
@@ -269,16 +314,30 @@ export default function ChatGptUIPersist() {
         return `${updatedSections.join('\n\n')}\n`;
       });
 
-      requestAnimationFrame(() => {
-        if (prHelperTextareaRef.current) {
-          const { current: textarea } = prHelperTextareaRef;
-          textarea.focus();
-          const length = textarea.value.length;
-          textarea.setSelectionRange(length, length);
-        }
-      });
+      focusPrHelperTextarea();
     },
-    [setPrTemplateText]
+    [focusPrHelperTextarea]
+  );
+
+  const insertPrSection = useCallback(
+    (section) => {
+      if (!section?.snippet) return;
+      setPrTemplateText((prev) => {
+        const trimmedPrev = prev.replace(/\s+$/, '');
+        if (section.heading) {
+          const hasHeading = trimmedPrev
+            .split('\n')
+            .some((line) => line.trim() === section.heading.trim());
+          if (hasHeading) {
+            return trimmedPrev ? `${trimmedPrev}\n` : '';
+          }
+        }
+        const normalizedSnippet = section.snippet.endsWith('\n') ? section.snippet : `${section.snippet}\n`;
+        return trimmedPrev ? `${trimmedPrev}\n\n${normalizedSnippet}` : normalizedSnippet;
+      });
+      focusPrHelperTextarea();
+    },
+    [focusPrHelperTextarea]
   );
 
   useEffect(() => {
@@ -632,7 +691,7 @@ export default function ChatGptUIPersist() {
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. The badges show the themes each prompt is best suited for.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, screenshot, and testing template with bold section headings and citation placeholders you can copy or drop into the composer.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Accessibility, Performance, or additional test results.
                 </p>
               </div>
             </div>
@@ -807,10 +866,10 @@ export default function ChatGptUIPersist() {
                 Close
               </button>
             </div>
-            <div className="px-6 py-4 space-y-4">
+            <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact and Notes sections with project specifics, and refresh the citation placeholders with the right files or command output. Use the quick-add buttons below to drop in more testing rows.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact or Rollout sections with project specifics, and refresh the citation placeholders with the right files, logs, or screenshots. Use the quick-add buttons below to append more sections or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -820,6 +879,24 @@ export default function ChatGptUIPersist() {
                   rows={8}
                   className="mt-3 w-full rounded border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Need to cover more context? Append a ready-made section and fill in the details before sharing.
+                </p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {PR_SECTION_SNIPPETS.map((section) => (
+                    <button
+                      key={section.id}
+                      type="button"
+                      onClick={() => insertPrSection(section)}
+                      className="rounded border border-gray-300 bg-white px-3 py-2 text-left text-xs text-gray-700 transition hover:border-blue-400 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:bg-gray-700"
+                    >
+                      <span className="block font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
+                      <span className="mt-1 block text-[0.7rem] text-gray-500 dark:text-gray-400">{section.helperText}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
