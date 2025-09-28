@@ -64,11 +64,17 @@ const DEFAULT_PR_TEMPLATE = [
   '**Impact & Risks**',
   '* Who is affected and what trade-offs or mitigations should reviewers note?',
   '',
+  '**Security & Privacy**',
+  '* Permissions, data retention, or threat model considerations. 【F:path/to/file†L#-L#】',
+  '',
   '**Screenshots / Recordings**',
   '* ![Screenshot description](artifacts/filename.png)',
   '',
   '**Testing**',
   '* ✅ `command or suite` – Passed locally. 【chunk†L#-L#】',
+  '',
+  '**Documentation & Support**',
+  '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
   '',
   '**Rollout / Follow-up**',
   '* Launch steps, feature flags, or clean-up tasks.',
@@ -92,6 +98,16 @@ const PR_SECTION_SNIPPETS = [
     snippet: ['**Impact & Risks**', '* Who is affected and what trade-offs or mitigations should reviewers note?'].join('\n'),
   },
   {
+    id: 'security',
+    label: 'Security & Privacy',
+    heading: '**Security & Privacy**',
+    helperText: 'Note auth changes, data handling, or privacy reviews.',
+    snippet: [
+      '**Security & Privacy**',
+      '* Permissions, data retention, or threat model considerations. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
     id: 'accessibility',
     label: 'Accessibility',
     heading: '**Accessibility**',
@@ -112,6 +128,16 @@ const PR_SECTION_SNIPPETS = [
     helperText: 'List launch steps, flags, alerts, or communications to coordinate.',
     snippet: ['**Rollout / Follow-up**', '* Launch steps, feature flags, or clean-up tasks.'].join('\n'),
   },
+  {
+    id: 'docs',
+    label: 'Documentation & Support',
+    heading: '**Documentation & Support**',
+    helperText: 'Call out docs, runbooks, or support updates that ship with the change.',
+    snippet: [
+      '**Documentation & Support**',
+      '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
 ];
 
 export default function ChatGptUIPersist() {
@@ -122,6 +148,7 @@ export default function ChatGptUIPersist() {
   const [showPromptLibrary, setShowPromptLibrary] = useState(false);
   const [showPrHelper, setShowPrHelper] = useState(false);
   const [promptSearch, setPromptSearch] = useState('');
+  const [promptTagFilter, setPromptTagFilter] = useState(null);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
   const [prCopyStatus, setPrCopyStatus] = useState('');
@@ -210,10 +237,63 @@ export default function ChatGptUIPersist() {
     });
   };
 
+  const togglePromptTagFilter = useCallback((tag) => {
+    if (!tag) {
+      return;
+    }
+
+    const normalized = tag.toLowerCase();
+    setPromptTagFilter((prev) => {
+      if (prev?.value === normalized) {
+        return null;
+      }
+
+      return { label: tag, value: normalized };
+    });
+  }, []);
+
+  const handlePromptTagKeyDown = useCallback(
+    (event, tag) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        togglePromptTagFilter(tag);
+      }
+    },
+    [togglePromptTagFilter]
+  );
+
+  const clearPromptTagFilter = useCallback(() => {
+    setPromptTagFilter(null);
+  }, []);
+
+  const promptTagFilterValue = promptTagFilter?.value ?? '';
+  const promptTagFilterLabel = promptTagFilter?.label ?? '';
+
+  const displayedPromptSuggestions = useMemo(() => {
+    if (!promptTagFilterValue) {
+      return promptSuggestions;
+    }
+
+    return promptSuggestions.filter((suggestion) =>
+      suggestion.tags?.some((tag) => tag.toLowerCase() === promptTagFilterValue)
+    );
+  }, [promptTagFilterValue]);
+
   const filteredPromptSuggestions = useMemo(() => {
     const search = promptSearch.trim().toLowerCase();
-    if (!search) return promptSuggestions;
+
     return promptSuggestions.filter((suggestion) => {
+      const matchesTag = !promptTagFilterValue
+        ? true
+        : suggestion.tags?.some((tag) => tag.toLowerCase() === promptTagFilterValue);
+      if (!matchesTag) {
+        return false;
+      }
+
+      if (!search) {
+        return true;
+      }
+
       if (
         suggestion.title.toLowerCase().includes(search) ||
         suggestion.description.toLowerCase().includes(search) ||
@@ -221,10 +301,14 @@ export default function ChatGptUIPersist() {
       ) {
         return true;
       }
-      if (!suggestion.tags?.length) return false;
+
+      if (!suggestion.tags?.length) {
+        return false;
+      }
+
       return suggestion.tags.some((tag) => tag.toLowerCase().includes(search));
     });
-  }, [promptSearch]);
+  }, [promptSearch, promptTagFilterValue]);
 
   const handleSystemPromptChange = (e) => {
     setSystemPrompt(e.target.value);
@@ -658,40 +742,80 @@ export default function ChatGptUIPersist() {
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                   Try one of these starters
                 </h2>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {promptSuggestions.map((suggestion) => (
+                {promptTagFilterLabel && (
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-blue-700 dark:text-blue-300">
+                    <span>
+                      Filtering by badge <span className="font-semibold">{promptTagFilterLabel}</span>
+                    </span>
                     <button
-                      key={suggestion.title}
                       type="button"
-                      onClick={() => applySuggestedPrompt(suggestion.prompt)}
-                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-left bg-white dark:bg-gray-800 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      className="rounded border border-blue-200 px-2 py-1 text-[0.7rem] uppercase tracking-wide text-blue-700 transition hover:border-blue-400 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:hover:border-blue-400 dark:hover:bg-blue-900/40"
+                      onClick={clearPromptTagFilter}
                     >
-                      <span className="block font-medium text-gray-900 dark:text-gray-100">
-                        {suggestion.title}
-                      </span>
-                      <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-                        {suggestion.description}
-                      </span>
-                      {suggestion.tags?.length > 0 && (
-                        <span className="mt-2 flex flex-wrap gap-1">
-                          {suggestion.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </span>
-                      )}
+                      Clear filter
                     </button>
-                  ))}
+                  </div>
+                )}
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {displayedPromptSuggestions.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                      No starters match this badge yet. Clear the filter or open the Prompt library for more ideas.
+                    </div>
+                  ) : (
+                    displayedPromptSuggestions.map((suggestion) => (
+                      <button
+                        key={suggestion.title}
+                        type="button"
+                        onClick={() => applySuggestedPrompt(suggestion.prompt)}
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-left bg-white dark:bg-gray-800 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      >
+                        <span className="block font-medium text-gray-900 dark:text-gray-100">
+                          {suggestion.title}
+                        </span>
+                        <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                          {suggestion.description}
+                        </span>
+                        {suggestion.tags?.length > 0 && (
+                          <span className="mt-2 flex flex-wrap gap-1">
+                            {suggestion.tags.map((tag) => {
+                              const normalizedTag = tag.toLowerCase();
+                              const isActive = promptTagFilterValue === normalizedTag;
+                              return (
+                                <span
+                                  key={tag}
+                                  role="button"
+                                  tabIndex={0}
+                                  aria-pressed={isActive}
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    togglePromptTagFilter(tag);
+                                  }}
+                                  onKeyDown={(event) => {
+                                    event.stopPropagation();
+                                    handlePromptTagKeyDown(event, tag);
+                                  }}
+                                  className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                                    isActive
+                                      ? 'border-blue-500 bg-blue-600 text-white dark:border-blue-300 dark:bg-blue-400 dark:text-gray-900'
+                                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/60'
+                                  }`}
+                                >
+                                  {tag}
+                                </span>
+                              );
+                            })}
+                          </span>
+                        )}
+                      </button>
+                    ))
+                  )}
                 </div>
                 <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                  Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. The badges show the themes each prompt is best suited for.
+                  Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. Click a badge to filter the list by theme or use search in the library for keyword matches.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Accessibility, Performance, or additional test results.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Rollout, Documentation, or additional test results.
                 </p>
               </div>
             </div>
@@ -764,7 +888,7 @@ export default function ChatGptUIPersist() {
                 </h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   Browse curated starters or search to quickly reuse a favorite request. Results match titles, descriptions,
-                  prompts, and badges.
+                  prompts, and badges—click any badge to filter related prompts instantly.
                 </p>
               </div>
               <button
@@ -788,11 +912,25 @@ export default function ChatGptUIPersist() {
                 placeholder="Search prompts by title, keyword, or tag"
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               />
+              {promptTagFilterLabel && (
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-blue-700 dark:text-blue-300">
+                  <span>
+                    Filtering by badge <span className="font-semibold">{promptTagFilterLabel}</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="rounded border border-blue-200 px-2 py-1 text-[0.7rem] uppercase tracking-wide text-blue-700 transition hover:border-blue-400 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:hover:border-blue-400 dark:hover:bg-blue-900/40"
+                    onClick={clearPromptTagFilter}
+                  >
+                    Clear filter
+                  </button>
+                </div>
+              )}
             </div>
             <div className="max-h-[60vh] overflow-y-auto px-6 py-4 space-y-4">
               {filteredPromptSuggestions.length === 0 ? (
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  No prompts match your search yet. Try a different keyword.
+                  No prompts match your search or badge filter yet. Try a different keyword or clear the filter.
                 </p>
               ) : (
                 <ul className="space-y-3">
@@ -814,14 +952,34 @@ export default function ChatGptUIPersist() {
                         </span>
                         {suggestion.tags?.length > 0 && (
                           <span className="mt-2 flex flex-wrap gap-1">
-                            {suggestion.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
-                              >
-                                {tag}
-                              </span>
-                            ))}
+                            {suggestion.tags.map((tag) => {
+                              const normalizedTag = tag.toLowerCase();
+                              const isActive = promptTagFilterValue === normalizedTag;
+                              return (
+                                <span
+                                  key={tag}
+                                  role="button"
+                                  tabIndex={0}
+                                  aria-pressed={isActive}
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    togglePromptTagFilter(tag);
+                                  }}
+                                  onKeyDown={(event) => {
+                                    event.stopPropagation();
+                                    handlePromptTagKeyDown(event, tag);
+                                  }}
+                                  className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                                    isActive
+                                      ? 'border-blue-500 bg-blue-600 text-white dark:border-blue-300 dark:bg-blue-400 dark:text-gray-900'
+                                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/60'
+                                  }`}
+                                >
+                                  {tag}
+                                </span>
+                              );
+                            })}
                           </span>
                         )}
                       </button>
@@ -869,7 +1027,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact or Rollout sections with project specifics, and refresh the citation placeholders with the right files, logs, or screenshots. Use the quick-add buttons below to append more sections or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, Performance, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, or screenshots. Use the quick-add buttons below to append more sections or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
