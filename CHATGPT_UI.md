@@ -56,6 +56,7 @@ An **Export** button copies the chat history—including timestamps and the cust
 briefly confirms success.
 You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message
 and now names the file using the current timestamp.
+Tap the **Insights** button in the header to review message counts, role balance, word totals, and conversation timing, then copy a shareable summary for docs or pull requests.
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation and announces updates to screen readers.
@@ -68,7 +69,7 @@ common workflows.
 The cards include themed badges to help you scan suggestions at a glance, plus a new starter for writing pull request summaries with testing callouts.
 Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords or tags
 before dropping them into the chat.
-Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Accessibility, Performance, Rollout, and Testing rows, plus file, log, and image citation placeholders you can tweak or insert into the composer.
+Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, and Testing rows, plus file, log, and image citation placeholders you can tweak or insert into the composer.
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
 Press Escape to clear the message input.
