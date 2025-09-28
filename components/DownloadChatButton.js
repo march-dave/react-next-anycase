@@ -34,9 +34,20 @@ function buildTranscript(messages, systemPrompt) {
     lines.push(`system: ${trimmedPrompt}`);
   }
   for (const m of messages) {
-    lines.push(`${m.role}${m.time ? ` (${m.time})` : ''}: ${m.text}`);
+    const timeLabel = formatMessageTimestamp(m);
+    lines.push(`${m.role}${timeLabel ? ` (${timeLabel})` : ''}: ${m.text}`);
   }
   return lines.join('\n');
+}
+
+function formatMessageTimestamp(message) {
+  if (message?.timestamp) {
+    const parsed = new Date(message.timestamp);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleString();
+    }
+  }
+  return typeof message?.time === 'string' ? message.time : '';
 }
 
 function createFilename() {

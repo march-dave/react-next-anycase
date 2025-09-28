@@ -67,6 +67,15 @@ const DEFAULT_PR_TEMPLATE = [
   '**Security & Privacy**',
   '* Permissions, data retention, or threat model considerations. 【F:path/to/file†L#-L#】',
   '',
+  '**Accessibility**',
+  '* Screen reader / keyboard checks and any follow-up tasks. 【F:path/to/file†L#-L#】',
+  '',
+  '**Performance**',
+  '* Benchmarks, profiling output, or observed regressions. 【F:path/to/file†L#-L#】',
+  '',
+  '**Analytics & Monitoring**',
+  '* Dashboards, alerts, or events to watch after release. 【F:path/to/file†L#-L#】',
+  '',
   '**Screenshots / Recordings**',
   '* ![Screenshot description](artifacts/filename.png)',
   '',
@@ -112,14 +121,30 @@ const PR_SECTION_SNIPPETS = [
     label: 'Accessibility',
     heading: '**Accessibility**',
     helperText: 'Capture screen reader notes, color contrast, or keyboard navigation results.',
-    snippet: ['**Accessibility**', '* Screen reader / keyboard checks and any follow-up tasks.'].join('\n'),
+    snippet: [
+      '**Accessibility**',
+      '* Screen reader / keyboard checks and any follow-up tasks. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
   },
   {
     id: 'perf',
     label: 'Performance',
     heading: '**Performance**',
     helperText: 'Describe metrics, load-testing snapshots, or profiling takeaways.',
-    snippet: ['**Performance**', '* Benchmarks, profiling output, or observed regressions.'].join('\n'),
+    snippet: [
+      '**Performance**',
+      '* Benchmarks, profiling output, or observed regressions. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics & Monitoring',
+    heading: '**Analytics & Monitoring**',
+    helperText: 'Call out dashboards, alerts, or events to watch after launch.',
+    snippet: [
+      '**Analytics & Monitoring**',
+      '* Dashboards, alerts, or events to watch after release. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
   },
   {
     id: 'rollout',
@@ -140,6 +165,71 @@ const PR_SECTION_SNIPPETS = [
   },
 ];
 
+const MAX_SUMMARY_PREVIEW_LENGTH = 200;
+
+function countWords(text) {
+  if (typeof text !== 'string') {
+    return 0;
+  }
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return 0;
+  }
+  return trimmed.split(/\s+/).length;
+}
+
+function formatTimestampForDisplay(timestamp, fallback = '') {
+  if (!timestamp) {
+    return fallback || '';
+  }
+  const parsed = new Date(timestamp);
+  if (Number.isNaN(parsed.getTime())) {
+    return fallback || '';
+  }
+  return parsed.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function formatTimeLabel(date) {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+function formatDuration(ms) {
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return '';
+  }
+  const totalSeconds = Math.round(ms / 1000);
+  if (totalSeconds < 60) {
+    return `${totalSeconds}s`;
+  }
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (totalMinutes < 60) {
+    return seconds ? `${totalMinutes}m ${seconds}s` : `${totalMinutes}m`;
+  }
+  const totalHours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (totalHours < 24) {
+    return minutes ? `${totalHours}h ${minutes}m` : `${totalHours}h`;
+  }
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24;
+  return hours ? `${days}d ${hours}h` : `${days}d`;
+}
+
+function formatAverageWords(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return '0';
+  }
+  return value >= 10 ? Math.round(value).toString() : value.toFixed(1);
+}
+
+function formatNumber(value) {
+  if (!Number.isFinite(value)) {
+    return '0';
+  }
+  return value.toLocaleString();
+}
+
 export default function ChatGptUIPersist() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -147,11 +237,13 @@ export default function ChatGptUIPersist() {
   const [showSettings, setShowSettings] = useState(false);
   const [showPromptLibrary, setShowPromptLibrary] = useState(false);
   const [showPrHelper, setShowPrHelper] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
   const [promptSearch, setPromptSearch] = useState('');
   const [promptTagFilter, setPromptTagFilter] = useState(null);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
   const [prCopyStatus, setPrCopyStatus] = useState('');
+  const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
@@ -160,6 +252,9 @@ export default function ChatGptUIPersist() {
   const prHelperButtonRef = useRef(null);
   const prHelperTextareaRef = useRef(null);
   const prHelperHasOpened = useRef(false);
+  const insightsButtonRef = useRef(null);
+  const insightsDialogRef = useRef(null);
+  const insightsHasOpened = useRef(false);
   const disableSend = loading || !input.trim();
   const modelName = process.env.NEXT_PUBLIC_OPENAI_MODEL;
   const messageCount = messages.length;
@@ -172,33 +267,227 @@ export default function ChatGptUIPersist() {
       ? `${trimmedSystemPrompt.slice(0, 77)}...`
       : trimmedSystemPrompt;
   }, [trimmedSystemPrompt]);
-  const messageStats = useMemo(() => {
+  const conversationInsights = useMemo(() => {
     if (messages.length === 0) {
       return {
         total: 0,
         userCount: 0,
         assistantCount: 0,
-        lastTimestamp: '',
+        totalWords: 0,
+        userWords: 0,
+        assistantWords: 0,
+        totalCharacters: 0,
+        userCharacters: 0,
+        assistantCharacters: 0,
+        averageWordsPerMessage: 0,
+        firstTimestamp: null,
+        firstTimeLabel: '',
+        lastTimestamp: null,
+        lastTimeLabel: '',
+        durationMs: 0,
       };
     }
 
     let userCount = 0;
     let assistantCount = 0;
+    let totalWords = 0;
+    let userWords = 0;
+    let assistantWords = 0;
+    let totalCharacters = 0;
+    let userCharacters = 0;
+    let assistantCharacters = 0;
+    const orderedMessages = [];
+
     for (const message of messages) {
+      if (!message || typeof message !== 'object') {
+        continue;
+      }
+      orderedMessages.push(message);
+      const rawText =
+        typeof message.text === 'string'
+          ? message.text
+          : message.text != null
+          ? String(message.text)
+          : '';
+      const wordCount = countWords(rawText);
+      const charCount = rawText.length;
+      totalWords += wordCount;
+      totalCharacters += charCount;
       if (message.role === 'user') {
         userCount += 1;
+        userWords += wordCount;
+        userCharacters += charCount;
       } else if (message.role === 'assistant') {
         assistantCount += 1;
+        assistantWords += wordCount;
+        assistantCharacters += charCount;
       }
     }
 
+    if (orderedMessages.length === 0) {
+      return {
+        total: 0,
+        userCount: 0,
+        assistantCount: 0,
+        totalWords: 0,
+        userWords: 0,
+        assistantWords: 0,
+        totalCharacters: 0,
+        userCharacters: 0,
+        assistantCharacters: 0,
+        averageWordsPerMessage: 0,
+        firstTimestamp: null,
+        firstTimeLabel: '',
+        lastTimestamp: null,
+        lastTimeLabel: '',
+        durationMs: 0,
+      };
+    }
+
+    const firstWithTimestamp = orderedMessages.find((msg) => msg.timestamp);
+    const lastWithTimestamp = [...orderedMessages].reverse().find((msg) => msg.timestamp);
+    const firstWithTime = orderedMessages.find((msg) => typeof msg.time === 'string' && msg.time);
+    const lastWithTime = [...orderedMessages].reverse().find((msg) => typeof msg.time === 'string' && msg.time);
+
+    const firstTimestamp = firstWithTimestamp?.timestamp ?? null;
+    const lastTimestamp = lastWithTimestamp?.timestamp ?? null;
+    const firstTimeLabel = firstWithTime?.time ?? '';
+    const lastTimeLabel = lastWithTime?.time ?? '';
+
+    let durationMs = 0;
+    if (firstTimestamp && lastTimestamp) {
+      const start = new Date(firstTimestamp).getTime();
+      const end = new Date(lastTimestamp).getTime();
+      if (!Number.isNaN(start) && !Number.isNaN(end) && end >= start) {
+        durationMs = end - start;
+      }
+    }
+
+    const totalMessages = orderedMessages.length;
+    const averageWordsPerMessage = totalMessages ? totalWords / totalMessages : 0;
+
     return {
-      total: messages.length,
+      total: totalMessages,
       userCount,
       assistantCount,
-      lastTimestamp: messages[messages.length - 1]?.time || '',
+      totalWords,
+      userWords,
+      assistantWords,
+      totalCharacters,
+      userCharacters,
+      assistantCharacters,
+      averageWordsPerMessage,
+      firstTimestamp,
+      firstTimeLabel,
+      lastTimestamp,
+      lastTimeLabel,
+      durationMs,
     };
   }, [messages]);
+  const messageStats = useMemo(() => {
+    if (conversationInsights.total === 0) {
+      return {
+        total: 0,
+        userCount: 0,
+        assistantCount: 0,
+        lastTimestamp: null,
+        lastTimeLabel: '',
+      };
+    }
+
+    return {
+      total: conversationInsights.total,
+      userCount: conversationInsights.userCount,
+      assistantCount: conversationInsights.assistantCount,
+      lastTimestamp: conversationInsights.lastTimestamp,
+      lastTimeLabel: conversationInsights.lastTimeLabel,
+    };
+  }, [conversationInsights]);
+  const hasMessages = conversationInsights.total > 0;
+  const lastReplyDisplay = hasMessages
+    ? formatTimestampForDisplay(messageStats.lastTimestamp, messageStats.lastTimeLabel)
+    : '';
+  const conversationDurationText = conversationInsights.durationMs
+    ? formatDuration(conversationInsights.durationMs)
+    : '';
+  const firstActivityDisplay = hasMessages
+    ? formatTimestampForDisplay(
+        conversationInsights.firstTimestamp,
+        conversationInsights.firstTimeLabel
+      )
+    : '';
+  const averageWordsPerMessageDisplay = hasMessages
+    ? formatAverageWords(conversationInsights.averageWordsPerMessage)
+    : '0';
+  const insightsSummaryText = useMemo(() => {
+    if (!hasMessages) {
+      return 'No conversation yet — start chatting to generate insights.';
+    }
+
+    const lines = [
+      'Conversation insights',
+      `Messages: ${formatNumber(conversationInsights.total)} (${formatNumber(
+        conversationInsights.userCount
+      )} you / ${formatNumber(conversationInsights.assistantCount)} assistant)`,
+      `Words: ${formatNumber(conversationInsights.totalWords)} total (avg ${averageWordsPerMessageDisplay} per message)`,
+      `Characters: ${formatNumber(conversationInsights.totalCharacters)} total`,
+    ];
+
+    const durationText = formatDuration(conversationInsights.durationMs);
+    if (durationText) {
+      lines.push(`Duration: ${durationText}`);
+    }
+
+    const started = formatTimestampForDisplay(
+      conversationInsights.firstTimestamp,
+      conversationInsights.firstTimeLabel
+    );
+    if (started) {
+      lines.push(`Started: ${started}`);
+    }
+
+    const last = formatTimestampForDisplay(
+      conversationInsights.lastTimestamp,
+      conversationInsights.lastTimeLabel
+    );
+    if (last) {
+      lines.push(`Last activity: ${last}`);
+    }
+
+    lines.push(
+      `You wrote ${formatNumber(conversationInsights.userWords)} words (${formatNumber(
+        conversationInsights.userCharacters
+      )} chars).`
+    );
+    lines.push(
+      `Assistant replied with ${formatNumber(conversationInsights.assistantWords)} words (${formatNumber(
+        conversationInsights.assistantCharacters
+      )} chars).`
+    );
+
+    if (modelName) {
+      lines.push(`Model: ${modelName}`);
+    }
+
+    if (trimmedSystemPrompt) {
+      const preview =
+        trimmedSystemPrompt.length > MAX_SUMMARY_PREVIEW_LENGTH
+          ? `${trimmedSystemPrompt.slice(0, MAX_SUMMARY_PREVIEW_LENGTH - 3)}...`
+          : trimmedSystemPrompt;
+      lines.push('System prompt: Custom');
+      lines.push(`Prompt preview: ${preview}`);
+    } else {
+      lines.push('System prompt: Default');
+    }
+
+    return lines.join('\n');
+  }, [
+    averageWordsPerMessageDisplay,
+    conversationInsights,
+    hasMessages,
+    modelName,
+    trimmedSystemPrompt,
+  ]);
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -206,6 +495,33 @@ export default function ChatGptUIPersist() {
       inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
   }, []);
+  const handleCopyInsights = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(insightsSummaryText);
+      setInsightsCopyStatus('Copied!');
+    } catch (err) {
+      setInsightsCopyStatus('Copy failed');
+    }
+    setTimeout(() => setInsightsCopyStatus(''), 2000);
+  }, [insightsSummaryText]);
+  const handleInsertInsights = useCallback(() => {
+    setInput((prev) => {
+      const trimmedPrev = prev.trimEnd();
+      if (!trimmedPrev) {
+        return insightsSummaryText;
+      }
+      return `${trimmedPrev}\n\n${insightsSummaryText}`;
+    });
+    setShowInsights(false);
+    requestAnimationFrame(() => {
+      adjustInputHeight();
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const length = inputRef.current.value.length;
+        inputRef.current.setSelectionRange(length, length);
+      }
+    });
+  }, [adjustInputHeight, insightsSummaryText]);
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -219,6 +535,8 @@ export default function ChatGptUIPersist() {
     } catch (err) {
       // ignore
     }
+    setShowInsights(false);
+    setInsightsCopyStatus('');
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -442,7 +760,43 @@ export default function ChatGptUIPersist() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setMessages(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const now = Date.now();
+          const normalized = parsed
+            .map((message, index) => {
+              if (!message || typeof message !== 'object') {
+                return null;
+              }
+              const candidateTimestamp = message.timestamp;
+              let timestamp;
+              if (candidateTimestamp) {
+                const parsedTimestamp = new Date(candidateTimestamp);
+                timestamp = Number.isNaN(parsedTimestamp.getTime())
+                  ? new Date(now + index).toISOString()
+                  : parsedTimestamp.toISOString();
+              } else {
+                timestamp = new Date(now + index).toISOString();
+              }
+              const timeLabel =
+                typeof message.time === 'string' && message.time
+                  ? message.time
+                  : formatTimeLabel(new Date(timestamp));
+              const role =
+                message.role === 'user' || message.role === 'assistant'
+                  ? message.role
+                  : 'assistant';
+              const text =
+                typeof message.text === 'string'
+                  ? message.text
+                  : message.text != null
+                  ? String(message.text)
+                  : '';
+              return { ...message, role, text, time: timeLabel, timestamp };
+            })
+            .filter(Boolean);
+          setMessages(normalized);
+        }
       }
     } catch (err) {
       console.error('Failed to load messages', err);
@@ -567,10 +921,45 @@ export default function ChatGptUIPersist() {
     };
   }, [showPrHelper]);
 
+  useEffect(() => {
+    if (!showInsights) {
+      setInsightsCopyStatus('');
+      if (insightsHasOpened.current && insightsButtonRef.current) {
+        insightsButtonRef.current.focus();
+      }
+      return;
+    }
+
+    insightsHasOpened.current = true;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowInsights(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    requestAnimationFrame(() => {
+      if (insightsDialogRef.current) {
+        insightsDialogRef.current.focus();
+      }
+    });
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showInsights]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    const userMsg = { role: 'user', text: input, time: new Date().toLocaleTimeString() };
+    const now = new Date();
+    const userMsg = {
+      role: 'user',
+      text: input,
+      time: formatTimeLabel(now),
+      timestamp: now.toISOString(),
+    };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     if (inputRef.current) {
@@ -590,13 +979,21 @@ export default function ChatGptUIPersist() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      const botMsg = { role: 'assistant', text: data.text || 'No response', time: new Date().toLocaleTimeString() };
+      const replyTime = new Date();
+      const botMsg = {
+        role: 'assistant',
+        text: data.text || 'No response',
+        time: formatTimeLabel(replyTime),
+        timestamp: replyTime.toISOString(),
+      };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
+      const errorTime = new Date();
       const errorMsg = {
         role: 'assistant',
         text: 'Error: ' + err.message,
-        time: new Date().toLocaleTimeString(),
+        time: formatTimeLabel(errorTime),
+        timestamp: errorTime.toISOString(),
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -654,6 +1051,17 @@ export default function ChatGptUIPersist() {
             aria-controls="pr-helper"
           >
             PR helper
+          </button>
+          <button
+            type="button"
+            ref={insightsButtonRef}
+            onClick={() => setShowInsights(true)}
+            className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
+            aria-haspopup="dialog"
+            aria-expanded={showInsights}
+            aria-controls="conversation-insights"
+          >
+            Insights
           </button>
           <button
             type="button"
@@ -815,7 +1223,10 @@ export default function ChatGptUIPersist() {
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. Click a badge to filter the list by theme or use search in the library for keyword matches.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Rollout, Documentation, or additional test results.
+                  Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
+                </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, or additional test results.
                 </p>
               </div>
             </div>
@@ -842,10 +1253,10 @@ export default function ChatGptUIPersist() {
               />
               <div className="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
                 <span aria-live="polite">
-                  {messageStats.total
+                  {hasMessages
                     ? `${messageStats.total} message${messageStats.total === 1 ? '' : 's'} · ${messageStats.userCount} you / ${messageStats.assistantCount} assistant${
-                        messageStats.lastTimestamp ? ` · Last reply ${messageStats.lastTimestamp}` : ''
-                      }`
+                        lastReplyDisplay ? ` · Last reply ${lastReplyDisplay}` : ''
+                      }${conversationDurationText ? ` · Span ${conversationDurationText}` : ''}`
                     : 'Draft your first request to start a new conversation.'}
                 </span>
                 <div className="flex flex-wrap gap-x-3 gap-y-1">
@@ -1027,7 +1438,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, Performance, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, or screenshots. Use the quick-add buttons below to append more sections or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, Performance, Analytics & Monitoring, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, or screenshots. Use the quick-add buttons below to append more sections or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -1108,6 +1519,136 @@ export default function ChatGptUIPersist() {
                 >
                   Reset template
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showInsights && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="conversation-insights-title"
+          id="conversation-insights"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40"
+            aria-label="Close conversation insights"
+            tabIndex={-1}
+            onClick={() => setShowInsights(false)}
+          />
+          <div
+            ref={insightsDialogRef}
+            tabIndex={-1}
+            className="relative max-h-full w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-gray-800"
+          >
+            <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+              <div>
+                <h2 id="conversation-insights-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Conversation insights
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Understand message balance, cadence, and word counts before exporting a transcript or drafting a PR note.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={() => setShowInsights(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="px-6 py-4 space-y-5">
+              <div>
+                <dl className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Messages
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {formatNumber(conversationInsights.total)} total · {formatNumber(conversationInsights.userCount)} you / {formatNumber(conversationInsights.assistantCount)} assistant
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Word balance
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {formatNumber(conversationInsights.totalWords)} words · {formatNumber(conversationInsights.userWords)} you / {formatNumber(conversationInsights.assistantWords)} assistant (avg {averageWordsPerMessageDisplay} per message)
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Characters
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {formatNumber(conversationInsights.totalCharacters)} total · {formatNumber(conversationInsights.userCharacters)} you / {formatNumber(conversationInsights.assistantCharacters)} assistant
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Timeline
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {firstActivityDisplay ? `Started ${firstActivityDisplay}` : 'Waiting for the first message.'}
+                      {lastReplyDisplay ? ` · Last reply ${lastReplyDisplay}` : ''}
+                      {conversationDurationText ? ` · Span ${conversationDurationText}` : ''}
+                    </dd>
+                  </div>
+                </dl>
+                {trimmedSystemPrompt ? (
+                  <p className="mt-3 text-xs text-blue-700 dark:text-blue-300">
+                    Custom system prompt active — included in the summary below.
+                  </p>
+                ) : (
+                  <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    Using the default system prompt.
+                  </p>
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Shareable summary</h3>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Copy or insert the generated snapshot to reuse in stand-ups, design docs, or PR updates.
+                </p>
+                <textarea
+                  value={insightsSummaryText}
+                  readOnly
+                  rows={hasMessages ? 8 : 4}
+                  aria-label="Conversation insights summary"
+                  className="mt-3 w-full rounded border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={handleCopyInsights}
+                    className="border border-blue-500 bg-blue-500 px-3 py-2 font-medium text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <span aria-live="polite">{insightsCopyStatus || 'Copy summary'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleInsertInsights}
+                    disabled={!hasMessages}
+                    className={`border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      hasMessages
+                        ? 'border-gray-300 bg-white text-gray-900 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
+                        : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600'
+                    }`}
+                  >
+                    Insert into chat
+                  </button>
+                </div>
+                {modelName ? (
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Model: {modelName}</span>
+                ) : (
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Model: default</span>
+                )}
               </div>
             </div>
           </div>
