@@ -80,7 +80,7 @@ const DEFAULT_PR_TEMPLATE = [
   '* ![Screenshot description](artifacts/filename.png)',
   '',
   '**Testing**',
-  '* ✅ `command or suite` – Passed locally. 【chunk†L#-L#】',
+  '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
   '',
   '**Documentation & Support**',
   '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
@@ -93,9 +93,9 @@ const DEFAULT_PR_TEMPLATE = [
 ].join('\n');
 
 const PR_TEST_SNIPPETS = {
-  pass: '* ✅ `command or suite` – Passed locally. 【chunk†L#-L#】',
-  warn: '* ⚠️ `command or suite` – Needs follow-up or is flaky. 【chunk†L#-L#】',
-  fail: '* ❌ `command or suite` – Failing and requires attention. 【chunk†L#-L#】',
+  pass: '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
+  warn: '* ⚠️ `command or suite` — Needs follow-up or is flaky. 【chunk†L#-L#】',
+  fail: '* ❌ `command or suite` — Failing and requires attention. 【chunk†L#-L#】',
 };
 
 const PR_SECTION_SNIPPETS = [
@@ -1073,14 +1073,29 @@ export default function ChatGptUIPersist() {
             {showSettings ? 'Hide settings' : 'Settings'}
           </button>
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
-            {messages.length > 0 && (
-              <span
-                className="self-center"
-                aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
-                aria-live="polite"
-              >
-                {messages.length} {messages.length === 1 ? 'message' : 'messages'}
-              </span>
+            {hasMessages && (
+              <>
+                <span
+                  className="self-center"
+                  aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
+                  aria-live="polite"
+                >
+                  {messages.length} {messages.length === 1 ? 'message' : 'messages'}
+                </span>
+                {conversationDurationText && (
+                  <span className="self-center" aria-label={`Conversation span ${conversationDurationText}`}>
+                    Span: {conversationDurationText}
+                  </span>
+                )}
+                <span className="self-center" aria-label={`Average words per message ${averageWordsPerMessageDisplay}`}>
+                  Avg words/msg: {averageWordsPerMessageDisplay}
+                </span>
+                {lastReplyDisplay && (
+                  <span className="self-center" aria-label={`Last reply ${lastReplyDisplay}`}>
+                    Last reply: {lastReplyDisplay}
+                  </span>
+                )}
+              </>
             )}
             {modelName && (
               <span className="self-center" aria-label={`Model ${modelName}`}>

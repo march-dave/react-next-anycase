@@ -60,6 +60,7 @@ Tap the **Insights** button in the header to review message counts, role balance
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation and announces updates to screen readers.
+It now also surfaces the conversation span, average words per message, and the timestamp of the last reply so you can gauge pace without opening the Insights panel.
 The page title also updates with the current message count so you can see new activity from another tab.
 If `NEXT_PUBLIC_OPENAI_MODEL` is set, the active model name appears in the header and page title.
 The message input automatically expands to fit longer content.
@@ -69,7 +70,7 @@ common workflows.
 The cards include themed badges to help you scan suggestions at a glance, plus a new starter for writing pull request summaries with testing callouts.
 Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords or tags
 before dropping them into the chat.
-Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, and Testing rows, plus file, log, and image citation placeholders you can tweak or insert into the composer.
+Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer.
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
 Press Escape to clear the message input.
