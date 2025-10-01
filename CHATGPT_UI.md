@@ -63,7 +63,7 @@ The header displays the current number of messages in the conversation and annou
 It now also surfaces the conversation span, average words per message, and the timestamp of the last reply so you can gauge pace without opening the Insights panel.
 The page title also updates with the current message count so you can see new activity from another tab.
 If `NEXT_PUBLIC_OPENAI_MODEL` is set, the active model name appears in the header and page title.
-The message input automatically expands to fit longer content.
+The message input automatically expands to fit longer content and now shows live word and character counts for your draft so you can spot lengthy updates before sending them.
 The chat log announces updates to screen readers and indicates when a response is loading.
 If there are no messages yet, a placeholder invites you to start the conversation and now displays quick-start prompt cards for
 common workflows.

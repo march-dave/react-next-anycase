@@ -58,8 +58,9 @@ const promptSuggestions = [
 
 const DEFAULT_PR_TEMPLATE = [
   '**Summary**',
-  '* Highlight 1. 【F:path/to/file†L#-L#】',
-  '* Highlight 2. 【F:path/to/file†L#-L#】',
+  '* Motivation and background. 【F:path/to/file†L#-L#】',
+  '* Key implementation changes. 【F:path/to/file†L#-L#】',
+  '* Follow-up guardrails or next steps. 【F:path/to/file†L#-L#】',
   '',
   '**Impact & Risks**',
   '* Who is affected and what trade-offs or mitigations should reviewers note?',
@@ -256,6 +257,11 @@ export default function ChatGptUIPersist() {
   const insightsDialogRef = useRef(null);
   const insightsHasOpened = useRef(false);
   const disableSend = loading || !input.trim();
+  const draftWordCount = countWords(input);
+  const draftCharacterCount = input.length;
+  const draftStatsText = `Draft length: ${formatNumber(draftWordCount)} ${
+    draftWordCount === 1 ? 'word' : 'words'
+  } · ${formatNumber(draftCharacterCount)} ${draftCharacterCount === 1 ? 'char' : 'chars'}`;
   const modelName = process.env.NEXT_PUBLIC_OPENAI_MODEL;
   const messageCount = messages.length;
   const titleBase = `ChatGPT UI (Persistent)${modelName ? ` - ${modelName}` : ''}`;
@@ -1275,6 +1281,7 @@ export default function ChatGptUIPersist() {
                     : 'Draft your first request to start a new conversation.'}
                 </span>
                 <div className="flex flex-wrap gap-x-3 gap-y-1">
+                  <span aria-live="polite">{draftStatsText}</span>
                   <span>{trimmedSystemPrompt ? 'Custom system prompt active' : 'Default system prompt'}</span>
                   <span>Autosaves locally</span>
                 </div>
