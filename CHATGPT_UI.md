@@ -70,7 +70,7 @@ common workflows.
 The cards include themed badges to help you scan suggestions at a glance, plus a new starter for writing pull request summaries with testing callouts.
 Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords or tags
 before dropping them into the chat.
-Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer.
+Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer. Any edits you make to the template are saved locally so you can revisit or refine them later.
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
 Press Escape to clear the message input.
