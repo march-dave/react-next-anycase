@@ -27,6 +27,13 @@ const promptSuggestions = [
     tags: ['Product', 'Announcements'],
   },
   {
+    title: 'Summarize a change set',
+    description: 'Surface the motivation, key commits, and follow-up actions.',
+    prompt:
+      'Write a reviewer-friendly summary for this list of changes. Call out the motivation, the high-level approach, key files to inspect, and any follow-up actions reviewers should know about.\n\n',
+    tags: ['Collaboration', 'Summaries'],
+  },
+  {
     title: 'Explain a concept',
     description: 'Request an accessible explanation with examples.',
     prompt:
@@ -47,6 +54,13 @@ const promptSuggestions = [
     prompt:
       'Given the following feature work, outline a test plan that lists the manual checks, automated suites, and any follow-up verification needed before release. Close with expected outcomes for each step.\n\n',
     tags: ['Quality', 'Pull Request'],
+  },
+  {
+    title: 'Plan rollout messaging',
+    description: 'Draft changelog highlights, customer comms, and internal alerts.',
+    prompt:
+      'Create rollout messaging for the following update. Include a short changelog summary, internal enablement notes, customer-facing announcement copy, and any dashboards or alerts to monitor.\n\n',
+    tags: ['Product', 'Announcements'],
   },
   {
     title: 'Brainstorm ideas',
@@ -80,6 +94,10 @@ const DEFAULT_PR_TEMPLATE = [
   '',
   '**Screenshots / Recordings**',
   '* ![Screenshot description](artifacts/filename.png)',
+  '',
+  '**Artifacts & References**',
+  '* Logs: 【chunk†L#-L#】 — call out the signal that confirms the change.',
+  '* Docs: [Design doc](https://link) — note supporting context or tickets.',
   '',
   '**Testing**',
   '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
@@ -165,6 +183,27 @@ const PR_SECTION_SNIPPETS = [
       '**Documentation & Support**',
       '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
     ].join('\n'),
+  },
+];
+
+const PR_REFERENCE_SNIPPETS = [
+  {
+    id: 'logs',
+    label: 'Add log citation',
+    helperText: 'Point reviewers to saved logs, traces, or analytics excerpts.',
+    snippet: '* Logs: 【chunk†L#-L#】 — highlight the signal that verifies the change.',
+  },
+  {
+    id: 'screenshot',
+    label: 'Add screenshot placeholder',
+    helperText: 'Remind yourself to attach updated UI proof with alt text.',
+    snippet: '* ![Screenshot description](artifacts/filename.png) — note the flow that is covered.',
+  },
+  {
+    id: 'docs',
+    label: 'Link supporting docs',
+    helperText: 'Reference design docs, tickets, or architectural discussions.',
+    snippet: '* Docs: [Design doc](https://link) — explain what extra context it provides.',
   },
 ];
 
@@ -751,6 +790,45 @@ export default function ChatGptUIPersist() {
     [focusPrHelperTextarea]
   );
 
+  const appendPrReferenceSnippet = useCallback(
+    (snippet) => {
+      if (!snippet) {
+        return;
+      }
+
+      const normalizedSnippet = snippet.endsWith('\n') ? snippet : `${snippet}\n`;
+      const trimmedSnippet = normalizedSnippet.trimEnd();
+      setPrTemplateText((prev) => {
+        const trimmedPrev = prev.replace(/\s+$/, '');
+        if (!trimmedPrev) {
+          return `**Artifacts & References**\n${normalizedSnippet}`;
+        }
+
+        const sections = trimmedPrev.split(/\n{2,}/);
+        let updated = false;
+        const updatedSections = sections.map((section) => {
+          const [firstLine, ...rest] = section.split('\n');
+          const heading = firstLine.trim().replace(/\*/g, '').toLowerCase();
+          if (!updated && heading === 'artifacts & references') {
+            updated = true;
+            const sectionBody = rest.length ? `\n${rest.join('\n')}` : '';
+            return `${firstLine}${sectionBody}\n${trimmedSnippet}`;
+          }
+          return section;
+        });
+
+        if (!updated) {
+          updatedSections.push(`**Artifacts & References**\n${trimmedSnippet}`);
+        }
+
+        return `${updatedSections.join('\n\n')}\n`;
+      });
+
+      focusPrHelperTextarea();
+    },
+    [focusPrHelperTextarea]
+  );
+
   useEffect(() => {
     const shortcutHandler = (e) => {
       if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'c') {
@@ -1280,7 +1358,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, or additional test results.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, screenshots, docs), or additional test results.
                 </p>
               </div>
             </div>
@@ -1493,7 +1571,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, Performance, Analytics & Monitoring, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, or screenshots. Use the quick-add buttons below to append more sections or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, Performance, Analytics & Monitoring, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, screenshots, or docs. Use the quick-add buttons below to append more sections, evidence snippets, or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -1521,6 +1599,24 @@ export default function ChatGptUIPersist() {
                     >
                       <span className="block font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
                       <span className="mt-1 block text-[0.7rem] text-gray-500 dark:text-gray-400">{section.helperText}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Need to cite evidence? Drop in reusable bullets for logs, screenshots, or supporting docs.
+                </p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {PR_REFERENCE_SNIPPETS.map((reference) => (
+                    <button
+                      key={reference.id}
+                      type="button"
+                      onClick={() => appendPrReferenceSnippet(reference.snippet)}
+                      className="rounded border border-gray-300 bg-white px-3 py-2 text-left text-xs text-gray-700 transition hover:border-blue-400 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:bg-gray-700"
+                    >
+                      <span className="block font-semibold text-gray-900 dark:text-gray-100">{reference.label}</span>
+                      <span className="mt-1 block text-[0.7rem] text-gray-500 dark:text-gray-400">{reference.helperText}</span>
                     </button>
                   ))}
                 </div>
