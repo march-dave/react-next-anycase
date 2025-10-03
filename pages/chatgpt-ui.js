@@ -9,6 +9,7 @@ import TypingIndicator from '@/components/TypingIndicator';
 
 const STORAGE_KEY = 'chatgptMessages';
 const SETTINGS_KEY = 'chatgptUiSettings';
+const PR_TEMPLATE_STORAGE_KEY = 'chatgptUiPrTemplate';
 
 const promptSuggestions = [
   {
@@ -110,6 +111,7 @@ const DEFAULT_PR_TEMPLATE = [
   '**Known issues**',
   '* Outstanding bugs, limitations, or tickets to monitor.',
 ].join('\n');
+const DEFAULT_PR_TEMPLATE_TRIMMED = DEFAULT_PR_TEMPLATE.trim();
 
 const PR_TEST_SNIPPETS = {
   pass: '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
@@ -292,6 +294,7 @@ export default function ChatGptUIPersist() {
   const prHelperButtonRef = useRef(null);
   const prHelperTextareaRef = useRef(null);
   const prHelperHasOpened = useRef(false);
+  const prTemplateHydrated = useRef(false);
   const insightsButtonRef = useRef(null);
   const insightsDialogRef = useRef(null);
   const insightsHasOpened = useRef(false);
@@ -924,6 +927,36 @@ export default function ChatGptUIPersist() {
   }, [systemPrompt]);
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PR_TEMPLATE_STORAGE_KEY);
+      if (typeof saved === 'string' && saved.trim()) {
+        setPrTemplateText(saved);
+      }
+    } catch (err) {
+      console.error('Failed to load PR helper template', err);
+    } finally {
+      prTemplateHydrated.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!prTemplateHydrated.current) {
+      return;
+    }
+
+    try {
+      const trimmed = prTemplateText.trim();
+      if (!trimmed || trimmed === DEFAULT_PR_TEMPLATE_TRIMMED) {
+        localStorage.removeItem(PR_TEMPLATE_STORAGE_KEY);
+      } else {
+        localStorage.setItem(PR_TEMPLATE_STORAGE_KEY, prTemplateText);
+      }
+    } catch (err) {
+      console.error('Failed to save PR helper template', err);
+    }
+  }, [prTemplateText]);
+
+  useEffect(() => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -1548,6 +1581,9 @@ export default function ChatGptUIPersist() {
                   rows={8}
                   className="mt-3 w-full rounded border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 />
+                <p className="mt-2 text-[0.7rem] text-gray-500 dark:text-gray-400">
+                  Edits save locally so you can revisit the draft later. Use Reset template to restore the default outline.
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
