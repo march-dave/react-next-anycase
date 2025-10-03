@@ -111,10 +111,10 @@ It also surfaces the conversation span, average words per message, and the times
 An animated typing indicator appears while waiting for a response, and the chat log announces updates to screen readers while indicating when a reply is loading.
 If there are no messages yet, a placeholder invites you to start the conversation, and the message input automatically expands to fit longer content.
 Quick-start prompt cards also appear to help you compose your first message.
-Each card shows themed badges so you can quickly spot the right starting point, including a new prompt for drafting pull request summaries with testing notes.
+Each card shows themed badges so you can quickly spot the right starting point, including refreshed prompts for summarizing change sets, planning rollout messaging, and drafting pull request summaries with testing notes.
 Need inspiration mid-conversation? Tap the **Prompt library** button in the header to browse every starter or search by keyword
 or tag before inserting it into the chat box.
-Need a quick pull request outline? Open the **PR helper** from the header to copy or tweak a ready-made Summary, Screenshots, and Testing template—with bold section headers, quick-add buttons for Impact, Accessibility, Performance, Rollout, or additional test rows (now inserting ✅/⚠️/❌ markdown snippets automatically), and citation placeholders so you remember to document UI changes—before sharing updates.
+Need a quick pull request outline? Open the **PR helper** from the header to copy or tweak a ready-made Summary, Screenshots, and Testing template—with bold section headers, quick-add buttons for Impact, Accessibility, Performance, Rollout, Documentation, evidence bullets (logs, screenshots, docs), or additional test rows (now inserting ✅/⚠️/❌ markdown snippets automatically), and citation placeholders so you remember to document UI changes—before sharing updates.
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
 Korean instructions are available in [README_KO.md](./README_KO.md).
 
