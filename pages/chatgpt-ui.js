@@ -86,6 +86,9 @@ const DEFAULT_PR_TEMPLATE = [
   '**Accessibility**',
   '* Screen reader / keyboard checks and any follow-up tasks. 【F:path/to/file†L#-L#】',
   '',
+  '**User Experience**',
+  '* UI states, content updates, or responsive nuances to highlight. 【F:path/to/file†L#-L#】',
+  '',
   '**Performance**',
   '* Benchmarks, profiling output, or observed regressions. 【F:path/to/file†L#-L#】',
   '',
@@ -148,6 +151,16 @@ const PR_SECTION_SNIPPETS = [
     ].join('\n'),
   },
   {
+    id: 'ux',
+    label: 'User experience',
+    heading: '**User Experience**',
+    helperText: 'Call out UI states, edge cases, or responsive considerations.',
+    snippet: [
+      '**User Experience**',
+      '* Detail UI flows, empty states, or responsive behavior updates. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
     id: 'perf',
     label: 'Performance',
     heading: '**Performance**',
@@ -200,10 +213,22 @@ const PR_REFERENCE_SNIPPETS = [
     snippet: '* ![Screenshot description](artifacts/filename.png) — note the flow that is covered.',
   },
   {
+    id: 'metrics',
+    label: 'Add metrics snapshot',
+    helperText: 'Point reviewers to dashboards or quantitative proof.',
+    snippet: '* Metrics: 【chunk†L#-L#】 — summarize the movement you expect to see.',
+  },
+  {
     id: 'docs',
     label: 'Link supporting docs',
     helperText: 'Reference design docs, tickets, or architectural discussions.',
     snippet: '* Docs: [Design doc](https://link) — explain what extra context it provides.',
+  },
+  {
+    id: 'video',
+    label: 'Add video placeholder',
+    helperText: 'Drop a reminder for walkthrough GIFs or recordings.',
+    snippet: '* 📹 Video: [Recording](https://link) — show the before/after flow.',
   },
 ];
 
@@ -258,6 +283,31 @@ function formatDuration(ms) {
   return hours ? `${days}d ${hours}h` : `${days}d`;
 }
 
+function formatGapDuration(ms) {
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return '';
+  }
+  if (ms < 1000) {
+    return '<1s';
+  }
+  return formatDuration(ms);
+}
+
+function formatPercentage(value) {
+  if (!Number.isFinite(value)) {
+    return '0%';
+  }
+  const clamped = Math.max(0, Math.min(1, value));
+  if (clamped === 0) {
+    return '0%';
+  }
+  if (clamped === 1) {
+    return '100%';
+  }
+  const percentage = clamped * 100;
+  return percentage >= 10 ? `${Math.round(percentage)}%` : `${percentage.toFixed(1)}%`;
+}
+
 function formatAverageWords(value) {
   if (!Number.isFinite(value) || value <= 0) {
     return '0';
@@ -270,6 +320,17 @@ function formatNumber(value) {
     return '0';
   }
   return value.toLocaleString();
+}
+
+function formatWordAndCharLabel(words, characters) {
+  if (!Number.isFinite(words) || words <= 0) {
+    return '';
+  }
+  const wordLabel = `${formatNumber(words)} ${words === 1 ? 'word' : 'words'}`;
+  if (!Number.isFinite(characters) || characters <= 0) {
+    return wordLabel;
+  }
+  return `${wordLabel} (${formatNumber(characters)} ${characters === 1 ? 'char' : 'chars'})`;
 }
 
 export default function ChatGptUIPersist() {
@@ -333,6 +394,11 @@ export default function ChatGptUIPersist() {
         lastTimestamp: null,
         lastTimeLabel: '',
         durationMs: 0,
+        longestUserWords: 0,
+        longestAssistantWords: 0,
+        longestUserCharacters: 0,
+        longestAssistantCharacters: 0,
+        longestGapMs: 0,
       };
     }
 
@@ -345,6 +411,12 @@ export default function ChatGptUIPersist() {
     let userCharacters = 0;
     let assistantCharacters = 0;
     const orderedMessages = [];
+    let longestUserWords = 0;
+    let longestAssistantWords = 0;
+    let longestUserCharacters = 0;
+    let longestAssistantCharacters = 0;
+    let previousTimestampMs = null;
+    let longestGapMs = 0;
 
     for (const message of messages) {
       if (!message || typeof message !== 'object') {
@@ -365,10 +437,31 @@ export default function ChatGptUIPersist() {
         userCount += 1;
         userWords += wordCount;
         userCharacters += charCount;
+        if (wordCount > longestUserWords) {
+          longestUserWords = wordCount;
+          longestUserCharacters = charCount;
+        }
       } else if (message.role === 'assistant') {
         assistantCount += 1;
         assistantWords += wordCount;
         assistantCharacters += charCount;
+        if (wordCount > longestAssistantWords) {
+          longestAssistantWords = wordCount;
+          longestAssistantCharacters = charCount;
+        }
+      }
+
+      if (message.timestamp) {
+        const timestampMs = new Date(message.timestamp).getTime();
+        if (!Number.isNaN(timestampMs)) {
+          if (previousTimestampMs != null) {
+            const gap = timestampMs - previousTimestampMs;
+            if (Number.isFinite(gap) && gap > longestGapMs) {
+              longestGapMs = gap;
+            }
+          }
+          previousTimestampMs = timestampMs;
+        }
       }
     }
 
@@ -389,6 +482,11 @@ export default function ChatGptUIPersist() {
         lastTimestamp: null,
         lastTimeLabel: '',
         durationMs: 0,
+        longestUserWords: 0,
+        longestAssistantWords: 0,
+        longestUserCharacters: 0,
+        longestAssistantCharacters: 0,
+        longestGapMs: 0,
       };
     }
 
@@ -430,6 +528,11 @@ export default function ChatGptUIPersist() {
       lastTimestamp,
       lastTimeLabel,
       durationMs,
+      longestUserWords,
+      longestAssistantWords,
+      longestUserCharacters,
+      longestAssistantCharacters,
+      longestGapMs,
     };
   }, [messages]);
   const messageStats = useMemo(() => {
@@ -467,6 +570,54 @@ export default function ChatGptUIPersist() {
   const averageWordsPerMessageDisplay = hasMessages
     ? formatAverageWords(conversationInsights.averageWordsPerMessage)
     : '0';
+  const longestMessageInfo = useMemo(() => {
+    if (!hasMessages) {
+      return null;
+    }
+    const {
+      longestUserWords,
+      longestAssistantWords,
+      longestUserCharacters,
+      longestAssistantCharacters,
+    } = conversationInsights;
+    const userIsLongest = longestUserWords >= longestAssistantWords;
+    const words = userIsLongest ? longestUserWords : longestAssistantWords;
+    const characters = userIsLongest ? longestUserCharacters : longestAssistantCharacters;
+    if (!words) {
+      return null;
+    }
+    return {
+      owner: userIsLongest ? 'You' : 'Assistant',
+      words,
+      characters,
+    };
+  }, [conversationInsights, hasMessages]);
+  const longestMessageDisplay = longestMessageInfo
+    ? `${longestMessageInfo.owner} — ${formatWordAndCharLabel(
+        longestMessageInfo.words,
+        longestMessageInfo.characters
+      )}`
+    : '';
+  const longestMessageAria = longestMessageInfo
+    ? `${longestMessageInfo.owner} ${formatWordAndCharLabel(
+        longestMessageInfo.words,
+        longestMessageInfo.characters
+      )}`
+    : '';
+  const longestPauseDisplay = hasMessages
+    ? formatGapDuration(conversationInsights.longestGapMs)
+    : '';
+  const wordShareDisplay = hasMessages && conversationInsights.totalWords > 0
+    ? `${formatPercentage(conversationInsights.userWords / conversationInsights.totalWords)} you / ${formatPercentage(
+        conversationInsights.assistantWords / conversationInsights.totalWords
+      )} assistant`
+    : '';
+  const longestMessageDescription = hasMessages
+    ? longestMessageDisplay || 'Waiting for the next update.'
+    : 'Waiting for the first message.';
+  const longestPauseDescription = hasMessages
+    ? longestPauseDisplay || 'Waiting for additional replies.'
+    : 'Waiting for the first message.';
   const insightsSummaryText = useMemo(() => {
     if (!hasMessages) {
       return 'No conversation yet — start chatting to generate insights.';
@@ -512,6 +663,36 @@ export default function ChatGptUIPersist() {
         conversationInsights.assistantCharacters
       )} chars).`
     );
+
+    if (conversationInsights.totalWords > 0) {
+      const userShare = conversationInsights.userWords / conversationInsights.totalWords;
+      const assistantShare = conversationInsights.assistantWords / conversationInsights.totalWords;
+      lines.push(
+        `Word share: ${formatPercentage(userShare)} you / ${formatPercentage(assistantShare)} assistant.`
+      );
+    }
+
+    if (conversationInsights.longestUserWords > 0) {
+      lines.push(
+        `Longest user update: ${formatWordAndCharLabel(
+          conversationInsights.longestUserWords,
+          conversationInsights.longestUserCharacters
+        )}.`
+      );
+    }
+
+    if (conversationInsights.longestAssistantWords > 0) {
+      lines.push(
+        `Longest assistant update: ${formatWordAndCharLabel(
+          conversationInsights.longestAssistantWords,
+          conversationInsights.longestAssistantCharacters
+        )}.`
+      );
+    }
+
+    if (conversationInsights.longestGapMs > 0) {
+      lines.push(`Longest pause between messages: ${formatGapDuration(conversationInsights.longestGapMs)}.`);
+    }
 
     if (modelName) {
       lines.push(`Model: ${modelName}`);
@@ -1207,6 +1388,16 @@ export default function ChatGptUIPersist() {
                 <span className="self-center" aria-label={`Average words per message ${averageWordsPerMessageDisplay}`}>
                   Avg words/msg: {averageWordsPerMessageDisplay}
                 </span>
+                {longestMessageDisplay && (
+                  <span className="self-center" aria-label={`Longest update ${longestMessageAria}`}>
+                    Longest update: {longestMessageDisplay}
+                  </span>
+                )}
+                {longestPauseDisplay && (
+                  <span className="self-center" aria-label={`Longest pause ${longestPauseDisplay}`}>
+                    Longest pause: {longestPauseDisplay}
+                  </span>
+                )}
                 {lastReplyDisplay && (
                   <span className="self-center" aria-label={`Last reply ${lastReplyDisplay}`}>
                     Last reply: {lastReplyDisplay}
@@ -1358,7 +1549,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, screenshots, docs), or additional test results.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results.
                 </p>
               </div>
             </div>
@@ -1571,7 +1762,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, Performance, Analytics & Monitoring, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, screenshots, or docs. Use the quick-add buttons below to append more sections, evidence snippets, or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Use the quick-add buttons below to append more sections, evidence snippets, or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -1605,7 +1796,7 @@ export default function ChatGptUIPersist() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Need to cite evidence? Drop in reusable bullets for logs, screenshots, or supporting docs.
+                  Need to cite evidence? Drop in reusable bullets for logs, metrics, screenshots, videos, or supporting docs.
                 </p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   {PR_REFERENCE_SNIPPETS.map((reference) => (
@@ -1704,7 +1895,7 @@ export default function ChatGptUIPersist() {
                   Conversation insights
                 </h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Understand message balance, cadence, and word counts before exporting a transcript or drafting a PR note.
+                  Understand message balance, cadence, longest updates, and word counts before exporting a transcript or drafting a PR note.
                 </p>
               </div>
               <button
@@ -1732,7 +1923,24 @@ export default function ChatGptUIPersist() {
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                       {formatNumber(conversationInsights.totalWords)} words · {formatNumber(conversationInsights.userWords)} you / {formatNumber(conversationInsights.assistantWords)} assistant (avg {averageWordsPerMessageDisplay} per message)
+                      {wordShareDisplay && (
+                        <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                          Share: {wordShareDisplay}
+                        </span>
+                      )}
                     </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Longest update
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{longestMessageDescription}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Longest pause
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{longestPauseDescription}</dd>
                   </div>
                   <div>
                     <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
