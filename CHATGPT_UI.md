@@ -56,11 +56,11 @@ An **Export** button copies the chat history—including timestamps and the cust
 briefly confirms success.
 You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message
 and now names the file using the current timestamp.
-Tap the **Insights** button in the header to review message counts, role balance, word totals, and conversation timing, then copy a shareable summary for docs or pull requests.
+Tap the **Insights** button in the header to review message counts, role balance, word totals, word-share percentages, the longest update and pause, and conversation timing, then copy a shareable summary for docs or pull requests.
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation and announces updates to screen readers.
-It now also surfaces the conversation span, average words per message, and the timestamp of the last reply so you can gauge pace without opening the Insights panel.
+It now also surfaces the conversation span, average words per message, the longest update so far, the longest pause between replies, and the timestamp of the last reply so you can gauge pace without opening the Insights panel.
 The page title also updates with the current message count so you can see new activity from another tab.
 If `NEXT_PUBLIC_OPENAI_MODEL` is set, the active model name appears in the header and page title.
 The message input automatically expands to fit longer content and now shows live word and character counts for your draft so you can spot lengthy updates before sending them.
@@ -71,7 +71,7 @@ The cards include themed badges to help you scan suggestions at a glance, plus r
 Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords or tags
 before dropping them into the chat.
 
-Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, screenshots, docs), and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer.
+Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, User Experience, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer.
 
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
