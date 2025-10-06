@@ -108,6 +108,12 @@ const DEFAULT_PR_TEMPLATE = [
   '**Documentation & Support**',
   '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
   '',
+  '**Dependencies**',
+  '* New packages, version bumps, or migrations reviewers should flag. 【F:path/to/file†L#-L#】',
+  '',
+  '**Feature flags**',
+  '* Flag defaults, rollout steps, and clean-up owners. 【F:path/to/file†L#-L#】',
+  '',
   '**Rollout / Follow-up**',
   '* Launch steps, feature flags, or clean-up tasks.',
   '',
@@ -197,6 +203,26 @@ const PR_SECTION_SNIPPETS = [
       '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
     ].join('\n'),
   },
+  {
+    id: 'dependencies',
+    label: 'Dependencies',
+    heading: '**Dependencies**',
+    helperText: 'Highlight package bumps, migrations, or new services reviewers should double-check.',
+    snippet: [
+      '**Dependencies**',
+      '* New packages, version bumps, or migrations reviewers should flag. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
+    id: 'feature-flags',
+    label: 'Feature flags',
+    heading: '**Feature flags**',
+    helperText: 'Document default states, rollout plans, and who owns cleanup.',
+    snippet: [
+      '**Feature flags**',
+      '* Flag defaults, rollout steps, and clean-up owners. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
 ];
 
 const PR_REFERENCE_SNIPPETS = [
@@ -229,6 +255,18 @@ const PR_REFERENCE_SNIPPETS = [
     label: 'Add video placeholder',
     helperText: 'Drop a reminder for walkthrough GIFs or recordings.',
     snippet: '* 📹 Video: [Recording](https://link) — show the before/after flow.',
+  },
+  {
+    id: 'dependency-diff',
+    label: 'Add dependency diff',
+    helperText: 'Call out package bumps, migrations, or infra updates reviewers should vet.',
+    snippet: '* Dependencies: `package@version` — rationale, testing notes, and follow-up tasks.',
+  },
+  {
+    id: 'feature-flag-tracker',
+    label: 'Add feature flag tracker',
+    helperText: 'Track default states, rollout checkpoints, or cleanup owners for toggles.',
+    snippet: '* Feature flag: `flag_name` — default state, rollout milestones, and cleanup owner.',
   },
 ];
 
@@ -347,6 +385,7 @@ export default function ChatGptUIPersist() {
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
   const [prCopyStatus, setPrCopyStatus] = useState('');
   const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
+  const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
@@ -733,6 +772,22 @@ export default function ChatGptUIPersist() {
     }
     setTimeout(() => setInsightsCopyStatus(''), 2000);
   }, [insightsSummaryText]);
+  const handleQuickCopyInsights = useCallback(async () => {
+    if (!hasMessages) {
+      setQuickInsightsCopyStatus('Add a message first');
+      setTimeout(() => setQuickInsightsCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(insightsSummaryText);
+      setQuickInsightsCopyStatus('Copied!');
+    } catch (err) {
+      setQuickInsightsCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setQuickInsightsCopyStatus(''), 2000);
+  }, [hasMessages, insightsSummaryText]);
   const handleInsertInsights = useCallback(() => {
     setInput((prev) => {
       const trimmedPrev = prev.trimEnd();
@@ -1363,6 +1418,18 @@ export default function ChatGptUIPersist() {
           </button>
           <button
             type="button"
+            onClick={handleQuickCopyInsights}
+            aria-disabled={!hasMessages && !quickInsightsCopyStatus}
+            className={`border px-2 py-1 rounded text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              hasMessages
+                ? 'bg-white text-gray-700 hover:border-blue-400 hover:text-blue-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:border-blue-400'
+                : 'bg-gray-100 text-gray-400 hover:text-gray-500 opacity-75 dark:bg-gray-800 dark:text-gray-500'
+            }`}
+          >
+            <span aria-live="polite">{quickInsightsCopyStatus || 'Copy insights summary'}</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setShowSettings((prev) => !prev)}
             className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
             aria-expanded={showSettings}
@@ -1549,7 +1616,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results.
                 </p>
               </div>
             </div>
@@ -1762,7 +1829,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Use the quick-add buttons below to append more sections, evidence snippets, or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Use the quick-add buttons below to append more sections, evidence snippets, or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
