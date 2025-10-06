@@ -105,6 +105,9 @@ const DEFAULT_PR_TEMPLATE = [
   '**Testing**',
   '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
   '',
+  '**Manual Verification**',
+  '* Walk through manual checks or sign-offs completed before handoff. 【F:path/to/file†L#-L#】',
+  '',
   '**Documentation & Support**',
   '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
   '',
@@ -201,6 +204,16 @@ const PR_SECTION_SNIPPETS = [
     snippet: [
       '**Documentation & Support**',
       '* Release notes, runbooks, or help-center updates to keep in sync. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
+    id: 'manual-verification',
+    label: 'Manual verification',
+    heading: '**Manual Verification**',
+    helperText: 'Outline sign-off steps, QA flows, or reviewer walkthroughs.',
+    snippet: [
+      '**Manual Verification**',
+      '* Walk through manual checks or sign-offs completed before handoff. 【F:path/to/file†L#-L#】',
     ].join('\n'),
   },
   {
@@ -386,6 +399,7 @@ export default function ChatGptUIPersist() {
   const [prCopyStatus, setPrCopyStatus] = useState('');
   const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
   const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
+  const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
@@ -398,6 +412,7 @@ export default function ChatGptUIPersist() {
   const insightsButtonRef = useRef(null);
   const insightsDialogRef = useRef(null);
   const insightsHasOpened = useRef(false);
+  const [prInsightsAppendStatus, setPrInsightsAppendStatus] = useState('');
   const disableSend = loading || !input.trim();
   const draftWordCount = countWords(input);
   const draftCharacterCount = input.length;
@@ -756,6 +771,88 @@ export default function ChatGptUIPersist() {
     modelName,
     trimmedSystemPrompt,
   ]);
+  const conversationSnapshot = useMemo(() => {
+    if (!hasMessages) {
+      return [];
+    }
+
+    const items = [
+      {
+        key: 'messages',
+        title: 'Messages',
+        value: `${formatNumber(messageStats.total)} total`,
+        description: `${formatNumber(messageStats.userCount)} you / ${formatNumber(
+          messageStats.assistantCount
+        )} assistant`,
+      },
+      {
+        key: 'words',
+        title: 'Words',
+        value: `${formatNumber(conversationInsights.totalWords)} total`,
+        description: wordShareDisplay
+          ? `Share ${wordShareDisplay}`
+          : `Avg ${averageWordsPerMessageDisplay} words per message`,
+      },
+      {
+        key: 'span',
+        title: 'Span',
+        value: conversationDurationText || '—',
+        description: firstActivityDisplay ? `Started ${firstActivityDisplay}` : '',
+      },
+      {
+        key: 'last-reply',
+        title: 'Last reply',
+        value: lastReplyDisplay || '—',
+        description: longestPauseDisplay ? `Longest pause ${longestPauseDisplay}` : '',
+      },
+      {
+        key: 'longest-update',
+        title: 'Longest update',
+        value: longestMessageDisplay || '—',
+        description: longestMessageDisplay
+          ? 'Densest exchange so far—great for highlights.'
+          : 'Waiting for the next longer update.',
+      },
+    ];
+
+    if (trimmedSystemPrompt) {
+      items.push({
+        key: 'system-prompt',
+        title: 'System prompt',
+        value: 'Custom',
+        description: systemPromptPreview
+          ? `Preview: ${systemPromptPreview}`
+          : 'Custom prompt applied to every message.',
+      });
+    }
+
+    if (modelName) {
+      items.push({
+        key: 'model',
+        title: 'Model',
+        value: modelName,
+        description: 'Active OpenAI model.',
+      });
+    }
+
+    return items;
+  }, [
+    averageWordsPerMessageDisplay,
+    conversationDurationText,
+    conversationInsights.totalWords,
+    firstActivityDisplay,
+    hasMessages,
+    lastReplyDisplay,
+    longestMessageDisplay,
+    longestPauseDisplay,
+    messageStats.assistantCount,
+    messageStats.total,
+    messageStats.userCount,
+    modelName,
+    systemPromptPreview,
+    trimmedSystemPrompt,
+    wordShareDisplay,
+  ]);
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -788,6 +885,22 @@ export default function ChatGptUIPersist() {
 
     setTimeout(() => setQuickInsightsCopyStatus(''), 2000);
   }, [hasMessages, insightsSummaryText]);
+  const handleCopySnapshot = useCallback(async () => {
+    if (!hasMessages) {
+      setSnapshotCopyStatus('Add a message first');
+      setTimeout(() => setSnapshotCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(insightsSummaryText);
+      setSnapshotCopyStatus('Copied!');
+    } catch (err) {
+      setSnapshotCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setSnapshotCopyStatus(''), 2000);
+  }, [hasMessages, insightsSummaryText]);
   const handleInsertInsights = useCallback(() => {
     setInput((prev) => {
       const trimmedPrev = prev.trimEnd();
@@ -806,6 +919,28 @@ export default function ChatGptUIPersist() {
       }
     });
   }, [adjustInputHeight, insightsSummaryText]);
+  const handleAppendInsightsToPrTemplate = useCallback(() => {
+    const trimmedSummary = insightsSummaryText.trim();
+    if (!hasMessages || !trimmedSummary) {
+      setPrInsightsAppendStatus(hasMessages ? 'Insights not ready' : 'Add a message first');
+      setTimeout(() => setPrInsightsAppendStatus(''), 2000);
+      return;
+    }
+
+    setPrTemplateText((prev) => {
+      const trimmedPrev = prev.trimEnd();
+      if (!trimmedPrev) {
+        return trimmedSummary;
+      }
+      if (trimmedPrev.includes(trimmedSummary)) {
+        return prev;
+      }
+      return `${trimmedPrev}\n\n${trimmedSummary}`;
+    });
+
+    setPrInsightsAppendStatus('Insights added');
+    setTimeout(() => setPrInsightsAppendStatus(''), 2000);
+  }, [hasMessages, insightsSummaryText]);
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -821,6 +956,9 @@ export default function ChatGptUIPersist() {
     }
     setShowInsights(false);
     setInsightsCopyStatus('');
+    setQuickInsightsCopyStatus('');
+    setSnapshotCopyStatus('');
+    setPrInsightsAppendStatus('');
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -1247,6 +1385,7 @@ export default function ChatGptUIPersist() {
   useEffect(() => {
     if (!showPrHelper) {
       setPrCopyStatus('');
+      setPrInsightsAppendStatus('');
       if (prHelperHasOpened.current && prHelperButtonRef.current) {
         prHelperButtonRef.current.focus();
       }
@@ -1621,6 +1760,50 @@ export default function ChatGptUIPersist() {
               </div>
             </div>
           )}
+          {hasMessages && (
+            <section
+              className="mb-4 rounded-xl border border-blue-100 bg-blue-50/70 p-4 shadow-sm transition dark:border-blue-900/60 dark:bg-blue-950/20"
+              aria-label="Conversation pulse"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-200">
+                  Conversation pulse
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleCopySnapshot}
+                  aria-disabled={!hasMessages && !snapshotCopyStatus}
+                  className={`rounded border px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                    hasMessages
+                      ? 'border-blue-300 bg-white text-blue-700 hover:border-blue-400 hover:text-blue-600 dark:border-blue-500 dark:bg-gray-900 dark:text-blue-200 dark:hover:border-blue-400'
+                      : 'cursor-not-allowed border-blue-100 bg-white/60 text-blue-300 dark:border-blue-900 dark:bg-gray-800 dark:text-blue-700'
+                  }`}
+                >
+                  <span aria-live="polite">{snapshotCopyStatus || 'Copy pulse summary'}</span>
+                </button>
+              </div>
+              <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {conversationSnapshot.map((item) => (
+                  <div
+                    key={item.key}
+                    className="rounded-lg border border-blue-100/80 bg-white/90 px-3 py-2 shadow-sm dark:border-blue-900/40 dark:bg-gray-900/60"
+                  >
+                    <dt className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                      {item.title}
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {item.value}
+                      {item.description && (
+                        <span className="mt-1 block text-[0.7rem] text-gray-500 dark:text-gray-400">
+                          {item.description}
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
           {messages.map((msg, idx) => (
             <ChatBubbleMarkdown key={idx} message={msg} />
           ))}
@@ -1842,6 +2025,30 @@ export default function ChatGptUIPersist() {
                 <p className="mt-2 text-[0.7rem] text-gray-500 dark:text-gray-400">
                   Edits save locally so you can revisit the draft later. Use Reset template to restore the default outline.
                 </p>
+              </div>
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-200">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p>
+                    Pull in the live conversation insights to ground your Summary section with message counts, word balance, and timestamps.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAppendInsightsToPrTemplate}
+                    aria-disabled={!hasMessages && !prInsightsAppendStatus}
+                    className={`rounded border px-3 py-1 text-xs font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                      hasMessages
+                        ? 'border-blue-500 bg-white text-blue-700 hover:border-blue-600 hover:text-blue-600 dark:border-blue-400 dark:bg-gray-900 dark:text-blue-200 dark:hover:border-blue-300'
+                        : 'cursor-not-allowed border-blue-100 bg-white/60 text-blue-300 dark:border-blue-900 dark:bg-gray-800 dark:text-blue-600/70'
+                    }`}
+                  >
+                    <span aria-live="polite">{prInsightsAppendStatus || 'Append conversation insights'}</span>
+                  </button>
+                </div>
+                {!hasMessages && (
+                  <p className="mt-2 text-[0.7rem] text-blue-700/90 dark:text-blue-200/80">
+                    Start a new exchange to generate an insights summary before adding it to your draft.
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
