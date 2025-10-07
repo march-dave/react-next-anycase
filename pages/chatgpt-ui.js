@@ -10,9 +10,11 @@ import TypingIndicator from '@/components/TypingIndicator';
 const STORAGE_KEY = 'chatgptMessages';
 const SETTINGS_KEY = 'chatgptUiSettings';
 const PR_TEMPLATE_STORAGE_KEY = 'chatgptUiPrTemplate';
+const PROMPT_FAVORITES_STORAGE_KEY = 'chatgptUiFavoritePrompts';
 
 const promptSuggestions = [
   {
+    id: 'summarize-meeting',
     title: 'Summarize a meeting',
     description: 'Turn long notes into concise action items.',
     prompt:
@@ -20,6 +22,7 @@ const promptSuggestions = [
     tags: ['Meetings', 'Summaries'],
   },
   {
+    id: 'draft-release-notes',
     title: 'Draft release notes',
     description: 'Highlight what changed in a friendly tone.',
     prompt:
@@ -27,6 +30,7 @@ const promptSuggestions = [
     tags: ['Product', 'Announcements'],
   },
   {
+    id: 'summarize-change-set',
     title: 'Summarize a change set',
     description: 'Surface the motivation, key commits, and follow-up actions.',
     prompt:
@@ -34,6 +38,7 @@ const promptSuggestions = [
     tags: ['Collaboration', 'Summaries'],
   },
   {
+    id: 'explain-concept',
     title: 'Explain a concept',
     description: 'Request an accessible explanation with examples.',
     prompt:
@@ -41,6 +46,7 @@ const promptSuggestions = [
     tags: ['Education', 'Guides'],
   },
   {
+    id: 'draft-pr-summary',
     title: 'Draft a pull request summary',
     description: 'Capture key changes, test coverage, and where to cite supporting context or screenshots.',
     prompt:
@@ -49,6 +55,7 @@ const promptSuggestions = [
     tags: ['Collaboration', 'Pull Request'],
   },
   {
+    id: 'outline-verification',
     title: 'Outline verification steps',
     description: 'List the manual and automated checks to run before shipping.',
     prompt:
@@ -56,6 +63,7 @@ const promptSuggestions = [
     tags: ['Quality', 'Pull Request'],
   },
   {
+    id: 'plan-rollout',
     title: 'Plan rollout messaging',
     description: 'Draft changelog highlights, customer comms, and internal alerts.',
     prompt:
@@ -63,6 +71,7 @@ const promptSuggestions = [
     tags: ['Product', 'Announcements'],
   },
   {
+    id: 'brainstorm-ideas',
     title: 'Brainstorm ideas',
     description: 'Generate creative approaches for a problem.',
     prompt:
@@ -79,6 +88,9 @@ const DEFAULT_PR_TEMPLATE = [
   '',
   '**Impact & Risks**',
   '* Who is affected and what trade-offs or mitigations should reviewers note?',
+  '',
+  '**Regression risks**',
+  '* Highlight the riskiest surfaces, mitigations, and fallback plans to monitor. 【F:path/to/file†L#-L#】',
   '',
   '**Security & Privacy**',
   '* Permissions, data retention, or threat model considerations. 【F:path/to/file†L#-L#】',
@@ -138,6 +150,16 @@ const PR_SECTION_SNIPPETS = [
     heading: '**Impact & Risks**',
     helperText: 'Spell out user benefit, technical trade-offs, and mitigations.',
     snippet: ['**Impact & Risks**', '* Who is affected and what trade-offs or mitigations should reviewers note?'].join('\n'),
+  },
+  {
+    id: 'regression-risks',
+    label: 'Regression risks',
+    heading: '**Regression risks**',
+    helperText: 'Call out the riskiest areas, safeguards, and rollback plans.',
+    snippet: [
+      '**Regression risks**',
+      '* Highlight the riskiest surfaces, mitigations, and fallback plans to monitor. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
   },
   {
     id: 'security',
@@ -394,6 +416,7 @@ export default function ChatGptUIPersist() {
   const [showInsights, setShowInsights] = useState(false);
   const [promptSearch, setPromptSearch] = useState('');
   const [promptTagFilter, setPromptTagFilter] = useState(null);
+  const [favoritePromptIds, setFavoritePromptIds] = useState([]);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
   const [prCopyStatus, setPrCopyStatus] = useState('');
@@ -409,6 +432,7 @@ export default function ChatGptUIPersist() {
   const prHelperTextareaRef = useRef(null);
   const prHelperHasOpened = useRef(false);
   const prTemplateHydrated = useRef(false);
+  const promptFavoritesHydrated = useRef(false);
   const insightsButtonRef = useRef(null);
   const insightsDialogRef = useRef(null);
   const insightsHasOpened = useRef(false);
@@ -1009,20 +1033,63 @@ export default function ChatGptUIPersist() {
   const promptTagFilterValue = promptTagFilter?.value ?? '';
   const promptTagFilterLabel = promptTagFilter?.label ?? '';
 
-  const displayedPromptSuggestions = useMemo(() => {
-    if (!promptTagFilterValue) {
-      return promptSuggestions;
-    }
+  const promptBaseOrder = useMemo(() => {
+    const map = new Map();
+    promptSuggestions.forEach((suggestion, index) => {
+      map.set(suggestion.id, index);
+    });
+    return map;
+  }, []);
 
-    return promptSuggestions.filter((suggestion) =>
-      suggestion.tags?.some((tag) => tag.toLowerCase() === promptTagFilterValue)
-    );
-  }, [promptTagFilterValue]);
+  const favoritePromptOrder = useMemo(() => {
+    const map = new Map();
+    favoritePromptIds.forEach((id, index) => {
+      map.set(id, index);
+    });
+    return map;
+  }, [favoritePromptIds]);
+
+  const sortPromptSuggestions = useCallback(
+    (list) => {
+      if (!Array.isArray(list) || list.length === 0) {
+        return list;
+      }
+
+      return [...list].sort((a, b) => {
+        const aFavorite = favoritePromptOrder.has(a.id);
+        const bFavorite = favoritePromptOrder.has(b.id);
+        if (aFavorite && !bFavorite) {
+          return -1;
+        }
+        if (!aFavorite && bFavorite) {
+          return 1;
+        }
+        if (aFavorite && bFavorite) {
+          return (favoritePromptOrder.get(a.id) ?? 0) - (favoritePromptOrder.get(b.id) ?? 0);
+        }
+        const aBase = promptBaseOrder.get(a.id) ?? 0;
+        const bBase = promptBaseOrder.get(b.id) ?? 0;
+        return aBase - bBase;
+      });
+    },
+    [favoritePromptOrder, promptBaseOrder]
+  );
+
+  const isPromptFavorite = useCallback((id) => favoritePromptOrder.has(id), [favoritePromptOrder]);
+
+  const displayedPromptSuggestions = useMemo(() => {
+    const list = !promptTagFilterValue
+      ? promptSuggestions
+      : promptSuggestions.filter((suggestion) =>
+          suggestion.tags?.some((tag) => tag.toLowerCase() === promptTagFilterValue)
+        );
+    return sortPromptSuggestions(list);
+  }, [promptTagFilterValue, sortPromptSuggestions]);
 
   const filteredPromptSuggestions = useMemo(() => {
     const search = promptSearch.trim().toLowerCase();
 
-    return promptSuggestions.filter((suggestion) => {
+    const filtered = promptSuggestions.filter((suggestion) => {
       const matchesTag = !promptTagFilterValue
         ? true
         : suggestion.tags?.some((tag) => tag.toLowerCase() === promptTagFilterValue);
@@ -1048,7 +1115,45 @@ export default function ChatGptUIPersist() {
 
       return suggestion.tags.some((tag) => tag.toLowerCase().includes(search));
     });
-  }, [promptSearch, promptTagFilterValue]);
+
+    return sortPromptSuggestions(filtered);
+  }, [promptSearch, promptTagFilterValue, sortPromptSuggestions]);
+
+  const togglePromptFavorite = useCallback((id) => {
+    if (!id) {
+      return;
+    }
+
+    setFavoritePromptIds((prev) => {
+      const normalizedPrev = Array.isArray(prev) ? prev.filter((item) => typeof item === 'string') : [];
+      const exists = normalizedPrev.includes(id);
+      if (exists) {
+        return normalizedPrev.filter((item) => item !== id);
+      }
+
+      const withoutDuplicates = normalizedPrev.filter((item) => item !== id);
+      return [id, ...withoutDuplicates];
+    });
+  }, []);
+
+  const handlePromptCardKeyDown = useCallback(
+    (event, prompt) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        applySuggestedPrompt(prompt);
+      }
+    },
+    [applySuggestedPrompt]
+  );
+
+  const handleTogglePromptFavorite = useCallback(
+    (event, id) => {
+      event.preventDefault();
+      event.stopPropagation();
+      togglePromptFavorite(id);
+    },
+    [togglePromptFavorite]
+  );
 
   const handleSystemPromptChange = (e) => {
     setSystemPrompt(e.target.value);
@@ -1329,6 +1434,43 @@ export default function ChatGptUIPersist() {
       console.error('Failed to save PR helper template', err);
     }
   }, [prTemplateText]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PROMPT_FAVORITES_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const validIds = parsed.filter((value) =>
+            typeof value === 'string' && promptSuggestions.some((suggestion) => suggestion.id === value)
+          );
+          if (validIds.length) {
+            setFavoritePromptIds(validIds);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load favorite prompts', err);
+    } finally {
+      promptFavoritesHydrated.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!promptFavoritesHydrated.current) {
+      return;
+    }
+
+    try {
+      if (!favoritePromptIds.length) {
+        localStorage.removeItem(PROMPT_FAVORITES_STORAGE_KEY);
+      } else {
+        localStorage.setItem(PROMPT_FAVORITES_STORAGE_KEY, JSON.stringify(favoritePromptIds));
+      }
+    } catch (err) {
+      console.error('Failed to save favorite prompts', err);
+    }
+  }, [favoritePromptIds]);
 
   useEffect(() => {
     if (endRef.current) {
@@ -1699,53 +1841,87 @@ export default function ChatGptUIPersist() {
                       No starters match this badge yet. Clear the filter or open the Prompt library for more ideas.
                     </div>
                   ) : (
-                    displayedPromptSuggestions.map((suggestion) => (
-                      <button
-                        key={suggestion.title}
-                        type="button"
-                        onClick={() => applySuggestedPrompt(suggestion.prompt)}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-left bg-white dark:bg-gray-800 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                      >
-                        <span className="block font-medium text-gray-900 dark:text-gray-100">
-                          {suggestion.title}
-                        </span>
-                        <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-                          {suggestion.description}
-                        </span>
-                        {suggestion.tags?.length > 0 && (
-                          <span className="mt-2 flex flex-wrap gap-1">
-                            {suggestion.tags.map((tag) => {
-                              const normalizedTag = tag.toLowerCase();
-                              const isActive = promptTagFilterValue === normalizedTag;
-                              return (
-                                <span
-                                  key={tag}
-                                  role="button"
-                                  tabIndex={0}
-                                  aria-pressed={isActive}
-                                  onClick={(event) => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    togglePromptTagFilter(tag);
-                                  }}
-                                  onKeyDown={(event) => {
-                                    event.stopPropagation();
-                                    handlePromptTagKeyDown(event, tag);
-                                  }}
-                                  className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                                    isActive
-                                      ? 'border-blue-500 bg-blue-600 text-white dark:border-blue-300 dark:bg-blue-400 dark:text-gray-900'
-                                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/60'
-                                  }`}
-                                >
-                                  {tag}
-                                </span>
-                              );
-                            })}
-                          </span>
-                        )}
-                      </button>
-                    ))
+                    displayedPromptSuggestions.map((suggestion) => {
+                      const favorite = isPromptFavorite(suggestion.id);
+                      return (
+                        <div
+                          key={suggestion.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => applySuggestedPrompt(suggestion.prompt)}
+                          onKeyDown={(event) => handlePromptCardKeyDown(event, suggestion.prompt)}
+                          className="group cursor-pointer rounded-lg border border-gray-200 bg-white p-3 text-left transition hover:border-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <span className="block font-medium text-gray-900 dark:text-gray-100">
+                                {suggestion.title}
+                              </span>
+                              <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                                {suggestion.description}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(event) => handleTogglePromptFavorite(event, suggestion.id)}
+                              aria-pressed={favorite}
+                              aria-label={
+                                favorite
+                                  ? 'Remove prompt from favorites'
+                                  : 'Add prompt to favorites'
+                              }
+                              className={`flex h-7 w-7 items-center justify-center rounded-full border text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                                favorite
+                                  ? 'border-amber-400 text-amber-500 dark:border-amber-300 dark:text-amber-200'
+                                  : 'border-transparent text-gray-400 hover:text-amber-500 dark:text-gray-500 dark:hover:text-amber-300'
+                              }`}
+                            >
+                              <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
+                              <span className="sr-only">
+                                {favorite ? 'Favorited prompt' : 'Not favorited'}
+                              </span>
+                            </button>
+                          </div>
+                          {favorite && (
+                            <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">
+                              <span aria-hidden="true">★</span> Favorite
+                            </span>
+                          )}
+                          {suggestion.tags?.length > 0 && (
+                            <span className="mt-2 flex flex-wrap gap-1">
+                              {suggestion.tags.map((tag) => {
+                                const normalizedTag = tag.toLowerCase();
+                                const isActive = promptTagFilterValue === normalizedTag;
+                                return (
+                                  <span
+                                    key={tag}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-pressed={isActive}
+                                    onClick={(event) => {
+                                      event.preventDefault();
+                                      event.stopPropagation();
+                                      togglePromptTagFilter(tag);
+                                    }}
+                                    onKeyDown={(event) => {
+                                      event.stopPropagation();
+                                      handlePromptTagKeyDown(event, tag);
+                                    }}
+                                    className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                                      isActive
+                                        ? 'border-blue-500 bg-blue-600 text-white dark:border-blue-300 dark:bg-blue-400 dark:text-gray-900'
+                                        : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/60'
+                                    }`}
+                                  >
+                                    {tag}
+                                  </span>
+                                );
+                              })}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })
                   )}
                 </div>
                 <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
@@ -1919,57 +2095,97 @@ export default function ChatGptUIPersist() {
                 </p>
               ) : (
                 <ul className="space-y-3">
-                  {filteredPromptSuggestions.map((suggestion) => (
-                    <li key={suggestion.title}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          applySuggestedPrompt(suggestion.prompt);
-                          setShowPromptLibrary(false);
-                        }}
-                        className="block w-full rounded-lg border border-gray-200 bg-white p-3 text-left transition hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900"
-                      >
-                        <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          {suggestion.title}
-                        </span>
-                        <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-                          {suggestion.description}
-                        </span>
-                        {suggestion.tags?.length > 0 && (
-                          <span className="mt-2 flex flex-wrap gap-1">
-                            {suggestion.tags.map((tag) => {
-                              const normalizedTag = tag.toLowerCase();
-                              const isActive = promptTagFilterValue === normalizedTag;
-                              return (
-                                <span
-                                  key={tag}
-                                  role="button"
-                                  tabIndex={0}
-                                  aria-pressed={isActive}
-                                  onClick={(event) => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    togglePromptTagFilter(tag);
-                                  }}
-                                  onKeyDown={(event) => {
-                                    event.stopPropagation();
-                                    handlePromptTagKeyDown(event, tag);
-                                  }}
-                                  className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                                    isActive
-                                      ? 'border-blue-500 bg-blue-600 text-white dark:border-blue-300 dark:bg-blue-400 dark:text-gray-900'
-                                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/60'
-                                  }`}
-                                >
-                                  {tag}
-                                </span>
-                              );
-                            })}
-                          </span>
-                        )}
-                      </button>
-                    </li>
-                  ))}
+                  {filteredPromptSuggestions.map((suggestion) => {
+                    const favorite = isPromptFavorite(suggestion.id);
+                    return (
+                      <li key={suggestion.id}>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => {
+                            applySuggestedPrompt(suggestion.prompt);
+                            setShowPromptLibrary(false);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault();
+                              applySuggestedPrompt(suggestion.prompt);
+                              setShowPromptLibrary(false);
+                            }
+                          }}
+                          className="group w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-3 text-left transition hover:border-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                {suggestion.title}
+                              </span>
+                              <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                                {suggestion.description}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(event) => handleTogglePromptFavorite(event, suggestion.id)}
+                              aria-pressed={favorite}
+                              aria-label={
+                                favorite
+                                  ? 'Remove prompt from favorites'
+                                  : 'Add prompt to favorites'
+                              }
+                              className={`flex h-7 w-7 items-center justify-center rounded-full border text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                                favorite
+                                  ? 'border-amber-400 text-amber-500 dark:border-amber-300 dark:text-amber-200'
+                                  : 'border-transparent text-gray-400 hover:text-amber-500 dark:text-gray-500 dark:hover:text-amber-300'
+                              }`}
+                            >
+                              <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
+                              <span className="sr-only">
+                                {favorite ? 'Favorited prompt' : 'Not favorited'}
+                              </span>
+                            </button>
+                          </div>
+                          {favorite && (
+                            <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">
+                              <span aria-hidden="true">★</span> Favorite
+                            </span>
+                          )}
+                          {suggestion.tags?.length > 0 && (
+                            <span className="mt-2 flex flex-wrap gap-1">
+                              {suggestion.tags.map((tag) => {
+                                const normalizedTag = tag.toLowerCase();
+                                const isActive = promptTagFilterValue === normalizedTag;
+                                return (
+                                  <span
+                                    key={tag}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-pressed={isActive}
+                                    onClick={(event) => {
+                                      event.preventDefault();
+                                      event.stopPropagation();
+                                      togglePromptTagFilter(tag);
+                                    }}
+                                    onKeyDown={(event) => {
+                                      event.stopPropagation();
+                                      handlePromptTagKeyDown(event, tag);
+                                    }}
+                                    className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                                      isActive
+                                        ? 'border-blue-500 bg-blue-600 text-white dark:border-blue-300 dark:bg-blue-400 dark:text-gray-900'
+                                        : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/60'
+                                    }`}
+                                  >
+                                    {tag}
+                                  </span>
+                                );
+                              })}
+                            </span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

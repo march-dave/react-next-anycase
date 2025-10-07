@@ -111,11 +111,10 @@ It also surfaces the conversation span, average words per message, the longest u
 An animated typing indicator appears while waiting for a response, and the chat log announces updates to screen readers while indicating when a reply is loading.
 If there are no messages yet, a placeholder invites you to start the conversation, and the message input automatically expands to fit longer content.
 Quick-start prompt cards also appear to help you compose your first message.
-Each card shows themed badges so you can quickly spot the right starting point, including refreshed prompts for summarizing change sets, planning rollout messaging, and drafting pull request summaries with testing notes.
-Need inspiration mid-conversation? Tap the **Prompt library** button in the header to browse every starter or search by keyword
-or tag before inserting it into the chat box.
+Each card shows themed badges so you can quickly spot the right starting point, including refreshed prompts for summarizing change sets, planning rollout messaging, and drafting pull request summaries with testing notes. Mark a card with the star button to favorite it—favorites float to the top of the quick-start grid and stay pinned inside the Prompt library so you can reuse your go-to starters faster.
+Need inspiration mid-conversation? Tap the **Prompt library** button in the header to browse every starter or search by keyword or tag before inserting it into the chat box. Favorites sync automatically here too, so your most-used prompts are always within reach.
 Want a quick pulse check on the conversation? Tap the **Insights** button in the header to review message counts, word totals, word-share balance, the longest update and pause, and a copy-ready summary you can drop into docs or follow-up prompts.
-Need a quick pull request outline? Open the **PR helper** from the header to copy or tweak a ready-made Summary, Screenshots, and Testing template—with bold section headers, quick-add buttons for Impact, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test rows (now inserting ✅/⚠️/❌ markdown snippets automatically), and citation placeholders so you remember to document UI changes—before sharing updates.
+Need a quick pull request outline? Open the **PR helper** from the header to copy or tweak a ready-made Summary, Screenshots, and Testing template—with bold section headers, quick-add buttons for Impact, Regression risks, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test rows (now inserting ✅/⚠️/❌ markdown snippets automatically), and citation placeholders so you remember to document UI changes—before sharing updates.
 
 
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
