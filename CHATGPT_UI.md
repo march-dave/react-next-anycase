@@ -67,11 +67,10 @@ The message input automatically expands to fit longer content and now shows live
 The chat log announces updates to screen readers and indicates when a response is loading.
 If there are no messages yet, a placeholder invites you to start the conversation and now displays quick-start prompt cards for
 common workflows.
-The cards include themed badges to help you scan suggestions at a glance, plus refreshed starters for summarizing change sets, planning rollout messaging, and writing pull request summaries with testing callouts.
-Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords or tags
-before dropping them into the chat.
+The cards include themed badges to help you scan suggestions at a glance, plus refreshed starters for summarizing change sets, planning rollout messaging, and writing pull request summaries with testing callouts. Tap the star in the corner of a card to favorite it—favorites jump to the top of the quick-start grid and stay pinned in the Prompt library for speedy reuse.
+Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords or tags before dropping them into the chat. Favorited prompts sync automatically so your go-to requests are always nearby.
 
-Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, User Experience, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer.
+Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, User Experience, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, quick-add buttons for Impact, Regression risks, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer.
 
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
