@@ -877,6 +877,35 @@ export default function ChatGptUIPersist() {
     trimmedSystemPrompt,
     wordShareDisplay,
   ]);
+  const conversationSnapshotText = useMemo(() => {
+    if (!hasMessages || conversationSnapshot.length === 0) {
+      return '';
+    }
+
+    const lines = ['Conversation pulse'];
+
+    conversationSnapshot.forEach(({ title, value, description }) => {
+      const safeTitle = typeof title === 'string' ? title.trim() : '';
+      const safeValue =
+        typeof value === 'string'
+          ? value.trim()
+          : value != null
+          ? String(value)
+          : '';
+      const safeDescription =
+        typeof description === 'string' ? description.trim() : description != null ? String(description).trim() : '';
+
+      if (safeTitle || safeValue) {
+        lines.push(safeTitle && safeValue ? `${safeTitle}: ${safeValue}` : safeTitle || safeValue);
+      }
+
+      if (safeDescription) {
+        lines.push(`  - ${safeDescription}`);
+      }
+    });
+
+    return lines.filter(Boolean).join('\n');
+  }, [conversationSnapshot, hasMessages]);
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -910,21 +939,21 @@ export default function ChatGptUIPersist() {
     setTimeout(() => setQuickInsightsCopyStatus(''), 2000);
   }, [hasMessages, insightsSummaryText]);
   const handleCopySnapshot = useCallback(async () => {
-    if (!hasMessages) {
-      setSnapshotCopyStatus('Add a message first');
+    if (!hasMessages || !conversationSnapshotText.trim()) {
+      setSnapshotCopyStatus(hasMessages ? 'Pulse summary not ready' : 'Add a message first');
       setTimeout(() => setSnapshotCopyStatus(''), 2000);
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(insightsSummaryText);
+      await navigator.clipboard.writeText(conversationSnapshotText);
       setSnapshotCopyStatus('Copied!');
     } catch (err) {
       setSnapshotCopyStatus('Copy failed');
     }
 
     setTimeout(() => setSnapshotCopyStatus(''), 2000);
-  }, [hasMessages, insightsSummaryText]);
+  }, [conversationSnapshotText, hasMessages]);
   const handleInsertInsights = useCallback(() => {
     setInput((prev) => {
       const trimmedPrev = prev.trimEnd();
