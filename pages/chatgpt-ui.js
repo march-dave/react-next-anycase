@@ -114,6 +114,9 @@ const DEFAULT_PR_TEMPLATE = [
   '* Logs: 【chunk†L#-L#】 — call out the signal that confirms the change.',
   '* Docs: [Design doc](https://link) — note supporting context or tickets.',
   '',
+  '**Tickets & Tracking**',
+  '* Jira/Linear/GitHub issues that capture the work, owners, and due dates. [ABC-123](https://link) — status and next checkpoint.',
+  '',
   '**Testing**',
   '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
   '',
@@ -229,6 +232,16 @@ const PR_SECTION_SNIPPETS = [
     ].join('\n'),
   },
   {
+    id: 'tickets',
+    label: 'Tickets & tracking',
+    heading: '**Tickets & Tracking**',
+    helperText: 'Link Jira, Linear, or GitHub issues and note current status.',
+    snippet: [
+      '**Tickets & Tracking**',
+      '* Ticket: [ABC-123](https://link) — status, owners, and next checkpoint.',
+    ].join('\n'),
+  },
+  {
     id: 'manual-verification',
     label: 'Manual verification',
     heading: '**Manual Verification**',
@@ -303,9 +316,66 @@ const PR_REFERENCE_SNIPPETS = [
     helperText: 'Track default states, rollout checkpoints, or cleanup owners for toggles.',
     snippet: '* Feature flag: `flag_name` — default state, rollout milestones, and cleanup owner.',
   },
+  {
+    id: 'tickets',
+    label: 'Add ticket link',
+    helperText: 'Reference Jira, Linear, or GitHub issues tied to the change.',
+    snippet: '* Ticket: [ABC-123](https://link) — status, owners, and next checkpoints.',
+  },
 ];
 
 const MAX_SUMMARY_PREVIEW_LENGTH = 200;
+const PR_SUMMARY_PREVIEW_MAX_LENGTH = 180;
+
+function normalizeHeadingValue(value) {
+  if (!value) {
+    return '';
+  }
+  return value.toString().trim().replace(/\*/g, '').toLowerCase();
+}
+
+function getSectionWithHeading(text, heading) {
+  if (typeof text !== 'string' || typeof heading !== 'string') {
+    return '';
+  }
+  const normalizedHeading = normalizeHeadingValue(heading);
+  if (!normalizedHeading) {
+    return '';
+  }
+
+  const sections = text.split(/\n{2,}/);
+  for (const section of sections) {
+    const [firstLine] = section.split('\n');
+    if (normalizeHeadingValue(firstLine) === normalizedHeading) {
+      return section.trim();
+    }
+  }
+  return '';
+}
+
+function getSectionBodyByHeading(text, heading) {
+  const section = getSectionWithHeading(text, heading);
+  if (!section) {
+    return '';
+  }
+  const [, ...rest] = section.split('\n');
+  return rest.join('\n').trim();
+}
+
+function createSummaryPreview(text, maxLength = PR_SUMMARY_PREVIEW_MAX_LENGTH) {
+  if (typeof text !== 'string') {
+    return '';
+  }
+  const normalized = text.trim().replace(/\s+/g, ' ');
+  if (!normalized) {
+    return '';
+  }
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+  const sliceLength = Math.max(0, maxLength - 1);
+  return `${normalized.slice(0, sliceLength)}…`;
+}
 
 function countWords(text) {
   if (typeof text !== 'string') {
@@ -420,6 +490,7 @@ export default function ChatGptUIPersist() {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
   const [prCopyStatus, setPrCopyStatus] = useState('');
+  const [prSummaryCopyStatus, setPrSummaryCopyStatus] = useState('');
   const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
   const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
   const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
@@ -906,6 +977,25 @@ export default function ChatGptUIPersist() {
 
     return lines.filter(Boolean).join('\n');
   }, [conversationSnapshot, hasMessages]);
+  const prTemplateStats = useMemo(() => {
+    const trimmedTemplate = typeof prTemplateText === 'string' ? prTemplateText.trim() : '';
+    const summarySection = getSectionWithHeading(trimmedTemplate, '**Summary**');
+    const summaryBody = getSectionBodyByHeading(trimmedTemplate, '**Summary**');
+    const hasSummarySection = Boolean(summarySection);
+    const hasSummaryContent = summaryBody.length > 0;
+
+    return {
+      totalWords: countWords(trimmedTemplate),
+      totalCharacters: trimmedTemplate.length,
+      summarySection,
+      summaryBody,
+      summaryWords: countWords(summaryBody),
+      summaryCharacters: summaryBody.length,
+      summaryPreview: createSummaryPreview(summaryBody),
+      hasSummarySection,
+      hasSummaryContent,
+    };
+  }, [prTemplateText]);
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -1012,6 +1102,7 @@ export default function ChatGptUIPersist() {
     setQuickInsightsCopyStatus('');
     setSnapshotCopyStatus('');
     setPrInsightsAppendStatus('');
+    setPrSummaryCopyStatus('');
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -1201,6 +1292,34 @@ export default function ChatGptUIPersist() {
     }
     setTimeout(() => setPrCopyStatus(''), 2000);
   };
+
+  const handleCopySummarySection = useCallback(async () => {
+    if (!prTemplateStats.hasSummarySection) {
+      setPrSummaryCopyStatus('Add a Summary section first');
+      setTimeout(() => setPrSummaryCopyStatus(''), 2000);
+      return;
+    }
+
+    const summarySection = prTemplateStats.summarySection.trim();
+    if (!prTemplateStats.hasSummaryContent || !summarySection) {
+      setPrSummaryCopyStatus('Add summary details first');
+      setTimeout(() => setPrSummaryCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(summarySection);
+      setPrSummaryCopyStatus('Copied!');
+    } catch (err) {
+      setPrSummaryCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setPrSummaryCopyStatus(''), 2000);
+  }, [
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.summarySection,
+  ]);
 
   const handleInsertPrTemplate = () => {
     setInput((prev) => {
@@ -1557,6 +1676,7 @@ export default function ChatGptUIPersist() {
     if (!showPrHelper) {
       setPrCopyStatus('');
       setPrInsightsAppendStatus('');
+      setPrSummaryCopyStatus('');
       if (prHelperHasOpened.current && prHelperButtonRef.current) {
         prHelperButtonRef.current.focus();
       }
@@ -1960,7 +2080,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button offers a ready-to-edit summary, artifact, and testing template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus a summary preview before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results.
                 </p>
               </div>
             </div>
@@ -2257,7 +2377,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Use the quick-add buttons below to append more sections, evidence snippets, or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Glance at the live word count and summary preview above the buttons, then use the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -2267,9 +2387,36 @@ export default function ChatGptUIPersist() {
                   rows={8}
                   className="mt-3 w-full rounded border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 />
-                <p className="mt-2 text-[0.7rem] text-gray-500 dark:text-gray-400">
-                  Edits save locally so you can revisit the draft later. Use Reset template to restore the default outline.
-                </p>
+                <div className="mt-2 space-y-1 text-[0.7rem] text-gray-500 dark:text-gray-400" aria-live="polite">
+                  <p>
+                    Edits save locally so you can revisit the draft later. Use Reset template to restore the default outline.
+                  </p>
+                  <p>
+                    Template length: {formatNumber(prTemplateStats.totalWords)}{' '}
+                    {prTemplateStats.totalWords === 1 ? 'word' : 'words'} ({formatNumber(prTemplateStats.totalCharacters)}{' '}
+                    {prTemplateStats.totalCharacters === 1 ? 'char' : 'chars'})
+                  </p>
+                  <p>
+                    {prTemplateStats.hasSummarySection ? (
+                      prTemplateStats.hasSummaryContent ? (
+                        <>
+                          Summary size: {formatNumber(prTemplateStats.summaryWords)}{' '}
+                          {prTemplateStats.summaryWords === 1 ? 'word' : 'words'} ({formatNumber(prTemplateStats.summaryCharacters)}{' '}
+                          {prTemplateStats.summaryCharacters === 1 ? 'char' : 'chars'})
+                          {prTemplateStats.summaryPreview && (
+                            <span className="ml-1 italic text-gray-600 dark:text-gray-300">
+                              Preview: {prTemplateStats.summaryPreview}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        'Add a quick overview beneath the Summary heading to enable the copy shortcut.'
+                      )
+                    ) : (
+                      'Add a "Summary" heading so you can copy it in one click.'
+                    )}
+                  </p>
+                </div>
               </div>
               <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-200">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -2360,13 +2507,20 @@ export default function ChatGptUIPersist() {
                 </div>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                   <button
                     type="button"
                     onClick={handleCopyPrTemplate}
                     className="border border-blue-500 bg-blue-500 px-3 py-2 font-medium text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <span aria-live="polite">{prCopyStatus || 'Copy template'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCopySummarySection}
+                    className="rounded border border-blue-400 px-3 py-2 font-medium text-blue-700 transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-400 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-gray-900"
+                  >
+                    <span aria-live="polite">{prSummaryCopyStatus || 'Copy summary section'}</span>
                   </button>
                   <button
                     type="button"
