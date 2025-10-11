@@ -78,6 +78,14 @@ const promptSuggestions = [
       'Brainstorm five creative feature ideas for a productivity app that helps remote teams collaborate asynchronously.',
     tags: ['Productivity', 'Ideation'],
   },
+  {
+    id: 'standup-update',
+    title: 'Prep a stand-up update',
+    description: 'Summarize yesterday, today, and blockers with quick wins.',
+    prompt:
+      'Draft a crisp stand-up update using the following context. Include what happened yesterday, the focus for today, highlight any quick wins, and call out blockers with owners for follow-up:\n\n',
+    tags: ['Team Updates', 'Summaries'],
+  },
 ];
 
 const DEFAULT_PR_TEMPLATE = [
@@ -85,6 +93,9 @@ const DEFAULT_PR_TEMPLATE = [
   '* Motivation and background. 【F:path/to/file†L#-L#】',
   '* Key implementation changes. 【F:path/to/file†L#-L#】',
   '* Follow-up guardrails or next steps. 【F:path/to/file†L#-L#】',
+  '',
+  '**Changelog & Release notes**',
+  '* Customer-facing highlights, rollouts, and messaging owners. 【F:path/to/file†L#-L#】',
   '',
   '**Impact & Risks**',
   '* Who is affected and what trade-offs or mitigations should reviewers note?',
@@ -222,6 +233,16 @@ const PR_SECTION_SNIPPETS = [
     snippet: ['**Rollout / Follow-up**', '* Launch steps, feature flags, or clean-up tasks.'].join('\n'),
   },
   {
+    id: 'release-notes',
+    label: 'Changelog & release notes',
+    heading: '**Changelog & Release notes**',
+    helperText: 'Capture the customer-facing summary, comms owners, and publish plan.',
+    snippet: [
+      '**Changelog & Release notes**',
+      '* Customer-facing highlights, rollout messaging, and distribution plan. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
     id: 'docs',
     label: 'Documentation & Support',
     heading: '**Documentation & Support**',
@@ -309,6 +330,12 @@ const PR_REFERENCE_SNIPPETS = [
     label: 'Add dependency diff',
     helperText: 'Call out package bumps, migrations, or infra updates reviewers should vet.',
     snippet: '* Dependencies: `package@version` — rationale, testing notes, and follow-up tasks.',
+  },
+  {
+    id: 'release-notes-link',
+    label: 'Link release notes draft',
+    helperText: 'Point reviewers to the customer messaging or enablement doc.',
+    snippet: '* Release notes: [Doc](https://link) — audience, publish date, and owner.',
   },
   {
     id: 'feature-flag-tracker',
@@ -888,6 +915,14 @@ export default function ChatGptUIPersist() {
           ? `Share ${wordShareDisplay}`
           : `Avg ${averageWordsPerMessageDisplay} words per message`,
       },
+      wordShareDisplay
+        ? {
+            key: 'word-share',
+            title: 'Word share',
+            value: wordShareDisplay,
+            description: 'Distribution of contribution across the thread.',
+          }
+        : null,
       {
         key: 'span',
         title: 'Span',
@@ -930,7 +965,7 @@ export default function ChatGptUIPersist() {
       });
     }
 
-    return items;
+    return items.filter(Boolean);
   }, [
     averageWordsPerMessageDisplay,
     conversationDurationText,
@@ -2074,13 +2109,13 @@ export default function ChatGptUIPersist() {
                   )}
                 </div>
                 <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                  Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter. Click a badge to filter the list by theme or use search in the library for keyword matches.
+                  Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter—including the new stand-up update helper. Click a badge to filter the list by theme or use search in the library for keyword matches, then favorite the prompts you revisit so they stay at the top of the grid.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus a summary preview before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus a summary preview before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
                 </p>
               </div>
             </div>
