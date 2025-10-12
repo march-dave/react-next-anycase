@@ -518,6 +518,7 @@ export default function ChatGptUIPersist() {
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
   const [prCopyStatus, setPrCopyStatus] = useState('');
   const [prSummaryCopyStatus, setPrSummaryCopyStatus] = useState('');
+  const [prTestingCopyStatus, setPrTestingCopyStatus] = useState('');
   const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
   const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
   const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
@@ -1018,6 +1019,10 @@ export default function ChatGptUIPersist() {
     const summaryBody = getSectionBodyByHeading(trimmedTemplate, '**Summary**');
     const hasSummarySection = Boolean(summarySection);
     const hasSummaryContent = summaryBody.length > 0;
+    const testingSection = getSectionWithHeading(trimmedTemplate, '**Testing**');
+    const testingBody = getSectionBodyByHeading(trimmedTemplate, '**Testing**');
+    const hasTestingSection = Boolean(testingSection);
+    const hasTestingContent = testingBody.length > 0;
 
     return {
       totalWords: countWords(trimmedTemplate),
@@ -1029,6 +1034,13 @@ export default function ChatGptUIPersist() {
       summaryPreview: createSummaryPreview(summaryBody),
       hasSummarySection,
       hasSummaryContent,
+      testingSection,
+      testingBody,
+      testingWords: countWords(testingBody),
+      testingCharacters: testingBody.length,
+      testingPreview: createSummaryPreview(testingBody),
+      hasTestingSection,
+      hasTestingContent,
     };
   }, [prTemplateText]);
 
@@ -1138,6 +1150,7 @@ export default function ChatGptUIPersist() {
     setSnapshotCopyStatus('');
     setPrInsightsAppendStatus('');
     setPrSummaryCopyStatus('');
+    setPrTestingCopyStatus('');
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -1356,6 +1369,34 @@ export default function ChatGptUIPersist() {
     prTemplateStats.summarySection,
   ]);
 
+  const handleCopyTestingSection = useCallback(async () => {
+    if (!prTemplateStats.hasTestingSection) {
+      setPrTestingCopyStatus('Add a Testing section first');
+      setTimeout(() => setPrTestingCopyStatus(''), 2000);
+      return;
+    }
+
+    const testingSection = prTemplateStats.testingSection.trim();
+    if (!prTemplateStats.hasTestingContent || !testingSection) {
+      setPrTestingCopyStatus('Add testing notes first');
+      setTimeout(() => setPrTestingCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(testingSection);
+      setPrTestingCopyStatus('Copied!');
+    } catch (err) {
+      setPrTestingCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setPrTestingCopyStatus(''), 2000);
+  }, [
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingSection,
+    prTemplateStats.testingSection,
+  ]);
+
   const handleInsertPrTemplate = () => {
     setInput((prev) => {
       const trimmedPrev = prev.trimEnd();
@@ -1375,6 +1416,10 @@ export default function ChatGptUIPersist() {
 
   const handleResetPrTemplate = () => {
     setPrTemplateText(DEFAULT_PR_TEMPLATE);
+    setPrCopyStatus('');
+    setPrSummaryCopyStatus('');
+    setPrTestingCopyStatus('');
+    setPrInsightsAppendStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -2115,7 +2160,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus a summary preview before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
                 </p>
               </div>
             </div>
@@ -2412,7 +2457,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Glance at the live word count and summary preview above the buttons, then use the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Glance at the live word count, summary preview, and testing preview above the buttons, then use the quick copy shortcuts plus the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -2449,6 +2494,28 @@ export default function ChatGptUIPersist() {
                       )
                     ) : (
                       'Add a "Summary" heading so you can copy it in one click.'
+                    )}
+                  </p>
+                  <p>
+                    {prTemplateStats.hasTestingSection ? (
+                      prTemplateStats.hasTestingContent ? (
+                        <>
+                          Testing size: {formatNumber(prTemplateStats.testingWords)}{' '}
+                          {prTemplateStats.testingWords === 1 ? 'word' : 'words'} ({
+                            formatNumber(prTemplateStats.testingCharacters)
+                          }{' '}
+                          {prTemplateStats.testingCharacters === 1 ? 'char' : 'chars'})
+                          {prTemplateStats.testingPreview && (
+                            <span className="ml-1 italic text-gray-600 dark:text-gray-300">
+                              Preview: {prTemplateStats.testingPreview}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        'Document verification notes beneath the Testing heading to unlock the quick copy shortcut.'
+                      )
+                    ) : (
+                      'Add a "Testing" heading so you can copy the verification checklist instantly.'
                     )}
                   </p>
                 </div>
@@ -2541,27 +2608,34 @@ export default function ChatGptUIPersist() {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                  <button
-                    type="button"
-                    onClick={handleCopyPrTemplate}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                    <button
+                      type="button"
+                      onClick={handleCopyPrTemplate}
                     className="border border-blue-500 bg-blue-500 px-3 py-2 font-medium text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <span aria-live="polite">{prCopyStatus || 'Copy template'}</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleCopySummarySection}
-                    className="rounded border border-blue-400 px-3 py-2 font-medium text-blue-700 transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-400 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-gray-900"
-                  >
-                    <span aria-live="polite">{prSummaryCopyStatus || 'Copy summary section'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleInsertPrTemplate}
-                    className="border border-gray-300 px-3 py-2 rounded bg-white text-gray-900 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-                  >
+                    <button
+                      type="button"
+                      onClick={handleCopySummarySection}
+                      className="rounded border border-blue-400 px-3 py-2 font-medium text-blue-700 transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-400 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-gray-900"
+                    >
+                      <span aria-live="polite">{prSummaryCopyStatus || 'Copy summary section'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyTestingSection}
+                      className="rounded border border-blue-400 px-3 py-2 font-medium text-blue-700 transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-400 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-gray-900"
+                    >
+                      <span aria-live="polite">{prTestingCopyStatus || 'Copy testing section'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleInsertPrTemplate}
+                      className="border border-gray-300 px-3 py-2 rounded bg-white text-gray-900 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                    >
                     Insert into chat
                   </button>
                 </div>
