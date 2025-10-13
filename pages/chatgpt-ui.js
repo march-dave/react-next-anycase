@@ -122,8 +122,11 @@ const DEFAULT_PR_TEMPLATE = [
   '* ![Screenshot description](artifacts/filename.png)',
   '',
   '**Artifacts & References**',
+  '* File: 【F:path/to/file†L#-L#】 — highlight the key changes to review.',
   '* Logs: 【chunk†L#-L#】 — call out the signal that confirms the change.',
+  '* Metrics: 【chunk†L#-L#】 — summarize the movement you expect to see.',
   '* Docs: [Design doc](https://link) — note supporting context or tickets.',
+  '* 📹 Video: [Recording](https://link) — show the before/after flow.',
   '',
   '**Tickets & Tracking**',
   '* Jira/Linear/GitHub issues that capture the work, owners, and due dates. [ABC-123](https://link) — status and next checkpoint.',
@@ -295,6 +298,12 @@ const PR_SECTION_SNIPPETS = [
 ];
 
 const PR_REFERENCE_SNIPPETS = [
+  {
+    id: 'file',
+    label: 'Add file citation',
+    helperText: 'Call out the diff or doc reviewers should inspect first.',
+    snippet: '* File: 【F:path/to/file†L#-L#】 — highlight why this change matters.',
+  },
   {
     id: 'logs',
     label: 'Add log citation',
@@ -916,6 +925,14 @@ export default function ChatGptUIPersist() {
           ? `Share ${wordShareDisplay}`
           : `Avg ${averageWordsPerMessageDisplay} words per message`,
       },
+      {
+        key: 'characters',
+        title: 'Characters',
+        value: `${formatNumber(conversationInsights.totalCharacters)} total`,
+        description: `${formatNumber(conversationInsights.userCharacters)} you / ${formatNumber(
+          conversationInsights.assistantCharacters
+        )} assistant`,
+      },
       wordShareDisplay
         ? {
             key: 'word-share',
@@ -970,7 +987,10 @@ export default function ChatGptUIPersist() {
   }, [
     averageWordsPerMessageDisplay,
     conversationDurationText,
+    conversationInsights.assistantCharacters,
+    conversationInsights.totalCharacters,
     conversationInsights.totalWords,
+    conversationInsights.userCharacters,
     firstActivityDisplay,
     hasMessages,
     lastReplyDisplay,
@@ -2160,7 +2180,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
                 </p>
               </div>
             </div>
@@ -2564,7 +2584,7 @@ export default function ChatGptUIPersist() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Need to cite evidence? Drop in reusable bullets for logs, metrics, screenshots, videos, or supporting docs.
+                  Need to cite evidence? Drop in reusable bullets for files, logs, metrics, screenshots, videos, or supporting docs.
                 </p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   {PR_REFERENCE_SNIPPETS.map((reference) => (
