@@ -103,6 +103,7 @@ Exports and downloads now include the active system prompt (when set) so you hav
 Each message now has a small **Copy** button that briefly shows "Copied!" after you copy its text.
 The message input supports multi-line entries; press Shift+Enter for a new line.
 Press Up-arrow in an empty input to recall your last message.
+Prefer keyboard shortcuts? Press Alt+Shift+P to open the Prompt library, Alt+Shift+H to launch the PR helper, Alt+Shift+I to open Conversation insights, and Alt+Shift+C to clear the chat from anywhere on the page.
 The **Send** button stays disabled until you type a message or while waiting for a reply.
 The page title updates with the current number of messages so you can track activity from other browser tabs.
 Each message now displays a timestamp for when it was sent.
