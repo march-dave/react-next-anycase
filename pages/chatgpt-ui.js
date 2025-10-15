@@ -361,6 +361,9 @@ const PR_REFERENCE_SNIPPETS = [
   },
 ];
 
+const KEY_CAP_CLASS =
+  'inline-flex items-center rounded border border-gray-300 bg-white px-1.5 py-0.5 text-[0.65rem] font-semibold text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200';
+
 const MAX_SUMMARY_PREVIEW_LENGTH = 200;
 const PR_SUMMARY_PREVIEW_MAX_LENGTH = 180;
 
@@ -1602,16 +1605,47 @@ export default function ChatGptUIPersist() {
 
   useEffect(() => {
     const shortcutHandler = (e) => {
-      if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'c') {
+      if (!e.altKey || !e.shiftKey) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+
+      if (key === 'c') {
         e.preventDefault();
         if (window.confirm('Clear chat history?')) {
           handleClear();
         }
+        return;
+      }
+
+      if (key === 'p') {
+        e.preventDefault();
+        setShowPromptLibrary(true);
+        setShowPrHelper(false);
+        setShowInsights(false);
+        return;
+      }
+
+      if (key === 'h') {
+        e.preventDefault();
+        setShowPrHelper(true);
+        setShowPromptLibrary(false);
+        setShowInsights(false);
+        return;
+      }
+
+      if (key === 'i') {
+        e.preventDefault();
+        setShowInsights(true);
+        setShowPromptLibrary(false);
+        setShowPrHelper(false);
       }
     };
+
     window.addEventListener('keydown', shortcutHandler);
     return () => window.removeEventListener('keydown', shortcutHandler);
-  }, [handleClear]);
+  }, [handleClear, setShowInsights, setShowPrHelper, setShowPromptLibrary]);
 
   // Load messages from local storage on mount
   useEffect(() => {
@@ -1954,7 +1988,11 @@ export default function ChatGptUIPersist() {
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex flex-wrap gap-2 items-center">
           <DarkModeToggle />
-          <ClearChatButton onClear={handleClear} />
+          <ClearChatButton
+            onClear={handleClear}
+            ariaLabel="Clear conversation (Alt+Shift+C)"
+            title="Alt+Shift+C"
+          />
           <ExportChatButton messages={messages} systemPrompt={systemPrompt} />
           <DownloadChatButton messages={messages} systemPrompt={systemPrompt} />
           <button
@@ -1965,6 +2003,8 @@ export default function ChatGptUIPersist() {
             aria-haspopup="dialog"
             aria-expanded={showPromptLibrary}
             aria-controls="prompt-library"
+            aria-label="Prompt library (Alt+Shift+P)"
+            title="Alt+Shift+P"
           >
             Prompt library
           </button>
@@ -1976,6 +2016,8 @@ export default function ChatGptUIPersist() {
             aria-haspopup="dialog"
             aria-expanded={showPrHelper}
             aria-controls="pr-helper"
+            aria-label="PR helper (Alt+Shift+H)"
+            title="Alt+Shift+H"
           >
             PR helper
           </button>
@@ -1987,6 +2029,8 @@ export default function ChatGptUIPersist() {
             aria-haspopup="dialog"
             aria-expanded={showInsights}
             aria-controls="conversation-insights"
+            aria-label="Insights (Alt+Shift+I)"
+            title="Alt+Shift+I"
           >
             Insights
           </button>
@@ -2225,6 +2269,33 @@ export default function ChatGptUIPersist() {
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
+                </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Prefer shortcuts? Press{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>P</kbd>
+                  {' '}for the Prompt library,{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>H</kbd>
+                  {' '}for the PR helper,{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>I</kbd>
+                  {' '}for Insights, or{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>C</kbd>
+                  {' '}to clear the conversation from anywhere.
                 </p>
               </div>
             </div>

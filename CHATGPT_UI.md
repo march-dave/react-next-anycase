@@ -74,5 +74,6 @@ Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, 
 
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
+Prefer keyboard shortcuts? Press Alt+Shift+P to open the Prompt library, Alt+Shift+H to open the PR helper, Alt+Shift+I to open Conversation insights, and Alt+Shift+C to clear the chat from anywhere on the page.
 Press Escape to clear the message input.
 An animated typing indicator appears while waiting for a response.
