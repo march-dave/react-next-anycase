@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 export default function ClearChatButton({
   onClear,
   label = 'Clear',
-  confirmMessage = 'Clear chat history?'
+  confirmMessage = 'Clear chat history?',
+  ariaLabel,
+  title,
 }) {
   const [status, setStatus] = useState('');
   const handleClick = () => {
@@ -18,7 +20,8 @@ export default function ClearChatButton({
     <button
       onClick={handleClick}
       className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
-      aria-label={label}
+      aria-label={ariaLabel || label}
+      title={title}
     >
       <span aria-live="polite">{status || label}</span>
     </button>
