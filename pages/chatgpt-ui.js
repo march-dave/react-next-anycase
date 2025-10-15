@@ -6,6 +6,7 @@ import ClearChatButton from '@/components/ClearChatButton';
 import ExportChatButton from '@/components/ExportChatButton';
 import DownloadChatButton from '@/components/DownloadChatButton';
 import TypingIndicator from '@/components/TypingIndicator';
+import PrTemplateActions from '@/components/PrTemplateActions';
 
 const STORAGE_KEY = 'chatgptMessages';
 const SETTINGS_KEY = 'chatgptUiSettings';
@@ -528,6 +529,8 @@ export default function ChatGptUIPersist() {
   const [prCopyStatus, setPrCopyStatus] = useState('');
   const [prSummaryCopyStatus, setPrSummaryCopyStatus] = useState('');
   const [prTestingCopyStatus, setPrTestingCopyStatus] = useState('');
+  const [prSummaryInsertStatus, setPrSummaryInsertStatus] = useState('');
+  const [prTestingInsertStatus, setPrTestingInsertStatus] = useState('');
   const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
   const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
   const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
@@ -1070,6 +1073,32 @@ export default function ChatGptUIPersist() {
       inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
   }, []);
+  const insertTextIntoComposer = useCallback(
+    (text, options) => {
+      const { focusInput = true } = options ?? {};
+      const trimmedText = typeof text === 'string' ? text.trim() : '';
+      if (!trimmedText) {
+        return false;
+      }
+
+      setInput((prev) => {
+        const trimmedPrev = prev.trimEnd();
+        return trimmedPrev ? `${trimmedPrev}\n\n${trimmedText}` : trimmedText;
+      });
+
+      requestAnimationFrame(() => {
+        adjustInputHeight();
+        if (focusInput && inputRef.current) {
+          inputRef.current.focus();
+          const length = inputRef.current.value.length;
+          inputRef.current.setSelectionRange(length, length);
+        }
+      });
+
+      return true;
+    },
+    [adjustInputHeight]
+  );
   const handleCopyInsights = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(insightsSummaryText);
@@ -1418,27 +1447,42 @@ export default function ChatGptUIPersist() {
   ]);
 
   const handleInsertPrTemplate = () => {
-    setInput((prev) => {
-      const trimmedPrev = prev.trimEnd();
-      const next = trimmedPrev ? `${trimmedPrev}\n\n${prTemplateText}` : prTemplateText;
-      return next;
-    });
+    insertTextIntoComposer(prTemplateText);
     setShowPrHelper(false);
-    requestAnimationFrame(() => {
-      adjustInputHeight();
-      if (inputRef.current) {
-        inputRef.current.focus();
-        const length = inputRef.current.value.length;
-        inputRef.current.setSelectionRange(length, length);
-      }
-    });
   };
+
+  const handleInsertSummarySection = useCallback(() => {
+    if (!prTemplateStats.hasSummarySection || !prTemplateStats.hasSummaryContent) {
+      setPrSummaryInsertStatus('Add summary details first');
+      setTimeout(() => setPrSummaryInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(prTemplateStats.summarySection, { focusInput: false });
+    setPrSummaryInsertStatus(inserted ? 'Inserted!' : 'Add summary details first');
+    setTimeout(() => setPrSummaryInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, prTemplateStats.hasSummaryContent, prTemplateStats.hasSummarySection, prTemplateStats.summarySection]);
+
+  const handleInsertTestingSection = useCallback(() => {
+    if (!prTemplateStats.hasTestingSection || !prTemplateStats.hasTestingContent) {
+      setPrTestingInsertStatus('Add testing notes first');
+      setTimeout(() => setPrTestingInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(prTemplateStats.testingSection, { focusInput: false });
+    setPrTestingInsertStatus(inserted ? 'Inserted!' : 'Add testing notes first');
+    setTimeout(() => setPrTestingInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, prTemplateStats.hasTestingContent, prTemplateStats.hasTestingSection, prTemplateStats.testingSection]);
+
 
   const handleResetPrTemplate = () => {
     setPrTemplateText(DEFAULT_PR_TEMPLATE);
     setPrCopyStatus('');
     setPrSummaryCopyStatus('');
     setPrTestingCopyStatus('');
+    setPrSummaryInsertStatus('');
+    setPrTestingInsertStatus('');
     setPrInsightsAppendStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
@@ -2628,45 +2672,20 @@ export default function ChatGptUIPersist() {
                   </button>
                 </div>
               </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                    <button
-                      type="button"
-                      onClick={handleCopyPrTemplate}
-                    className="border border-blue-500 bg-blue-500 px-3 py-2 font-medium text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <span aria-live="polite">{prCopyStatus || 'Copy template'}</span>
-                  </button>
-                    <button
-                      type="button"
-                      onClick={handleCopySummarySection}
-                      className="rounded border border-blue-400 px-3 py-2 font-medium text-blue-700 transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-400 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-gray-900"
-                    >
-                      <span aria-live="polite">{prSummaryCopyStatus || 'Copy summary section'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCopyTestingSection}
-                      className="rounded border border-blue-400 px-3 py-2 font-medium text-blue-700 transition hover:border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-400 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-gray-900"
-                    >
-                      <span aria-live="polite">{prTestingCopyStatus || 'Copy testing section'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleInsertPrTemplate}
-                      className="border border-gray-300 px-3 py-2 rounded bg-white text-gray-900 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-                    >
-                    Insert into chat
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleResetPrTemplate}
-                  className="self-start text-xs text-gray-500 underline hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  Reset template
-                </button>
-              </div>
+              <PrTemplateActions
+                onCopyTemplate={handleCopyPrTemplate}
+                onCopySummary={handleCopySummarySection}
+                onCopyTesting={handleCopyTestingSection}
+                onInsertTemplate={handleInsertPrTemplate}
+                onInsertSummary={handleInsertSummarySection}
+                onInsertTesting={handleInsertTestingSection}
+                copyStatus={prCopyStatus}
+                summaryCopyStatus={prSummaryCopyStatus}
+                testingCopyStatus={prTestingCopyStatus}
+                summaryInsertStatus={prSummaryInsertStatus}
+                testingInsertStatus={prTestingInsertStatus}
+                onReset={handleResetPrTemplate}
+              />
             </div>
           </div>
         </div>
