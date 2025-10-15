@@ -82,7 +82,7 @@ To run it locally:
    ```bash
    npm run dev
    ```
-3. Open `http://localhost:3000` in your browser.
+4. Open `http://localhost:3000` in your browser.
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
 A minimalist version is available at `/chatgpt-simple`.
