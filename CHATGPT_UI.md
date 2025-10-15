@@ -1,6 +1,6 @@
 # ChatGPT UI Quick Start
 
-This repository includes a simple ChatGPT interface built with Next.js and the OpenAI API. Follow these steps to run it locally:
+This repository includes a ChatGPT UI with persistent conversations built with Next.js and the OpenAI API. The home page now defaults to this interface (also available at `/chatgpt-ui`) and renders replies using GitHub-flavored Markdown with syntax highlighting for code blocks. Links in replies automatically open in a new browser tab. A basic non-persistent interface remains available at `/chatgpt`. Follow these steps to run it locally:
 
 1. Install dependencies if needed:
 
@@ -9,19 +9,70 @@ npm install
 ```
 
 2. Set the `OPENAI_API_KEY` environment variable to your OpenAI API key.
-3. Start the development server:
+   Optionally set `OPENAI_MODEL` to choose a different default model and
+   `OPENAI_SYSTEM_MESSAGE` for a custom system prompt, then start the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open `http://localhost:3000/` in your browser.
+   You can also run the server inline with the key:
+
+```bash
+OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 \
+OPENAI_SYSTEM_MESSAGE="You are a helpful assistant." npm run dev
+```
+
+   To display the active model name in the header and page title, also set
+   `NEXT_PUBLIC_OPENAI_MODEL`:
+
+```bash
+NEXT_PUBLIC_OPENAI_MODEL=gpt-4 npm run dev
+```
+
+3. Open `http://localhost:3000/` in your browser.
 
 Other pages to explore:
 
-- `/chatgpt` – same interface as the home page.
+- `/chatgpt` – simple interface without persistence.
+- `/chatgpt-simple` – minimal interface without dark mode or extras.
 - `/gpt` – select a different model.
-- `/chatgpt-ui` – messages persist across reloads.
+- `/chatgpt-advanced` – set a custom system prompt.
+- `/chatgpt-ui` – same interface as the home page with persistent messages.
+- `/chatgpt-persistent` – simplified persistent interface.
+- `/chatgpt-ui-stream` – streaming replies with persistent history.
+- `/chatgpt-markdown` – renders replies using GitHub-flavored Markdown.
 - `/chatgpt-ko` – Korean interface.
+- `/chatgpt-stream` – streams replies token by token without persistence.
+- `/chatgpt-lite` – ultra-lightweight interface.
+- `/chatgpt-ui-markdown` – persistent UI with GitHub-flavored Markdown.
+- `/cursor-ai-ui` – Cursor-inspired interface with persistent history and Up-arrow recall.
 
-All chat pages include a **Dark Mode** toggle.
+All chat pages include a **Dark Mode** toggle. Use the **Clear** button to start a fresh conversation; after clearing it briefly shows "Cleared!" and the message input refocuses automatically.
+Use the **Settings** button in the header to define a custom system prompt. The prompt is saved locally, applied to every
+message you send, and included in exports or downloads so you retain full context when sharing conversations.
+Press **Alt+Shift+C** to clear the chat from anywhere on the page after a confirmation prompt.
+An **Export** button copies the chat history—including timestamps and the custom system prompt when set—to your clipboard and
+briefly confirms success.
+You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message
+and now names the file using the current timestamp.
+Tap the **Insights** button in the header to review message counts, role balance, word totals, character totals, word-share percentages, the longest update and pause, and conversation timing, then copy a shareable summary for docs or pull requests. The Conversation pulse cards also include a **Copy pulse summary** button and now surface quick tiles for messages, words, characters, span, and pacing so you can drop the latest stats into a doc or PR without leaving the page.
+Each message now shows a timestamp for when it was sent.
+Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
+The header displays the current number of messages in the conversation and announces updates to screen readers.
+It now also surfaces the conversation span, average words per message, the longest update so far, the longest pause between replies, and the timestamp of the last reply so you can gauge pace without opening the Insights panel.
+The page title also updates with the current message count so you can see new activity from another tab.
+If `NEXT_PUBLIC_OPENAI_MODEL` is set, the active model name appears in the header and page title.
+The message input automatically expands to fit longer content and now shows live word and character counts for your draft so you can spot lengthy updates before sending them.
+The chat log announces updates to screen readers and indicates when a response is loading.
+If there are no messages yet, a placeholder invites you to start the conversation and now displays quick-start prompt cards for
+common workflows.
+The cards include themed badges to help you scan suggestions at a glance, plus refreshed starters for summarizing change sets, planning rollout messaging, and writing pull request summaries with testing callouts. Tap the star in the corner of a card to favorite it—favorites jump to the top of the quick-start grid and stay pinned in the Prompt library for speedy reuse.
+Open the **Prompt library** button in the header at any time to browse the full set of starters or search for keywords or tags before dropping them into the chat. Favorited prompts sync automatically so your go-to requests are always nearby.
+
+Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, Accessibility, User Experience, Performance, Analytics & Monitoring, Screenshots, and Testing template—now with bold section headers, live word and character counts, summary and testing previews, quick-add buttons for Impact, Regression risks, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, Tickets & Tracking, evidence bullets (files, logs, metrics, screenshots, docs, videos), and Testing rows (each inserting emoji-prefixed ✅/⚠️/❌ snippets automatically), plus file, log, and image citation placeholders you can tweak or insert into the composer. Use the new **Append conversation insights** button inside the helper to drop the current message counts, timing, and word-balance summary straight into your draft. One-click copy buttons for the Summary or Testing section are handy when you only need changelog-ready highlights or verification checklists, and new insert buttons let you drop the Summary, Testing, or full template straight into the chat composer without leaving the helper.
+
+Press Shift+Enter to add a newline.
+Press Up Arrow in an empty input to recall your last message.
+Press Escape to clear the message input.
+An animated typing indicator appears while waiting for a response.

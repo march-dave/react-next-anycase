@@ -57,18 +57,27 @@ Google Mobile Ads (`react-native-google-mobile-ads` @15.2.0) is integrated and a
 
 ## ChatGPT UI
 
-The site now defaults to a simple ChatGPT interface on the home page (`/`). You
-can also access it directly via `/chatgpt`.
+The site now defaults to the persistent ChatGPT UI on the home page (`/`).
+This interface renders replies using GitHub-flavored Markdown, so code blocks, tables, and formatting appear as expected. Links in responses automatically open in a new tab.
+You can still access the simple, non-persistent interface at `/chatgpt`.
+
+Open the **Settings** button in the header to define a custom system prompt. The prompt is saved locally, applied to every
+message you send, and included whenever you export or download the transcript. A few starter prompts now appear on an empty
+conversation so you can jump into common workflows without typing everything from scratch.
 
 To run it locally:
 
-1. Install dependencies if needed:
-
+1. Set the required `OPENAI_API_KEY` environment variable. You can copy
+   `.env.example` to `.env.local` and add your key there. Optionally
+   specify `OPENAI_MODEL` to change the default model and
+   `OPENAI_SYSTEM_MESSAGE` to include a custom system prompt. To show the active model name in the header, set `NEXT_PUBLIC_OPENAI_MODEL`.
+   You can also run the server inline with the key:
    ```bash
-   npm install
+   OPENAI_API_KEY=your-key OPENAI_MODEL=gpt-4 \
+   OPENAI_SYSTEM_MESSAGE="You are a helpful assistant." \
+   NEXT_PUBLIC_OPENAI_MODEL=gpt-4 npm run dev
    ```
-2. Set the `OPENAI_API_KEY` environment variable.
-3. Start the dev server:
+2. Start the dev server:
 
    ```bash
    npm run dev
@@ -76,20 +85,59 @@ To run it locally:
 4. Open `http://localhost:3000` in your browser.
 
 You can also choose a different model (e.g. `gpt-4`) at `/gpt`.
-For conversations that persist across page reloads, visit `/chatgpt-ui`.
+A minimalist version is available at `/chatgpt-simple`.
+A lightweight interface is available at `/chatgpt-lite`.
+An advanced page at `/chatgpt-advanced` lets you set a custom system prompt.
+A simplified persistent page is available at `/chatgpt-persistent`.
+The default persistent interface lives at `/chatgpt-ui`.
+A streaming version with persistence is available at `/chatgpt-ui-stream`.
+A GitHub-flavored Markdown version is at `/chatgpt-markdown`.
 A Korean interface is available at `/chatgpt-ko`.
-All chat pages now include a **Dark Mode** toggle in the header.
+A Cursor-inspired interface is available at `/cursor-ai-ui`, with persistent messages, auto-resizing input, and Up-arrow recall of your last prompt.
+All chat pages now include a **Dark Mode** toggle in the header. If you haven't
+set a preference, the toggle follows your system's color scheme by default.
+You can also reset the conversation anytime using the **Clear** button, which asks for confirmation and briefly shows "Cleared!" after removing the chat.
+An **Export** button copies the current conversation—including timestamps—to your clipboard.
+There's also a **Download** button to save the conversation as a timestamped text file.
+Exports and downloads now include the active system prompt (when set) so you have the full context later.
+Each message now has a small **Copy** button that briefly shows "Copied!" after you copy its text.
+The message input supports multi-line entries; press Shift+Enter for a new line.
+Press Up-arrow in an empty input to recall your last message.
+The **Send** button stays disabled until you type a message or while waiting for a reply.
+The page title updates with the current number of messages so you can track activity from other browser tabs.
+Each message now displays a timestamp for when it was sent.
+The header shows the current message count and, if set, the active model name.
+It also surfaces the conversation span, average words per message, the longest update so far, the longest pause between replies, and the timestamp of the last reply so you can see progress at a glance.
+An animated typing indicator appears while waiting for a response, and the chat log announces updates to screen readers while indicating when a reply is loading.
+If there are no messages yet, a placeholder invites you to start the conversation, and the message input automatically expands to fit longer content.
+Quick-start prompt cards also appear to help you compose your first message.
+Each card shows themed badges so you can quickly spot the right starting point, including refreshed prompts for summarizing change sets, planning rollout messaging, and drafting pull request summaries with testing notes. Mark a card with the star button to favorite it—favorites float to the top of the quick-start grid and stay pinned inside the Prompt library so you can reuse your go-to starters faster.
+Need inspiration mid-conversation? Tap the **Prompt library** button in the header to browse every starter or search by keyword or tag before inserting it into the chat box. Favorites sync automatically here too, so your most-used prompts are always within reach.
+Want a quick pulse check on the conversation? Tap the **Insights** button in the header to review message counts, word totals, character totals, word-share balance, the longest update and pause, and a copy-ready summary you can drop into docs or follow-up prompts. The Conversation pulse cards now surface message, word, character, span, and pacing snapshots and include a **Copy pulse summary** button so you can grab the latest stats for changelog notes or PRs without leaving the page.
+Need a quick pull request outline? Open the **PR helper** from the header to copy or tweak a ready-made Summary, Screenshots, and Testing template—with bold section headers, live word and character counts, summary and testing previews, quick-add buttons for Impact, Regression risks, Accessibility, User Experience, Performance, Analytics & Monitoring, Rollout, Documentation, Tickets & Tracking, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test rows (now inserting ✅/⚠️/❌ markdown snippets automatically), and citation placeholders so you remember to document UI changes—before sharing updates. You can also copy just the Summary or Testing section when you need a quick changelog snippet or verification checklist, or drop either section (or the full template) straight into the chat composer with the new insert buttons when you're ready to send an update. An **Append conversation insights** button inside the helper drops the live message counts, timing, and word-share summary directly into your draft.
+
+
 For a condensed quick-start guide, see [`CHATGPT_UI.md`](./CHATGPT_UI.md).
+Korean instructions are available in [README_KO.md](./README_KO.md).
 
 Key files implementing the chat interface:
 
 - `pages/chatgpt.js` – renders the chat UI.
+- `pages/chatui.js` – stripped-down ChatGPT UI without dark mode or extras.
+- `pages/chatgpt-simple.js` – minimal ChatGPT interface.
+- `pages/chatgpt-lite.js` – ultra-lightweight interface.
 - `pages/api/chatgpt.js` – API route that sends prompts to OpenAI.
 - `components/ChatBubble.js` – the message bubble component.
+- `components/ChatBubbleMarkdown.js` – bubble with GitHub-flavored Markdown support.
 - `pages/gpt.js` – variant with a model selector.
-- `pages/chatgpt-ui.js` – version that stores messages in local storage.
+  - `pages/chatgpt-ui.js` – version that stores messages in local storage with Up-arrow recall (default home page).
+- `pages/chatgpt-persistent.js` – simplified UI that also persists messages.
 - `pages/chatgpt-ko.js` – Korean language interface.
+- `pages/cursor-ai-ui.js` – Cursor AI interface with persistent messages and Up-arrow recall.
 - `pages/chatgpt-stream.js` – streams responses token by token.
+- `pages/chatgpt-ui-stream.js` – combines streaming replies with persistent messages.
+- `pages/chatgpt-markdown.js` – renders messages using GitHub-flavored Markdown.
+- `pages/chatgpt-advanced.js` – choose a model and system prompt.
 - `pages/api/chatgpt-stream.js` – API route powering the streaming UI.
 
 Below is a short excerpt from the `handleSubmit` function in

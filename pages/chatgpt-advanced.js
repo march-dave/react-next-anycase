@@ -7,10 +7,11 @@ import ExportChatButton from '@/components/ExportChatButton';
 
 const MODELS = ['gpt-3.5-turbo', 'gpt-4'];
 
-export default function GptUIPage() {
+export default function ChatGptAdvanced() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [model, setModel] = useState(MODELS[0]);
+  const [systemPrompt, setSystemPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   const inputRef = useRef(null);
@@ -51,6 +52,7 @@ export default function GptUIPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model,
+          systemPrompt,
           messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.text }))
         }),
       });
@@ -75,10 +77,10 @@ export default function GptUIPage() {
   return (
     <>
       <Head>
-        <title>GPT UI</title>
+        <title>ChatGPT Advanced UI</title>
       </Head>
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
+        <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2 items-start">
           <DarkModeToggle />
           <ClearChatButton onClear={handleClear} />
           <ExportChatButton messages={messages} />
@@ -102,6 +104,13 @@ export default function GptUIPage() {
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
+          <input
+            type="text"
+            value={systemPrompt}
+            onChange={(e) => setSystemPrompt(e.target.value)}
+            placeholder="System prompt"
+            className="border border-gray-300 dark:border-gray-700 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 w-48"
+          />
           <textarea
             ref={inputRef}
             rows={1}

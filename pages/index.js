@@ -1,2 +1,2 @@
-// Reuse the existing ChatGPT page as the landing page
-export { default } from './chatgpt'
+// Use the persistent ChatGPT UI as the landing page
+export { default } from './chatgpt-ui'

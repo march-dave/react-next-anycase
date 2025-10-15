@@ -4,21 +4,48 @@ import ChatBubble from '@/components/ChatBubble';
 import DarkModeToggle from '@/components/DarkModeToggle';
 import ClearChatButton from '@/components/ClearChatButton';
 import ExportChatButton from '@/components/ExportChatButton';
+import DownloadChatButton from '@/components/DownloadChatButton';
 
-const MODELS = ['gpt-3.5-turbo', 'gpt-4'];
+const STORAGE_KEY = 'cursorAiMessages';
 
-export default function GptUIPage() {
+export default function CursorAiUI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [model, setModel] = useState(MODELS[0]);
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   const inputRef = useRef(null);
+  const textareaRef = useRef(null);
   const disableSend = loading || !input.trim();
 
   const handleClear = () => {
     setMessages([]);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (err) {
+      // ignore
+    }
   };
+
+  // Load messages from local storage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        setMessages(JSON.parse(saved));
+      }
+    } catch (err) {
+      console.error('Failed to load messages', err);
+    }
+  }, []);
+
+  // Save messages to local storage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch (err) {
+      console.error('Failed to save messages', err);
+    }
+  }, [messages]);
 
   useEffect(() => {
     if (endRef.current) {
@@ -31,6 +58,14 @@ export default function GptUIPage() {
       inputRef.current.focus();
     }
   }, []);
+
+  // auto-resize the textarea to fit its content
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
 
   useEffect(() => {
     if (!loading && inputRef.current) {
@@ -50,7 +85,6 @@ export default function GptUIPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model,
           messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.text }))
         }),
       });
@@ -58,7 +92,11 @@ export default function GptUIPage() {
       const botMsg = { role: 'assistant', text: data.text || 'No response', time: new Date().toLocaleTimeString() };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
-      const errorMsg = { role: 'assistant', text: 'Error: ' + err.message, time: new Date().toLocaleTimeString() };
+      const errorMsg = {
+        role: 'assistant',
+        text: 'Error: ' + err.message,
+        time: new Date().toLocaleTimeString(),
+      };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setLoading(false);
@@ -66,7 +104,12 @@ export default function GptUIPage() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'ArrowUp' && !input.trim()) {
+      const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+      if (lastUser) {
+        setInput(lastUser.text);
+      }
+    } else if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -75,13 +118,14 @@ export default function GptUIPage() {
   return (
     <>
       <Head>
-        <title>GPT UI</title>
+        <title>Cursor AI UI</title>
       </Head>
       <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
           <DarkModeToggle />
           <ClearChatButton onClear={handleClear} />
           <ExportChatButton messages={messages} />
+          <DownloadChatButton messages={messages} />
         </div>
         <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
           {messages.map((msg, idx) => (
@@ -92,24 +136,19 @@ export default function GptUIPage() {
           )}
           <div ref={endRef} />
         </div>
-        <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2 items-start">
-          <select
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            className="border border-gray-300 dark:border-gray-700 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-          >
-            {MODELS.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
+        <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
           <textarea
-            ref={inputRef}
+            ref={(el) => {
+              inputRef.current = el;
+              textareaRef.current = el;
+            }}
             rows={1}
             className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Send a message (Shift+Enter for newline)"
+            aria-label="Chat input"
           />
           <button
             type="submit"

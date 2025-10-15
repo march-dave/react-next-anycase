@@ -1,16 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
-import ChatBubble from '@/components/ChatBubble';
+import ChatBubbleMarkdown from '@/components/ChatBubbleMarkdown';
+import DarkModeToggle from '@/components/DarkModeToggle';
+import ClearChatButton from '@/components/ClearChatButton';
+import ExportChatButton from '@/components/ExportChatButton';
+import DownloadChatButton from '@/components/DownloadChatButton';
 
-export default function ChatUI() {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Welcome! How can I help?', time: new Date().toLocaleTimeString() },
-  ]);
+export default function ChatGptMarkdown() {
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const disableSend = loading || !input.trim();
+
+  const handleClear = () => {
+    setMessages([]);
+  };
 
   useEffect(() => {
     if (endRef.current) {
@@ -70,21 +76,29 @@ export default function ChatUI() {
   return (
     <>
       <Head>
-        <title>Chat UI</title>
+        <title>ChatGPT Markdown UI</title>
       </Head>
-      <div className="flex flex-col h-screen">
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-4">
-          {messages.map((m, idx) => (
-            <ChatBubble key={idx} message={m} />
+      <div className="flex flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <div className="p-2 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
+          <DarkModeToggle />
+          <ClearChatButton onClear={handleClear} />
+          <ExportChatButton messages={messages} />
+          <DownloadChatButton messages={messages} />
+        </div>
+        <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4">
+          {messages.map((msg, idx) => (
+            <ChatBubbleMarkdown key={idx} message={msg} />
           ))}
-          {loading && <ChatBubble message={{ role: 'assistant', text: 'Loading...' }} />}
+          {loading && (
+            <ChatBubbleMarkdown message={{ role: 'assistant', text: 'Loading...' }} />
+          )}
           <div ref={endRef} />
         </div>
-        <form onSubmit={handleSubmit} className="p-4 border-t bg-white flex gap-2">
+        <form onSubmit={handleSubmit} className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700 flex gap-2">
           <textarea
             ref={inputRef}
             rows={1}
-            className="w-full border border-gray-300 rounded p-2 resize-none"
+            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -94,6 +108,7 @@ export default function ChatUI() {
             type="submit"
             className="bg-blue-500 text-white rounded px-4 py-2 disabled:opacity-50"
             disabled={disableSend}
+            aria-label="Send message"
           >
             Send
           </button>
