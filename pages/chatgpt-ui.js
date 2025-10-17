@@ -815,99 +815,108 @@ export default function ChatGptUIPersist() {
       return 'No conversation yet — start chatting to generate insights.';
     }
 
-    const lines = [
-      'Conversation insights',
-      `Messages: ${formatNumber(conversationInsights.total)} (${formatNumber(
+    const bulletLines = ['**Conversation insights**', ''];
+    const addLine = (label, value) => {
+      const trimmedValue = typeof value === 'string' ? value.trim() : value;
+      if (!label || (typeof trimmedValue === 'string' && !trimmedValue)) {
+        return;
+      }
+      bulletLines.push(`* ${label}: ${trimmedValue}`);
+    };
+
+    addLine(
+      'Messages',
+      `${formatNumber(conversationInsights.total)} (${formatNumber(
         conversationInsights.userCount
-      )} you / ${formatNumber(conversationInsights.assistantCount)} assistant)`,
-      `Words: ${formatNumber(conversationInsights.totalWords)} total (avg ${averageWordsPerMessageDisplay} per message)`,
-      `Characters: ${formatNumber(conversationInsights.totalCharacters)} total`,
-    ];
-
-    const durationText = formatDuration(conversationInsights.durationMs);
-    if (durationText) {
-      lines.push(`Duration: ${durationText}`);
-    }
-
-    const started = formatTimestampForDisplay(
-      conversationInsights.firstTimestamp,
-      conversationInsights.firstTimeLabel
+      )} you / ${formatNumber(conversationInsights.assistantCount)} assistant)`
     );
-    if (started) {
-      lines.push(`Started: ${started}`);
-    }
-
-    const last = formatTimestampForDisplay(
-      conversationInsights.lastTimestamp,
-      conversationInsights.lastTimeLabel
+    addLine(
+      'Words',
+      `${formatNumber(conversationInsights.totalWords)} total (avg ${averageWordsPerMessageDisplay} per message)`
     );
-    if (last) {
-      lines.push(`Last activity: ${last}`);
-    }
-
-    lines.push(
-      `You wrote ${formatNumber(conversationInsights.userWords)} words (${formatNumber(
+    addLine(
+      'Characters',
+      `${formatNumber(conversationInsights.totalCharacters)} total`
+    );
+    addLine(
+      'You',
+      `${formatNumber(conversationInsights.userWords)} words (${formatNumber(
         conversationInsights.userCharacters
-      )} chars).`
+      )} chars)`
     );
-    lines.push(
-      `Assistant replied with ${formatNumber(conversationInsights.assistantWords)} words (${formatNumber(
+    addLine(
+      'Assistant',
+      `${formatNumber(conversationInsights.assistantWords)} words (${formatNumber(
         conversationInsights.assistantCharacters
-      )} chars).`
+      )} chars)`
     );
 
-    if (conversationInsights.totalWords > 0) {
-      const userShare = conversationInsights.userWords / conversationInsights.totalWords;
-      const assistantShare = conversationInsights.assistantWords / conversationInsights.totalWords;
-      lines.push(
-        `Word share: ${formatPercentage(userShare)} you / ${formatPercentage(assistantShare)} assistant.`
-      );
+    if (wordShareDisplay) {
+      addLine('Word share', wordShareDisplay);
     }
 
-    if (conversationInsights.longestUserWords > 0) {
-      lines.push(
-        `Longest user update: ${formatWordAndCharLabel(
-          conversationInsights.longestUserWords,
-          conversationInsights.longestUserCharacters
-        )}.`
-      );
+    const timelineParts = [];
+    if (firstActivityDisplay) {
+      timelineParts.push(`Started ${firstActivityDisplay}`);
+    }
+    if (lastReplyDisplay) {
+      timelineParts.push(`Last reply ${lastReplyDisplay}`);
+    }
+    if (conversationDurationText) {
+      timelineParts.push(`Span ${conversationDurationText}`);
+    }
+    if (timelineParts.length > 0) {
+      addLine('Timeline', timelineParts.join(' · '));
     }
 
-    if (conversationInsights.longestAssistantWords > 0) {
-      lines.push(
-        `Longest assistant update: ${formatWordAndCharLabel(
-          conversationInsights.longestAssistantWords,
-          conversationInsights.longestAssistantCharacters
-        )}.`
-      );
-    }
-
-    if (conversationInsights.longestGapMs > 0) {
-      lines.push(`Longest pause between messages: ${formatGapDuration(conversationInsights.longestGapMs)}.`);
-    }
+    addLine(
+      'Longest user update',
+      conversationInsights.longestUserWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestUserWords,
+            conversationInsights.longestUserCharacters
+          )
+        : ''
+    );
+    addLine(
+      'Longest assistant update',
+      conversationInsights.longestAssistantWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestAssistantWords,
+            conversationInsights.longestAssistantCharacters
+          )
+        : ''
+    );
+    addLine('Longest update', longestMessageDescription);
+    addLine('Longest pause', longestPauseDescription);
 
     if (modelName) {
-      lines.push(`Model: ${modelName}`);
+      addLine('Model', modelName);
     }
 
     if (trimmedSystemPrompt) {
-      const preview =
-        trimmedSystemPrompt.length > MAX_SUMMARY_PREVIEW_LENGTH
-          ? `${trimmedSystemPrompt.slice(0, MAX_SUMMARY_PREVIEW_LENGTH - 3)}...`
-          : trimmedSystemPrompt;
-      lines.push('System prompt: Custom');
-      lines.push(`Prompt preview: ${preview}`);
+      addLine(
+        'System prompt',
+        systemPromptPreview ? `Custom — ${systemPromptPreview}` : 'Custom'
+      );
     } else {
-      lines.push('System prompt: Default');
+      addLine('System prompt', 'Default');
     }
 
-    return lines.join('\n');
+    return bulletLines.join('\n');
   }, [
     averageWordsPerMessageDisplay,
+    conversationDurationText,
     conversationInsights,
+    firstActivityDisplay,
     hasMessages,
+    lastReplyDisplay,
+    longestMessageDescription,
+    longestPauseDescription,
     modelName,
+    systemPromptPreview,
     trimmedSystemPrompt,
+    wordShareDisplay,
   ]);
   const conversationSnapshot = useMemo(() => {
     if (!hasMessages) {
@@ -2073,6 +2082,16 @@ export default function ChatGptUIPersist() {
                 <span className="self-center" aria-label={`Average words per message ${averageWordsPerMessageDisplay}`}>
                   Avg words/msg: {averageWordsPerMessageDisplay}
                 </span>
+                {wordShareDisplay && (
+                  <span className="self-center" aria-label={`Word share ${wordShareDisplay}`}>
+                    Word share: {wordShareDisplay}
+                  </span>
+                )}
+                {firstActivityDisplay && (
+                  <span className="self-center" aria-label={`Started ${firstActivityDisplay}`}>
+                    Started: {firstActivityDisplay}
+                  </span>
+                )}
                 {longestMessageDisplay && (
                   <span className="self-center" aria-label={`Longest update ${longestMessageAria}`}>
                     Longest update: {longestMessageDisplay}
