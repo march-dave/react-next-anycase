@@ -56,6 +56,15 @@ const promptSuggestions = [
     tags: ['Collaboration', 'Pull Request'],
   },
   {
+    id: 'compose-final-update',
+    title: 'Compose a final update',
+    description:
+      'Turn raw change notes into the Summary & Testing sections used in the final response, complete with citations.',
+    prompt:
+      'Use the following context to draft a final handoff update for reviewers. Produce a **Summary** section with bullets that call out motivation, major changes, and follow-ups, each ending with the right file citation placeholder. Then include a **Testing** section that lists the exact commands or suites that ran, prefixing each line with ✅/⚠️/❌ and leaving space for the chunk citation. Keep the formatting ready for copy/paste.\n\n',
+    tags: ['Pull Request', 'Recaps'],
+  },
+  {
     id: 'outline-verification',
     title: 'Outline verification steps',
     description: 'List the manual and automated checks to run before shipping.',
@@ -120,7 +129,7 @@ const DEFAULT_PR_TEMPLATE = [
   '* Dashboards, alerts, or events to watch after release. 【F:path/to/file†L#-L#】',
   '',
   '**Screenshots / Recordings**',
-  '* ![Screenshot description](artifacts/filename.png)',
+  '* ![Screenshot description](artifacts/filename.png) — describe the state you captured and cite the UI diff. 【F:path/to/file†L#-L#】',
   '',
   '**Artifacts & References**',
   '* File: 【F:path/to/file†L#-L#】 — highlight the key changes to review.',
@@ -230,6 +239,16 @@ const PR_SECTION_SNIPPETS = [
     ].join('\n'),
   },
   {
+    id: 'screenshots',
+    label: 'Screenshots & recordings',
+    heading: '**Screenshots / Recordings**',
+    helperText: 'Remind reviewers where to find updated UI proof with citations.',
+    snippet: [
+      '**Screenshots / Recordings**',
+      '* ![Screenshot description](artifacts/filename.png) — cover the scenario and cite the UI diff. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
     id: 'rollout',
     label: 'Rollout plan',
     heading: '**Rollout / Follow-up**',
@@ -314,8 +333,9 @@ const PR_REFERENCE_SNIPPETS = [
   {
     id: 'screenshot',
     label: 'Add screenshot placeholder',
-    helperText: 'Remind yourself to attach updated UI proof with alt text.',
-    snippet: '* ![Screenshot description](artifacts/filename.png) — note the flow that is covered.',
+    helperText: 'Embed a before/after capture with descriptive alt text and cite the change.',
+    snippet:
+      '* ![Screenshot description](artifacts/filename.png) — show the affected flow and reference the diff. 【F:path/to/file†L#-L#】',
   },
   {
     id: 'metrics',
