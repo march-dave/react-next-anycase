@@ -108,7 +108,7 @@ The **Send** button stays disabled until you type a message or while waiting for
 The page title updates with the current number of messages so you can track activity from other browser tabs.
 Each message now displays a timestamp for when it was sent.
 The header shows the current message count and, if set, the active model name.
-It also surfaces the conversation span, average words per message, the longest update so far, the longest pause between replies, and the timestamp of the last reply so you can see progress at a glance.
+It also surfaces the conversation span, conversation start time, average words per message, the current word share, the longest update so far, the longest pause between replies, and the timestamp of the last reply so you can see progress at a glance.
 An animated typing indicator appears while waiting for a response, and the chat log announces updates to screen readers while indicating when a reply is loading.
 If there are no messages yet, a placeholder invites you to start the conversation, and the message input automatically expands to fit longer content.
 Quick-start prompt cards also appear to help you compose your first message.

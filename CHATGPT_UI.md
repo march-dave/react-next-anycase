@@ -60,7 +60,7 @@ Tap the **Insights** button in the header to review message counts, role balance
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation and announces updates to screen readers.
-It now also surfaces the conversation span, average words per message, the longest update so far, the longest pause between replies, and the timestamp of the last reply so you can gauge pace without opening the Insights panel.
+It now also surfaces the conversation span, conversation start time, average words per message, the current word share, the longest update so far, the longest pause between replies, and the timestamp of the last reply so you can gauge pace without opening the Insights panel.
 The page title also updates with the current message count so you can see new activity from another tab.
 If `NEXT_PUBLIC_OPENAI_MODEL` is set, the active model name appears in the header and page title.
 The message input automatically expands to fit longer content and now shows live word and character counts for your draft so you can spot lengthy updates before sending them.
