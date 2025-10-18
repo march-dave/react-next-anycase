@@ -557,6 +557,7 @@ export default function ChatGptUIPersist() {
   const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
   const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
   const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
+  const [snapshotInsertStatus, setSnapshotInsertStatus] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
@@ -1172,6 +1173,31 @@ export default function ChatGptUIPersist() {
 
     setTimeout(() => setSnapshotCopyStatus(''), 2000);
   }, [conversationSnapshotText, hasMessages]);
+  const handleInsertSnapshot = useCallback(() => {
+    const trimmedSnapshot = conversationSnapshotText.trim();
+    if (!hasMessages || !trimmedSnapshot) {
+      setSnapshotInsertStatus(hasMessages ? 'Pulse summary not ready' : 'Add a message first');
+      setTimeout(() => setSnapshotInsertStatus(''), 2000);
+      return;
+    }
+
+    setInput((prev) => {
+      const trimmedPrev = prev.trimEnd();
+      return trimmedPrev ? `${trimmedPrev}\n\n${trimmedSnapshot}` : trimmedSnapshot;
+    });
+
+    setSnapshotInsertStatus('Inserted');
+    requestAnimationFrame(() => {
+      adjustInputHeight();
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const length = inputRef.current.value.length;
+        inputRef.current.setSelectionRange(length, length);
+      }
+    });
+
+    setTimeout(() => setSnapshotInsertStatus(''), 2000);
+  }, [adjustInputHeight, conversationSnapshotText, hasMessages]);
   const handleInsertInsights = useCallback(() => {
     setInput((prev) => {
       const trimmedPrev = prev.trimEnd();
@@ -1229,6 +1255,7 @@ export default function ChatGptUIPersist() {
     setInsightsCopyStatus('');
     setQuickInsightsCopyStatus('');
     setSnapshotCopyStatus('');
+    setSnapshotInsertStatus('');
     setPrInsightsAppendStatus('');
     setPrSummaryCopyStatus('');
     setPrTestingCopyStatus('');
@@ -2304,7 +2331,7 @@ export default function ChatGptUIPersist() {
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter—including the new stand-up update helper. Click a badge to filter the list by theme or use search in the library for keyword matches, then favorite the prompts you revisit so they stay at the top of the grid.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts.
+                  Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the new <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
@@ -2348,18 +2375,32 @@ export default function ChatGptUIPersist() {
                 <h2 className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-200">
                   Conversation pulse
                 </h2>
-                <button
-                  type="button"
-                  onClick={handleCopySnapshot}
-                  aria-disabled={!hasMessages && !snapshotCopyStatus}
-                  className={`rounded border px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                    hasMessages
-                      ? 'border-blue-300 bg-white text-blue-700 hover:border-blue-400 hover:text-blue-600 dark:border-blue-500 dark:bg-gray-900 dark:text-blue-200 dark:hover:border-blue-400'
-                      : 'cursor-not-allowed border-blue-100 bg-white/60 text-blue-300 dark:border-blue-900 dark:bg-gray-800 dark:text-blue-700'
-                  }`}
-                >
-                  <span aria-live="polite">{snapshotCopyStatus || 'Copy pulse summary'}</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopySnapshot}
+                    aria-disabled={!hasMessages && !snapshotCopyStatus}
+                    className={`rounded border px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                      hasMessages
+                        ? 'border-blue-300 bg-white text-blue-700 hover:border-blue-400 hover:text-blue-600 dark:border-blue-500 dark:bg-gray-900 dark:text-blue-200 dark:hover:border-blue-400'
+                        : 'cursor-not-allowed border-blue-100 bg-white/60 text-blue-300 dark:border-blue-900 dark:bg-gray-800 dark:text-blue-700'
+                    }`}
+                  >
+                    <span aria-live="polite">{snapshotCopyStatus || 'Copy pulse summary'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleInsertSnapshot}
+                    aria-disabled={!hasMessages && !snapshotInsertStatus}
+                    className={`rounded border px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                      hasMessages
+                        ? 'border-blue-200 bg-white text-blue-700 hover:border-blue-400 hover:text-blue-600 dark:border-blue-500 dark:bg-gray-900 dark:text-blue-200 dark:hover:border-blue-400'
+                        : 'cursor-not-allowed border-blue-100 bg-white/60 text-blue-300 dark:border-blue-900 dark:bg-gray-800 dark:text-blue-700'
+                    }`}
+                  >
+                    <span aria-live="polite">{snapshotInsertStatus || 'Insert pulse into chat'}</span>
+                  </button>
+                </div>
               </div>
               <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {conversationSnapshot.map((item) => (
