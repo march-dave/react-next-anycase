@@ -56,7 +56,7 @@ An **Export** button copies the chat history—including timestamps and the cust
 briefly confirms success.
 You can also save the chat with timestamps as a text file using the **Download** button, which shows a short confirmation message
 and now names the file using the current timestamp.
-Tap the **Insights** button in the header to review message counts, role balance, word totals, character totals, word-share percentages, the longest update and pause, and conversation timing, then copy a shareable summary for docs or pull requests. The Conversation pulse cards also include a **Copy pulse summary** button and now surface quick tiles for messages, words, characters, span, and pacing so you can drop the latest stats into a doc or PR without leaving the page.
+Tap the **Insights** button in the header to review message counts, role balance, word totals, character totals, word-share percentages, the longest update and pause, and conversation timing, then copy a shareable summary for docs or pull requests. The Conversation pulse cards also include **Copy pulse summary** and **Insert pulse into chat** shortcuts and surface quick tiles for messages, words, characters, span, and pacing so you can drop the latest stats into a doc or PR without leaving the page.
 Each message now shows a timestamp for when it was sent.
 Each message includes a **Copy** button that briefly displays "Copied!" after copying and announces the status to screen readers.
 The header displays the current number of messages in the conversation and announces updates to screen readers.
