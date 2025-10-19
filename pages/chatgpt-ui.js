@@ -558,6 +558,7 @@ export default function ChatGptUIPersist() {
   const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
   const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
   const [snapshotInsertStatus, setSnapshotInsertStatus] = useState('');
+  const [insightsPrAppendStatus, setInsightsPrAppendStatus] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
@@ -1216,28 +1217,67 @@ export default function ChatGptUIPersist() {
       }
     });
   }, [adjustInputHeight, insightsSummaryText]);
-  const handleAppendInsightsToPrTemplate = useCallback(() => {
+  const appendInsightsToTemplate = useCallback(() => {
     const trimmedSummary = insightsSummaryText.trim();
     if (!hasMessages || !trimmedSummary) {
-      setPrInsightsAppendStatus(hasMessages ? 'Insights not ready' : 'Add a message first');
-      setTimeout(() => setPrInsightsAppendStatus(''), 2000);
-      return;
+      return 'unavailable';
     }
+
+    let result = 'duplicate';
 
     setPrTemplateText((prev) => {
       const trimmedPrev = prev.trimEnd();
       if (!trimmedPrev) {
+        result = 'appended';
         return trimmedSummary;
       }
+
       if (trimmedPrev.includes(trimmedSummary)) {
+        result = 'duplicate';
         return prev;
       }
+
+      result = 'appended';
       return `${trimmedPrev}\n\n${trimmedSummary}`;
     });
 
-    setPrInsightsAppendStatus('Insights added');
+    return result;
+  }, [hasMessages, insightsSummaryText, setPrTemplateText]);
+
+  const handleAppendInsightsToPrTemplate = useCallback(() => {
+    const outcome = appendInsightsToTemplate();
+
+    if (outcome === 'unavailable') {
+      setPrInsightsAppendStatus(hasMessages ? 'Insights not ready' : 'Add a message first');
+    } else if (outcome === 'appended') {
+      setPrInsightsAppendStatus('Insights added');
+    } else {
+      setPrInsightsAppendStatus('Already added');
+    }
+
     setTimeout(() => setPrInsightsAppendStatus(''), 2000);
-  }, [hasMessages, insightsSummaryText]);
+  }, [appendInsightsToTemplate, hasMessages]);
+
+  const handleSendInsightsToPrHelper = useCallback(() => {
+    const outcome = appendInsightsToTemplate();
+
+    if (outcome === 'unavailable') {
+      setInsightsPrAppendStatus(hasMessages ? 'Insights not ready' : 'Add a message first');
+      setTimeout(() => setInsightsPrAppendStatus(''), 2000);
+      return;
+    }
+
+    if (outcome === 'appended') {
+      setInsightsPrAppendStatus('Sent to PR helper');
+    } else {
+      setInsightsPrAppendStatus('Already added to PR helper');
+    }
+
+    setShowPrHelper(true);
+    setShowInsights(false);
+
+    setTimeout(() => setInsightsPrAppendStatus(''), 2000);
+  }, [appendInsightsToTemplate, hasMessages, setShowInsights, setShowPrHelper]);
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -1256,6 +1296,7 @@ export default function ChatGptUIPersist() {
     setQuickInsightsCopyStatus('');
     setSnapshotCopyStatus('');
     setSnapshotInsertStatus('');
+    setInsightsPrAppendStatus('');
     setPrInsightsAppendStatus('');
     setPrSummaryCopyStatus('');
     setPrTestingCopyStatus('');
@@ -1941,6 +1982,7 @@ export default function ChatGptUIPersist() {
   useEffect(() => {
     if (!showInsights) {
       setInsightsCopyStatus('');
+      setInsightsPrAppendStatus('');
       if (insightsHasOpened.current && insightsButtonRef.current) {
         insightsButtonRef.current.focus();
       }
@@ -2331,10 +2373,10 @@ export default function ChatGptUIPersist() {
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter—including the new stand-up update helper. Click a badge to filter the list by theme or use search in the library for keyword matches, then favorite the prompts you revisit so they stay at the top of the grid.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the new <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update.
+                  Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the new <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update, or hit <span className="font-medium">Send to PR helper</span> to push the latest summary into your pull request template without leaving the modal.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, and quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—plus a shortcut to link the external release notes draft.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Prefer shortcuts? Press{' '}
@@ -2976,6 +3018,18 @@ export default function ChatGptUIPersist() {
                     }`}
                   >
                     Insert into chat
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSendInsightsToPrHelper}
+                    disabled={!hasMessages}
+                    className={`border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      hasMessages
+                        ? 'border-blue-200 bg-white text-blue-700 hover:border-blue-400 hover:text-blue-600 dark:border-blue-400 dark:bg-gray-900 dark:text-blue-200'
+                        : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600'
+                    }`}
+                  >
+                    <span aria-live="polite">{insightsPrAppendStatus || 'Send to PR helper'}</span>
                   </button>
                 </div>
                 {modelName ? (
