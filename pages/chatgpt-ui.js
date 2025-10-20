@@ -1300,6 +1300,8 @@ export default function ChatGptUIPersist() {
     setPrInsightsAppendStatus('');
     setPrSummaryCopyStatus('');
     setPrTestingCopyStatus('');
+    setPrSummaryInsertStatus('');
+    setPrTestingInsertStatus('');
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -1952,6 +1954,9 @@ export default function ChatGptUIPersist() {
       setPrCopyStatus('');
       setPrInsightsAppendStatus('');
       setPrSummaryCopyStatus('');
+      setPrTestingCopyStatus('');
+      setPrSummaryInsertStatus('');
+      setPrTestingInsertStatus('');
       if (prHelperHasOpened.current && prHelperButtonRef.current) {
         prHelperButtonRef.current.focus();
       }
