@@ -525,6 +525,22 @@ function formatNumber(value) {
   return value.toLocaleString();
 }
 
+function formatMessagesPerMinute(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return '0 msg/min';
+  }
+  const formatted = value >= 10 ? Math.round(value).toString() : value.toFixed(1);
+  return `${formatted} msg/min`;
+}
+
+function formatWordsPerMinute(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return '0 words/min';
+  }
+  const formatted = value >= 10 ? Math.round(value).toString() : value.toFixed(1);
+  return `${formatted} words/min`;
+}
+
 function formatWordAndCharLabel(words, characters) {
   if (!Number.isFinite(words) || words <= 0) {
     return '';
@@ -701,6 +717,8 @@ export default function ChatGptUIPersist() {
         longestUserCharacters: 0,
         longestAssistantCharacters: 0,
         longestGapMs: 0,
+        messagesPerMinute: 0,
+        wordsPerMinute: 0,
       };
     }
 
@@ -725,6 +743,9 @@ export default function ChatGptUIPersist() {
 
     const totalMessages = orderedMessages.length;
     const averageWordsPerMessage = totalMessages ? totalWords / totalMessages : 0;
+    const minutes = durationMs > 0 ? durationMs / 60000 : 0;
+    const messagesPerMinute = minutes > 0 ? totalMessages / minutes : 0;
+    const wordsPerMinute = minutes > 0 ? totalWords / minutes : 0;
 
     return {
       total: totalMessages,
@@ -747,6 +768,8 @@ export default function ChatGptUIPersist() {
       longestUserCharacters,
       longestAssistantCharacters,
       longestGapMs,
+      messagesPerMinute,
+      wordsPerMinute,
     };
   }, [messages]);
   const messageStats = useMemo(() => {
@@ -832,6 +855,16 @@ export default function ChatGptUIPersist() {
   const longestPauseDescription = hasMessages
     ? longestPauseDisplay || 'Waiting for additional replies.'
     : 'Waiting for the first message.';
+  const hasPace = hasMessages && conversationInsights.durationMs > 0;
+  const messagesPerMinuteDisplay = hasPace
+    ? formatMessagesPerMinute(conversationInsights.messagesPerMinute)
+    : '';
+  const wordsPerMinuteDisplay = hasPace
+    ? formatWordsPerMinute(conversationInsights.wordsPerMinute)
+    : '';
+  const paceSummaryDisplay = hasPace
+    ? [messagesPerMinuteDisplay, wordsPerMinuteDisplay].filter(Boolean).join(' · ')
+    : '';
   const insightsSummaryText = useMemo(() => {
     if (!hasMessages) {
       return 'No conversation yet — start chatting to generate insights.';
@@ -875,6 +908,10 @@ export default function ChatGptUIPersist() {
 
     if (wordShareDisplay) {
       addLine('Word share', wordShareDisplay);
+    }
+
+    if (paceSummaryDisplay) {
+      addLine('Pace', paceSummaryDisplay);
     }
 
     const timelineParts = [];
@@ -936,6 +973,7 @@ export default function ChatGptUIPersist() {
     longestMessageDescription,
     longestPauseDescription,
     modelName,
+    paceSummaryDisplay,
     systemPromptPreview,
     trimmedSystemPrompt,
     wordShareDisplay,
@@ -970,6 +1008,14 @@ export default function ChatGptUIPersist() {
           conversationInsights.assistantCharacters
         )} assistant`,
       },
+      hasPace
+        ? {
+            key: 'pace',
+            title: 'Pace',
+            value: messagesPerMinuteDisplay || '—',
+            description: wordsPerMinuteDisplay ? `Words ${wordsPerMinuteDisplay}` : '',
+          }
+        : null,
       wordShareDisplay
         ? {
             key: 'word-share',
@@ -1030,6 +1076,7 @@ export default function ChatGptUIPersist() {
     conversationInsights.userCharacters,
     firstActivityDisplay,
     hasMessages,
+    hasPace,
     lastReplyDisplay,
     longestMessageDisplay,
     longestPauseDisplay,
@@ -1037,8 +1084,10 @@ export default function ChatGptUIPersist() {
     messageStats.total,
     messageStats.userCount,
     modelName,
+    messagesPerMinuteDisplay,
     systemPromptPreview,
     trimmedSystemPrompt,
+    wordsPerMinuteDisplay,
     wordShareDisplay,
   ]);
   const conversationSnapshotText = useMemo(() => {
@@ -2181,6 +2230,11 @@ export default function ChatGptUIPersist() {
                     Word share: {wordShareDisplay}
                   </span>
                 )}
+                {paceSummaryDisplay && (
+                  <span className="self-center" aria-label={`Pace ${paceSummaryDisplay}`}>
+                    Pace: {paceSummaryDisplay}
+                  </span>
+                )}
                 {firstActivityDisplay && (
                   <span className="self-center" aria-label={`Started ${firstActivityDisplay}`}>
                     Started: {firstActivityDisplay}
@@ -2949,6 +3003,17 @@ export default function ChatGptUIPersist() {
                       )}
                     </dd>
                   </div>
+                  {hasPace && (
+                    <div>
+                      <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        Pace
+                      </dt>
+                      <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                        {messagesPerMinuteDisplay}
+                        {wordsPerMinuteDisplay ? ` · ${wordsPerMinuteDisplay}` : ''}
+                      </dd>
+                    </div>
+                  )}
                   <div>
                     <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Longest update
