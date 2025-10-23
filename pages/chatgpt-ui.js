@@ -437,6 +437,30 @@ function createSummaryPreview(text, maxLength = PR_SUMMARY_PREVIEW_MAX_LENGTH) {
   return `${normalized.slice(0, sliceLength)}…`;
 }
 
+function createPrInsightsBlock(text) {
+  if (typeof text !== 'string') {
+    return '';
+  }
+
+  const lines = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !(line.startsWith('**') && line.endsWith('**')));
+
+  if (lines.length === 0) {
+    return '';
+  }
+
+  const formatted = lines.map((line) => {
+    if (line.startsWith('* ')) {
+      return `  - ${line.slice(2)}`;
+    }
+    return `  ${line}`;
+  });
+
+  return ['* Conversation insights snapshot:', ...formatted].join('\n');
+}
+
 function countWords(text) {
   if (typeof text !== 'string') {
     return 0;
@@ -1266,8 +1290,20 @@ export default function ChatGptUIPersist() {
       }
     });
   }, [adjustInputHeight, insightsSummaryText]);
+  const focusPrHelperTextarea = useCallback(() => {
+    requestAnimationFrame(() => {
+      if (prHelperTextareaRef.current) {
+        const { current: textarea } = prHelperTextareaRef;
+        textarea.focus();
+        const length = textarea.value.length;
+        textarea.setSelectionRange(length, length);
+      }
+    });
+  }, []);
+  const prInsightsBlock = useMemo(() => createPrInsightsBlock(insightsSummaryText), [insightsSummaryText]);
+
   const appendInsightsToTemplate = useCallback(() => {
-    const trimmedSummary = insightsSummaryText.trim();
+    const trimmedSummary = prInsightsBlock.trim();
     if (!hasMessages || !trimmedSummary) {
       return 'unavailable';
     }
@@ -1278,7 +1314,35 @@ export default function ChatGptUIPersist() {
       const trimmedPrev = prev.trimEnd();
       if (!trimmedPrev) {
         result = 'appended';
-        return trimmedSummary;
+        return `**Summary**\n${trimmedSummary}\n`;
+      }
+
+      const sections = trimmedPrev.split(/\n{2,}/);
+      let alreadyPresent = false;
+      let updated = false;
+      const updatedSections = sections.map((section) => {
+        const [firstLine, ...rest] = section.split('\n');
+        if (normalizeHeadingValue(firstLine) === 'summary') {
+          const body = rest.join('\n');
+          if (body.includes(trimmedSummary)) {
+            alreadyPresent = true;
+            return section;
+          }
+          updated = true;
+          const newBody = body ? `${body}\n${trimmedSummary}` : trimmedSummary;
+          return [firstLine, newBody].filter(Boolean).join('\n');
+        }
+        return section;
+      });
+
+      if (alreadyPresent) {
+        result = 'duplicate';
+        return prev;
+      }
+
+      if (updated) {
+        result = 'appended';
+        return `${updatedSections.join('\n\n')}\n`;
       }
 
       if (trimmedPrev.includes(trimmedSummary)) {
@@ -1287,11 +1351,11 @@ export default function ChatGptUIPersist() {
       }
 
       result = 'appended';
-      return `${trimmedPrev}\n\n${trimmedSummary}`;
+      return [`**Summary**`, trimmedSummary, trimmedPrev].join('\n\n') + '\n';
     });
 
     return result;
-  }, [hasMessages, insightsSummaryText, setPrTemplateText]);
+  }, [hasMessages, prInsightsBlock, setPrTemplateText]);
 
   const handleAppendInsightsToPrTemplate = useCallback(() => {
     const outcome = appendInsightsToTemplate();
@@ -1300,12 +1364,13 @@ export default function ChatGptUIPersist() {
       setPrInsightsAppendStatus(hasMessages ? 'Insights not ready' : 'Add a message first');
     } else if (outcome === 'appended') {
       setPrInsightsAppendStatus('Insights added');
+      focusPrHelperTextarea();
     } else {
       setPrInsightsAppendStatus('Already added');
     }
 
     setTimeout(() => setPrInsightsAppendStatus(''), 2000);
-  }, [appendInsightsToTemplate, hasMessages]);
+  }, [appendInsightsToTemplate, focusPrHelperTextarea, hasMessages]);
 
   const handleSendInsightsToPrHelper = useCallback(() => {
     const outcome = appendInsightsToTemplate();
@@ -1642,16 +1707,6 @@ export default function ChatGptUIPersist() {
       }
     });
   };
-  const focusPrHelperTextarea = useCallback(() => {
-    requestAnimationFrame(() => {
-      if (prHelperTextareaRef.current) {
-        const { current: textarea } = prHelperTextareaRef;
-        textarea.focus();
-        const length = textarea.value.length;
-        textarea.setSelectionRange(length, length);
-      }
-    });
-  }, []);
 
   const appendTestingLine = useCallback(
     (status) => {
