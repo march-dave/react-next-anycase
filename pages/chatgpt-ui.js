@@ -1174,6 +1174,36 @@ export default function ChatGptUIPersist() {
     };
   }, [prTemplateText]);
 
+  const summaryReady = prTemplateStats.hasSummarySection && prTemplateStats.hasSummaryContent;
+  const testingReady = prTemplateStats.hasTestingSection && prTemplateStats.hasTestingContent;
+
+  const summaryCopyDefault = prTemplateStats.hasSummarySection
+    ? summaryReady
+      ? 'Copy summary section'
+      : 'Add summary details first'
+    : 'Add a "Summary" heading first';
+  const testingCopyDefault = prTemplateStats.hasTestingSection
+    ? testingReady
+      ? 'Copy testing section'
+      : 'Add testing notes first'
+    : 'Add a "Testing" heading first';
+
+  const summaryInsertDefault = prTemplateStats.hasSummarySection
+    ? summaryReady
+      ? 'Insert summary into chat'
+      : 'Add summary details first'
+    : 'Add a "Summary" heading first';
+  const testingInsertDefault = prTemplateStats.hasTestingSection
+    ? testingReady
+      ? 'Insert testing into chat'
+      : 'Add testing notes first'
+    : 'Add a "Testing" heading first';
+
+  const summaryCopyDisplay = prSummaryCopyStatus || summaryCopyDefault;
+  const testingCopyDisplay = prTestingCopyStatus || testingCopyDefault;
+  const summaryInsertDisplay = prSummaryInsertStatus || summaryInsertDefault;
+  const testingInsertDisplay = prTestingInsertStatus || testingInsertDefault;
+
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
       inputRef.current.style.height = 'auto';
@@ -2118,6 +2148,48 @@ export default function ChatGptUIPersist() {
     };
   }, [showInsights]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleGlobalShortcut = (event) => {
+      if (event.defaultPrevented || event.repeat) {
+        return;
+      }
+
+      if (!event.altKey || !event.shiftKey || event.ctrlKey || event.metaKey) {
+        return;
+      }
+
+      const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
+      if (!key) {
+        return;
+      }
+
+      if (key === 'p') {
+        event.preventDefault();
+        setShowPromptLibrary(true);
+      } else if (key === 'h') {
+        event.preventDefault();
+        setShowPrHelper(true);
+      } else if (key === 'i') {
+        event.preventDefault();
+        setShowInsights(true);
+      } else if (key === 'c') {
+        event.preventDefault();
+        if (window.confirm('Clear chat history?')) {
+          handleClear();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalShortcut);
+    return () => {
+      window.removeEventListener('keydown', handleGlobalShortcut);
+    };
+  }, [handleClear]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -2987,11 +3059,13 @@ export default function ChatGptUIPersist() {
                 onInsertSummary={handleInsertSummarySection}
                 onInsertTesting={handleInsertTestingSection}
                 copyStatus={prCopyStatus}
-                summaryCopyStatus={prSummaryCopyStatus}
-                testingCopyStatus={prTestingCopyStatus}
-                summaryInsertStatus={prSummaryInsertStatus}
-                testingInsertStatus={prTestingInsertStatus}
+                summaryCopyStatus={summaryCopyDisplay}
+                testingCopyStatus={testingCopyDisplay}
+                summaryInsertStatus={summaryInsertDisplay}
+                testingInsertStatus={testingInsertDisplay}
                 onReset={handleResetPrTemplate}
+                summaryDisabled={!summaryReady}
+                testingDisabled={!testingReady}
               />
             </div>
           </div>
