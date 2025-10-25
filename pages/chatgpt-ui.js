@@ -2591,6 +2591,33 @@ export default function ChatGptUIPersist() {
                   <kbd className={KEY_CAP_CLASS}>C</kbd>
                   {' '}to clear the conversation from anywhere.
                 </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Prefer shortcuts? Press{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>P</kbd>
+                  {' '}for the Prompt library,{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>H</kbd>
+                  {' '}for the PR helper,{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>I</kbd>
+                  {' '}for Insights, or{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>C</kbd>
+                  {' '}to clear the conversation from anywhere.
+                </p>
               </div>
             </div>
           )}
