@@ -381,6 +381,17 @@ const PR_REFERENCE_SNIPPETS = [
   },
 ];
 
+const PR_PLACEHOLDER_PATTERNS = [
+  /F:path\/to\/file†L#/, // citation placeholder
+  /chunk†L#/, // chunk placeholder
+  /https:\/\/link/, // generic link placeholder
+  /artifacts\/filename\.png/, // screenshot placeholder
+  /command or suite/, // testing placeholder
+  /ABC-123/, // ticket placeholder
+  /flag_name/, // feature flag placeholder
+  /package@version/, // dependency placeholder
+];
+
 const KEY_CAP_CLASS =
   'inline-flex items-center rounded border border-gray-300 bg-white px-1.5 py-0.5 text-[0.65rem] font-semibold text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200';
 
@@ -459,6 +470,52 @@ function createPrInsightsBlock(text) {
   });
 
   return ['* Conversation insights snapshot:', ...formatted].join('\n');
+}
+
+function trimPrTemplatePlaceholders(text) {
+  if (typeof text !== 'string') {
+    return '';
+  }
+
+  const lines = text.split('\n');
+  const filteredLines = lines.filter((line) => {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) {
+      return true;
+    }
+
+    return !PR_PLACEHOLDER_PATTERNS.some((pattern) => pattern.test(trimmedLine));
+  });
+
+  const collapsed = filteredLines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd();
+  if (!collapsed) {
+    return '';
+  }
+
+  const sections = collapsed.split(/\n{2,}/);
+  const cleanedSections = sections
+    .map((section) => section.trimEnd())
+    .filter((section) => {
+      const sectionLines = section
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      if (sectionLines.length === 0) {
+        return false;
+      }
+
+      const [firstLine, ...rest] = sectionLines;
+      const hasHeading = firstLine.startsWith('**') && firstLine.endsWith('**');
+      if (!hasHeading) {
+        return true;
+      }
+
+      return rest.some((line) => line);
+    });
+
+  const result = cleanedSections.join('\n\n').trim();
+  return result ? `${result}\n` : '';
 }
 
 function countWords(text) {
@@ -599,6 +656,7 @@ export default function ChatGptUIPersist() {
   const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
   const [snapshotInsertStatus, setSnapshotInsertStatus] = useState('');
   const [insightsPrAppendStatus, setInsightsPrAppendStatus] = useState('');
+  const [prTemplateTrimStatus, setPrTemplateTrimStatus] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
@@ -1730,6 +1788,7 @@ export default function ChatGptUIPersist() {
     setPrSummaryInsertStatus('');
     setPrTestingInsertStatus('');
     setPrInsightsAppendStatus('');
+    setPrTemplateTrimStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -1737,6 +1796,24 @@ export default function ChatGptUIPersist() {
       }
     });
   };
+
+  const handleTrimPrTemplate = useCallback(() => {
+    setPrTemplateText((prev) => {
+      const normalize = (value) => (typeof value === 'string' ? value.trimEnd() : '');
+      const trimmed = trimPrTemplatePlaceholders(prev);
+      const changed = normalize(trimmed) !== normalize(prev);
+
+      setPrTemplateTrimStatus(changed ? 'Placeholder text removed' : 'Nothing to trim');
+
+      if (changed) {
+        focusPrHelperTextarea();
+      }
+
+      return changed ? trimmed : prev;
+    });
+
+    setTimeout(() => setPrTemplateTrimStatus(''), 2000);
+  }, [focusPrHelperTextarea]);
 
   const appendTestingLine = useCallback(
     (status) => {
@@ -2091,6 +2168,7 @@ export default function ChatGptUIPersist() {
       setPrTestingCopyStatus('');
       setPrSummaryInsertStatus('');
       setPrTestingInsertStatus('');
+      setPrTemplateTrimStatus('');
       if (prHelperHasOpened.current && prHelperButtonRef.current) {
         prHelperButtonRef.current.focus();
       }
@@ -2562,7 +2640,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the new <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update, or hit <span className="font-medium">Send to PR helper</span> to push the latest summary into your pull request template without leaving the modal.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft. Use the new <span className="font-medium">Trim placeholder text</span> button inside the helper to strip template boilerplate before copying or inserting your notes.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Prefer shortcuts? Press{' '}
@@ -2901,6 +2979,7 @@ export default function ChatGptUIPersist() {
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
                   Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Glance at the live word count, summary preview, and testing preview above the buttons, then use the quick copy shortcuts plus the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
+                  When you're finishing up, tap <span className="font-medium">Trim placeholder text</span> to remove default bullets before sharing.
                 </p>
                 <textarea
                   ref={prHelperTextareaRef}
@@ -2961,6 +3040,19 @@ export default function ChatGptUIPersist() {
                       'Add a "Testing" heading so you can copy the verification checklist instantly.'
                     )}
                   </p>
+                </div>
+                <div className="mt-3 flex flex-col gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+                  <button
+                    type="button"
+                    onClick={handleTrimPrTemplate}
+                    className="self-start rounded border border-blue-500 bg-white px-2 py-1 text-xs font-semibold text-blue-700 transition hover:border-blue-600 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-400 dark:bg-gray-900 dark:text-blue-200 dark:hover:border-blue-300"
+                  >
+                    Trim placeholder text
+                  </button>
+                  <span aria-live="polite">
+                    {prTemplateTrimStatus ||
+                      'Strip unused placeholder bullets, citations, and ticket stubs before copying your draft.'}
+                  </span>
                 </div>
               </div>
               <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-200">
