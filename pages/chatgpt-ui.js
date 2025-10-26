@@ -381,16 +381,74 @@ const PR_REFERENCE_SNIPPETS = [
   },
 ];
 
-const PR_PLACEHOLDER_PATTERNS = [
-  /F:path\/to\/file†L#/, // citation placeholder
-  /chunk†L#/, // chunk placeholder
-  /https:\/\/link/, // generic link placeholder
-  /artifacts\/filename\.png/, // screenshot placeholder
-  /command or suite/, // testing placeholder
-  /ABC-123/, // ticket placeholder
-  /flag_name/, // feature flag placeholder
-  /package@version/, // dependency placeholder
+const PR_PLACEHOLDER_RULES = [
+  {
+    id: 'file-citation',
+    pattern: /F:path\/to\/file†L#/,
+    summaryLabel: 'file citation placeholder',
+    summaryLabelPlural: 'file citation placeholders',
+    example: 'F:path/to/file†L#',
+    guidance: 'Swap in the actual path and line range.',
+  },
+  {
+    id: 'chunk-citation',
+    pattern: /chunk†L#/,
+    summaryLabel: 'chunk citation placeholder',
+    summaryLabelPlural: 'chunk citation placeholders',
+    example: 'chunk†L#',
+    guidance: 'Replace with the terminal output reference that backs the change.',
+  },
+  {
+    id: 'generic-link',
+    pattern: /https:\/\/link/,
+    summaryLabel: 'link placeholder',
+    summaryLabelPlural: 'link placeholders',
+    example: 'https://link',
+    guidance: 'Point to the real document, dashboard, or ticket URL.',
+  },
+  {
+    id: 'screenshot',
+    pattern: /artifacts\/filename\.png/,
+    summaryLabel: 'screenshot placeholder',
+    summaryLabelPlural: 'screenshot placeholders',
+    example: 'artifacts/filename.png',
+    guidance: 'Update with the saved image path before sharing.',
+  },
+  {
+    id: 'testing-command',
+    pattern: /command or suite/,
+    summaryLabel: 'testing placeholder',
+    summaryLabelPlural: 'testing placeholders',
+    example: '`command or suite`',
+    guidance: 'List the exact command or suite that ran.',
+  },
+  {
+    id: 'ticket',
+    pattern: /ABC-123/,
+    summaryLabel: 'ticket placeholder',
+    summaryLabelPlural: 'ticket placeholders',
+    example: 'ABC-123',
+    guidance: 'Reference the actual tracking ID and link.',
+  },
+  {
+    id: 'feature-flag',
+    pattern: /flag_name/,
+    summaryLabel: 'feature flag placeholder',
+    summaryLabelPlural: 'feature flag placeholders',
+    example: 'flag_name',
+    guidance: 'Document the real flag identifier and default.',
+  },
+  {
+    id: 'dependency',
+    pattern: /package@version/,
+    summaryLabel: 'dependency placeholder',
+    summaryLabelPlural: 'dependency placeholders',
+    example: 'package@version',
+    guidance: 'Note the actual package and version bump.',
+  },
 ];
+
+const PR_PLACEHOLDER_PATTERNS = PR_PLACEHOLDER_RULES.map((rule) => rule.pattern);
 
 const KEY_CAP_CLASS =
   'inline-flex items-center rounded border border-gray-300 bg-white px-1.5 py-0.5 text-[0.65rem] font-semibold text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200';
@@ -516,6 +574,48 @@ function trimPrTemplatePlaceholders(text) {
 
   const result = cleanedSections.join('\n\n').trim();
   return result ? `${result}\n` : '';
+}
+
+function collectPlaceholderWarnings(text) {
+  if (typeof text !== 'string' || !text.trim()) {
+    return [];
+  }
+
+  return PR_PLACEHOLDER_RULES.reduce((accumulator, rule) => {
+    const flags = rule.pattern.flags.includes('g') ? rule.pattern.flags : `${rule.pattern.flags}g`;
+    const globalPattern = new RegExp(rule.pattern.source, flags);
+    const matches = text.match(globalPattern);
+    if (matches && matches.length > 0) {
+      accumulator.push({ id: rule.id, count: matches.length, rule });
+    }
+    return accumulator;
+  }, []);
+}
+
+function formatPlaceholderSummary(warnings) {
+  if (!Array.isArray(warnings) || warnings.length === 0) {
+    return '';
+  }
+
+  const items = warnings.map(({ count, rule }) => {
+    const label = count === 1 ? rule.summaryLabel : rule.summaryLabelPlural;
+    return `${formatNumber(count)} ${label}`;
+  });
+
+  if (items.length === 1) {
+    return items[0];
+  }
+
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`;
+  }
+
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+
+function createPlaceholderActionText(warnings) {
+  const summary = formatPlaceholderSummary(warnings);
+  return summary ? `Resolve ${summary}` : '';
 }
 
 function countWords(text) {
@@ -1211,6 +1311,10 @@ export default function ChatGptUIPersist() {
     const testingBody = getSectionBodyByHeading(trimmedTemplate, '**Testing**');
     const hasTestingSection = Boolean(testingSection);
     const hasTestingContent = testingBody.length > 0;
+    const placeholderWarnings = collectPlaceholderWarnings(trimmedTemplate);
+    const summaryPlaceholderWarnings = collectPlaceholderWarnings(summarySection);
+    const testingPlaceholderWarnings = collectPlaceholderWarnings(testingSection);
+    const totalPlaceholders = placeholderWarnings.reduce((total, warning) => total + warning.count, 0);
 
     return {
       totalWords: countWords(trimmedTemplate),
@@ -1222,6 +1326,8 @@ export default function ChatGptUIPersist() {
       summaryPreview: createSummaryPreview(summaryBody),
       hasSummarySection,
       hasSummaryContent,
+      summaryPlaceholderWarnings,
+      hasSummaryPlaceholders: summaryPlaceholderWarnings.length > 0,
       testingSection,
       testingBody,
       testingWords: countWords(testingBody),
@@ -1229,6 +1335,11 @@ export default function ChatGptUIPersist() {
       testingPreview: createSummaryPreview(testingBody),
       hasTestingSection,
       hasTestingContent,
+      testingPlaceholderWarnings,
+      hasTestingPlaceholders: testingPlaceholderWarnings.length > 0,
+      placeholderWarnings,
+      totalPlaceholders,
+      hasPlaceholders: totalPlaceholders > 0,
     };
   }, [prTemplateText]);
 
@@ -1261,6 +1372,19 @@ export default function ChatGptUIPersist() {
   const testingCopyDisplay = prTestingCopyStatus || testingCopyDefault;
   const summaryInsertDisplay = prSummaryInsertStatus || summaryInsertDefault;
   const testingInsertDisplay = prTestingInsertStatus || testingInsertDefault;
+
+  const templatePlaceholderAction = useMemo(
+    () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
+    [prTemplateStats.placeholderWarnings]
+  );
+  const summaryPlaceholderAction = useMemo(
+    () => createPlaceholderActionText(prTemplateStats.summaryPlaceholderWarnings),
+    [prTemplateStats.summaryPlaceholderWarnings]
+  );
+  const testingPlaceholderAction = useMemo(
+    () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
+    [prTemplateStats.testingPlaceholderWarnings]
+  );
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -1684,15 +1808,15 @@ export default function ChatGptUIPersist() {
     setSystemPrompt('');
   };
 
-  const handleCopyPrTemplate = async () => {
+  const handleCopyPrTemplate = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(prTemplateText);
-      setPrCopyStatus('Copied!');
+      setPrCopyStatus(templatePlaceholderAction ? `Copied! ${templatePlaceholderAction}` : 'Copied!');
     } catch (err) {
       setPrCopyStatus('Copy failed');
     }
     setTimeout(() => setPrCopyStatus(''), 2000);
-  };
+  }, [prTemplateText, templatePlaceholderAction]);
 
   const handleCopySummarySection = useCallback(async () => {
     if (!prTemplateStats.hasSummarySection) {
@@ -1710,13 +1834,16 @@ export default function ChatGptUIPersist() {
 
     try {
       await navigator.clipboard.writeText(summarySection);
-      setPrSummaryCopyStatus('Copied!');
+      setPrSummaryCopyStatus(
+        summaryPlaceholderAction ? `Copied! ${summaryPlaceholderAction}` : 'Copied!'
+      );
     } catch (err) {
       setPrSummaryCopyStatus('Copy failed');
     }
 
     setTimeout(() => setPrSummaryCopyStatus(''), 2000);
   }, [
+    summaryPlaceholderAction,
     prTemplateStats.hasSummaryContent,
     prTemplateStats.hasSummarySection,
     prTemplateStats.summarySection,
@@ -1738,13 +1865,16 @@ export default function ChatGptUIPersist() {
 
     try {
       await navigator.clipboard.writeText(testingSection);
-      setPrTestingCopyStatus('Copied!');
+      setPrTestingCopyStatus(
+        testingPlaceholderAction ? `Copied! ${testingPlaceholderAction}` : 'Copied!'
+      );
     } catch (err) {
       setPrTestingCopyStatus('Copy failed');
     }
 
     setTimeout(() => setPrTestingCopyStatus(''), 2000);
   }, [
+    testingPlaceholderAction,
     prTemplateStats.hasTestingContent,
     prTemplateStats.hasTestingSection,
     prTemplateStats.testingSection,
@@ -1763,9 +1893,21 @@ export default function ChatGptUIPersist() {
     }
 
     const inserted = insertTextIntoComposer(prTemplateStats.summarySection, { focusInput: false });
-    setPrSummaryInsertStatus(inserted ? 'Inserted!' : 'Add summary details first');
+    setPrSummaryInsertStatus(
+      inserted
+        ? summaryPlaceholderAction
+          ? `Inserted! ${summaryPlaceholderAction}`
+          : 'Inserted!'
+        : 'Add summary details first'
+    );
     setTimeout(() => setPrSummaryInsertStatus(''), 2000);
-  }, [insertTextIntoComposer, prTemplateStats.hasSummaryContent, prTemplateStats.hasSummarySection, prTemplateStats.summarySection]);
+  }, [
+    insertTextIntoComposer,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.summarySection,
+    summaryPlaceholderAction,
+  ]);
 
   const handleInsertTestingSection = useCallback(() => {
     if (!prTemplateStats.hasTestingSection || !prTemplateStats.hasTestingContent) {
@@ -1775,9 +1917,21 @@ export default function ChatGptUIPersist() {
     }
 
     const inserted = insertTextIntoComposer(prTemplateStats.testingSection, { focusInput: false });
-    setPrTestingInsertStatus(inserted ? 'Inserted!' : 'Add testing notes first');
+    setPrTestingInsertStatus(
+      inserted
+        ? testingPlaceholderAction
+          ? `Inserted! ${testingPlaceholderAction}`
+          : 'Inserted!'
+        : 'Add testing notes first'
+    );
     setTimeout(() => setPrTestingInsertStatus(''), 2000);
-  }, [insertTextIntoComposer, prTemplateStats.hasTestingContent, prTemplateStats.hasTestingSection, prTemplateStats.testingSection]);
+  }, [
+    insertTextIntoComposer,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingSection,
+    prTemplateStats.testingSection,
+    testingPlaceholderAction,
+  ]);
 
 
   const handleResetPrTemplate = () => {
@@ -3010,6 +3164,11 @@ export default function ChatGptUIPersist() {
                               Preview: {prTemplateStats.summaryPreview}
                             </span>
                           )}
+                          {prTemplateStats.hasSummaryPlaceholders && (
+                            <span className="ml-1 font-semibold text-amber-700 dark:text-amber-300">
+                              {summaryPlaceholderAction || 'Resolve placeholder details'}
+                            </span>
+                          )}
                         </>
                       ) : (
                         'Add a quick overview beneath the Summary heading to enable the copy shortcut.'
@@ -3030,6 +3189,11 @@ export default function ChatGptUIPersist() {
                           {prTemplateStats.testingPreview && (
                             <span className="ml-1 italic text-gray-600 dark:text-gray-300">
                               Preview: {prTemplateStats.testingPreview}
+                            </span>
+                          )}
+                          {prTemplateStats.hasTestingPlaceholders && (
+                            <span className="ml-1 font-semibold text-amber-700 dark:text-amber-300">
+                              {testingPlaceholderAction || 'Resolve placeholder details'}
                             </span>
                           )}
                         </>
@@ -3055,6 +3219,30 @@ export default function ChatGptUIPersist() {
                   </span>
                 </div>
               </div>
+              {prTemplateStats.hasPlaceholders && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-900 dark:border-amber-400/60 dark:bg-amber-500/10 dark:text-amber-200">
+                  <p className="font-semibold">
+                    {templatePlaceholderAction || 'Resolve placeholder references before sharing.'}
+                  </p>
+                  <ul className="mt-2 list-disc space-y-1 pl-4">
+                    {prTemplateStats.placeholderWarnings.map(({ id, count, rule }) => (
+                      <li key={id}>
+                        <span className="font-medium">{formatNumber(count)}</span>{' '}
+                        {count === 1 ? rule.summaryLabel : rule.summaryLabelPlural}
+                        {rule.example && (
+                          <span className="italic text-amber-800/80 dark:text-amber-200/80"> ({rule.example})</span>
+                        )}
+                        {rule.guidance && (
+                          <>
+                            {' — '}
+                            {rule.guidance}
+                          </>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-200">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <p>
