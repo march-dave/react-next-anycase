@@ -757,6 +757,8 @@ export default function ChatGptUIPersist() {
   const [snapshotInsertStatus, setSnapshotInsertStatus] = useState('');
   const [insightsPrAppendStatus, setInsightsPrAppendStatus] = useState('');
   const [prTemplateTrimStatus, setPrTemplateTrimStatus] = useState('');
+  const [showMessageSearch, setShowMessageSearch] = useState(false);
+  const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
   const inputRef = useRef(null);
   const promptLibraryButtonRef = useRef(null);
@@ -770,6 +772,9 @@ export default function ChatGptUIPersist() {
   const insightsButtonRef = useRef(null);
   const insightsDialogRef = useRef(null);
   const insightsHasOpened = useRef(false);
+  const messageSearchButtonRef = useRef(null);
+  const messageSearchInputRef = useRef(null);
+  const messageSearchHasOpened = useRef(false);
   const [prInsightsAppendStatus, setPrInsightsAppendStatus] = useState('');
   const disableSend = loading || !input.trim();
   const draftWordCount = countWords(input);
@@ -954,6 +959,44 @@ export default function ChatGptUIPersist() {
       wordsPerMinute,
     };
   }, [messages]);
+  const normalizedMessageSearchTerm = useMemo(() => messageSearchTerm.trim().toLowerCase(), [messageSearchTerm]);
+  const hasMessageSearchTerm = normalizedMessageSearchTerm.length > 0;
+  const visibleMessages = useMemo(() => {
+    if (!hasMessageSearchTerm) {
+      return messages;
+    }
+
+    return messages.filter((message) => {
+      if (!message || typeof message !== 'object') {
+        return false;
+      }
+
+      const roleText = typeof message.role === 'string' ? message.role.toLowerCase() : '';
+      const messageText = typeof message.text === 'string' ? message.text.toLowerCase() : '';
+      const timeText = typeof message.time === 'string' ? message.time.toLowerCase() : '';
+
+      return (
+        roleText.includes(normalizedMessageSearchTerm) ||
+        messageText.includes(normalizedMessageSearchTerm) ||
+        timeText.includes(normalizedMessageSearchTerm)
+      );
+    });
+  }, [hasMessageSearchTerm, messages, normalizedMessageSearchTerm]);
+  const hiddenMessageCount = messages.length - visibleMessages.length;
+  const messageSearchTermDisplay = messageSearchTerm.trim();
+  const messageSearchPreview = useMemo(() => {
+    if (!messageSearchTermDisplay) {
+      return '';
+    }
+
+    return messageSearchTermDisplay.length > 60
+      ? `${messageSearchTermDisplay.slice(0, 57)}…`
+      : messageSearchTermDisplay;
+  }, [messageSearchTermDisplay]);
+  const totalMessages = messages.length;
+  const hasVisibleMessages = visibleMessages.length > 0;
+  const showNoMessagesPlaceholder = totalMessages === 0;
+  const showNoSearchMatches = hasMessageSearchTerm && !hasVisibleMessages && totalMessages > 0;
   const messageStats = useMemo(() => {
     if (conversationInsights.total === 0) {
       return {
@@ -1628,6 +1671,8 @@ export default function ChatGptUIPersist() {
     setPrTestingCopyStatus('');
     setPrSummaryInsertStatus('');
     setPrTestingInsertStatus('');
+    setMessageSearchTerm('');
+    setShowMessageSearch(false);
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -2286,6 +2331,35 @@ export default function ChatGptUIPersist() {
   }, [input, adjustInputHeight]);
 
   useEffect(() => {
+    if (!showMessageSearch) {
+      if (messageSearchHasOpened.current && messageSearchButtonRef.current) {
+        messageSearchButtonRef.current.focus();
+      }
+      return;
+    }
+
+    messageSearchHasOpened.current = true;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowMessageSearch(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    requestAnimationFrame(() => {
+      if (messageSearchInputRef.current) {
+        messageSearchInputRef.current.focus();
+        messageSearchInputRef.current.select();
+      }
+    });
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showMessageSearch]);
+
+  useEffect(() => {
     if (!showPromptLibrary) {
       setPromptSearch('');
       if (promptLibraryHasOpened.current && promptLibraryButtonRef.current) {
@@ -2547,6 +2621,17 @@ export default function ChatGptUIPersist() {
           </button>
           <button
             type="button"
+            ref={messageSearchButtonRef}
+            onClick={() => setShowMessageSearch((prev) => !prev)}
+            className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
+            aria-expanded={showMessageSearch}
+            aria-controls="message-search-panel"
+            aria-label="Search conversation messages"
+          >
+            {showMessageSearch ? 'Hide search' : 'Search messages'}
+          </button>
+          <button
+            type="button"
             onClick={handleQuickCopyInsights}
             aria-disabled={!hasMessages && !quickInsightsCopyStatus}
             className={`border px-2 py-1 rounded text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
@@ -2616,6 +2701,15 @@ export default function ChatGptUIPersist() {
                 )}
               </>
             )}
+            {hasMessageSearchTerm && (
+              <span
+                className="self-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-blue-700 dark:border-blue-800 dark:bg-blue-900/40 dark:text-blue-200"
+                aria-label={`Search filter active: ${messageSearchPreview} (${visibleMessages.length} of ${messages.length} messages)`}
+                title={messageSearchTermDisplay}
+              >
+                Search: “{messageSearchPreview}” ({visibleMessages.length}/{messages.length})
+              </span>
+            )}
             {modelName && (
               <span className="self-center" aria-label={`Model ${modelName}`}>
                 Model: {modelName}
@@ -2632,6 +2726,64 @@ export default function ChatGptUIPersist() {
             )}
           </div>
         </div>
+        {showMessageSearch && (
+          <div
+            id="message-search-panel"
+            className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 p-4 space-y-3"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3">
+              <div className="flex-1">
+                <label
+                  htmlFor="message-search-input"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                >
+                  Search conversation
+                </label>
+                <input
+                  id="message-search-input"
+                  ref={messageSearchInputRef}
+                  type="search"
+                  value={messageSearchTerm}
+                  onChange={(event) => setMessageSearchTerm(event.target.value)}
+                  placeholder="Search messages, roles, or timestamps"
+                  className="mt-1 w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMessageSearchTerm('')}
+                  disabled={!messageSearchTermDisplay}
+                  className="rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 transition hover:border-blue-400 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-blue-400"
+                >
+                  Clear search
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowMessageSearch(false)}
+                  className="rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 transition hover:border-blue-400 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-blue-400"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+              {hasMessageSearchTerm ? (
+                <span aria-live="polite">
+                  Showing {visibleMessages.length} of {messages.length} messages matching “{messageSearchPreview}”.
+                  {hiddenMessageCount > 0 ? ' Clear the filter to see the rest.' : ''}
+                </span>
+              ) : (
+                <span>Matches update automatically as you type.</span>
+              )}
+              {hasMessageSearchTerm && hiddenMessageCount > 0 && (
+                <span className="text-xs text-blue-600 dark:text-blue-300" aria-live="polite">
+                  Hidden messages: {hiddenMessageCount}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
         {showSettings && (
           <div
             id="chat-settings"
@@ -2667,7 +2819,7 @@ export default function ChatGptUIPersist() {
           aria-live="polite"
           aria-busy={loading}
         >
-          {messages.length === 0 && !loading && (
+          {showNoMessagesPlaceholder && !loading && (
             <div
               className="text-center text-gray-500 dark:text-gray-400 mt-4 space-y-6"
               aria-label="No messages yet"
@@ -2826,6 +2978,39 @@ export default function ChatGptUIPersist() {
               </div>
             </div>
           )}
+          {hasMessageSearchTerm && (
+            <div className="mb-4 flex flex-col gap-2 rounded-lg border border-blue-200 bg-blue-50/80 p-3 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-100">
+              <div aria-live="polite">
+                Showing {visibleMessages.length} of {messages.length} messages matching “{messageSearchPreview}”.
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                {hiddenMessageCount > 0 && (
+                  <span className="rounded-full bg-blue-100 px-2 py-0.5 font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-500/20 dark:text-blue-200">
+                    Hidden: {hiddenMessageCount}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setMessageSearchTerm('')}
+                  className="inline-flex items-center rounded border border-blue-300 px-2 py-1 font-medium text-blue-700 transition hover:border-blue-400 hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-500 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-blue-800/40"
+                >
+                  Clear search filter
+                </button>
+              </div>
+            </div>
+          )}
+          {showNoSearchMatches && !loading && (
+            <div className="mb-4 rounded-lg border border-dashed border-blue-300 bg-blue-50/60 p-4 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-100">
+              <p>No messages match “{messageSearchPreview}” yet.</p>
+              <button
+                type="button"
+                onClick={() => setMessageSearchTerm('')}
+                className="mt-3 inline-flex items-center rounded border border-blue-300 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-blue-700 transition hover:border-blue-400 hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-500 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-blue-800/40"
+              >
+                Clear search to show all messages
+              </button>
+            </div>
+          )}
           {hasMessages && (
             <section
               className="mb-4 rounded-xl border border-blue-100 bg-blue-50/70 p-4 shadow-sm transition dark:border-blue-900/60 dark:bg-blue-950/20"
@@ -2884,7 +3069,7 @@ export default function ChatGptUIPersist() {
               </dl>
             </section>
           )}
-          {messages.map((msg, idx) => (
+          {visibleMessages.map((msg, idx) => (
             <ChatBubbleMarkdown key={idx} message={msg} />
           ))}
           {loading && <TypingIndicator />}
