@@ -1461,6 +1461,48 @@ export default function ChatGptUIPersist() {
     },
     [adjustInputHeight]
   );
+  const preparePrContentForSharing = useCallback((content) => {
+    const base = typeof content === 'string' ? content : '';
+    const normalizedBase = base.trim();
+
+    if (!normalizedBase) {
+      return { text: '', trimmed: false, emptyAfterTrim: true };
+    }
+
+    const trimmed = trimPrTemplatePlaceholders(base);
+    const normalizedTrimmed = trimmed.trim();
+
+    if (!normalizedTrimmed) {
+      return { text: normalizedBase, trimmed: false, emptyAfterTrim: true };
+    }
+
+    const comparableBase = base.replace(/\s+$/, '');
+    const comparableTrimmed = trimmed.replace(/\s+$/, '');
+    const trimmedApplied = comparableTrimmed !== comparableBase;
+
+    return {
+      text: trimmedApplied ? trimmed : base,
+      trimmed: trimmedApplied,
+      emptyAfterTrim: false,
+    };
+  }, []);
+  const buildPrShareStatus = useCallback((verb, shareInfo, placeholderAction) => {
+    if (!shareInfo) {
+      return `${verb}!`;
+    }
+
+    const { trimmed, emptyAfterTrim } = shareInfo;
+
+    if (trimmed) {
+      return `${verb}! Placeholder text removed`;
+    }
+
+    if (emptyAfterTrim) {
+      return `${verb}! Replace placeholder text before sharing`;
+    }
+
+    return placeholderAction ? `${verb}! ${placeholderAction}` : `${verb}!`;
+  }, []);
   const handleCopyInsights = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(insightsSummaryText);
@@ -1854,14 +1896,28 @@ export default function ChatGptUIPersist() {
   };
 
   const handleCopyPrTemplate = useCallback(async () => {
+    const shareInfo = preparePrContentForSharing(prTemplateText);
+    const shareText = typeof shareInfo.text === 'string' ? shareInfo.text : '';
+
+    if (!shareText.trim()) {
+      setPrCopyStatus('Add details before copying');
+      setTimeout(() => setPrCopyStatus(''), 2000);
+      return;
+    }
+
     try {
-      await navigator.clipboard.writeText(prTemplateText);
-      setPrCopyStatus(templatePlaceholderAction ? `Copied! ${templatePlaceholderAction}` : 'Copied!');
+      await navigator.clipboard.writeText(shareText);
+      setPrCopyStatus(buildPrShareStatus('Copied', shareInfo, templatePlaceholderAction));
     } catch (err) {
       setPrCopyStatus('Copy failed');
     }
     setTimeout(() => setPrCopyStatus(''), 2000);
-  }, [prTemplateText, templatePlaceholderAction]);
+  }, [
+    buildPrShareStatus,
+    preparePrContentForSharing,
+    prTemplateText,
+    templatePlaceholderAction,
+  ]);
 
   const handleCopySummarySection = useCallback(async () => {
     if (!prTemplateStats.hasSummarySection) {
@@ -1870,7 +1926,8 @@ export default function ChatGptUIPersist() {
       return;
     }
 
-    const summarySection = prTemplateStats.summarySection.trim();
+    const shareInfo = preparePrContentForSharing(prTemplateStats.summarySection);
+    const summarySection = shareInfo.text.trim();
     if (!prTemplateStats.hasSummaryContent || !summarySection) {
       setPrSummaryCopyStatus('Add summary details first');
       setTimeout(() => setPrSummaryCopyStatus(''), 2000);
@@ -1878,9 +1935,9 @@ export default function ChatGptUIPersist() {
     }
 
     try {
-      await navigator.clipboard.writeText(summarySection);
+      await navigator.clipboard.writeText(shareInfo.text);
       setPrSummaryCopyStatus(
-        summaryPlaceholderAction ? `Copied! ${summaryPlaceholderAction}` : 'Copied!'
+        buildPrShareStatus('Copied', shareInfo, summaryPlaceholderAction)
       );
     } catch (err) {
       setPrSummaryCopyStatus('Copy failed');
@@ -1888,6 +1945,8 @@ export default function ChatGptUIPersist() {
 
     setTimeout(() => setPrSummaryCopyStatus(''), 2000);
   }, [
+    buildPrShareStatus,
+    preparePrContentForSharing,
     summaryPlaceholderAction,
     prTemplateStats.hasSummaryContent,
     prTemplateStats.hasSummarySection,
@@ -1901,7 +1960,8 @@ export default function ChatGptUIPersist() {
       return;
     }
 
-    const testingSection = prTemplateStats.testingSection.trim();
+    const shareInfo = preparePrContentForSharing(prTemplateStats.testingSection);
+    const testingSection = shareInfo.text.trim();
     if (!prTemplateStats.hasTestingContent || !testingSection) {
       setPrTestingCopyStatus('Add testing notes first');
       setTimeout(() => setPrTestingCopyStatus(''), 2000);
@@ -1909,9 +1969,9 @@ export default function ChatGptUIPersist() {
     }
 
     try {
-      await navigator.clipboard.writeText(testingSection);
+      await navigator.clipboard.writeText(shareInfo.text);
       setPrTestingCopyStatus(
-        testingPlaceholderAction ? `Copied! ${testingPlaceholderAction}` : 'Copied!'
+        buildPrShareStatus('Copied', shareInfo, testingPlaceholderAction)
       );
     } catch (err) {
       setPrTestingCopyStatus('Copy failed');
@@ -1919,6 +1979,8 @@ export default function ChatGptUIPersist() {
 
     setTimeout(() => setPrTestingCopyStatus(''), 2000);
   }, [
+    buildPrShareStatus,
+    preparePrContentForSharing,
     testingPlaceholderAction,
     prTemplateStats.hasTestingContent,
     prTemplateStats.hasTestingSection,
@@ -1926,8 +1988,11 @@ export default function ChatGptUIPersist() {
   ]);
 
   const handleInsertPrTemplate = () => {
-    insertTextIntoComposer(prTemplateText);
-    setShowPrHelper(false);
+    const shareInfo = preparePrContentForSharing(prTemplateText);
+    const inserted = insertTextIntoComposer(shareInfo.text);
+    if (inserted) {
+      setShowPrHelper(false);
+    }
   };
 
   const handleInsertSummarySection = useCallback(() => {
@@ -1937,16 +2002,17 @@ export default function ChatGptUIPersist() {
       return;
     }
 
-    const inserted = insertTextIntoComposer(prTemplateStats.summarySection, { focusInput: false });
+    const shareInfo = preparePrContentForSharing(prTemplateStats.summarySection);
+    const inserted = insertTextIntoComposer(shareInfo.text, { focusInput: false });
     setPrSummaryInsertStatus(
       inserted
-        ? summaryPlaceholderAction
-          ? `Inserted! ${summaryPlaceholderAction}`
-          : 'Inserted!'
+        ? buildPrShareStatus('Inserted', shareInfo, summaryPlaceholderAction)
         : 'Add summary details first'
     );
     setTimeout(() => setPrSummaryInsertStatus(''), 2000);
   }, [
+    buildPrShareStatus,
+    preparePrContentForSharing,
     insertTextIntoComposer,
     prTemplateStats.hasSummaryContent,
     prTemplateStats.hasSummarySection,
@@ -1961,16 +2027,17 @@ export default function ChatGptUIPersist() {
       return;
     }
 
-    const inserted = insertTextIntoComposer(prTemplateStats.testingSection, { focusInput: false });
+    const shareInfo = preparePrContentForSharing(prTemplateStats.testingSection);
+    const inserted = insertTextIntoComposer(shareInfo.text, { focusInput: false });
     setPrTestingInsertStatus(
       inserted
-        ? testingPlaceholderAction
-          ? `Inserted! ${testingPlaceholderAction}`
-          : 'Inserted!'
+        ? buildPrShareStatus('Inserted', shareInfo, testingPlaceholderAction)
         : 'Add testing notes first'
     );
     setTimeout(() => setPrTestingInsertStatus(''), 2000);
   }, [
+    buildPrShareStatus,
+    preparePrContentForSharing,
     insertTextIntoComposer,
     prTemplateStats.hasTestingContent,
     prTemplateStats.hasTestingSection,
