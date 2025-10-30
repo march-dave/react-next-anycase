@@ -1054,13 +1054,54 @@ export default function ChatGptUIPersist() {
       characters,
     };
   }, [conversationInsights, hasMessages]);
+  const longestUpdateInfo = useMemo(() => {
+    if (!hasMessages) {
+      return { details: [], summary: '', ariaSummary: '' };
+    }
+
+    const details = [];
+    const userLabel = formatWordAndCharLabel(
+      conversationInsights.longestUserWords,
+      conversationInsights.longestUserCharacters
+    );
+    if (userLabel) {
+      details.push({ id: 'user', label: 'You', value: userLabel });
+    }
+
+    const assistantLabel = formatWordAndCharLabel(
+      conversationInsights.longestAssistantWords,
+      conversationInsights.longestAssistantCharacters
+    );
+    if (assistantLabel) {
+      details.push({ id: 'assistant', label: 'Assistant', value: assistantLabel });
+    }
+
+    return {
+      details,
+      summary: details.map(({ label, value }) => `${label} — ${value}`).join(' · '),
+      ariaSummary: details.map(({ label, value }) => `${label} ${value}`).join('. '),
+    };
+  }, [
+    conversationInsights.longestAssistantCharacters,
+    conversationInsights.longestAssistantWords,
+    conversationInsights.longestUserCharacters,
+    conversationInsights.longestUserWords,
+    hasMessages,
+  ]);
+  const {
+    details: longestUpdateDetails,
+    summary: longestUpdateSummary,
+    ariaSummary: longestUpdateAriaSummary,
+  } = longestUpdateInfo;
   const longestMessageDisplay = longestMessageInfo
     ? `${longestMessageInfo.owner} — ${formatWordAndCharLabel(
         longestMessageInfo.words,
         longestMessageInfo.characters
       )}`
     : '';
-  const longestMessageAria = longestMessageInfo
+  const longestMessageAria = longestUpdateAriaSummary
+    ? longestUpdateAriaSummary
+    : longestMessageInfo
     ? `${longestMessageInfo.owner} ${formatWordAndCharLabel(
         longestMessageInfo.words,
         longestMessageInfo.characters
@@ -1075,7 +1116,7 @@ export default function ChatGptUIPersist() {
       )} assistant`
     : '';
   const longestMessageDescription = hasMessages
-    ? longestMessageDisplay || 'Waiting for the next update.'
+    ? longestUpdateSummary || 'Waiting for the next update.'
     : 'Waiting for the first message.';
   const longestPauseDescription = hasMessages
     ? longestPauseDisplay || 'Waiting for additional replies.'
@@ -1265,8 +1306,8 @@ export default function ChatGptUIPersist() {
         key: 'longest-update',
         title: 'Longest update',
         value: longestMessageDisplay || '—',
-        description: longestMessageDisplay
-          ? 'Densest exchange so far—great for highlights.'
+        description: longestUpdateSummary
+          ? `${longestUpdateSummary} · Densest exchange so far—great for highlights.`
           : 'Waiting for the next longer update.',
       },
     ];
@@ -1304,6 +1345,7 @@ export default function ChatGptUIPersist() {
     hasPace,
     lastReplyDisplay,
     longestMessageDisplay,
+    longestUpdateSummary,
     longestPauseDisplay,
     messageStats.assistantCount,
     messageStats.total,
@@ -2752,7 +2794,11 @@ export default function ChatGptUIPersist() {
                   </span>
                 )}
                 {longestMessageDisplay && (
-                  <span className="self-center" aria-label={`Longest update ${longestMessageAria}`}>
+                  <span
+                    className="self-center"
+                    aria-label={`Longest update ${longestMessageAria || longestMessageDisplay}`}
+                    title={longestUpdateSummary || longestMessageDisplay}
+                  >
                     Longest update: {longestMessageDisplay}
                   </span>
                 )}
@@ -3679,7 +3725,26 @@ export default function ChatGptUIPersist() {
                     <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Longest update
                     </dt>
-                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{longestMessageDescription}</dd>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                      {longestUpdateDetails.length > 0 ? (
+                        <ul className="space-y-1">
+                          {longestUpdateDetails.map(({ id, label, value }) => (
+                            <li key={id}>
+                              <span className="font-medium">{label}</span> — {value}
+                            </li>
+                          ))}
+                          {longestMessageDisplay && (
+                            <li className="text-xs text-gray-500 dark:text-gray-400">
+                              Longest overall: {longestMessageDisplay}
+                            </li>
+                          )}
+                        </ul>
+                      ) : (
+                        <span className="text-gray-500 dark:text-gray-400">
+                          {hasMessages ? 'Waiting for the next update.' : 'Waiting for the first message.'}
+                        </span>
+                      )}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
