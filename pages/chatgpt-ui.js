@@ -961,28 +961,6 @@ export default function ChatGptUIPersist() {
   }, [messages]);
   const normalizedMessageSearchTerm = useMemo(() => messageSearchTerm.trim().toLowerCase(), [messageSearchTerm]);
   const hasMessageSearchTerm = normalizedMessageSearchTerm.length > 0;
-  const visibleMessages = useMemo(() => {
-    if (!hasMessageSearchTerm) {
-      return messages;
-    }
-
-    return messages.filter((message) => {
-      if (!message || typeof message !== 'object') {
-        return false;
-      }
-
-      const roleText = typeof message.role === 'string' ? message.role.toLowerCase() : '';
-      const messageText = typeof message.text === 'string' ? message.text.toLowerCase() : '';
-      const timeText = typeof message.time === 'string' ? message.time.toLowerCase() : '';
-
-      return (
-        roleText.includes(normalizedMessageSearchTerm) ||
-        messageText.includes(normalizedMessageSearchTerm) ||
-        timeText.includes(normalizedMessageSearchTerm)
-      );
-    });
-  }, [hasMessageSearchTerm, messages, normalizedMessageSearchTerm]);
-  const hiddenMessageCount = messages.length - visibleMessages.length;
   const messageSearchTermDisplay = messageSearchTerm.trim();
   const messageSearchPreview = useMemo(() => {
     if (!messageSearchTermDisplay) {
@@ -993,6 +971,104 @@ export default function ChatGptUIPersist() {
       ? `${messageSearchTermDisplay.slice(0, 57)}…`
       : messageSearchTermDisplay;
   }, [messageSearchTermDisplay]);
+  const visibleMessages = useMemo(() => {
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return [];
+    }
+
+    if (!hasMessageSearchTerm) {
+      return messages
+        .filter((message) => message && typeof message === 'object')
+        .map((message) => ({ message, matchSummary: null }));
+    }
+
+    const normalizedTerm = normalizedMessageSearchTerm;
+    const previewTerm = messageSearchPreview;
+    const results = [];
+
+    const countMatches = (value) => {
+      if (!normalizedTerm) {
+        return 0;
+      }
+
+      const base = value == null ? '' : String(value).toLowerCase();
+      if (!base) {
+        return 0;
+      }
+
+      let count = 0;
+      let index = base.indexOf(normalizedTerm);
+      while (index !== -1) {
+        count += 1;
+        index = base.indexOf(normalizedTerm, index + normalizedTerm.length);
+      }
+      return count;
+    };
+
+    for (const message of messages) {
+      if (!message || typeof message !== 'object') {
+        continue;
+      }
+
+      const roleValue = typeof message.role === 'string' ? message.role : '';
+      const textValue = typeof message.text === 'string' ? message.text : '';
+      const timeValue = typeof message.time === 'string' ? message.time : '';
+      const roleText = roleValue.toLowerCase();
+      const messageText = textValue.toLowerCase();
+      const timeText = timeValue.toLowerCase();
+
+      const matchesSearch =
+        roleText.includes(normalizedTerm) ||
+        messageText.includes(normalizedTerm) ||
+        timeText.includes(normalizedTerm);
+
+      if (!matchesSearch) {
+        continue;
+      }
+
+      const fields = [];
+      let totalMatches = 0;
+
+      const messageMatchCount = countMatches(textValue);
+      if (messageMatchCount > 0) {
+        fields.push({ id: 'message', label: 'Message', count: messageMatchCount });
+        totalMatches += messageMatchCount;
+      }
+
+      const roleMatchCount = countMatches(roleValue);
+      if (roleMatchCount > 0) {
+        fields.push({ id: 'role', label: 'Sender', count: roleMatchCount });
+        totalMatches += roleMatchCount;
+      }
+
+      const timeMatchCount = countMatches(timeValue);
+      if (timeMatchCount > 0) {
+        fields.push({ id: 'timestamp', label: 'Timestamp', count: timeMatchCount });
+        totalMatches += timeMatchCount;
+      }
+
+      const matchSummary =
+        totalMatches > 0
+          ? {
+              term: messageSearchTermDisplay,
+              preview: previewTerm,
+              total: totalMatches,
+              fields,
+            }
+          : null;
+
+      results.push({ message, matchSummary });
+    }
+
+    return results;
+  }, [
+    hasMessageSearchTerm,
+    messageSearchPreview,
+    messageSearchTermDisplay,
+    messages,
+    normalizedMessageSearchTerm,
+  ]);
+  const hiddenMessageCount = Math.max(0, messages.length - visibleMessages.length);
   const totalMessages = messages.length;
   const hasVisibleMessages = visibleMessages.length > 0;
   const showNoMessagesPlaceholder = totalMessages === 0;
@@ -2887,7 +2963,10 @@ export default function ChatGptUIPersist() {
                   {hiddenMessageCount > 0 ? ' Clear the filter to see the rest.' : ''}
                 </span>
               ) : (
-                <span>Matches update automatically as you type.</span>
+                <span>
+                  Matches update automatically as you type, and each result highlights the hit breakdown above the
+                  message.
+                </span>
               )}
               {hasMessageSearchTerm && hiddenMessageCount > 0 && (
                 <span className="text-xs text-blue-600 dark:text-blue-300" aria-live="polite">
@@ -3096,6 +3175,9 @@ export default function ChatGptUIPersist() {
               <div aria-live="polite">
                 Showing {visibleMessages.length} of {messages.length} messages matching “{messageSearchPreview}”.
               </div>
+              <p className="text-xs text-blue-600 dark:text-blue-200">
+                Matches appear above each result with counts for the message body, sender, and timestamp fields.
+              </p>
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 {hiddenMessageCount > 0 && (
                   <span className="rounded-full bg-blue-100 px-2 py-0.5 font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-500/20 dark:text-blue-200">
@@ -3182,8 +3264,8 @@ export default function ChatGptUIPersist() {
               </dl>
             </section>
           )}
-          {visibleMessages.map((msg, idx) => (
-            <ChatBubbleMarkdown key={idx} message={msg} />
+          {visibleMessages.map(({ message: msg, matchSummary }, idx) => (
+            <ChatBubbleMarkdown key={msg?.timestamp ? `${msg.timestamp}-${idx}` : idx} message={msg} matchSummary={matchSummary} />
           ))}
           {loading && <TypingIndicator />}
           <div ref={endRef} />
