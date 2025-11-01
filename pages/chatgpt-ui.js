@@ -176,7 +176,10 @@ const PR_SECTION_SNIPPETS = [
     label: 'Impact & Risks',
     heading: '**Impact & Risks**',
     helperText: 'Spell out user benefit, technical trade-offs, and mitigations.',
-    snippet: ['**Impact & Risks**', '* Who is affected and what trade-offs or mitigations should reviewers note?'].join('\n'),
+    snippet: [
+      '**Impact & Risks**',
+      '* Who is affected and what trade-offs or mitigations should reviewers note? 【F:path/to/file†L#-L#】',
+    ].join('\n'),
   },
   {
     id: 'regression-risks',
@@ -2240,19 +2243,57 @@ export default function ChatGptUIPersist() {
   const insertPrSection = useCallback(
     (section) => {
       if (!section?.snippet) return;
+
       setPrTemplateText((prev) => {
         const trimmedPrev = prev.replace(/\s+$/, '');
-        if (section.heading) {
-          const hasHeading = trimmedPrev
-            .split('\n')
-            .some((line) => line.trim() === section.heading.trim());
-          if (hasHeading) {
-            return trimmedPrev ? `${trimmedPrev}\n` : '';
-          }
+        const snippetWithNewline = section.snippet.endsWith('\n')
+          ? section.snippet
+          : `${section.snippet}\n`;
+
+        if (!trimmedPrev) {
+          return snippetWithNewline;
         }
-        const normalizedSnippet = section.snippet.endsWith('\n') ? section.snippet : `${section.snippet}\n`;
-        return trimmedPrev ? `${trimmedPrev}\n\n${normalizedSnippet}` : normalizedSnippet;
+
+        const normalizedHeading = section.heading ? normalizeHeadingValue(section.heading) : '';
+        const snippetBodyLines = snippetWithNewline.trimEnd().split('\n');
+        const bodyContent = normalizedHeading
+          ? snippetBodyLines.slice(1).join('\n').trim()
+          : snippetBodyLines.join('\n').trim();
+
+        const sections = trimmedPrev.split(/\n{2,}/);
+        let updated = false;
+
+        const updatedSections = sections.map((block) => {
+          if (!normalizedHeading) {
+            return block;
+          }
+
+          const [firstLine, ...rest] = block.split('\n');
+          if (normalizeHeadingValue(firstLine) !== normalizedHeading) {
+            return block;
+          }
+
+          updated = true;
+          if (!bodyContent) {
+            return block;
+          }
+
+          const existingBody = rest.join('\n').trimEnd();
+          if (existingBody.includes(bodyContent)) {
+            return block;
+          }
+
+          const newBody = existingBody ? `${existingBody}\n${bodyContent}` : bodyContent;
+          return [firstLine, newBody].filter(Boolean).join('\n');
+        });
+
+        if (updated) {
+          return `${updatedSections.join('\n\n')}\n`;
+        }
+
+        return `${trimmedPrev}\n\n${snippetWithNewline}`;
       });
+
       focusPrHelperTextarea();
     },
     [focusPrHelperTextarea]
