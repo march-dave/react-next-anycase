@@ -759,6 +759,7 @@ export default function ChatGptUIPersist() {
   const [snapshotCopyStatus, setSnapshotCopyStatus] = useState('');
   const [snapshotInsertStatus, setSnapshotInsertStatus] = useState('');
   const [insightsPrAppendStatus, setInsightsPrAppendStatus] = useState('');
+  const [pulsePrAppendStatus, setPulsePrAppendStatus] = useState('');
   const [prTemplateTrimStatus, setPrTemplateTrimStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
@@ -1788,6 +1789,21 @@ export default function ChatGptUIPersist() {
     }
 
     setTimeout(() => setPrInsightsAppendStatus(''), 2000);
+  }, [appendInsightsToTemplate, focusPrHelperTextarea, hasMessages]);
+
+  const handleSendPulseToPrHelper = useCallback(() => {
+    const outcome = appendInsightsToTemplate();
+
+    if (outcome === 'unavailable') {
+      setPulsePrAppendStatus(hasMessages ? 'Insights not ready' : 'Add a message first');
+    } else if (outcome === 'appended') {
+      setPulsePrAppendStatus('Insights added');
+      focusPrHelperTextarea();
+    } else {
+      setPulsePrAppendStatus('Already added');
+    }
+
+    setTimeout(() => setPulsePrAppendStatus(''), 2000);
   }, [appendInsightsToTemplate, focusPrHelperTextarea, hasMessages]);
 
   const handleSendInsightsToPrHelper = useCallback(() => {
@@ -3176,7 +3192,7 @@ export default function ChatGptUIPersist() {
                   Looking for more inspiration? Open the <span className="font-medium">Prompt library</span> from the header to browse every saved starter—including the new stand-up update helper. Click a badge to filter the list by theme or use search in the library for keyword matches, then favorite the prompts you revisit so they stay at the top of the grid.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the new <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update, or hit <span className="font-medium">Send to PR helper</span> to push the latest summary into your pull request template without leaving the modal.
+                  Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update, tap <span className="font-medium">Send pulse to PR helper</span> from the pulse card to update your template instantly, or open the modal's <span className="font-medium">Send to PR helper</span> action to sync the latest snapshot without leaving the overlay.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft. Use the new <span className="font-medium">Trim placeholder text</span> button inside the helper to strip template boilerplate before copying or inserting your notes.
@@ -3280,6 +3296,18 @@ export default function ChatGptUIPersist() {
                     }`}
                   >
                     <span aria-live="polite">{snapshotInsertStatus || 'Insert pulse into chat'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSendPulseToPrHelper}
+                    aria-disabled={!hasMessages && !pulsePrAppendStatus}
+                    className={`rounded border px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                      hasMessages
+                        ? 'border-blue-200 bg-white text-blue-700 hover:border-blue-400 hover:text-blue-600 dark:border-blue-500 dark:bg-gray-900 dark:text-blue-200 dark:hover:border-blue-400'
+                        : 'cursor-not-allowed border-blue-100 bg-white/60 text-blue-300 dark:border-blue-900 dark:bg-gray-800 dark:text-blue-700'
+                    }`}
+                  >
+                    <span aria-live="polite">{pulsePrAppendStatus || 'Send pulse to PR helper'}</span>
                   </button>
                 </div>
               </div>
