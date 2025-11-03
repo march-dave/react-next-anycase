@@ -1,17 +1,22 @@
 export default function PrTemplateActions({
   onCopyTemplate,
   onCopySummary,
+  onCopyReleaseNotes,
   onCopyTesting,
   onInsertTemplate,
   onInsertSummary,
+  onInsertReleaseNotes,
   onInsertTesting,
   copyStatus,
   summaryCopyStatus,
+  releaseCopyStatus,
   testingCopyStatus,
   summaryInsertStatus,
+  releaseInsertStatus,
   testingInsertStatus,
   onReset,
   summaryDisabled = false,
+  releaseDisabled = false,
   testingDisabled = false,
 }) {
   return (
@@ -39,6 +44,18 @@ export default function PrTemplateActions({
           </button>
           <button
             type="button"
+            onClick={onCopyReleaseNotes}
+            disabled={releaseDisabled}
+            className={`rounded border px-3 py-2 font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              releaseDisabled
+                ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-600'
+                : 'border-blue-400 text-blue-700 hover:border-blue-500 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-200 dark:hover:border-blue-300 dark:hover:bg-gray-900'
+            }`}
+          >
+            <span aria-live="polite">{releaseCopyStatus || 'Copy release notes section'}</span>
+          </button>
+          <button
+            type="button"
             onClick={onCopyTesting}
             disabled={testingDisabled}
             className={`rounded border px-3 py-2 font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${
@@ -62,6 +79,18 @@ export default function PrTemplateActions({
             }`}
           >
             <span aria-live="polite">{summaryInsertStatus || 'Insert summary into chat'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={onInsertReleaseNotes}
+            disabled={releaseDisabled}
+            className={`rounded border px-3 py-2 font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              releaseDisabled
+                ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-600'
+                : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:bg-gray-900'
+            }`}
+          >
+            <span aria-live="polite">{releaseInsertStatus || 'Insert release notes into chat'}</span>
           </button>
           <button
             type="button"

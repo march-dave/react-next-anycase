@@ -164,6 +164,8 @@ const DEFAULT_PR_TEMPLATE = [
 ].join('\n');
 const DEFAULT_PR_TEMPLATE_TRIMMED = DEFAULT_PR_TEMPLATE.trim();
 
+const RELEASE_NOTES_HEADING = '**Changelog & Release notes**';
+
 const PR_TEST_SNIPPETS = {
   pass: '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
   warn: '* ⚠️ `command or suite` — Needs follow-up or is flaky. 【chunk†L#-L#】',
@@ -751,8 +753,10 @@ export default function ChatGptUIPersist() {
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
   const [prCopyStatus, setPrCopyStatus] = useState('');
   const [prSummaryCopyStatus, setPrSummaryCopyStatus] = useState('');
+  const [prReleaseCopyStatus, setPrReleaseCopyStatus] = useState('');
   const [prTestingCopyStatus, setPrTestingCopyStatus] = useState('');
   const [prSummaryInsertStatus, setPrSummaryInsertStatus] = useState('');
+  const [prReleaseInsertStatus, setPrReleaseInsertStatus] = useState('');
   const [prTestingInsertStatus, setPrTestingInsertStatus] = useState('');
   const [insightsCopyStatus, setInsightsCopyStatus] = useState('');
   const [quickInsightsCopyStatus, setQuickInsightsCopyStatus] = useState('');
@@ -1472,12 +1476,17 @@ export default function ChatGptUIPersist() {
     const summaryBody = getSectionBodyByHeading(trimmedTemplate, '**Summary**');
     const hasSummarySection = Boolean(summarySection);
     const hasSummaryContent = summaryBody.length > 0;
+    const releaseNotesSection = getSectionWithHeading(trimmedTemplate, RELEASE_NOTES_HEADING);
+    const releaseNotesBody = getSectionBodyByHeading(trimmedTemplate, RELEASE_NOTES_HEADING);
+    const hasReleaseNotesSection = Boolean(releaseNotesSection);
+    const hasReleaseNotesContent = releaseNotesBody.length > 0;
     const testingSection = getSectionWithHeading(trimmedTemplate, '**Testing**');
     const testingBody = getSectionBodyByHeading(trimmedTemplate, '**Testing**');
     const hasTestingSection = Boolean(testingSection);
     const hasTestingContent = testingBody.length > 0;
     const placeholderWarnings = collectPlaceholderWarnings(trimmedTemplate);
     const summaryPlaceholderWarnings = collectPlaceholderWarnings(summarySection);
+    const releaseNotesPlaceholderWarnings = collectPlaceholderWarnings(releaseNotesSection);
     const testingPlaceholderWarnings = collectPlaceholderWarnings(testingSection);
     const totalPlaceholders = placeholderWarnings.reduce((total, warning) => total + warning.count, 0);
 
@@ -1493,6 +1502,15 @@ export default function ChatGptUIPersist() {
       hasSummaryContent,
       summaryPlaceholderWarnings,
       hasSummaryPlaceholders: summaryPlaceholderWarnings.length > 0,
+      releaseNotesSection,
+      releaseNotesBody,
+      releaseNotesWords: countWords(releaseNotesBody),
+      releaseNotesCharacters: releaseNotesBody.length,
+      releaseNotesPreview: createSummaryPreview(releaseNotesBody),
+      hasReleaseNotesSection,
+      hasReleaseNotesContent,
+      releaseNotesPlaceholderWarnings,
+      hasReleaseNotesPlaceholders: releaseNotesPlaceholderWarnings.length > 0,
       testingSection,
       testingBody,
       testingWords: countWords(testingBody),
@@ -1509,6 +1527,8 @@ export default function ChatGptUIPersist() {
   }, [prTemplateText]);
 
   const summaryReady = prTemplateStats.hasSummarySection && prTemplateStats.hasSummaryContent;
+  const releaseNotesReady =
+    prTemplateStats.hasReleaseNotesSection && prTemplateStats.hasReleaseNotesContent;
   const testingReady = prTemplateStats.hasTestingSection && prTemplateStats.hasTestingContent;
 
   const summaryCopyDefault = prTemplateStats.hasSummarySection
@@ -1516,6 +1536,11 @@ export default function ChatGptUIPersist() {
       ? 'Copy summary section'
       : 'Add summary details first'
     : 'Add a "Summary" heading first';
+  const releaseCopyDefault = prTemplateStats.hasReleaseNotesSection
+    ? releaseNotesReady
+      ? 'Copy release notes section'
+      : 'Add release notes first'
+    : 'Add a "Changelog & Release notes" heading first';
   const testingCopyDefault = prTemplateStats.hasTestingSection
     ? testingReady
       ? 'Copy testing section'
@@ -1527,6 +1552,11 @@ export default function ChatGptUIPersist() {
       ? 'Insert summary into chat'
       : 'Add summary details first'
     : 'Add a "Summary" heading first';
+  const releaseInsertDefault = prTemplateStats.hasReleaseNotesSection
+    ? releaseNotesReady
+      ? 'Insert release notes into chat'
+      : 'Add release notes first'
+    : 'Add a "Changelog & Release notes" heading first';
   const testingInsertDefault = prTemplateStats.hasTestingSection
     ? testingReady
       ? 'Insert testing into chat'
@@ -1534,8 +1564,10 @@ export default function ChatGptUIPersist() {
     : 'Add a "Testing" heading first';
 
   const summaryCopyDisplay = prSummaryCopyStatus || summaryCopyDefault;
+  const releaseCopyDisplay = prReleaseCopyStatus || releaseCopyDefault;
   const testingCopyDisplay = prTestingCopyStatus || testingCopyDefault;
   const summaryInsertDisplay = prSummaryInsertStatus || summaryInsertDefault;
+  const releaseInsertDisplay = prReleaseInsertStatus || releaseInsertDefault;
   const testingInsertDisplay = prTestingInsertStatus || testingInsertDefault;
 
   const templatePlaceholderAction = useMemo(
@@ -1545,6 +1577,10 @@ export default function ChatGptUIPersist() {
   const summaryPlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.summaryPlaceholderWarnings),
     [prTemplateStats.summaryPlaceholderWarnings]
+  );
+  const releasePlaceholderAction = useMemo(
+    () => createPlaceholderActionText(prTemplateStats.releaseNotesPlaceholderWarnings),
+    [prTemplateStats.releaseNotesPlaceholderWarnings]
   );
   const testingPlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
@@ -1847,8 +1883,10 @@ export default function ChatGptUIPersist() {
     setInsightsPrAppendStatus('');
     setPrInsightsAppendStatus('');
     setPrSummaryCopyStatus('');
+    setPrReleaseCopyStatus('');
     setPrTestingCopyStatus('');
     setPrSummaryInsertStatus('');
+    setPrReleaseInsertStatus('');
     setPrTestingInsertStatus('');
     setMessageSearchTerm('');
     setShowMessageSearch(false);
@@ -2090,6 +2128,40 @@ export default function ChatGptUIPersist() {
     prTemplateStats.summarySection,
   ]);
 
+  const handleCopyReleaseNotesSection = useCallback(async () => {
+    if (!prTemplateStats.hasReleaseNotesSection) {
+      setPrReleaseCopyStatus('Add release notes first');
+      setTimeout(() => setPrReleaseCopyStatus(''), 2000);
+      return;
+    }
+
+    const shareInfo = preparePrContentForSharing(prTemplateStats.releaseNotesSection);
+    const releaseNotesSection = shareInfo.text.trim();
+    if (!prTemplateStats.hasReleaseNotesContent || !releaseNotesSection) {
+      setPrReleaseCopyStatus('Add release notes first');
+      setTimeout(() => setPrReleaseCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareInfo.text);
+      setPrReleaseCopyStatus(
+        buildPrShareStatus('Copied', shareInfo, releasePlaceholderAction)
+      );
+    } catch (err) {
+      setPrReleaseCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setPrReleaseCopyStatus(''), 2000);
+  }, [
+    buildPrShareStatus,
+    preparePrContentForSharing,
+    releasePlaceholderAction,
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.releaseNotesSection,
+  ]);
+
   const handleCopyTestingSection = useCallback(async () => {
     if (!prTemplateStats.hasTestingSection) {
       setPrTestingCopyStatus('Add a Testing section first');
@@ -2157,6 +2229,31 @@ export default function ChatGptUIPersist() {
     summaryPlaceholderAction,
   ]);
 
+  const handleInsertReleaseNotesSection = useCallback(() => {
+    if (!prTemplateStats.hasReleaseNotesSection || !prTemplateStats.hasReleaseNotesContent) {
+      setPrReleaseInsertStatus('Add release notes first');
+      setTimeout(() => setPrReleaseInsertStatus(''), 2000);
+      return;
+    }
+
+    const shareInfo = preparePrContentForSharing(prTemplateStats.releaseNotesSection);
+    const inserted = insertTextIntoComposer(shareInfo.text, { focusInput: false });
+    setPrReleaseInsertStatus(
+      inserted
+        ? buildPrShareStatus('Inserted', shareInfo, releasePlaceholderAction)
+        : 'Add release notes first'
+    );
+    setTimeout(() => setPrReleaseInsertStatus(''), 2000);
+  }, [
+    buildPrShareStatus,
+    preparePrContentForSharing,
+    insertTextIntoComposer,
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.releaseNotesSection,
+    releasePlaceholderAction,
+  ]);
+
   const handleInsertTestingSection = useCallback(() => {
     if (!prTemplateStats.hasTestingSection || !prTemplateStats.hasTestingContent) {
       setPrTestingInsertStatus('Add testing notes first');
@@ -2187,8 +2284,10 @@ export default function ChatGptUIPersist() {
     setPrTemplateText(DEFAULT_PR_TEMPLATE);
     setPrCopyStatus('');
     setPrSummaryCopyStatus('');
+    setPrReleaseCopyStatus('');
     setPrTestingCopyStatus('');
     setPrSummaryInsertStatus('');
+    setPrReleaseInsertStatus('');
     setPrTestingInsertStatus('');
     setPrInsightsAppendStatus('');
     setPrTemplateTrimStatus('');
@@ -2635,8 +2734,10 @@ export default function ChatGptUIPersist() {
       setPrCopyStatus('');
       setPrInsightsAppendStatus('');
       setPrSummaryCopyStatus('');
+      setPrReleaseCopyStatus('');
       setPrTestingCopyStatus('');
       setPrSummaryInsertStatus('');
+      setPrReleaseInsertStatus('');
       setPrTestingInsertStatus('');
       setPrTemplateTrimStatus('');
       if (prHelperHasOpened.current && prHelperButtonRef.current) {
@@ -3627,6 +3728,33 @@ export default function ChatGptUIPersist() {
                     )}
                   </p>
                   <p>
+                    {prTemplateStats.hasReleaseNotesSection ? (
+                      prTemplateStats.hasReleaseNotesContent ? (
+                        <>
+                          Release notes size: {formatNumber(prTemplateStats.releaseNotesWords)}{' '}
+                          {prTemplateStats.releaseNotesWords === 1 ? 'word' : 'words'} ({
+                            formatNumber(prTemplateStats.releaseNotesCharacters)
+                          }{' '}
+                          {prTemplateStats.releaseNotesCharacters === 1 ? 'char' : 'chars'})
+                          {prTemplateStats.releaseNotesPreview && (
+                            <span className="ml-1 italic text-gray-600 dark:text-gray-300">
+                              Preview: {prTemplateStats.releaseNotesPreview}
+                            </span>
+                          )}
+                          {prTemplateStats.hasReleaseNotesPlaceholders && (
+                            <span className="ml-1 font-semibold text-amber-700 dark:text-amber-300">
+                              {releasePlaceholderAction || 'Resolve placeholder details'}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        'Outline the customer-facing highlights beneath the Changelog & Release notes heading to unlock the quick copy shortcut.'
+                      )
+                    ) : (
+                      'Add a "Changelog & Release notes" heading so you can copy rollout messaging instantly.'
+                    )}
+                  </p>
+                  <p>
                     {prTemplateStats.hasTestingSection ? (
                       prTemplateStats.hasTestingContent ? (
                         <>
@@ -3783,17 +3911,22 @@ export default function ChatGptUIPersist() {
               <PrTemplateActions
                 onCopyTemplate={handleCopyPrTemplate}
                 onCopySummary={handleCopySummarySection}
+                onCopyReleaseNotes={handleCopyReleaseNotesSection}
                 onCopyTesting={handleCopyTestingSection}
                 onInsertTemplate={handleInsertPrTemplate}
                 onInsertSummary={handleInsertSummarySection}
+                onInsertReleaseNotes={handleInsertReleaseNotesSection}
                 onInsertTesting={handleInsertTestingSection}
                 copyStatus={prCopyStatus}
                 summaryCopyStatus={summaryCopyDisplay}
+                releaseCopyStatus={releaseCopyDisplay}
                 testingCopyStatus={testingCopyDisplay}
                 summaryInsertStatus={summaryInsertDisplay}
+                releaseInsertStatus={releaseInsertDisplay}
                 testingInsertStatus={testingInsertDisplay}
                 onReset={handleResetPrTemplate}
                 summaryDisabled={!summaryReady}
+                releaseDisabled={!releaseNotesReady}
                 testingDisabled={!testingReady}
               />
             </div>
