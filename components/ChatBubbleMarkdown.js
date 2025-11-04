@@ -6,6 +6,8 @@ import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 export default function ChatBubbleMarkdown({ message, matchSummary = null }) {
   const isUser = message.role === 'user';
+  const messageTime = typeof message?.time === 'string' ? message.time.trim() : '';
+  const messageTimestamp = message?.timestamp;
   const [copied, setCopied] = useState(false);
   const hasMatches = matchSummary && matchSummary.total > 0;
   const matchTermLabel = useMemo(() => {
@@ -47,6 +49,42 @@ export default function ChatBubbleMarkdown({ message, matchSummary = null }) {
       ? `Matches for “${term}”: ${matchSummary.total} ${hitsLabel}${fieldSummary}`
       : `Matches: ${matchSummary.total} ${hitsLabel}${fieldSummary}`;
   }, [hasMatches, matchFieldSummary, matchSummary, matchTermLabel]);
+  const timestampDetails = useMemo(() => {
+    if (!messageTimestamp) {
+      if (!messageTime) {
+        return { display: '', tooltip: '', announcement: '' };
+      }
+
+      return {
+        display: messageTime,
+        tooltip: messageTime,
+        announcement: `Sent ${messageTime}`,
+      };
+    }
+
+    const parsed = new Date(messageTimestamp);
+    if (Number.isNaN(parsed.getTime())) {
+      if (!messageTime) {
+        return { display: '', tooltip: '', announcement: '' };
+      }
+
+      return {
+        display: messageTime,
+        tooltip: messageTime,
+        announcement: `Sent ${messageTime}`,
+      };
+    }
+
+    const timePart = messageTime || parsed.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const datePart = parsed.toLocaleDateString([], { dateStyle: 'medium' });
+    const display = datePart ? `${timePart} · ${datePart}` : timePart;
+    const tooltip = parsed.toLocaleString([], { dateStyle: 'long', timeStyle: 'short' });
+    return {
+      display,
+      tooltip,
+      announcement: `Sent ${tooltip}`,
+    };
+  }, [messageTime, messageTimestamp]);
 
   const handleCopy = async () => {
     try {
@@ -62,10 +100,21 @@ export default function ChatBubbleMarkdown({ message, matchSummary = null }) {
     <div className={isUser ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}>
       <div className={`max-w-2xl mx-auto py-3 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
         <div className="space-y-1 max-w-full">
-          <span className="text-xs text-gray-500">
-            {isUser ? 'You' : 'Assistant'}
-            {message.time && <span className="ml-1 text-gray-400">{message.time}</span>}
-          </span>
+          <div className="flex flex-wrap items-center gap-1 text-xs text-gray-500">
+            <span>{isUser ? 'You' : 'Assistant'}</span>
+            {timestampDetails.display && (
+              <>
+                <span className="sr-only">{timestampDetails.announcement}</span>
+                <span
+                  className="text-gray-400"
+                  aria-hidden="true"
+                  title={timestampDetails.tooltip || undefined}
+                >
+                  {timestampDetails.display}
+                </span>
+              </>
+            )}
+          </div>
           {hasMatches && (
             <div
               className="inline-flex flex-wrap items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[0.7rem] text-blue-700 dark:border-blue-800 dark:bg-blue-900/40 dark:text-blue-200"
