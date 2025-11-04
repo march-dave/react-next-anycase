@@ -349,6 +349,13 @@ const PR_REFERENCE_SNIPPETS = [
     snippet: '* Metrics: 【chunk†L#-L#】 — summarize the movement you expect to see.',
   },
   {
+    id: 'conversation-insights',
+    label: 'Link conversation insights',
+    helperText: 'Reference the generated snapshot with message counts, pace, and highlights.',
+    snippet:
+      '* Conversation insights: Snapshot with messages, pace, and longest update for reviewers. 【chunk†L#-L#】',
+  },
+  {
     id: 'docs',
     label: 'Link supporting docs',
     helperText: 'Reference design docs, tickets, or architectural discussions.',
