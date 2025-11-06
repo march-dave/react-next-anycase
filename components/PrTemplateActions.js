@@ -18,7 +18,26 @@ export default function PrTemplateActions({
   summaryDisabled = false,
   releaseDisabled = false,
   testingDisabled = false,
+  templatePlaceholderAction = '',
+  summaryPlaceholderAction = '',
+  releasePlaceholderAction = '',
+  testingPlaceholderAction = '',
 }) {
+  const placeholderNotices = [
+    templatePlaceholderAction
+      ? { key: 'template', label: 'Template', message: templatePlaceholderAction }
+      : null,
+    summaryPlaceholderAction
+      ? { key: 'summary', label: 'Summary', message: summaryPlaceholderAction }
+      : null,
+    releasePlaceholderAction
+      ? { key: 'release', label: 'Release notes', message: releasePlaceholderAction }
+      : null,
+    testingPlaceholderAction
+      ? { key: 'testing', label: 'Testing', message: testingPlaceholderAction }
+      : null,
+  ].filter(Boolean);
+
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
@@ -113,6 +132,18 @@ export default function PrTemplateActions({
           </button>
         </div>
       </div>
+      {placeholderNotices.length > 0 && (
+        <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[0.7rem] text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-wide">Placeholder reminders</p>
+          <ul className="mt-1 space-y-1">
+            {placeholderNotices.map((item) => (
+              <li key={item.key} className="leading-snug">
+                <span className="font-medium">{item.label}:</span> {item.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <button
         type="button"
         onClick={onReset}
