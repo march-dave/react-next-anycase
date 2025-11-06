@@ -755,6 +755,7 @@ export default function ChatGptUIPersist() {
   const [showInsights, setShowInsights] = useState(false);
   const [promptSearch, setPromptSearch] = useState('');
   const [promptTagFilter, setPromptTagFilter] = useState(null);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [favoritePromptIds, setFavoritePromptIds] = useState([]);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [prTemplateText, setPrTemplateText] = useState(DEFAULT_PR_TEMPLATE);
@@ -1943,6 +1944,9 @@ export default function ChatGptUIPersist() {
   const clearPromptTagFilter = useCallback(() => {
     setPromptTagFilter(null);
   }, []);
+  const toggleShowFavoritesOnly = useCallback(() => {
+    setShowFavoritesOnly((prev) => !prev);
+  }, []);
 
   const promptTagFilterValue = promptTagFilter?.value ?? '';
   const promptTagFilterLabel = promptTagFilter?.label ?? '';
@@ -1990,6 +1994,29 @@ export default function ChatGptUIPersist() {
   );
 
   const isPromptFavorite = useCallback((id) => favoritePromptOrder.has(id), [favoritePromptOrder]);
+  const hasFavoritePrompts = favoritePromptIds.length > 0;
+  const favoritePromptCount = favoritePromptIds.length;
+  const favoriteToggleClass = useMemo(() => {
+    const baseClasses = [
+      'inline-flex items-center rounded-full border px-2 py-1 text-[0.7rem] uppercase tracking-wide transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+      showFavoritesOnly
+        ? 'border-blue-500 bg-blue-600 text-white dark:border-blue-300 dark:bg-blue-400 dark:text-gray-900'
+        : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-600 dark:hover:bg-blue-900/60',
+      hasFavoritePrompts
+        ? ''
+        : 'cursor-not-allowed opacity-60 hover:border-blue-200 hover:bg-blue-50 dark:hover:border-blue-900 dark:hover:bg-blue-950/40',
+    ];
+    return baseClasses.filter(Boolean).join(' ');
+  }, [hasFavoritePrompts, showFavoritesOnly]);
+  const favoriteFilterStatus = useMemo(() => {
+    if (!hasFavoritePrompts) {
+      return 'Star prompts to enable favorites filter.';
+    }
+    if (showFavoritesOnly) {
+      return `Showing ${favoritePromptCount} favorite${favoritePromptCount === 1 ? '' : 's'}`;
+    }
+    return '';
+  }, [favoritePromptCount, hasFavoritePrompts, showFavoritesOnly]);
 
   const displayedPromptSuggestions = useMemo(() => {
     const list = !promptTagFilterValue
@@ -2030,8 +2057,18 @@ export default function ChatGptUIPersist() {
       return suggestion.tags.some((tag) => tag.toLowerCase().includes(search));
     });
 
-    return sortPromptSuggestions(filtered);
-  }, [promptSearch, promptTagFilterValue, sortPromptSuggestions]);
+    const favoritesFiltered = showFavoritesOnly
+      ? filtered.filter((suggestion) => favoritePromptOrder.has(suggestion.id))
+      : filtered;
+
+    return sortPromptSuggestions(favoritesFiltered);
+  }, [
+    favoritePromptOrder,
+    promptSearch,
+    promptTagFilterValue,
+    showFavoritesOnly,
+    sortPromptSuggestions,
+  ]);
 
   const togglePromptFavorite = useCallback((id) => {
     if (!id) {
@@ -2654,6 +2691,12 @@ export default function ChatGptUIPersist() {
       console.error('Failed to save favorite prompts', err);
     }
   }, [favoritePromptIds]);
+
+  useEffect(() => {
+    if (!hasFavoritePrompts && showFavoritesOnly) {
+      setShowFavoritesOnly(false);
+    }
+  }, [hasFavoritePrompts, showFavoritesOnly]);
 
   useEffect(() => {
     if (endRef.current) {
@@ -3534,25 +3577,58 @@ export default function ChatGptUIPersist() {
                 placeholder="Search prompts by title, keyword, or tag"
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               />
-              {promptTagFilterLabel && (
-                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-blue-700 dark:text-blue-300">
-                  <span>
-                    Filtering by badge <span className="font-semibold">{promptTagFilterLabel}</span>
-                  </span>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-blue-700 dark:text-blue-300">
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    className="rounded border border-blue-200 px-2 py-1 text-[0.7rem] uppercase tracking-wide text-blue-700 transition hover:border-blue-400 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:hover:border-blue-400 dark:hover:bg-blue-900/40"
-                    onClick={clearPromptTagFilter}
+                    onClick={() => {
+                      if (!hasFavoritePrompts) {
+                        return;
+                      }
+                      toggleShowFavoritesOnly();
+                    }}
+                    disabled={!hasFavoritePrompts}
+                    aria-pressed={showFavoritesOnly}
+                    className={favoriteToggleClass}
                   >
-                    Clear filter
+                    {showFavoritesOnly ? 'Showing favorites' : 'Show favorites only'}
                   </button>
+                  {favoriteFilterStatus && (
+                    <span
+                      className={`text-[0.65rem] ${
+                        showFavoritesOnly
+                          ? 'text-blue-700 dark:text-blue-200'
+                          : 'text-blue-600/80 dark:text-blue-200/70'
+                      }`}
+                    >
+                      {favoriteFilterStatus}
+                    </span>
+                  )}
                 </div>
-              )}
+                {promptTagFilterLabel && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span>
+                      Filtering by badge <span className="font-semibold">{promptTagFilterLabel}</span>
+                    </span>
+                    <button
+                      type="button"
+                      className="rounded border border-blue-200 px-2 py-1 text-[0.7rem] uppercase tracking-wide text-blue-700 transition hover:border-blue-400 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:hover:border-blue-400 dark:hover:bg-blue-900/40"
+                      onClick={clearPromptTagFilter}
+                    >
+                      Clear filter
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="max-h-[60vh] overflow-y-auto px-6 py-4 space-y-4">
               {filteredPromptSuggestions.length === 0 ? (
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  No prompts match your search or badge filter yet. Try a different keyword or clear the filter.
+                  {showFavoritesOnly
+                    ? hasFavoritePrompts
+                      ? 'No favorites match your search or badge filter yet. Clear the favorites filter or adjust your search.'
+                      : 'Star prompts to build your favorites list.'
+                    : 'No prompts match your search or badge filter yet. Try a different keyword or clear the filter.'}
                 </p>
               ) : (
                 <ul className="space-y-3">
@@ -3935,6 +4011,10 @@ export default function ChatGptUIPersist() {
                 summaryDisabled={!summaryReady}
                 releaseDisabled={!releaseNotesReady}
                 testingDisabled={!testingReady}
+                templatePlaceholderAction={templatePlaceholderAction}
+                summaryPlaceholderAction={summaryPlaceholderAction}
+                releasePlaceholderAction={releasePlaceholderAction}
+                testingPlaceholderAction={testingPlaceholderAction}
               />
             </div>
           </div>
