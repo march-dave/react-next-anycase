@@ -2498,15 +2498,29 @@ export default function ChatGptUIPersist() {
   );
 
   useEffect(() => {
-    const shortcutHandler = (e) => {
-      if (!e.altKey || !e.shiftKey) {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const handleShortcut = (event) => {
+      if (
+        event.defaultPrevented ||
+        event.repeat ||
+        !event.altKey ||
+        !event.shiftKey ||
+        event.ctrlKey ||
+        event.metaKey
+      ) {
         return;
       }
 
-      const key = e.key.toLowerCase();
+      const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
+      if (!key) {
+        return;
+      }
 
       if (key === 'c') {
-        e.preventDefault();
+        event.preventDefault();
         if (window.confirm('Clear chat history?')) {
           handleClear();
         }
@@ -2514,7 +2528,7 @@ export default function ChatGptUIPersist() {
       }
 
       if (key === 'p') {
-        e.preventDefault();
+        event.preventDefault();
         setShowPromptLibrary(true);
         setShowPrHelper(false);
         setShowInsights(false);
@@ -2522,7 +2536,7 @@ export default function ChatGptUIPersist() {
       }
 
       if (key === 'h') {
-        e.preventDefault();
+        event.preventDefault();
         setShowPrHelper(true);
         setShowPromptLibrary(false);
         setShowInsights(false);
@@ -2530,15 +2544,15 @@ export default function ChatGptUIPersist() {
       }
 
       if (key === 'i') {
-        e.preventDefault();
+        event.preventDefault();
         setShowInsights(true);
         setShowPromptLibrary(false);
         setShowPrHelper(false);
       }
     };
 
-    window.addEventListener('keydown', shortcutHandler);
-    return () => window.removeEventListener('keydown', shortcutHandler);
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
   }, [handleClear, setShowInsights, setShowPrHelper, setShowPromptLibrary]);
 
   // Load messages from local storage on mount
@@ -2846,48 +2860,6 @@ export default function ChatGptUIPersist() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [showInsights]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const handleGlobalShortcut = (event) => {
-      if (event.defaultPrevented || event.repeat) {
-        return;
-      }
-
-      if (!event.altKey || !event.shiftKey || event.ctrlKey || event.metaKey) {
-        return;
-      }
-
-      const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
-      if (!key) {
-        return;
-      }
-
-      if (key === 'p') {
-        event.preventDefault();
-        setShowPromptLibrary(true);
-      } else if (key === 'h') {
-        event.preventDefault();
-        setShowPrHelper(true);
-      } else if (key === 'i') {
-        event.preventDefault();
-        setShowInsights(true);
-      } else if (key === 'c') {
-        event.preventDefault();
-        if (window.confirm('Clear chat history?')) {
-          handleClear();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleGlobalShortcut);
-    return () => {
-      window.removeEventListener('keydown', handleGlobalShortcut);
-    };
-  }, [handleClear]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
