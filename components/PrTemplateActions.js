@@ -37,6 +37,13 @@ export default function PrTemplateActions({
       ? { key: 'testing', label: 'Testing', message: testingPlaceholderAction }
       : null,
   ].filter(Boolean);
+  const placeholderNoticeCount = placeholderNotices.length;
+  const placeholderReminderSummary =
+    placeholderNoticeCount > 0
+      ? `${placeholderNoticeCount.toLocaleString()} ${
+          placeholderNoticeCount === 1 ? 'section needs attention' : 'sections need attention'
+        }`
+      : '';
 
   return (
     <>
@@ -132,10 +139,21 @@ export default function PrTemplateActions({
           </button>
         </div>
       </div>
-      {placeholderNotices.length > 0 && (
-        <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[0.7rem] text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
-          <p className="text-[0.65rem] font-semibold uppercase tracking-wide">Placeholder reminders</p>
-          <ul className="mt-1 space-y-1">
+      {placeholderNoticeCount > 0 && (
+        <div
+          className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[0.7rem] text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="text-[0.65rem] font-semibold uppercase tracking-wide">
+            {placeholderNoticeCount === 1 ? 'Placeholder reminder' : 'Placeholder reminders'}
+            {placeholderReminderSummary && (
+              <span className="ml-1 font-normal normal-case">
+                {placeholderReminderSummary}
+              </span>
+            )}
+          </p>
+          <ul className="mt-1 space-y-1" aria-label="Outstanding placeholder follow-ups">
             {placeholderNotices.map((item) => (
               <li key={item.key} className="leading-snug">
                 <span className="font-medium">{item.label}:</span> {item.message}

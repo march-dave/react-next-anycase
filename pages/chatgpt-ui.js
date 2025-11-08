@@ -1109,6 +1109,11 @@ export default function ChatGptUIPersist() {
     };
   }, [conversationInsights]);
   const hasMessages = conversationInsights.total > 0;
+  const headerMessageCountValue = formatNumber(conversationInsights.total);
+  const headerMessageCountLabel = `${headerMessageCountValue} ${
+    conversationInsights.total === 1 ? 'message' : 'messages'
+  }`;
+  const headerEmptyStatsHint = 'Stats will appear after your first exchange.';
   const lastReplyDisplay = hasMessages
     ? formatTimestampForDisplay(messageStats.lastTimestamp, messageStats.lastTimeLabel)
     : '';
@@ -3017,15 +3022,11 @@ export default function ChatGptUIPersist() {
             {showSettings ? 'Hide settings' : 'Settings'}
           </button>
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
-            {hasMessages && (
+            <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
+              {headerMessageCountLabel}
+            </span>
+            {hasMessages ? (
               <>
-                <span
-                  className="self-center"
-                  aria-label={`${messages.length} ${messages.length === 1 ? 'message' : 'messages'}`}
-                  aria-live="polite"
-                >
-                  {messages.length} {messages.length === 1 ? 'message' : 'messages'}
-                </span>
                 {conversationDurationText && (
                   <span className="self-center" aria-label={`Conversation span ${conversationDurationText}`}>
                     Span: {conversationDurationText}
@@ -3069,6 +3070,10 @@ export default function ChatGptUIPersist() {
                   </span>
                 )}
               </>
+            ) : (
+              <span className="self-center text-xs" aria-live="polite">
+                {headerEmptyStatsHint}
+              </span>
             )}
             {hasMessageSearchTerm && (
               <span
