@@ -773,6 +773,7 @@ export default function ChatGptUIPersist() {
   const [insightsPrAppendStatus, setInsightsPrAppendStatus] = useState('');
   const [pulsePrAppendStatus, setPulsePrAppendStatus] = useState('');
   const [prTemplateTrimStatus, setPrTemplateTrimStatus] = useState('');
+  const [prReferenceStatus, setPrReferenceStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -1389,10 +1390,18 @@ export default function ChatGptUIPersist() {
         description: firstActivityDisplay ? `Started ${firstActivityDisplay}` : '',
       },
       {
+        key: 'longest-pause',
+        title: 'Longest pause',
+        value: longestPauseDisplay || '—',
+        description: lastReplyDisplay
+          ? `Last reply ${lastReplyDisplay}`
+          : 'Waiting for more messages.',
+      },
+      {
         key: 'last-reply',
         title: 'Last reply',
         value: lastReplyDisplay || '—',
-        description: longestPauseDisplay ? `Longest pause ${longestPauseDisplay}` : '',
+        description: lastReplyDisplay ? 'Latest message timestamp.' : 'Waiting for the first reply.',
       },
       {
         key: 'longest-update',
@@ -1896,6 +1905,7 @@ export default function ChatGptUIPersist() {
     setPrSummaryInsertStatus('');
     setPrReleaseInsertStatus('');
     setPrTestingInsertStatus('');
+    setPrReferenceStatus('');
     setMessageSearchTerm('');
     setShowMessageSearch(false);
     if (inputRef.current) {
@@ -2335,6 +2345,7 @@ export default function ChatGptUIPersist() {
     setPrTestingInsertStatus('');
     setPrInsightsAppendStatus('');
     setPrTemplateTrimStatus('');
+    setPrReferenceStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -2465,36 +2476,67 @@ export default function ChatGptUIPersist() {
       }
 
       const normalizedSnippet = snippet.endsWith('\n') ? snippet : `${snippet}\n`;
-      const trimmedSnippet = normalizedSnippet.trimEnd();
+      const trimmedLine = normalizedSnippet.trim();
+
+      if (!trimmedLine) {
+        return;
+      }
+
+      let result = 'appended';
+      let changed = false;
+
       setPrTemplateText((prev) => {
         const trimmedPrev = prev.replace(/\s+$/, '');
         if (!trimmedPrev) {
+          changed = true;
           return `**Artifacts & References**\n${normalizedSnippet}`;
         }
 
         const sections = trimmedPrev.split(/\n{2,}/);
-        let updated = false;
+        let sectionFound = false;
+
         const updatedSections = sections.map((section) => {
           const [firstLine, ...rest] = section.split('\n');
           const heading = firstLine.trim().replace(/\*/g, '').toLowerCase();
-          if (!updated && heading === 'artifacts & references') {
-            updated = true;
-            const sectionBody = rest.length ? `\n${rest.join('\n')}` : '';
-            return `${firstLine}${sectionBody}\n${trimmedSnippet}`;
+          if (heading !== 'artifacts & references') {
+            return section;
           }
-          return section;
+
+          sectionFound = true;
+          const existingLines = rest.map((line) => line.trim()).filter(Boolean);
+
+          if (existingLines.includes(trimmedLine)) {
+            result = 'duplicate';
+            return section;
+          }
+
+          changed = true;
+          const sectionBody = rest.length ? `\n${rest.join('\n')}` : '';
+          return `${firstLine}${sectionBody}\n${trimmedLine}`;
         });
 
-        if (!updated) {
-          updatedSections.push(`**Artifacts & References**\n${trimmedSnippet}`);
+        if (!sectionFound) {
+          changed = true;
+          updatedSections.push(`**Artifacts & References**\n${trimmedLine}`);
+        }
+
+        if (!changed) {
+          return prev;
         }
 
         return `${updatedSections.join('\n\n')}\n`;
       });
 
-      focusPrHelperTextarea();
+      if (result === 'duplicate' || !changed) {
+        setPrReferenceStatus('Already added');
+      } else {
+        setPrReferenceStatus('Reference added');
+        focusPrHelperTextarea();
+      }
+
+      setTimeout(() => setPrReferenceStatus(''), 2000);
     },
-    [focusPrHelperTextarea]
+    [focusPrHelperTextarea, setPrReferenceStatus]
   );
 
   useEffect(() => {
@@ -2804,6 +2846,7 @@ export default function ChatGptUIPersist() {
       setPrReleaseInsertStatus('');
       setPrTestingInsertStatus('');
       setPrTemplateTrimStatus('');
+      setPrReferenceStatus('');
       if (prHelperHasOpened.current && prHelperButtonRef.current) {
         prHelperButtonRef.current.focus();
       }
@@ -3934,6 +3977,15 @@ export default function ChatGptUIPersist() {
                     </button>
                   ))}
                 </div>
+                {prReferenceStatus && (
+                  <p
+                    className="mt-2 text-[0.7rem] text-blue-700 dark:text-blue-300"
+                    aria-live="polite"
+                    role="status"
+                  >
+                    {prReferenceStatus}
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
