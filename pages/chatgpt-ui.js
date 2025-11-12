@@ -604,8 +604,19 @@ function collectPlaceholderWarnings(text) {
   }, []);
 }
 
-function formatOxfordList(items) {
-  if (!Array.isArray(items) || items.length === 0) {
+function countPlaceholderOccurrences(warnings) {
+  if (!Array.isArray(warnings) || warnings.length === 0) {
+    return 0;
+  }
+
+  return warnings.reduce((total, warning) => {
+    const count = Number.isFinite(warning?.count) ? warning.count : 0;
+    return total + count;
+  }, 0);
+}
+
+function formatPlaceholderSummary(warnings) {
+  if (!Array.isArray(warnings) || warnings.length === 0) {
     return '';
   }
 
@@ -1664,14 +1675,34 @@ export default function ChatGptUIPersist() {
     const normalizedBase = base.trim();
 
     if (!normalizedBase) {
-      return { text: '', trimmed: false, emptyAfterTrim: true };
+      return {
+        text: '',
+        trimmed: false,
+        emptyAfterTrim: true,
+        removedPlaceholders: 0,
+        placeholderCountBefore: 0,
+        remainingPlaceholders: 0,
+      };
     }
+
+    const beforeWarnings = collectPlaceholderWarnings(base);
+    const placeholderCountBefore = countPlaceholderOccurrences(beforeWarnings);
 
     const trimmed = trimPrTemplatePlaceholders(base);
     const normalizedTrimmed = trimmed.trim();
+    const afterWarnings = collectPlaceholderWarnings(trimmed);
+    const remainingPlaceholders = countPlaceholderOccurrences(afterWarnings);
+    const removedPlaceholders = Math.max(0, placeholderCountBefore - remainingPlaceholders);
 
     if (!normalizedTrimmed) {
-      return { text: normalizedBase, trimmed: false, emptyAfterTrim: true };
+      return {
+        text: '',
+        trimmed: placeholderCountBefore > 0,
+        emptyAfterTrim: true,
+        removedPlaceholders,
+        placeholderCountBefore,
+        remainingPlaceholders,
+      };
     }
 
     const comparableBase = base.replace(/\s+$/, '');
@@ -1682,6 +1713,9 @@ export default function ChatGptUIPersist() {
       text: trimmedApplied ? trimmed : base,
       trimmed: trimmedApplied,
       emptyAfterTrim: false,
+      removedPlaceholders,
+      placeholderCountBefore,
+      remainingPlaceholders,
     };
   }, []);
   const buildPrShareStatus = useCallback((verb, shareInfo, placeholderAction) => {
@@ -1689,14 +1723,25 @@ export default function ChatGptUIPersist() {
       return `${verb}!`;
     }
 
-    const { trimmed, emptyAfterTrim } = shareInfo;
+    const { trimmed, emptyAfterTrim, removedPlaceholders, remainingPlaceholders } = shareInfo;
 
     if (trimmed) {
+      if (removedPlaceholders > 0) {
+        return `${verb}! Removed ${formatNumber(removedPlaceholders)} placeholder${
+          removedPlaceholders === 1 ? '' : 's'
+        }`;
+      }
+
       return `${verb}! Placeholder text removed`;
     }
 
     if (emptyAfterTrim) {
       return `${verb}! Replace placeholder text before sharing`;
+    }
+
+    if (remainingPlaceholders > 0) {
+      const placeholderLabel = remainingPlaceholders === 1 ? 'placeholder' : 'placeholders';
+      return `${verb}! Resolve ${formatNumber(remainingPlaceholders)} ${placeholderLabel}`;
     }
 
     return placeholderAction ? `${verb}! ${placeholderAction}` : `${verb}!`;
@@ -2378,21 +2423,42 @@ export default function ChatGptUIPersist() {
   };
 
   const handleTrimPrTemplate = useCallback(() => {
+    let removedCount = 0;
+    let beforeCount = 0;
+    let changed = false;
+
     setPrTemplateText((prev) => {
       const normalize = (value) => (typeof value === 'string' ? value.trimEnd() : '');
-      const trimmed = trimPrTemplatePlaceholders(prev);
-      const changed = normalize(trimmed) !== normalize(prev);
+      const beforeWarnings = collectPlaceholderWarnings(prev);
+      beforeCount = countPlaceholderOccurrences(beforeWarnings);
 
-      setPrTemplateTrimStatus(changed ? 'Placeholder text removed' : 'Nothing to trim');
+      const trimmed = trimPrTemplatePlaceholders(prev);
+      const afterWarnings = collectPlaceholderWarnings(trimmed);
+      const afterCount = countPlaceholderOccurrences(afterWarnings);
+      removedCount = Math.max(0, beforeCount - afterCount);
+
+      changed = normalize(trimmed) !== normalize(prev);
 
       if (changed) {
         focusPrHelperTextarea();
+        return trimmed;
       }
 
-      return changed ? trimmed : prev;
+      return prev;
     });
 
-    setTimeout(() => setPrTemplateTrimStatus(''), 2000);
+    let status = 'Nothing to trim';
+    if (changed) {
+      status =
+        removedCount > 0
+          ? `Removed ${formatNumber(removedCount)} placeholder${removedCount === 1 ? '' : 's'}`
+          : 'Placeholder text removed';
+    } else if (beforeCount > 0) {
+      status = 'No placeholder-only lines found';
+    }
+
+    setPrTemplateTrimStatus(status);
+    setTimeout(() => setPrTemplateTrimStatus(''), 2500);
   }, [focusPrHelperTextarea]);
 
   const appendTestingLine = useCallback(
