@@ -620,11 +620,6 @@ function formatPlaceholderSummary(warnings) {
     return '';
   }
 
-  const items = warnings.map(({ count, rule }) => {
-    const label = count === 1 ? rule.summaryLabel : rule.summaryLabelPlural;
-    return `${formatNumber(count)} ${label}`;
-  });
-
   if (items.length === 1) {
     return items[0];
   }
@@ -636,8 +631,31 @@ function formatPlaceholderSummary(warnings) {
   return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
 }
 
+function formatPlaceholderSummary(warnings) {
+  if (!Array.isArray(warnings) || warnings.length === 0) {
+    return '';
+  }
+
+  const items = warnings.map(({ count, rule }) => {
+    const label = count === 1 ? rule.summaryLabel : rule.summaryLabelPlural;
+    return `${formatNumber(count)} ${label}`;
+  });
+
+  return formatOxfordList(items);
+}
+
 function createPlaceholderActionText(warnings) {
-  const summary = formatPlaceholderSummary(warnings);
+  if (!Array.isArray(warnings) || warnings.length === 0) {
+    return '';
+  }
+
+  const items = warnings.map(({ count, rule }) => {
+    const label = count === 1 ? rule.summaryLabel : rule.summaryLabelPlural;
+    const base = `${formatNumber(count)} ${label}`;
+    return rule.guidance ? `${base} (${rule.guidance})` : base;
+  });
+
+  const summary = formatOxfordList(items);
   return summary ? `Resolve ${summary}` : '';
 }
 
