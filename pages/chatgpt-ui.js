@@ -13,6 +13,8 @@ const SETTINGS_KEY = 'chatgptUiSettings';
 const PR_TEMPLATE_STORAGE_KEY = 'chatgptUiPrTemplate';
 const PROMPT_FAVORITES_STORAGE_KEY = 'chatgptUiFavoritePrompts';
 
+const ARTIFACTS_AND_REFERENCES_HEADING = '**Artifacts & References**';
+
 const promptSuggestions = [
   {
     id: 'summarize-meeting',
@@ -131,7 +133,7 @@ const DEFAULT_PR_TEMPLATE = [
   '**Screenshots / Recordings**',
   '* ![Screenshot description](artifacts/filename.png) — describe the state you captured and cite the UI diff. 【F:path/to/file†L#-L#】',
   '',
-  '**Artifacts & References**',
+  ARTIFACTS_AND_REFERENCES_HEADING,
   '* File: 【F:path/to/file†L#-L#】 — highlight the key changes to review.',
   '* Logs: 【chunk†L#-L#】 — call out the signal that confirms the change.',
   '* Metrics: 【chunk†L#-L#】 — summarize the movement you expect to see.',
@@ -165,6 +167,7 @@ const DEFAULT_PR_TEMPLATE = [
 const DEFAULT_PR_TEMPLATE_TRIMMED = DEFAULT_PR_TEMPLATE.trim();
 
 const RELEASE_NOTES_HEADING = '**Changelog & Release notes**';
+const DEFAULT_REFERENCE_SECTION_HEADING = ARTIFACTS_AND_REFERENCES_HEADING;
 
 const PR_TEST_SNIPPETS = {
   pass: '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
@@ -378,6 +381,9 @@ const PR_REFERENCE_SNIPPETS = [
     label: 'Link release notes draft',
     helperText: 'Point reviewers to the customer messaging or enablement doc.',
     snippet: '* Release notes: [Doc](https://link) — audience, publish date, and owner.',
+    targetHeading: RELEASE_NOTES_HEADING,
+    addedStatus: 'Release notes link added',
+    duplicateStatus: 'Release notes link already added',
   },
   {
     id: 'feature-flag-tracker',
@@ -2493,7 +2499,18 @@ export default function ChatGptUIPersist() {
   );
 
   const appendPrReferenceSnippet = useCallback(
-    (snippet) => {
+    (reference) => {
+      if (!reference) {
+        return;
+      }
+
+      const {
+        snippet,
+        targetHeading = DEFAULT_REFERENCE_SECTION_HEADING,
+        addedStatus,
+        duplicateStatus,
+      } = reference;
+
       if (!snippet) {
         return;
       }
@@ -2505,6 +2522,14 @@ export default function ChatGptUIPersist() {
         return;
       }
 
+      const resolvedHeading =
+        typeof targetHeading === 'string' && targetHeading.trim()
+          ? targetHeading.trim()
+          : DEFAULT_REFERENCE_SECTION_HEADING;
+      const normalizedHeading = normalizeHeadingValue(resolvedHeading);
+      const defaultHeadingNormalized = normalizeHeadingValue(DEFAULT_REFERENCE_SECTION_HEADING);
+      const headingLabel = resolvedHeading.replace(/\*/g, '').trim();
+
       let result = 'appended';
       let changed = false;
 
@@ -2512,7 +2537,7 @@ export default function ChatGptUIPersist() {
         const trimmedPrev = prev.replace(/\s+$/, '');
         if (!trimmedPrev) {
           changed = true;
-          return `**Artifacts & References**\n${normalizedSnippet}`;
+          return `${resolvedHeading}\n${normalizedSnippet}`;
         }
 
         const sections = trimmedPrev.split(/\n{2,}/);
@@ -2520,8 +2545,7 @@ export default function ChatGptUIPersist() {
 
         const updatedSections = sections.map((section) => {
           const [firstLine, ...rest] = section.split('\n');
-          const heading = firstLine.trim().replace(/\*/g, '').toLowerCase();
-          if (heading !== 'artifacts & references') {
+          if (normalizeHeadingValue(firstLine) !== normalizedHeading) {
             return section;
           }
 
@@ -2534,13 +2558,14 @@ export default function ChatGptUIPersist() {
           }
 
           changed = true;
-          const sectionBody = rest.length ? `\n${rest.join('\n')}` : '';
-          return `${firstLine}${sectionBody}\n${trimmedLine}`;
+          const sectionBody = rest.join('\n').trimEnd();
+          const newBody = sectionBody ? `${sectionBody}\n${trimmedLine}` : trimmedLine;
+          return [firstLine, newBody].filter(Boolean).join('\n');
         });
 
         if (!sectionFound) {
           changed = true;
-          updatedSections.push(`**Artifacts & References**\n${trimmedLine}`);
+          updatedSections.push(`${resolvedHeading}\n${trimmedLine}`);
         }
 
         if (!changed) {
@@ -2550,10 +2575,19 @@ export default function ChatGptUIPersist() {
         return `${updatedSections.join('\n\n')}\n`;
       });
 
+      const statusSuffix =
+        normalizedHeading !== defaultHeadingNormalized && headingLabel
+          ? ` to ${headingLabel}`
+          : '';
+
       if (result === 'duplicate' || !changed) {
-        setPrReferenceStatus('Already added');
+        setPrReferenceStatus(
+          duplicateStatus || (statusSuffix ? `Already added${statusSuffix}` : 'Already added')
+        );
       } else {
-        setPrReferenceStatus('Reference added');
+        setPrReferenceStatus(
+          addedStatus || (statusSuffix ? `Reference added${statusSuffix}` : 'Reference added')
+        );
         focusPrHelperTextarea();
       }
 
@@ -3992,7 +4026,7 @@ export default function ChatGptUIPersist() {
                     <button
                       key={reference.id}
                       type="button"
-                      onClick={() => appendPrReferenceSnippet(reference.snippet)}
+                      onClick={() => appendPrReferenceSnippet(reference)}
                       className="rounded border border-gray-300 bg-white px-3 py-2 text-left text-xs text-gray-700 transition hover:border-blue-400 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:bg-gray-700"
                     >
                       <span className="block font-semibold text-gray-900 dark:text-gray-100">{reference.label}</span>
