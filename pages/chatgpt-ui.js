@@ -83,6 +83,14 @@ const promptSuggestions = [
     tags: ['Product', 'Announcements'],
   },
   {
+    id: 'on-call-handoff',
+    title: 'Prep an on-call handoff',
+    description: 'Summarize readiness tasks, runbooks, and alerts before handoff.',
+    prompt:
+      'Draft an on-call handoff update covering the latest changes, runbook updates, active alerts, and what to monitor next:\n\n',
+    tags: ['Operations', 'Handoffs'],
+  },
+  {
     id: 'brainstorm-ideas',
     title: 'Brainstorm ideas',
     description: 'Generate creative approaches for a problem.',
@@ -264,6 +272,16 @@ const PR_SECTION_SNIPPETS = [
     snippet: ['**Rollout / Follow-up**', '* Launch steps, feature flags, or clean-up tasks.'].join('\n'),
   },
   {
+    id: 'operational-readiness',
+    label: 'Operational readiness',
+    heading: '**Operational readiness**',
+    helperText: 'Document on-call prep, runbooks, and monitoring updates.',
+    snippet: [
+      '**Operational readiness**',
+      '* On-call prepared, runbooks refreshed, alerts and dashboards verified. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
     id: 'release-notes',
     label: 'Changelog & release notes',
     heading: '**Changelog & Release notes**',
@@ -363,6 +381,12 @@ const PR_REFERENCE_SNIPPETS = [
     label: 'Link supporting docs',
     helperText: 'Reference design docs, tickets, or architectural discussions.',
     snippet: '* Docs: [Design doc](https://link) — explain what extra context it provides.',
+  },
+  {
+    id: 'runbook',
+    label: 'Link runbook',
+    helperText: 'Surface updated runbooks or on-call guides for support teams.',
+    snippet: '* Runbook: [On-call guide](https://link) — summarize coverage, owners, and next review date.',
   },
   {
     id: 'video',
@@ -1643,6 +1667,26 @@ export default function ChatGptUIPersist() {
     () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
     [prTemplateStats.testingPlaceholderWarnings]
   );
+
+  const templatePlaceholderSummary = useMemo(
+    () => formatPlaceholderSummary(prTemplateStats.placeholderWarnings),
+    [prTemplateStats.placeholderWarnings]
+  );
+  const templatePlaceholderSummaryDisplay = useMemo(() => {
+    if (!prTemplateStats.hasPlaceholders) {
+      return '';
+    }
+    const totalLabel = prTemplateStats.totalPlaceholders === 1 ? 'placeholder' : 'placeholders';
+    const totalPart = `${formatNumber(prTemplateStats.totalPlaceholders)} ${totalLabel} remaining`;
+    if (templatePlaceholderSummary) {
+      return `${totalPart} (${templatePlaceholderSummary}).`;
+    }
+    return `${totalPart}.`;
+  }, [
+    prTemplateStats.hasPlaceholders,
+    prTemplateStats.totalPlaceholders,
+    templatePlaceholderSummary,
+  ]);
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -3484,7 +3528,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update, tap <span className="font-medium">Send pulse to PR helper</span> from the pulse card to update your template instantly, or open the modal's <span className="font-medium">Send to PR helper</span> action to sync the latest snapshot without leaving the overlay.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft. Use the new <span className="font-medium">Trim placeholder text</span> button inside the helper to strip template boilerplate before copying or inserting your notes.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Operational readiness, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, runbooks, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft. Use the new <span className="font-medium">Trim placeholder text</span> button inside the helper to strip template boilerplate before copying or inserting your notes.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Prefer shortcuts? Press{' '}
@@ -3903,7 +3947,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Glance at the live word count, summary preview, and testing preview above the buttons, then use the quick copy shortcuts plus the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Operational readiness, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, runbooks, videos, or docs. Glance at the live word count, summary preview, and testing preview above the buttons, then use the quick copy shortcuts plus the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
                   When you're finishing up, tap <span className="font-medium">Trim placeholder text</span> to remove default bullets before sharing.
                 </p>
                 <textarea
@@ -4022,6 +4066,11 @@ export default function ChatGptUIPersist() {
                   <p className="font-semibold">
                     {templatePlaceholderAction || 'Resolve placeholder references before sharing.'}
                   </p>
+                  {templatePlaceholderSummaryDisplay && (
+                    <p className="mt-1 text-[0.7rem] text-amber-800/90 dark:text-amber-200/80">
+                      {templatePlaceholderSummaryDisplay}
+                    </p>
+                  )}
                   <ul className="mt-2 list-disc space-y-1 pl-4">
                     {prTemplateStats.placeholderWarnings.map(({ id, count, rule }) => (
                       <li key={id}>
@@ -4162,6 +4211,7 @@ export default function ChatGptUIPersist() {
                 summaryPlaceholderAction={summaryPlaceholderAction}
                 releasePlaceholderAction={releasePlaceholderAction}
                 testingPlaceholderAction={testingPlaceholderAction}
+                placeholderSummary={templatePlaceholderSummaryDisplay}
               />
             </div>
           </div>
