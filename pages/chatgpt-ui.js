@@ -645,8 +645,24 @@ function countPlaceholderOccurrences(warnings) {
   }, 0);
 }
 
-function formatPlaceholderSummary(warnings) {
-  if (!Array.isArray(warnings) || warnings.length === 0) {
+function formatOxfordList(values) {
+  if (!Array.isArray(values) || values.length === 0) {
+    return '';
+  }
+
+  const items = values
+    .map((value) => {
+      if (typeof value === 'string') {
+        return value.trim();
+      }
+      if (value == null) {
+        return '';
+      }
+      return String(value).trim();
+    })
+    .filter(Boolean);
+
+  if (items.length === 0) {
     return '';
   }
 
@@ -658,7 +674,9 @@ function formatPlaceholderSummary(warnings) {
     return `${items[0]} and ${items[1]}`;
   }
 
-  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+  const leading = items.slice(0, -1).join(', ');
+  const trailing = items[items.length - 1];
+  return `${leading}, and ${trailing}`;
 }
 
 function formatPlaceholderSummary(warnings) {
@@ -1406,6 +1424,21 @@ export default function ChatGptUIPersist() {
       return [];
     }
 
+    const longestUserLabel =
+      conversationInsights.longestUserWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestUserWords,
+            conversationInsights.longestUserCharacters
+          )
+        : '';
+    const longestAssistantLabel =
+      conversationInsights.longestAssistantWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestAssistantWords,
+            conversationInsights.longestAssistantCharacters
+          )
+        : '';
+
     const items = [
       {
         key: 'messages',
@@ -1475,6 +1508,22 @@ export default function ChatGptUIPersist() {
           ? `${longestUpdateSummary} · Densest exchange so far—great for highlights.`
           : 'Waiting for the next longer update.',
       },
+      longestUserLabel
+        ? {
+            key: 'longest-user-update',
+            title: 'Longest you update',
+            value: longestUserLabel,
+            description: 'Your wordiest message in the thread so far.',
+          }
+        : null,
+      longestAssistantLabel
+        ? {
+            key: 'longest-assistant-update',
+            title: 'Longest assistant update',
+            value: longestAssistantLabel,
+            description: 'Longest reply the assistant has delivered in this chat.',
+          }
+        : null,
     ];
 
     if (trimmedSystemPrompt) {
@@ -1502,6 +1551,10 @@ export default function ChatGptUIPersist() {
     averageWordsPerMessageDisplay,
     conversationDurationText,
     conversationInsights.assistantCharacters,
+    conversationInsights.longestAssistantCharacters,
+    conversationInsights.longestAssistantWords,
+    conversationInsights.longestUserCharacters,
+    conversationInsights.longestUserWords,
     conversationInsights.totalCharacters,
     conversationInsights.totalWords,
     conversationInsights.userCharacters,
