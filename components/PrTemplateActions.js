@@ -22,6 +22,7 @@ export default function PrTemplateActions({
   summaryPlaceholderAction = '',
   releasePlaceholderAction = '',
   testingPlaceholderAction = '',
+  placeholderSummary = '',
 }) {
   const placeholderNotices = [
     templatePlaceholderAction
@@ -153,6 +154,11 @@ export default function PrTemplateActions({
               </span>
             )}
           </p>
+          {placeholderSummary && (
+            <p className="mt-1 text-[0.65rem] font-medium text-amber-700 dark:text-amber-200/80">
+              {placeholderSummary}
+            </p>
+          )}
           <ul className="mt-1 space-y-1" aria-label="Outstanding placeholder follow-ups">
             {placeholderNotices.map((item) => (
               <li key={item.key} className="leading-snug">

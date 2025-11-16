@@ -83,6 +83,14 @@ const promptSuggestions = [
     tags: ['Product', 'Announcements'],
   },
   {
+    id: 'on-call-handoff',
+    title: 'Prep an on-call handoff',
+    description: 'Summarize readiness tasks, runbooks, and alerts before handoff.',
+    prompt:
+      'Draft an on-call handoff update covering the latest changes, runbook updates, active alerts, and what to monitor next:\n\n',
+    tags: ['Operations', 'Handoffs'],
+  },
+  {
     id: 'brainstorm-ideas',
     title: 'Brainstorm ideas',
     description: 'Generate creative approaches for a problem.',
@@ -264,6 +272,16 @@ const PR_SECTION_SNIPPETS = [
     snippet: ['**Rollout / Follow-up**', '* Launch steps, feature flags, or clean-up tasks.'].join('\n'),
   },
   {
+    id: 'operational-readiness',
+    label: 'Operational readiness',
+    heading: '**Operational readiness**',
+    helperText: 'Document on-call prep, runbooks, and monitoring updates.',
+    snippet: [
+      '**Operational readiness**',
+      '* On-call prepared, runbooks refreshed, alerts and dashboards verified. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
     id: 'release-notes',
     label: 'Changelog & release notes',
     heading: '**Changelog & Release notes**',
@@ -363,6 +381,12 @@ const PR_REFERENCE_SNIPPETS = [
     label: 'Link supporting docs',
     helperText: 'Reference design docs, tickets, or architectural discussions.',
     snippet: '* Docs: [Design doc](https://link) — explain what extra context it provides.',
+  },
+  {
+    id: 'runbook',
+    label: 'Link runbook',
+    helperText: 'Surface updated runbooks or on-call guides for support teams.',
+    snippet: '* Runbook: [On-call guide](https://link) — summarize coverage, owners, and next review date.',
   },
   {
     id: 'video',
@@ -621,8 +645,24 @@ function countPlaceholderOccurrences(warnings) {
   }, 0);
 }
 
-function formatPlaceholderSummary(warnings) {
-  if (!Array.isArray(warnings) || warnings.length === 0) {
+function formatOxfordList(values) {
+  if (!Array.isArray(values) || values.length === 0) {
+    return '';
+  }
+
+  const items = values
+    .map((value) => {
+      if (typeof value === 'string') {
+        return value.trim();
+      }
+      if (value == null) {
+        return '';
+      }
+      return String(value).trim();
+    })
+    .filter(Boolean);
+
+  if (items.length === 0) {
     return '';
   }
 
@@ -634,7 +674,9 @@ function formatPlaceholderSummary(warnings) {
     return `${items[0]} and ${items[1]}`;
   }
 
-  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+  const leading = items.slice(0, -1).join(', ');
+  const trailing = items[items.length - 1];
+  return `${leading}, and ${trailing}`;
 }
 
 function formatPlaceholderSummary(warnings) {
@@ -1382,6 +1424,21 @@ export default function ChatGptUIPersist() {
       return [];
     }
 
+    const longestUserLabel =
+      conversationInsights.longestUserWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestUserWords,
+            conversationInsights.longestUserCharacters
+          )
+        : '';
+    const longestAssistantLabel =
+      conversationInsights.longestAssistantWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestAssistantWords,
+            conversationInsights.longestAssistantCharacters
+          )
+        : '';
+
     const items = [
       {
         key: 'messages',
@@ -1451,6 +1508,22 @@ export default function ChatGptUIPersist() {
           ? `${longestUpdateSummary} · Densest exchange so far—great for highlights.`
           : 'Waiting for the next longer update.',
       },
+      longestUserLabel
+        ? {
+            key: 'longest-user-update',
+            title: 'Longest you update',
+            value: longestUserLabel,
+            description: 'Your wordiest message in the thread so far.',
+          }
+        : null,
+      longestAssistantLabel
+        ? {
+            key: 'longest-assistant-update',
+            title: 'Longest assistant update',
+            value: longestAssistantLabel,
+            description: 'Longest reply the assistant has delivered in this chat.',
+          }
+        : null,
     ];
 
     if (trimmedSystemPrompt) {
@@ -1478,6 +1551,10 @@ export default function ChatGptUIPersist() {
     averageWordsPerMessageDisplay,
     conversationDurationText,
     conversationInsights.assistantCharacters,
+    conversationInsights.longestAssistantCharacters,
+    conversationInsights.longestAssistantWords,
+    conversationInsights.longestUserCharacters,
+    conversationInsights.longestUserWords,
     conversationInsights.totalCharacters,
     conversationInsights.totalWords,
     conversationInsights.userCharacters,
@@ -1665,6 +1742,26 @@ export default function ChatGptUIPersist() {
     () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
     [prTemplateStats.testingPlaceholderWarnings]
   );
+
+  const templatePlaceholderSummary = useMemo(
+    () => formatPlaceholderSummary(prTemplateStats.placeholderWarnings),
+    [prTemplateStats.placeholderWarnings]
+  );
+  const templatePlaceholderSummaryDisplay = useMemo(() => {
+    if (!prTemplateStats.hasPlaceholders) {
+      return '';
+    }
+    const totalLabel = prTemplateStats.totalPlaceholders === 1 ? 'placeholder' : 'placeholders';
+    const totalPart = `${formatNumber(prTemplateStats.totalPlaceholders)} ${totalLabel} remaining`;
+    if (templatePlaceholderSummary) {
+      return `${totalPart} (${templatePlaceholderSummary}).`;
+    }
+    return `${totalPart}.`;
+  }, [
+    prTemplateStats.hasPlaceholders,
+    prTemplateStats.totalPlaceholders,
+    templatePlaceholderSummary,
+  ]);
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -3930,7 +4027,7 @@ export default function ChatGptUIPersist() {
             <div className="px-6 py-4 space-y-5">
               <div>
                 <p id="pr-helper-tip" className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, videos, or docs. Glance at the live word count, summary preview, and testing preview above the buttons, then use the quick copy shortcuts plus the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
+                  Keep the bold Summary and Testing headers for final handoff notes. Swap the emoji to ⚠️ or ❌ if a check is flaky or failing, expand the Impact, Security, Accessibility, User Experience, Performance, Operational readiness, Analytics & Monitoring, Dependencies, Feature flags, Tickets & Tracking, Rollout, or Documentation sections with project specifics, and refresh the citation placeholders with the right files, logs, metrics, screenshots, runbooks, videos, or docs. Glance at the live word count, summary preview, and testing preview above the buttons, then use the quick copy shortcuts plus the quick-add controls below to append more sections, evidence snippets, or testing rows as you go.
                   When you're finishing up, tap <span className="font-medium">Trim placeholder text</span> to remove default bullets before sharing.
                 </p>
                 <textarea
@@ -4049,6 +4146,11 @@ export default function ChatGptUIPersist() {
                   <p className="font-semibold">
                     {templatePlaceholderAction || 'Resolve placeholder references before sharing.'}
                   </p>
+                  {templatePlaceholderSummaryDisplay && (
+                    <p className="mt-1 text-[0.7rem] text-amber-800/90 dark:text-amber-200/80">
+                      {templatePlaceholderSummaryDisplay}
+                    </p>
+                  )}
                   <ul className="mt-2 list-disc space-y-1 pl-4">
                     {prTemplateStats.placeholderWarnings.map(({ id, count, rule }) => (
                       <li key={id}>
@@ -4189,6 +4291,7 @@ export default function ChatGptUIPersist() {
                 summaryPlaceholderAction={summaryPlaceholderAction}
                 releasePlaceholderAction={releasePlaceholderAction}
                 testingPlaceholderAction={testingPlaceholderAction}
+                placeholderSummary={templatePlaceholderSummaryDisplay}
               />
             </div>
           </div>
