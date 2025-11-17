@@ -645,8 +645,8 @@ function countPlaceholderOccurrences(warnings) {
   }, 0);
 }
 
-function formatPlaceholderSummary(warnings) {
-  if (!Array.isArray(warnings) || warnings.length === 0) {
+function formatOxfordList(items) {
+  if (!Array.isArray(items) || items.length === 0) {
     return '';
   }
 
