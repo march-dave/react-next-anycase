@@ -645,24 +645,8 @@ function countPlaceholderOccurrences(warnings) {
   }, 0);
 }
 
-function formatOxfordList(values) {
-  if (!Array.isArray(values) || values.length === 0) {
-    return '';
-  }
-
-  const items = values
-    .map((value) => {
-      if (typeof value === 'string') {
-        return value.trim();
-      }
-      if (value == null) {
-        return '';
-      }
-      return String(value).trim();
-    })
-    .filter(Boolean);
-
-  if (items.length === 0) {
+function formatOxfordList(items) {
+  if (!Array.isArray(items) || items.length === 0) {
     return '';
   }
 
