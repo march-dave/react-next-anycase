@@ -658,7 +658,9 @@ function formatOxfordList(items) {
     return `${items[0]} and ${items[1]}`;
   }
 
-  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+  const leading = items.slice(0, -1).join(', ');
+  const trailing = items[items.length - 1];
+  return `${leading}, and ${trailing}`;
 }
 
 function formatPlaceholderSummary(warnings) {
@@ -1406,6 +1408,21 @@ export default function ChatGptUIPersist() {
       return [];
     }
 
+    const longestUserLabel =
+      conversationInsights.longestUserWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestUserWords,
+            conversationInsights.longestUserCharacters
+          )
+        : '';
+    const longestAssistantLabel =
+      conversationInsights.longestAssistantWords > 0
+        ? formatWordAndCharLabel(
+            conversationInsights.longestAssistantWords,
+            conversationInsights.longestAssistantCharacters
+          )
+        : '';
+
     const items = [
       {
         key: 'messages',
@@ -1475,6 +1492,22 @@ export default function ChatGptUIPersist() {
           ? `${longestUpdateSummary} · Densest exchange so far—great for highlights.`
           : 'Waiting for the next longer update.',
       },
+      longestUserLabel
+        ? {
+            key: 'longest-user-update',
+            title: 'Longest you update',
+            value: longestUserLabel,
+            description: 'Your wordiest message in the thread so far.',
+          }
+        : null,
+      longestAssistantLabel
+        ? {
+            key: 'longest-assistant-update',
+            title: 'Longest assistant update',
+            value: longestAssistantLabel,
+            description: 'Longest reply the assistant has delivered in this chat.',
+          }
+        : null,
     ];
 
     if (trimmedSystemPrompt) {
@@ -1502,6 +1535,10 @@ export default function ChatGptUIPersist() {
     averageWordsPerMessageDisplay,
     conversationDurationText,
     conversationInsights.assistantCharacters,
+    conversationInsights.longestAssistantCharacters,
+    conversationInsights.longestAssistantWords,
+    conversationInsights.longestUserCharacters,
+    conversationInsights.longestUserWords,
     conversationInsights.totalCharacters,
     conversationInsights.totalWords,
     conversationInsights.userCharacters,
@@ -1650,6 +1687,28 @@ export default function ChatGptUIPersist() {
   const summaryInsertDisplay = prSummaryInsertStatus || summaryInsertDefault;
   const releaseInsertDisplay = prReleaseInsertStatus || releaseInsertDefault;
   const testingInsertDisplay = prTestingInsertStatus || testingInsertDefault;
+
+  const prTemplatePlaceholderCount = prTemplateStats.totalPlaceholders;
+  const prHelperHasShareableContent =
+    prTemplateStats.hasSummaryContent ||
+    prTemplateStats.hasReleaseNotesContent ||
+    prTemplateStats.hasTestingContent;
+  const prHelperHasPlaceholders = prTemplatePlaceholderCount > 0;
+  const showPrHelperBadge = prHelperHasPlaceholders || prHelperHasShareableContent;
+  const prHelperBadgeText = prHelperHasPlaceholders
+    ? formatNumber(prTemplatePlaceholderCount)
+    : 'Ready';
+  const prHelperBadgeAriaText = prHelperHasPlaceholders
+    ? `${formatNumber(prTemplatePlaceholderCount)} placeholder${
+        prTemplatePlaceholderCount === 1 ? '' : 's'
+      } to resolve`
+    : 'Template ready to share';
+  const prHelperBadgeClass = prHelperHasPlaceholders
+    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
+    : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
+  const prHelperButtonMeta = showPrHelperBadge ? ` — ${prHelperBadgeAriaText}` : '';
+  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
+  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
 
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
@@ -3172,14 +3231,19 @@ export default function ChatGptUIPersist() {
             type="button"
             ref={prHelperButtonRef}
             onClick={() => setShowPrHelper(true)}
-            className="border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
+            className="inline-flex items-center gap-2 border px-2 py-1 rounded text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
             aria-haspopup="dialog"
             aria-expanded={showPrHelper}
             aria-controls="pr-helper"
-            aria-label="PR helper (Alt+Shift+H)"
-            title="Alt+Shift+H"
+            aria-label={prHelperButtonAriaLabel}
+            title={prHelperButtonTitle}
           >
-            PR helper
+            <span>PR helper</span>
+            {showPrHelperBadge && (
+              <span aria-hidden="true" className={prHelperBadgeClass}>
+                {prHelperBadgeText}
+              </span>
+            )}
           </button>
           <button
             type="button"
@@ -3528,7 +3592,7 @@ export default function ChatGptUIPersist() {
                   Want a quick pulse check on the conversation? Tap the <span className="font-medium">Insights</span> button in the header to review message counts, word totals, timestamps, and a copy-ready summary you can drop into docs or follow-up prompts. Use the <span className="font-medium">Insert pulse into chat</span> shortcut beside the copy action to paste those stats directly into the composer when you're drafting an update, tap <span className="font-medium">Send pulse to PR helper</span> from the pulse card to update your template instantly, or open the modal's <span className="font-medium">Send to PR helper</span> action to sync the latest snapshot without leaving the overlay.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Operational readiness, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, runbooks, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft. Use the new <span className="font-medium">Trim placeholder text</span> button inside the helper to strip template boilerplate before copying or inserting your notes.
+                  Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft. A badge on the header button highlights how many placeholders still need attention (and flips to a "Ready" label once everything's filled in) so you know when the template is review-ready at a glance. Use the new <span className="font-medium">Trim placeholder text</span> button inside the helper to strip template boilerplate before copying or inserting your notes.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Prefer shortcuts? Press{' '}
