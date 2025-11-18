@@ -1419,6 +1419,7 @@ export default function ChatGptUIPersist() {
     trimmedSystemPrompt,
     wordShareDisplay,
   ]);
+  const exportInsightsText = hasMessages ? insightsSummaryText : '';
   const conversationSnapshot = useMemo(() => {
     if (!hasMessages) {
       return [];
@@ -1720,6 +1721,117 @@ export default function ChatGptUIPersist() {
     () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
     [prTemplateStats.testingPlaceholderWarnings]
   );
+  const prSectionReadiness = useMemo(() => {
+    const formatLengthLabel = (words, characters) => {
+      if (!Number.isFinite(words) || words <= 0 || !Number.isFinite(characters)) {
+        return 'Add details to enable the copy shortcut.';
+      }
+      const wordLabel = `${formatNumber(words)} ${words === 1 ? 'word' : 'words'}`;
+      const charLabel = `${formatNumber(characters)} ${characters === 1 ? 'char' : 'chars'}`;
+      return `${wordLabel} · ${charLabel}`;
+    };
+
+    const buildEntry = ({
+      id,
+      label,
+      ready,
+      hasSection,
+      hasContent,
+      words,
+      characters,
+      hasPlaceholders,
+      placeholderAction,
+      missingHeadingMessage,
+      missingContentMessage,
+    }) => {
+      let message = '';
+      if (!hasSection) {
+        message = missingHeadingMessage;
+      } else if (!hasContent) {
+        message = missingContentMessage;
+      } else {
+        message = formatLengthLabel(words, characters);
+      }
+
+      const placeholderMessage = hasPlaceholders
+        ? placeholderAction || 'Resolve placeholder details before sharing.'
+        : '';
+
+      return {
+        id,
+        label,
+        ready: Boolean(hasSection && hasContent && ready),
+        message,
+        placeholderMessage,
+      };
+    };
+
+    return [
+      buildEntry({
+        id: 'summary',
+        label: 'Summary',
+        ready: summaryReady,
+        hasSection: prTemplateStats.hasSummarySection,
+        hasContent: prTemplateStats.hasSummaryContent,
+        words: prTemplateStats.summaryWords,
+        characters: prTemplateStats.summaryCharacters,
+        hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
+        placeholderAction: summaryPlaceholderAction,
+        missingHeadingMessage: 'Add a "Summary" heading so you can copy it in one click.',
+        missingContentMessage: 'Add summary details beneath the heading to unlock quick copy.',
+      }),
+      buildEntry({
+        id: 'release',
+        label: 'Changelog & Release notes',
+        ready: releaseNotesReady,
+        hasSection: prTemplateStats.hasReleaseNotesSection,
+        hasContent: prTemplateStats.hasReleaseNotesContent,
+        words: prTemplateStats.releaseNotesWords,
+        characters: prTemplateStats.releaseNotesCharacters,
+        hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
+        placeholderAction: releasePlaceholderAction,
+        missingHeadingMessage:
+          'Add a "Changelog & Release notes" heading so you can copy rollout messaging instantly.',
+        missingContentMessage:
+          'Outline customer-facing updates beneath the heading to enable the quick copy shortcut.',
+      }),
+      buildEntry({
+        id: 'testing',
+        label: 'Testing',
+        ready: testingReady,
+        hasSection: prTemplateStats.hasTestingSection,
+        hasContent: prTemplateStats.hasTestingContent,
+        words: prTemplateStats.testingWords,
+        characters: prTemplateStats.testingCharacters,
+        hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
+        placeholderAction: testingPlaceholderAction,
+        missingHeadingMessage: 'Add a "Testing" heading so you can copy the verification checklist instantly.',
+        missingContentMessage: 'Document verification notes beneath the heading to unlock quick copy.',
+      }),
+    ];
+  }, [
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.hasTestingSection,
+    prTemplateStats.releaseNotesCharacters,
+    prTemplateStats.releaseNotesWords,
+    prTemplateStats.summaryCharacters,
+    prTemplateStats.summaryWords,
+    prTemplateStats.testingCharacters,
+    prTemplateStats.testingWords,
+    releaseNotesReady,
+    releasePlaceholderAction,
+    summaryPlaceholderAction,
+    summaryReady,
+    testingPlaceholderAction,
+    testingReady,
+  ]);
 
   const templatePlaceholderSummary = useMemo(
     () => formatPlaceholderSummary(prTemplateStats.placeholderWarnings),
@@ -3206,8 +3318,16 @@ export default function ChatGptUIPersist() {
             ariaLabel="Clear conversation (Alt+Shift+C)"
             title="Alt+Shift+C"
           />
-          <ExportChatButton messages={messages} systemPrompt={systemPrompt} />
-          <DownloadChatButton messages={messages} systemPrompt={systemPrompt} />
+          <ExportChatButton
+            messages={messages}
+            systemPrompt={systemPrompt}
+            insightsText={exportInsightsText}
+          />
+          <DownloadChatButton
+            messages={messages}
+            systemPrompt={systemPrompt}
+            insightsText={exportInsightsText}
+          />
           <button
             type="button"
             ref={promptLibraryButtonRef}
@@ -4099,6 +4219,45 @@ export default function ChatGptUIPersist() {
                       'Add a "Testing" heading so you can copy the verification checklist instantly.'
                     )}
                   </p>
+                </div>
+                <div
+                  className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-200"
+                  aria-label="Section readiness overview"
+                >
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Summary, Release notes, and Testing readiness
+                  </p>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                    {prSectionReadiness.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded border border-gray-200 bg-white px-3 py-2 text-[0.7rem] text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-100"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">
+                            {item.label}
+                          </span>
+                          <span
+                            className={`text-[0.65rem] font-semibold uppercase tracking-wide ${
+                              item.ready
+                                ? 'text-green-600 dark:text-green-300'
+                                : 'text-amber-600 dark:text-amber-300'
+                            }`}
+                          >
+                            {item.ready ? 'Ready' : 'Needs attention'}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-[0.65rem] text-gray-500 dark:text-gray-300">
+                          {item.message}
+                        </p>
+                        {item.placeholderMessage && (
+                          <p className="mt-1 text-[0.6rem] font-medium text-amber-700 dark:text-amber-300">
+                            {item.placeholderMessage}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="mt-3 flex flex-col gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
                   <button
