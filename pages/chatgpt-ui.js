@@ -1725,6 +1725,39 @@ export default function ChatGptUIPersist() {
   const prHelperButtonMeta = showPrHelperBadge ? ` — ${prHelperBadgeAriaText}` : '';
   const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
   const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
+  const prHelperStatusBadges = useMemo(() => {
+    const badges = [];
+
+    if (prHelperHasPlaceholders) {
+      badges.push(templatePlaceholderSummaryDisplay || 'Resolve remaining placeholders');
+    } else if (prHelperHasShareableContent) {
+      badges.push('Template ready to share');
+    }
+
+    if (prTemplateStats.hasSummaryContent && prTemplateStats.summaryPreview) {
+      badges.push(`Summary: ${prTemplateStats.summaryPreview}`);
+    }
+
+    if (prTemplateStats.hasReleaseNotesContent && prTemplateStats.releaseNotesPreview) {
+      badges.push(`Release notes: ${prTemplateStats.releaseNotesPreview}`);
+    }
+
+    if (prTemplateStats.hasTestingContent && prTemplateStats.testingPreview) {
+      badges.push(`Testing: ${prTemplateStats.testingPreview}`);
+    }
+
+    return badges;
+  }, [
+    prHelperHasPlaceholders,
+    prHelperHasShareableContent,
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.releaseNotesPreview,
+    prTemplateStats.summaryPreview,
+    prTemplateStats.testingPreview,
+    templatePlaceholderSummaryDisplay,
+  ]);
 
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
@@ -3306,6 +3339,29 @@ export default function ChatGptUIPersist() {
           >
             {showSettings ? 'Hide settings' : 'Settings'}
           </button>
+          {showPrHelperBadge && prHelperStatusBadges.length > 0 && (
+            <div
+              className="flex w-full flex-wrap items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-[0.72rem] text-blue-800 dark:border-blue-700/50 dark:bg-blue-950/40 dark:text-blue-200"
+              aria-live="polite"
+            >
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100">
+                PR helper status
+              </span>
+              {prHelperStatusBadges.map((badge, index) => (
+                <span
+                  key={`${badge}-${index}`}
+                  className="inline-flex items-center rounded-full border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-medium text-blue-700 shadow-sm dark:border-blue-600 dark:bg-gray-800 dark:text-blue-200"
+                >
+                  {badge}
+                </span>
+              ))}
+              {!prHelperHasPlaceholders && prHelperHasShareableContent && (
+                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
+                  Copy or insert sections without placeholder cleanup.
+                </span>
+              )}
+            </div>
+          )}
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
               {headerMessageCountLabel}
