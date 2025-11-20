@@ -1608,6 +1608,9 @@ export default function ChatGptUIPersist() {
     const releaseNotesPlaceholderWarnings = collectPlaceholderWarnings(releaseNotesSection);
     const testingPlaceholderWarnings = collectPlaceholderWarnings(testingSection);
     const totalPlaceholders = placeholderWarnings.reduce((total, warning) => total + warning.count, 0);
+    const summaryPlaceholderCount = countPlaceholderOccurrences(summaryPlaceholderWarnings);
+    const releaseNotesPlaceholderCount = countPlaceholderOccurrences(releaseNotesPlaceholderWarnings);
+    const testingPlaceholderCount = countPlaceholderOccurrences(testingPlaceholderWarnings);
 
     return {
       totalWords: countWords(trimmedTemplate),
@@ -1620,6 +1623,7 @@ export default function ChatGptUIPersist() {
       hasSummarySection,
       hasSummaryContent,
       summaryPlaceholderWarnings,
+      summaryPlaceholderCount,
       hasSummaryPlaceholders: summaryPlaceholderWarnings.length > 0,
       releaseNotesSection,
       releaseNotesBody,
@@ -1629,6 +1633,7 @@ export default function ChatGptUIPersist() {
       hasReleaseNotesSection,
       hasReleaseNotesContent,
       releaseNotesPlaceholderWarnings,
+      releaseNotesPlaceholderCount,
       hasReleaseNotesPlaceholders: releaseNotesPlaceholderWarnings.length > 0,
       testingSection,
       testingBody,
@@ -1638,6 +1643,7 @@ export default function ChatGptUIPersist() {
       hasTestingSection,
       hasTestingContent,
       testingPlaceholderWarnings,
+      testingPlaceholderCount,
       hasTestingPlaceholders: testingPlaceholderWarnings.length > 0,
       placeholderWarnings,
       totalPlaceholders,
@@ -1710,39 +1716,54 @@ export default function ChatGptUIPersist() {
   const prHelperButtonMeta = showPrHelperBadge ? ` — ${prHelperBadgeAriaText}` : '';
   const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
   const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
-  const prHelperStatusBadges = useMemo(() => {
-    const badges = [];
-
-    if (prHelperHasPlaceholders) {
-      badges.push(templatePlaceholderSummaryDisplay || 'Resolve remaining placeholders');
-    } else if (prHelperHasShareableContent) {
-      badges.push('Template ready to share');
-    }
-
-    if (prTemplateStats.hasSummaryContent && prTemplateStats.summaryPreview) {
-      badges.push(`Summary: ${prTemplateStats.summaryPreview}`);
-    }
-
-    if (prTemplateStats.hasReleaseNotesContent && prTemplateStats.releaseNotesPreview) {
-      badges.push(`Release notes: ${prTemplateStats.releaseNotesPreview}`);
-    }
-
-    if (prTemplateStats.hasTestingContent && prTemplateStats.testingPreview) {
-      badges.push(`Testing: ${prTemplateStats.testingPreview}`);
-    }
-
-    return badges;
-  }, [
-    prHelperHasPlaceholders,
-    prHelperHasShareableContent,
-    prTemplateStats.hasReleaseNotesContent,
-    prTemplateStats.hasSummaryContent,
-    prTemplateStats.hasTestingContent,
-    prTemplateStats.releaseNotesPreview,
-    prTemplateStats.summaryPreview,
-    prTemplateStats.testingPreview,
-    templatePlaceholderSummaryDisplay,
-  ]);
+  const prSectionStatuses = useMemo(
+    () => [
+      {
+        id: 'summary',
+        label: 'Summary',
+        hasSection: prTemplateStats.hasSummarySection,
+        ready: summaryReady,
+        placeholderCount: prTemplateStats.summaryPlaceholderCount,
+        preview: prTemplateStats.summaryPreview,
+        words: prTemplateStats.summaryWords,
+      },
+      {
+        id: 'release-notes',
+        label: 'Release notes',
+        hasSection: prTemplateStats.hasReleaseNotesSection,
+        ready: releaseNotesReady,
+        placeholderCount: prTemplateStats.releaseNotesPlaceholderCount,
+        preview: prTemplateStats.releaseNotesPreview,
+        words: prTemplateStats.releaseNotesWords,
+      },
+      {
+        id: 'testing',
+        label: 'Testing',
+        hasSection: prTemplateStats.hasTestingSection,
+        ready: testingReady,
+        placeholderCount: prTemplateStats.testingPlaceholderCount,
+        preview: prTemplateStats.testingPreview,
+        words: prTemplateStats.testingWords,
+      },
+    ],
+    [
+      prTemplateStats.hasReleaseNotesSection,
+      prTemplateStats.hasSummarySection,
+      prTemplateStats.hasTestingSection,
+      prTemplateStats.releaseNotesPlaceholderCount,
+      prTemplateStats.releaseNotesPreview,
+      prTemplateStats.releaseNotesWords,
+      prTemplateStats.summaryPlaceholderCount,
+      prTemplateStats.summaryPreview,
+      prTemplateStats.summaryWords,
+      prTemplateStats.testingPlaceholderCount,
+      prTemplateStats.testingPreview,
+      prTemplateStats.testingWords,
+      releaseNotesReady,
+      summaryReady,
+      testingReady,
+    ]
+  );
 
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
@@ -4287,43 +4308,67 @@ export default function ChatGptUIPersist() {
                     )}
                   </p>
                 </div>
-                <div
-                  className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-200"
-                  aria-label="Section readiness overview"
-                >
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Summary, Release notes, and Testing readiness
-                  </p>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                    {prSectionReadiness.map((item) => (
-                      <div
-                        key={item.id}
-                        className="rounded border border-gray-200 bg-white px-3 py-2 text-[0.7rem] text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-100"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">
-                            {item.label}
-                          </span>
-                          <span
-                            className={`text-[0.65rem] font-semibold uppercase tracking-wide ${
-                              item.ready
-                                ? 'text-green-600 dark:text-green-300'
-                                : 'text-amber-600 dark:text-amber-300'
-                            }`}
-                          >
-                            {item.ready ? 'Ready' : 'Needs attention'}
-                          </span>
+                <div className="mt-3 space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-[0.7rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold text-gray-800 dark:text-gray-100">PR helper status</p>
+                    <span className="text-[0.65rem] text-gray-500 dark:text-gray-400">Updates as you edit</span>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    {prSectionStatuses.map((section) => {
+                      const needsHeading = !section.hasSection;
+                      const placeholderLabel =
+                        section.placeholderCount > 0
+                          ? `${formatNumber(section.placeholderCount)} placeholder${
+                              section.placeholderCount === 1 ? '' : 's'
+                            }`
+                          : '';
+                      const statusLabel = needsHeading
+                        ? 'Add heading to enable shortcuts'
+                        : section.ready
+                        ? placeholderLabel || 'Ready to share'
+                        : 'Add details to unlock copy & insert';
+                      const badgeLabel = needsHeading
+                        ? 'Missing heading'
+                        : section.ready
+                        ? placeholderLabel || 'Ready'
+                        : 'Needs details';
+                      const badgeClass = needsHeading
+                        ? 'rounded-full border border-gray-300 bg-white px-2 py-0.5 text-[0.65rem] font-semibold text-gray-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200'
+                        : section.placeholderCount > 0
+                        ? 'rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-800 dark:border-amber-300/70 dark:bg-amber-400/10 dark:text-amber-200'
+                        : section.ready
+                        ? 'rounded-full border border-green-300 bg-green-100 px-2 py-0.5 text-[0.65rem] font-semibold text-green-800 dark:border-green-400/70 dark:bg-green-400/10 dark:text-green-200'
+                        : 'rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[0.65rem] font-semibold text-blue-800 dark:border-blue-500/60 dark:bg-blue-500/10 dark:text-blue-200';
+
+                      return (
+                        <div
+                          key={section.id}
+                          className="rounded border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="space-y-1">
+                              <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                                {section.label}
+                              </p>
+                              <p className="text-[0.7rem] text-gray-600 dark:text-gray-300">{statusLabel}</p>
+                              {section.preview && section.ready && (
+                                <p className="text-[0.7rem] italic text-gray-500 dark:text-gray-400">
+                                  Preview: {section.preview}
+                                </p>
+                              )}
+                              {section.words > 0 && (
+                                <p className="text-[0.65rem] text-gray-500 dark:text-gray-400">
+                                  Words: {formatNumber(section.words)}
+                                </p>
+                              )}
+                            </div>
+                            <span className={badgeClass} aria-label={`${section.label} status: ${badgeLabel}`}>
+                              {badgeLabel}
+                            </span>
+                          </div>
                         </div>
-                        <p className="mt-1 text-[0.65rem] text-gray-500 dark:text-gray-300">
-                          {item.message}
-                        </p>
-                        {item.placeholderMessage && (
-                          <p className="mt-1 text-[0.6rem] font-medium text-amber-700 dark:text-amber-300">
-                            {item.placeholderMessage}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="mt-3 flex flex-col gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
