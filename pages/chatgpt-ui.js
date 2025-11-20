@@ -1403,6 +1403,7 @@ export default function ChatGptUIPersist() {
     trimmedSystemPrompt,
     wordShareDisplay,
   ]);
+  const exportInsightsText = hasMessages ? insightsSummaryText : '';
   const conversationSnapshot = useMemo(() => {
     if (!hasMessages) {
       return [];
@@ -1780,6 +1781,117 @@ export default function ChatGptUIPersist() {
     () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
     [prTemplateStats.testingPlaceholderWarnings]
   );
+  const prSectionReadiness = useMemo(() => {
+    const formatLengthLabel = (words, characters) => {
+      if (!Number.isFinite(words) || words <= 0 || !Number.isFinite(characters)) {
+        return 'Add details to enable the copy shortcut.';
+      }
+      const wordLabel = `${formatNumber(words)} ${words === 1 ? 'word' : 'words'}`;
+      const charLabel = `${formatNumber(characters)} ${characters === 1 ? 'char' : 'chars'}`;
+      return `${wordLabel} · ${charLabel}`;
+    };
+
+    const buildEntry = ({
+      id,
+      label,
+      ready,
+      hasSection,
+      hasContent,
+      words,
+      characters,
+      hasPlaceholders,
+      placeholderAction,
+      missingHeadingMessage,
+      missingContentMessage,
+    }) => {
+      let message = '';
+      if (!hasSection) {
+        message = missingHeadingMessage;
+      } else if (!hasContent) {
+        message = missingContentMessage;
+      } else {
+        message = formatLengthLabel(words, characters);
+      }
+
+      const placeholderMessage = hasPlaceholders
+        ? placeholderAction || 'Resolve placeholder details before sharing.'
+        : '';
+
+      return {
+        id,
+        label,
+        ready: Boolean(hasSection && hasContent && ready),
+        message,
+        placeholderMessage,
+      };
+    };
+
+    return [
+      buildEntry({
+        id: 'summary',
+        label: 'Summary',
+        ready: summaryReady,
+        hasSection: prTemplateStats.hasSummarySection,
+        hasContent: prTemplateStats.hasSummaryContent,
+        words: prTemplateStats.summaryWords,
+        characters: prTemplateStats.summaryCharacters,
+        hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
+        placeholderAction: summaryPlaceholderAction,
+        missingHeadingMessage: 'Add a "Summary" heading so you can copy it in one click.',
+        missingContentMessage: 'Add summary details beneath the heading to unlock quick copy.',
+      }),
+      buildEntry({
+        id: 'release',
+        label: 'Changelog & Release notes',
+        ready: releaseNotesReady,
+        hasSection: prTemplateStats.hasReleaseNotesSection,
+        hasContent: prTemplateStats.hasReleaseNotesContent,
+        words: prTemplateStats.releaseNotesWords,
+        characters: prTemplateStats.releaseNotesCharacters,
+        hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
+        placeholderAction: releasePlaceholderAction,
+        missingHeadingMessage:
+          'Add a "Changelog & Release notes" heading so you can copy rollout messaging instantly.',
+        missingContentMessage:
+          'Outline customer-facing updates beneath the heading to enable the quick copy shortcut.',
+      }),
+      buildEntry({
+        id: 'testing',
+        label: 'Testing',
+        ready: testingReady,
+        hasSection: prTemplateStats.hasTestingSection,
+        hasContent: prTemplateStats.hasTestingContent,
+        words: prTemplateStats.testingWords,
+        characters: prTemplateStats.testingCharacters,
+        hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
+        placeholderAction: testingPlaceholderAction,
+        missingHeadingMessage: 'Add a "Testing" heading so you can copy the verification checklist instantly.',
+        missingContentMessage: 'Document verification notes beneath the heading to unlock quick copy.',
+      }),
+    ];
+  }, [
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.hasTestingSection,
+    prTemplateStats.releaseNotesCharacters,
+    prTemplateStats.releaseNotesWords,
+    prTemplateStats.summaryCharacters,
+    prTemplateStats.summaryWords,
+    prTemplateStats.testingCharacters,
+    prTemplateStats.testingWords,
+    releaseNotesReady,
+    releasePlaceholderAction,
+    summaryPlaceholderAction,
+    summaryReady,
+    testingPlaceholderAction,
+    testingReady,
+  ]);
 
   const templatePlaceholderSummary = useMemo(
     () => formatPlaceholderSummary(prTemplateStats.placeholderWarnings),
@@ -3266,8 +3378,16 @@ export default function ChatGptUIPersist() {
             ariaLabel="Clear conversation (Alt+Shift+C)"
             title="Alt+Shift+C"
           />
-          <ExportChatButton messages={messages} systemPrompt={systemPrompt} />
-          <DownloadChatButton messages={messages} systemPrompt={systemPrompt} />
+          <ExportChatButton
+            messages={messages}
+            systemPrompt={systemPrompt}
+            insightsText={exportInsightsText}
+          />
+          <DownloadChatButton
+            messages={messages}
+            systemPrompt={systemPrompt}
+            insightsText={exportInsightsText}
+          />
           <button
             type="button"
             ref={promptLibraryButtonRef}
@@ -3344,6 +3464,29 @@ export default function ChatGptUIPersist() {
           >
             {showSettings ? 'Hide settings' : 'Settings'}
           </button>
+          {showPrHelperBadge && prHelperStatusBadges.length > 0 && (
+            <div
+              className="flex w-full flex-wrap items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-[0.72rem] text-blue-800 dark:border-blue-700/50 dark:bg-blue-950/40 dark:text-blue-200"
+              aria-live="polite"
+            >
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100">
+                PR helper status
+              </span>
+              {prHelperStatusBadges.map((badge, index) => (
+                <span
+                  key={`${badge}-${index}`}
+                  className="inline-flex items-center rounded-full border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-medium text-blue-700 shadow-sm dark:border-blue-600 dark:bg-gray-800 dark:text-blue-200"
+                >
+                  {badge}
+                </span>
+              ))}
+              {!prHelperHasPlaceholders && prHelperHasShareableContent && (
+                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
+                  Copy or insert sections without placeholder cleanup.
+                </span>
+              )}
+            </div>
+          )}
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
               {headerMessageCountLabel}
