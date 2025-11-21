@@ -1706,9 +1706,6 @@ export default function ChatGptUIPersist() {
   const prHelperBadgeClass = prHelperHasPlaceholders
     ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
     : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
-  const prHelperButtonMeta = showPrHelperBadge ? ` — ${prHelperBadgeAriaText}` : '';
-  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
-  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
 
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
@@ -1746,6 +1743,71 @@ export default function ChatGptUIPersist() {
     prTemplateStats.totalPlaceholders,
     templatePlaceholderSummary,
   ]);
+
+  const prHelperButtonMeta = prHelperHasPlaceholders
+    ? ` — ${templatePlaceholderSummaryDisplay || prHelperBadgeAriaText}`
+    : showPrHelperBadge
+      ? ` — ${prHelperBadgeAriaText}`
+      : '';
+  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
+  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
+  const prSectionReadiness = useMemo(() => {
+    const sections = [
+      {
+        id: 'summary',
+        label: 'Summary',
+        hasSection: prTemplateStats.hasSummarySection,
+        hasContent: prTemplateStats.hasSummaryContent,
+        placeholderWarnings: prTemplateStats.summaryPlaceholderWarnings,
+      },
+      {
+        id: 'release',
+        label: 'Release notes',
+        hasSection: prTemplateStats.hasReleaseNotesSection,
+        hasContent: prTemplateStats.hasReleaseNotesContent,
+        placeholderWarnings: prTemplateStats.releaseNotesPlaceholderWarnings,
+      },
+      {
+        id: 'testing',
+        label: 'Testing',
+        hasSection: prTemplateStats.hasTestingSection,
+        hasContent: prTemplateStats.hasTestingContent,
+        placeholderWarnings: prTemplateStats.testingPlaceholderWarnings,
+      },
+    ];
+
+    return sections.map((section) => {
+      const placeholderCount = countPlaceholderOccurrences(section.placeholderWarnings);
+
+      if (!section.hasSection) {
+        return { ...section, placeholderCount, status: 'Add heading', tone: 'missing' };
+      }
+
+      if (!section.hasContent) {
+        return { ...section, placeholderCount, status: 'Add notes', tone: 'missing' };
+      }
+
+      if (placeholderCount > 0) {
+        const placeholderLabel = placeholderCount === 1 ? 'placeholder' : 'placeholders';
+        return {
+          ...section,
+          placeholderCount,
+          status: `${formatNumber(placeholderCount)} ${placeholderLabel}`,
+          tone: 'warn',
+        };
+      }
+
+      return { ...section, placeholderCount, status: 'Ready', tone: 'ready' };
+    });
+  }, [prTemplateStats]);
+  const prSectionToneClass = {
+    ready:
+      'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-400/40',
+    warn:
+      'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100 border border-amber-200 dark:border-amber-400/40',
+    missing:
+      'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700',
+  };
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -4110,6 +4172,29 @@ export default function ChatGptUIPersist() {
                       'Add a "Testing" heading so you can copy the verification checklist instantly.'
                     )}
                   </p>
+                </div>
+                <div
+                  className="mt-2 flex flex-wrap gap-2 text-[0.7rem]"
+                  aria-label="PR helper readiness summary"
+                >
+                  {prSectionReadiness.map((section) => (
+                    <span
+                      key={section.id}
+                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold ${
+                        prSectionToneClass[section.tone]
+                      }`}
+                      title={
+                        section.placeholderCount > 0
+                          ? `${section.label} includes ${section.placeholderCount} placeholder${
+                              section.placeholderCount === 1 ? '' : 's'
+                            }`
+                          : undefined
+                      }
+                    >
+                      <span>{section.label}:</span>
+                      <span>{section.status}</span>
+                    </span>
+                  ))}
                 </div>
                 <div className="mt-3 flex flex-col gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
                   <button
