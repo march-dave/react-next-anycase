@@ -1609,6 +1609,9 @@ export default function ChatGptUIPersist() {
     const releaseNotesPlaceholderWarnings = collectPlaceholderWarnings(releaseNotesSection);
     const testingPlaceholderWarnings = collectPlaceholderWarnings(testingSection);
     const totalPlaceholders = placeholderWarnings.reduce((total, warning) => total + warning.count, 0);
+    const summaryPlaceholderCount = countPlaceholderOccurrences(summaryPlaceholderWarnings);
+    const releaseNotesPlaceholderCount = countPlaceholderOccurrences(releaseNotesPlaceholderWarnings);
+    const testingPlaceholderCount = countPlaceholderOccurrences(testingPlaceholderWarnings);
 
     return {
       totalWords: countWords(trimmedTemplate),
@@ -1621,6 +1624,7 @@ export default function ChatGptUIPersist() {
       hasSummarySection,
       hasSummaryContent,
       summaryPlaceholderWarnings,
+      summaryPlaceholderCount,
       hasSummaryPlaceholders: summaryPlaceholderWarnings.length > 0,
       releaseNotesSection,
       releaseNotesBody,
@@ -1630,6 +1634,7 @@ export default function ChatGptUIPersist() {
       hasReleaseNotesSection,
       hasReleaseNotesContent,
       releaseNotesPlaceholderWarnings,
+      releaseNotesPlaceholderCount,
       hasReleaseNotesPlaceholders: releaseNotesPlaceholderWarnings.length > 0,
       testingSection,
       testingBody,
@@ -1639,6 +1644,7 @@ export default function ChatGptUIPersist() {
       hasTestingSection,
       hasTestingContent,
       testingPlaceholderWarnings,
+      testingPlaceholderCount,
       hasTestingPlaceholders: testingPlaceholderWarnings.length > 0,
       placeholderWarnings,
       totalPlaceholders,
@@ -1708,9 +1714,6 @@ export default function ChatGptUIPersist() {
   const prHelperBadgeClass = prHelperHasPlaceholders
     ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
     : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
-  const prHelperButtonMeta = showPrHelperBadge ? ` — ${prHelperBadgeAriaText}` : '';
-  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
-  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
 
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
@@ -1892,6 +1895,71 @@ export default function ChatGptUIPersist() {
     prTemplateStats.placeholderWarnings,
     templatePlaceholderSummaryDisplay,
   ]);
+
+  const prHelperButtonMeta = prHelperHasPlaceholders
+    ? ` — ${templatePlaceholderSummaryDisplay || prHelperBadgeAriaText}`
+    : showPrHelperBadge
+      ? ` — ${prHelperBadgeAriaText}`
+      : '';
+  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
+  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
+  const prSectionReadiness = useMemo(() => {
+    const sections = [
+      {
+        id: 'summary',
+        label: 'Summary',
+        hasSection: prTemplateStats.hasSummarySection,
+        hasContent: prTemplateStats.hasSummaryContent,
+        placeholderWarnings: prTemplateStats.summaryPlaceholderWarnings,
+      },
+      {
+        id: 'release',
+        label: 'Release notes',
+        hasSection: prTemplateStats.hasReleaseNotesSection,
+        hasContent: prTemplateStats.hasReleaseNotesContent,
+        placeholderWarnings: prTemplateStats.releaseNotesPlaceholderWarnings,
+      },
+      {
+        id: 'testing',
+        label: 'Testing',
+        hasSection: prTemplateStats.hasTestingSection,
+        hasContent: prTemplateStats.hasTestingContent,
+        placeholderWarnings: prTemplateStats.testingPlaceholderWarnings,
+      },
+    ];
+
+    return sections.map((section) => {
+      const placeholderCount = countPlaceholderOccurrences(section.placeholderWarnings);
+
+      if (!section.hasSection) {
+        return { ...section, placeholderCount, status: 'Add heading', tone: 'missing' };
+      }
+
+      if (!section.hasContent) {
+        return { ...section, placeholderCount, status: 'Add notes', tone: 'missing' };
+      }
+
+      if (placeholderCount > 0) {
+        const placeholderLabel = placeholderCount === 1 ? 'placeholder' : 'placeholders';
+        return {
+          ...section,
+          placeholderCount,
+          status: `${formatNumber(placeholderCount)} ${placeholderLabel}`,
+          tone: 'warn',
+        };
+      }
+
+      return { ...section, placeholderCount, status: 'Ready', tone: 'ready' };
+    });
+  }, [prTemplateStats]);
+  const prSectionToneClass = {
+    ready:
+      'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-400/40',
+    warn:
+      'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100 border border-amber-200 dark:border-amber-400/40',
+    missing:
+      'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700',
+  };
 
   const adjustInputHeight = useCallback(() => {
     if (inputRef.current) {
@@ -3461,6 +3529,29 @@ export default function ChatGptUIPersist() {
           >
             {showSettings ? 'Hide settings' : 'Settings'}
           </button>
+          {showPrHelperBadge && prHelperStatusBadges.length > 0 && (
+            <div
+              className="flex w-full flex-wrap items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-[0.72rem] text-blue-800 dark:border-blue-700/50 dark:bg-blue-950/40 dark:text-blue-200"
+              aria-live="polite"
+            >
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100">
+                PR helper status
+              </span>
+              {prHelperStatusBadges.map((badge, index) => (
+                <span
+                  key={`${badge}-${index}`}
+                  className="inline-flex items-center rounded-full border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-medium text-blue-700 shadow-sm dark:border-blue-600 dark:bg-gray-800 dark:text-blue-200"
+                >
+                  {badge}
+                </span>
+              ))}
+              {!prHelperHasPlaceholders && prHelperHasShareableContent && (
+                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
+                  Copy or insert sections without placeholder cleanup.
+                </span>
+              )}
+            </div>
+          )}
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
               {headerMessageCountLabel}
@@ -4283,43 +4374,27 @@ export default function ChatGptUIPersist() {
                   </p>
                 </div>
                 <div
-                  className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-200"
-                  aria-label="Section readiness overview"
+                  className="mt-2 flex flex-wrap gap-2 text-[0.7rem]"
+                  aria-label="PR helper readiness summary"
                 >
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Summary, Release notes, and Testing readiness
-                  </p>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                    {prSectionReadiness.map((item) => (
-                      <div
-                        key={item.id}
-                        className="rounded border border-gray-200 bg-white px-3 py-2 text-[0.7rem] text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-100"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">
-                            {item.label}
-                          </span>
-                          <span
-                            className={`text-[0.65rem] font-semibold uppercase tracking-wide ${
-                              item.ready
-                                ? 'text-green-600 dark:text-green-300'
-                                : 'text-amber-600 dark:text-amber-300'
-                            }`}
-                          >
-                            {item.ready ? 'Ready' : 'Needs attention'}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[0.65rem] text-gray-500 dark:text-gray-300">
-                          {item.message}
-                        </p>
-                        {item.placeholderMessage && (
-                          <p className="mt-1 text-[0.6rem] font-medium text-amber-700 dark:text-amber-300">
-                            {item.placeholderMessage}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  {prSectionReadiness.map((section) => (
+                    <span
+                      key={section.id}
+                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold ${
+                        prSectionToneClass[section.tone]
+                      }`}
+                      title={
+                        section.placeholderCount > 0
+                          ? `${section.label} includes ${section.placeholderCount} placeholder${
+                              section.placeholderCount === 1 ? '' : 's'
+                            }`
+                          : undefined
+                      }
+                    >
+                      <span>{section.label}:</span>
+                      <span>{section.status}</span>
+                    </span>
+                  ))}
                 </div>
                 <div className="mt-3 flex flex-col gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
                   <button
