@@ -77,7 +77,7 @@ Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, 
 button inside the helper to drop the current message counts, timing, pace, and word-balance summary straight into your draft, and the Insights modal's **Send to PR helper** shortcut to push that snapshot into the template without leaving the panel. One-click copy buttons for the Summary, Changelog & Release notes, or Testing sections are handy when you only need changelog-ready highlights or verification checklists, and new insert buttons let you drop the Summary, Release notes, Testing, or full template straight into the chat composer without leaving the helper. Copy and insert actions automatically trim placeholder bullets so you
 only paste finished notes. A readiness panel now highlights whether the Summary, Release notes, and Testing sections are copy-ready (with length totals and placeholder reminders) so you know what to fill in before sharing.
 
-An inline Placeholder reminders callout appears under the PR helper actions whenever the template still includes citation, testing, or ticket placeholders so you know exactly what to swap before copying or inserting sections.
+An inline Placeholder reminders callout appears under the PR helper actions whenever the template still includes citation, testing, or ticket placeholders so you know exactly what to swap before copying or inserting sections, and it now includes a **Copy placeholder reminders** shortcut so you can paste the outstanding TODOs into the composer, Slack, or your PR description without retyping them.
 
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
