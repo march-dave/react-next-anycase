@@ -835,6 +835,7 @@ export default function ChatGptUIPersist() {
   const [pulsePrAppendStatus, setPulsePrAppendStatus] = useState('');
   const [prTemplateTrimStatus, setPrTemplateTrimStatus] = useState('');
   const [prReferenceStatus, setPrReferenceStatus] = useState('');
+  const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -1861,6 +1862,39 @@ export default function ChatGptUIPersist() {
     prTemplateStats.totalPlaceholders,
     templatePlaceholderSummary,
   ]);
+  const placeholderReminderText = useMemo(() => {
+    if (!prTemplateStats.hasPlaceholders) {
+      return '';
+    }
+
+    const lines = ['Placeholder reminders'];
+    if (templatePlaceholderSummaryDisplay) {
+      lines.push(templatePlaceholderSummaryDisplay);
+    }
+
+    prTemplateStats.placeholderWarnings.forEach(({ count, rule }) => {
+      if (!rule) {
+        return;
+      }
+      const summaryLabel = rule.summaryLabel || 'placeholder';
+      const summaryLabelPlural = rule.summaryLabelPlural || `${summaryLabel}s`;
+      const label = count === 1 ? summaryLabel : summaryLabelPlural;
+      let entry = `* ${formatNumber(count)} ${label}`;
+      if (rule.example) {
+        entry += ` (e.g. ${rule.example})`;
+      }
+      if (rule.guidance) {
+        entry += ` — ${rule.guidance}`;
+      }
+      lines.push(entry);
+    });
+
+    return lines.filter(Boolean).join('\n');
+  }, [
+    prTemplateStats.hasPlaceholders,
+    prTemplateStats.placeholderWarnings,
+    templatePlaceholderSummaryDisplay,
+  ]);
 
   const prHelperButtonMeta = prHelperHasPlaceholders
     ? ` — ${templatePlaceholderSummaryDisplay || prHelperBadgeAriaText}`
@@ -2606,6 +2640,22 @@ export default function ChatGptUIPersist() {
     prTemplateStats.hasTestingSection,
     prTemplateStats.testingSection,
   ]);
+  const handleCopyPlaceholderReminders = useCallback(async () => {
+    if (!placeholderReminderText) {
+      setPrPlaceholderCopyStatus('No placeholders to copy');
+      setTimeout(() => setPrPlaceholderCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(placeholderReminderText);
+      setPrPlaceholderCopyStatus('Copied reminders');
+    } catch (err) {
+      setPrPlaceholderCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setPrPlaceholderCopyStatus(''), 2000);
+  }, [placeholderReminderText]);
 
   const handleInsertPrTemplate = () => {
     const shareInfo = preparePrContentForSharing(prTemplateText);
@@ -3253,6 +3303,7 @@ export default function ChatGptUIPersist() {
       setPrTestingInsertStatus('');
       setPrTemplateTrimStatus('');
       setPrReferenceStatus('');
+      setPrPlaceholderCopyStatus('');
       if (prHelperHasOpened.current && prHelperButtonRef.current) {
         prHelperButtonRef.current.focus();
       }
@@ -4510,6 +4561,9 @@ export default function ChatGptUIPersist() {
                 releasePlaceholderAction={releasePlaceholderAction}
                 testingPlaceholderAction={testingPlaceholderAction}
                 placeholderSummary={templatePlaceholderSummaryDisplay}
+                onCopyPlaceholderReminders={handleCopyPlaceholderReminders}
+                placeholderCopyStatus={prPlaceholderCopyStatus}
+                placeholderCopyDisabled={!prTemplateStats.hasPlaceholders}
               />
             </div>
           </div>
