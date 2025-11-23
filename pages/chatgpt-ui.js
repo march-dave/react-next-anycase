@@ -1719,17 +1719,56 @@ export default function ChatGptUIPersist() {
       badges.push('Template ready to share');
     }
 
-    if (prTemplateStats.hasSummaryContent && prTemplateStats.summaryPreview) {
-      badges.push(`Summary: ${prTemplateStats.summaryPreview}`);
-    }
+    const addSectionBadge = (
+      label,
+      { hasSection, hasContent, preview, hasPlaceholders, missingSectionLabel, missingContentLabel }
+    ) => {
+      if (!hasSection) {
+        badges.push(`${label}: ${missingSectionLabel || 'Add heading'}`);
+        return;
+      }
 
-    if (prTemplateStats.hasReleaseNotesContent && prTemplateStats.releaseNotesPreview) {
-      badges.push(`Release notes: ${prTemplateStats.releaseNotesPreview}`);
-    }
+      if (!hasContent) {
+        badges.push(`${label}: ${missingContentLabel || 'Add details'}`);
+        return;
+      }
 
-    if (prTemplateStats.hasTestingContent && prTemplateStats.testingPreview) {
-      badges.push(`Testing: ${prTemplateStats.testingPreview}`);
-    }
+      const previewText = preview ? ` — ${preview}` : '';
+
+      if (hasPlaceholders) {
+        badges.push(`${label}: Swap placeholders${previewText}`);
+        return;
+      }
+
+      badges.push(`${label}: Ready${previewText}`);
+    };
+
+    addSectionBadge('Summary', {
+      hasSection: prTemplateStats.hasSummarySection,
+      hasContent: prTemplateStats.hasSummaryContent,
+      preview: prTemplateStats.summaryPreview,
+      hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
+      missingSectionLabel: 'Add Summary heading',
+      missingContentLabel: 'Add summary details',
+    });
+
+    addSectionBadge('Release notes', {
+      hasSection: prTemplateStats.hasReleaseNotesSection,
+      hasContent: prTemplateStats.hasReleaseNotesContent,
+      preview: prTemplateStats.releaseNotesPreview,
+      hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
+      missingSectionLabel: 'Add release notes heading',
+      missingContentLabel: 'Add release notes details',
+    });
+
+    addSectionBadge('Testing', {
+      hasSection: prTemplateStats.hasTestingSection,
+      hasContent: prTemplateStats.hasTestingContent,
+      preview: prTemplateStats.testingPreview,
+      hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
+      missingSectionLabel: 'Add Testing heading',
+      missingContentLabel: 'Add testing notes',
+    });
 
     return badges;
   }, [
@@ -1741,6 +1780,12 @@ export default function ChatGptUIPersist() {
     prTemplateStats.releaseNotesPreview,
     prTemplateStats.summaryPreview,
     prTemplateStats.testingPreview,
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.hasTestingSection,
     templatePlaceholderSummaryDisplay,
   ]);
 
