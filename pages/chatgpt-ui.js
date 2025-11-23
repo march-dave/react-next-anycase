@@ -1714,6 +1714,87 @@ export default function ChatGptUIPersist() {
   const prHelperBadgeClass = prHelperHasPlaceholders
     ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
     : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
+  const prHelperButtonMeta = showPrHelperBadge ? ` — ${prHelperBadgeAriaText}` : '';
+  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
+  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
+  const prHelperStatusBadges = useMemo(() => {
+    const badges = [];
+
+    if (prHelperHasPlaceholders) {
+      badges.push(templatePlaceholderSummaryDisplay || 'Resolve remaining placeholders');
+    } else if (prHelperHasShareableContent) {
+      badges.push('Template ready to share');
+    }
+
+    const addSectionBadge = (
+      label,
+      { hasSection, hasContent, preview, hasPlaceholders, missingSectionLabel, missingContentLabel }
+    ) => {
+      if (!hasSection) {
+        badges.push(`${label}: ${missingSectionLabel || 'Add heading'}`);
+        return;
+      }
+
+      if (!hasContent) {
+        badges.push(`${label}: ${missingContentLabel || 'Add details'}`);
+        return;
+      }
+
+      const previewText = preview ? ` — ${preview}` : '';
+
+      if (hasPlaceholders) {
+        badges.push(`${label}: Swap placeholders${previewText}`);
+        return;
+      }
+
+      badges.push(`${label}: Ready${previewText}`);
+    };
+
+    addSectionBadge('Summary', {
+      hasSection: prTemplateStats.hasSummarySection,
+      hasContent: prTemplateStats.hasSummaryContent,
+      preview: prTemplateStats.summaryPreview,
+      hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
+      missingSectionLabel: 'Add Summary heading',
+      missingContentLabel: 'Add summary details',
+    });
+
+    addSectionBadge('Release notes', {
+      hasSection: prTemplateStats.hasReleaseNotesSection,
+      hasContent: prTemplateStats.hasReleaseNotesContent,
+      preview: prTemplateStats.releaseNotesPreview,
+      hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
+      missingSectionLabel: 'Add release notes heading',
+      missingContentLabel: 'Add release notes details',
+    });
+
+    addSectionBadge('Testing', {
+      hasSection: prTemplateStats.hasTestingSection,
+      hasContent: prTemplateStats.hasTestingContent,
+      preview: prTemplateStats.testingPreview,
+      hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
+      missingSectionLabel: 'Add Testing heading',
+      missingContentLabel: 'Add testing notes',
+    });
+
+    return badges;
+  }, [
+    prHelperHasPlaceholders,
+    prHelperHasShareableContent,
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.releaseNotesPreview,
+    prTemplateStats.summaryPreview,
+    prTemplateStats.testingPreview,
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.hasTestingSection,
+    templatePlaceholderSummaryDisplay,
+  ]);
 
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
