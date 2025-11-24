@@ -1928,19 +1928,72 @@ export default function ChatGptUIPersist() {
     () => formatPlaceholderSummary(prTemplateStats.placeholderWarnings),
     [prTemplateStats.placeholderWarnings]
   );
+  const templatePlaceholderSectionSummary = useMemo(() => {
+    const sections = [
+      prTemplateStats.hasSummaryPlaceholders
+        ? {
+            id: 'summary',
+            label: 'Summary',
+            count: prTemplateStats.summaryPlaceholderCount,
+          }
+        : null,
+      prTemplateStats.hasReleaseNotesPlaceholders
+        ? {
+            id: 'release-notes',
+            label: 'Changelog & Release notes',
+            count: prTemplateStats.releaseNotesPlaceholderCount,
+          }
+        : null,
+      prTemplateStats.hasTestingPlaceholders
+        ? {
+            id: 'testing',
+            label: 'Testing',
+            count: prTemplateStats.testingPlaceholderCount,
+          }
+        : null,
+    ].filter(Boolean);
+
+    if (!sections.length) {
+      return '';
+    }
+
+    return sections
+      .map(({ label, count }) => {
+        const suffix = count === 1 ? 'placeholder' : 'placeholders';
+        const formattedCount = formatNumber(count);
+        const labelPrefix = `${label}: `;
+
+        return `${labelPrefix}${formattedCount} ${suffix}`;
+      })
+      .join('; ');
+  }, [
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.releaseNotesPlaceholderCount,
+    prTemplateStats.summaryPlaceholderCount,
+    prTemplateStats.testingPlaceholderCount,
+  ]);
   const templatePlaceholderSummaryDisplay = useMemo(() => {
     if (!prTemplateStats.hasPlaceholders) {
       return '';
     }
     const totalLabel = prTemplateStats.totalPlaceholders === 1 ? 'placeholder' : 'placeholders';
     const totalPart = `${formatNumber(prTemplateStats.totalPlaceholders)} ${totalLabel} remaining`;
-    if (templatePlaceholderSummary) {
-      return `${totalPart} (${templatePlaceholderSummary}).`;
+    const detailParts = [
+      templatePlaceholderSummary ? `Types: ${templatePlaceholderSummary}` : '',
+      templatePlaceholderSectionSummary ? `Sections: ${templatePlaceholderSectionSummary}` : '',
+    ].filter(Boolean);
+
+    if (detailParts.length === 0) {
+      return `${totalPart}.`;
     }
-    return `${totalPart}.`;
+
+    return `${totalPart} — ${detailParts.join(' · ')}.`;
   }, [
     prTemplateStats.hasPlaceholders,
     prTemplateStats.totalPlaceholders,
+    templatePlaceholderSectionSummary,
     templatePlaceholderSummary,
   ]);
   const placeholderReminderText = useMemo(() => {
