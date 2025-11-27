@@ -3479,7 +3479,7 @@ export default function ChatGptUIPersist() {
           >
             <span>PR helper</span>
             {showPrHelperBadge && (
-              <span aria-hidden="true" className={prHelperBadgeClass}>
+              <span aria-label={prHelperBadgeAriaText} title={prHelperBadgeAriaText} className={prHelperBadgeClass}>
                 {prHelperBadgeText}
               </span>
             )}
@@ -3511,11 +3511,17 @@ export default function ChatGptUIPersist() {
           <button
             type="button"
             onClick={handleQuickCopyInsights}
+            disabled={!hasMessages}
             aria-disabled={!hasMessages && !quickInsightsCopyStatus}
+            title={
+              hasMessages
+                ? 'Copy the conversation insights summary to your clipboard'
+                : 'Start the conversation to enable quick copying'
+            }
             className={`border px-2 py-1 rounded text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
               hasMessages
                 ? 'bg-white text-gray-700 hover:border-blue-400 hover:text-blue-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:border-blue-400'
-                : 'bg-gray-100 text-gray-400 hover:text-gray-500 opacity-75 dark:bg-gray-800 dark:text-gray-500'
+                : 'cursor-not-allowed bg-gray-100 text-gray-400 hover:text-gray-500 opacity-75 dark:bg-gray-800 dark:text-gray-500'
             }`}
           >
             <span aria-live="polite">{quickInsightsCopyStatus || 'Copy insights summary'}</span>
