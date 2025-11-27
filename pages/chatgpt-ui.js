@@ -106,6 +106,14 @@ const promptSuggestions = [
       'Draft a crisp stand-up update using the following context. Include what happened yesterday, the focus for today, highlight any quick wins, and call out blockers with owners for follow-up:\n\n',
     tags: ['Team Updates', 'Summaries'],
   },
+  {
+    id: 'localize-update',
+    title: 'Prep localization notes',
+    description: 'Call out wording changes, locales affected, and review needs.',
+    prompt:
+      'Summarize the following UI or copy updates with localization in mind. Note which locales or regions are impacted, call out strings or screenshots that need translation review, and list any glossary or style-guide considerations to keep in sync:\n\n',
+    tags: ['Localization', 'Content'],
+  },
 ];
 
 const DEFAULT_PR_TEMPLATE = [
@@ -339,6 +347,16 @@ const PR_SECTION_SNIPPETS = [
     snippet: [
       '**Feature flags**',
       '* Flag defaults, rollout steps, and clean-up owners. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
+    id: 'localization',
+    label: 'Localization & Content',
+    heading: '**Localization & Content**',
+    helperText: 'Surface translation impacts, glossary notes, and regional review needs.',
+    snippet: [
+      '**Localization & Content**',
+      '* Locales or regions affected, glossary or style-guide calls, and screenshots needing translation review. 【F:path/to/file†L#-L#】',
     ].join('\n'),
   },
 ];
@@ -3557,7 +3575,7 @@ export default function ChatGptUIPersist() {
           >
             <span>PR helper</span>
             {showPrHelperBadge && (
-              <span aria-hidden="true" className={prHelperBadgeClass}>
+              <span aria-label={prHelperBadgeAriaText} title={prHelperBadgeAriaText} className={prHelperBadgeClass}>
                 {prHelperBadgeText}
               </span>
             )}
@@ -3589,11 +3607,17 @@ export default function ChatGptUIPersist() {
           <button
             type="button"
             onClick={handleQuickCopyInsights}
+            disabled={!hasMessages}
             aria-disabled={!hasMessages && !quickInsightsCopyStatus}
+            title={
+              hasMessages
+                ? 'Copy the conversation insights summary to your clipboard'
+                : 'Start the conversation to enable quick copying'
+            }
             className={`border px-2 py-1 rounded text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
               hasMessages
                 ? 'bg-white text-gray-700 hover:border-blue-400 hover:text-blue-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:border-blue-400'
-                : 'bg-gray-100 text-gray-400 hover:text-gray-500 opacity-75 dark:bg-gray-800 dark:text-gray-500'
+                : 'cursor-not-allowed bg-gray-100 text-gray-400 hover:text-gray-500 opacity-75 dark:bg-gray-800 dark:text-gray-500'
             }`}
           >
             <span aria-live="polite">{quickInsightsCopyStatus || 'Copy insights summary'}</span>
