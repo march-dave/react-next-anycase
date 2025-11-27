@@ -1715,6 +1715,25 @@ export default function ChatGptUIPersist() {
   const testingInsertDisplay = prTestingInsertStatus || testingInsertDefault;
 
   const prTemplatePlaceholderCount = prTemplateStats.totalPlaceholders;
+  const templatePlaceholderSummary = useMemo(
+    () => formatPlaceholderSummary(prTemplateStats.placeholderWarnings),
+    [prTemplateStats.placeholderWarnings]
+  );
+  const templatePlaceholderSummaryDisplay = useMemo(() => {
+    if (!prTemplateStats.hasPlaceholders) {
+      return '';
+    }
+    const totalLabel = prTemplateStats.totalPlaceholders === 1 ? 'placeholder' : 'placeholders';
+    const totalPart = `${formatNumber(prTemplateStats.totalPlaceholders)} ${totalLabel} remaining`;
+    if (templatePlaceholderSummary) {
+      return `${totalPart} (${templatePlaceholderSummary}).`;
+    }
+    return `${totalPart}.`;
+  }, [
+    prTemplateStats.hasPlaceholders,
+    prTemplateStats.totalPlaceholders,
+    templatePlaceholderSummary,
+  ]);
   const prHelperHasShareableContent =
     prTemplateStats.hasSummaryContent ||
     prTemplateStats.hasReleaseNotesContent ||
@@ -1732,7 +1751,11 @@ export default function ChatGptUIPersist() {
   const prHelperBadgeClass = prHelperHasPlaceholders
     ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
     : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
-  const prHelperButtonMeta = showPrHelperBadge ? ` — ${prHelperBadgeAriaText}` : '';
+  const prHelperButtonMeta = prHelperHasPlaceholders
+    ? ` — ${templatePlaceholderSummaryDisplay || prHelperBadgeAriaText}`
+    : showPrHelperBadge
+      ? ` — ${prHelperBadgeAriaText}`
+      : '';
   const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
   const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
   const prHelperStatusBadges = useMemo(() => {
@@ -1942,78 +1965,6 @@ export default function ChatGptUIPersist() {
     testingReady,
   ]);
 
-  const templatePlaceholderSummary = useMemo(
-    () => formatPlaceholderSummary(prTemplateStats.placeholderWarnings),
-    [prTemplateStats.placeholderWarnings]
-  );
-  const templatePlaceholderSectionSummary = useMemo(() => {
-    const sections = [
-      prTemplateStats.hasSummaryPlaceholders
-        ? {
-            id: 'summary',
-            label: 'Summary',
-            count: prTemplateStats.summaryPlaceholderCount,
-          }
-        : null,
-      prTemplateStats.hasReleaseNotesPlaceholders
-        ? {
-            id: 'release-notes',
-            label: 'Changelog & Release notes',
-            count: prTemplateStats.releaseNotesPlaceholderCount,
-          }
-        : null,
-      prTemplateStats.hasTestingPlaceholders
-        ? {
-            id: 'testing',
-            label: 'Testing',
-            count: prTemplateStats.testingPlaceholderCount,
-          }
-        : null,
-    ].filter(Boolean);
-
-    if (!sections.length) {
-      return '';
-    }
-
-    return sections
-      .map(({ label, count }) => {
-        const suffix = count === 1 ? 'placeholder' : 'placeholders';
-        const formattedCount = formatNumber(count);
-        const labelPrefix = `${label}: `;
-
-        return `${labelPrefix}${formattedCount} ${suffix}`;
-      })
-      .join('; ');
-  }, [
-    prTemplateStats.hasReleaseNotesPlaceholders,
-    prTemplateStats.hasSummaryPlaceholders,
-    prTemplateStats.hasTestingPlaceholders,
-    prTemplateStats.releaseNotesPlaceholderCount,
-    prTemplateStats.summaryPlaceholderCount,
-    prTemplateStats.testingPlaceholderCount,
-  ]);
-  const templatePlaceholderSummaryDisplay = useMemo(() => {
-    if (!prTemplateStats.hasPlaceholders) {
-      return '';
-    }
-    const totalLabel = prTemplateStats.totalPlaceholders === 1 ? 'placeholder' : 'placeholders';
-    const totalPart = `${formatNumber(prTemplateStats.totalPlaceholders)} ${totalLabel} remaining`;
-    const detailParts = [
-      templatePlaceholderSummary ? `Types: ${templatePlaceholderSummary}` : '',
-      templatePlaceholderSectionSummary ? `Sections: ${templatePlaceholderSectionSummary}` : '',
-    ].filter(Boolean);
-
-    if (detailParts.length === 0) {
-      return `${totalPart}.`;
-    }
-
-    return `${totalPart} — ${detailParts.join(' · ')}.`;
-  }, [
-    prTemplateStats.hasPlaceholders,
-    prTemplateStats.totalPlaceholders,
-    templatePlaceholderSectionSummary,
-    templatePlaceholderSummary,
-  ]);
   const placeholderReminderText = useMemo(() => {
     if (!prTemplateStats.hasPlaceholders) {
       return '';
@@ -2048,13 +1999,6 @@ export default function ChatGptUIPersist() {
     templatePlaceholderSummaryDisplay,
   ]);
 
-  const prHelperButtonMeta = prHelperHasPlaceholders
-    ? ` — ${templatePlaceholderSummaryDisplay || prHelperBadgeAriaText}`
-    : showPrHelperBadge
-      ? ` — ${prHelperBadgeAriaText}`
-      : '';
-  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
-  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
   const prSectionReadiness = useMemo(() => {
     const sections = [
       {
