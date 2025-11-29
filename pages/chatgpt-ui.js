@@ -1751,13 +1751,6 @@ export default function ChatGptUIPersist() {
   const prHelperBadgeClass = prHelperHasPlaceholders
     ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
     : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
-  const prHelperButtonMeta = prHelperHasPlaceholders
-    ? ` — ${templatePlaceholderSummaryDisplay || prHelperBadgeAriaText}`
-    : showPrHelperBadge
-      ? ` — ${prHelperBadgeAriaText}`
-      : '';
-  const prHelperButtonAriaLabel = `PR helper (Alt+Shift+H${prHelperButtonMeta})`;
-  const prHelperButtonTitle = `Alt+Shift+H${prHelperButtonMeta}`;
   const prHelperStatusBadges = useMemo(() => {
     const badges = [];
 
