@@ -26,6 +26,9 @@ export default function PrTemplateActions({
   onCopyPlaceholderReminders = () => {},
   placeholderCopyStatus = '',
   placeholderCopyDisabled = false,
+  onInsertPlaceholderReminders = () => {},
+  placeholderInsertStatus = '',
+  placeholderInsertDisabled = false,
 }) {
   const placeholderNotices = [
     templatePlaceholderAction
@@ -169,20 +172,36 @@ export default function PrTemplateActions({
               </li>
             ))}
           </ul>
-          <button
-            type="button"
-            onClick={onCopyPlaceholderReminders}
-            disabled={placeholderCopyDisabled}
-            className={`mt-3 inline-flex items-center rounded border px-2 py-1 text-[0.7rem] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
-              placeholderCopyDisabled
-                ? 'cursor-not-allowed border-amber-200 text-amber-400 dark:border-amber-200/40 dark:text-amber-300/60'
-                : 'border-amber-400 text-amber-800 hover:border-amber-500 hover:text-amber-900 dark:border-amber-300 dark:text-amber-100'
-            }`}
-          >
-            <span aria-live="polite">
-              {placeholderCopyStatus || 'Copy placeholder reminders'}
-            </span>
-          </button>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={onCopyPlaceholderReminders}
+              disabled={placeholderCopyDisabled}
+              className={`inline-flex items-center rounded border px-2 py-1 text-[0.7rem] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                placeholderCopyDisabled
+                  ? 'cursor-not-allowed border-amber-200 text-amber-400 dark:border-amber-200/40 dark:text-amber-300/60'
+                  : 'border-amber-400 text-amber-800 hover:border-amber-500 hover:text-amber-900 dark:border-amber-300 dark:text-amber-100'
+              }`}
+            >
+              <span aria-live="polite">
+                {placeholderCopyStatus || 'Copy placeholder reminders'}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={onInsertPlaceholderReminders}
+              disabled={placeholderInsertDisabled}
+              className={`inline-flex items-center rounded border px-2 py-1 text-[0.7rem] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                placeholderInsertDisabled
+                  ? 'cursor-not-allowed border-amber-200 text-amber-400 dark:border-amber-200/40 dark:text-amber-300/60'
+                  : 'border-amber-500 text-amber-800 hover:border-amber-600 hover:text-amber-900 dark:border-amber-300 dark:text-amber-100'
+              }`}
+            >
+              <span aria-live="polite">
+                {placeholderInsertStatus || 'Insert reminders into chat'}
+              </span>
+            </button>
+          </div>
         </div>
       )}
       <button

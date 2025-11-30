@@ -79,6 +79,7 @@ Need to summarize a change set? Tap the **PR helper** for a copy-ready Summary, 
 A compact PR status strip now lives under the header buttons, repeating the badge and offering quick previews for the Summary, Changelog & Release notes, and Testing sections so you can see readiness at a glance before opening the helper.
 It also calls out when a heading or body is missing or still includes placeholders so you know exactly what to fill in before sharing.
 An inline Placeholder reminders callout appears under the PR helper actions whenever the template still includes citation, testing, or ticket placeholders so you know exactly what to swap before copying or inserting sections.
+Use the copy or insert reminder buttons to drop the outstanding placeholder list straight into chat when you need to request missing links, artifacts, or test results.
 
 Press Shift+Enter to add a newline.
 Press Up Arrow in an empty input to recall your last message.
