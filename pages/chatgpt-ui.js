@@ -123,6 +123,7 @@ const DEFAULT_PR_TEMPLATE = [
   '* Follow-up guardrails or next steps. 【F:path/to/file†L#-L#】',
   '',
   '**Changelog & Release notes**',
+  '* Release notes draft: [Doc](https://link) — audience, publish date, and owner.',
   '* Customer-facing highlights, rollouts, and messaging owners. 【F:path/to/file†L#-L#】',
   '',
   '**Impact & Risks**',
@@ -150,6 +151,7 @@ const DEFAULT_PR_TEMPLATE = [
   '* ![Screenshot description](artifacts/filename.png) — describe the state you captured and cite the UI diff. 【F:path/to/file†L#-L#】',
   '',
   ARTIFACTS_AND_REFERENCES_HEADING,
+  '* Conversation insights: Snapshot with messages, pace, and longest update for reviewers. 【chunk†L#-L#】',
   '* File: 【F:path/to/file†L#-L#】 — highlight the key changes to review.',
   '* Logs: 【chunk†L#-L#】 — call out the signal that confirms the change.',
   '* Metrics: 【chunk†L#-L#】 — summarize the movement you expect to see.',
@@ -1864,6 +1866,7 @@ export default function ChatGptUIPersist() {
       hasContent,
       words,
       characters,
+      preview,
       hasPlaceholders,
       placeholderAction,
       missingHeadingMessage,
@@ -1876,6 +1879,11 @@ export default function ChatGptUIPersist() {
         message = missingContentMessage;
       } else {
         message = formatLengthLabel(words, characters);
+        const trimmedPreview = typeof preview === 'string' ? preview.trim() : '';
+
+        if (trimmedPreview) {
+          message = `${message} — ${trimmedPreview}`;
+        }
       }
 
       const placeholderMessage = hasPlaceholders
@@ -1900,6 +1908,7 @@ export default function ChatGptUIPersist() {
         hasContent: prTemplateStats.hasSummaryContent,
         words: prTemplateStats.summaryWords,
         characters: prTemplateStats.summaryCharacters,
+        preview: prTemplateStats.summaryPreview,
         hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
         placeholderAction: summaryPlaceholderAction,
         missingHeadingMessage: 'Add a "Summary" heading so you can copy it in one click.',
@@ -1913,6 +1922,7 @@ export default function ChatGptUIPersist() {
         hasContent: prTemplateStats.hasReleaseNotesContent,
         words: prTemplateStats.releaseNotesWords,
         characters: prTemplateStats.releaseNotesCharacters,
+        preview: prTemplateStats.releaseNotesPreview,
         hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
         placeholderAction: releasePlaceholderAction,
         missingHeadingMessage:
@@ -1928,6 +1938,7 @@ export default function ChatGptUIPersist() {
         hasContent: prTemplateStats.hasTestingContent,
         words: prTemplateStats.testingWords,
         characters: prTemplateStats.testingCharacters,
+        preview: prTemplateStats.testingPreview,
         hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
         placeholderAction: testingPlaceholderAction,
         missingHeadingMessage: 'Add a "Testing" heading so you can copy the verification checklist instantly.',
@@ -1945,10 +1956,13 @@ export default function ChatGptUIPersist() {
     prTemplateStats.hasTestingPlaceholders,
     prTemplateStats.hasTestingSection,
     prTemplateStats.releaseNotesCharacters,
+    prTemplateStats.releaseNotesPreview,
     prTemplateStats.releaseNotesWords,
     prTemplateStats.summaryCharacters,
+    prTemplateStats.summaryPreview,
     prTemplateStats.summaryWords,
     prTemplateStats.testingCharacters,
+    prTemplateStats.testingPreview,
     prTemplateStats.testingWords,
     releaseNotesReady,
     releasePlaceholderAction,
