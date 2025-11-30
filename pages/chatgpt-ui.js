@@ -854,6 +854,7 @@ export default function ChatGptUIPersist() {
   const [prTemplateTrimStatus, setPrTemplateTrimStatus] = useState('');
   const [prReferenceStatus, setPrReferenceStatus] = useState('');
   const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
+  const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -2809,6 +2810,23 @@ export default function ChatGptUIPersist() {
     setTimeout(() => setPrPlaceholderCopyStatus(''), 2000);
   }, [placeholderReminderText]);
 
+  const handleInsertPlaceholderReminders = useCallback(() => {
+    const trimmedReminders = placeholderReminderText.trim();
+    if (!trimmedReminders) {
+      setPrPlaceholderInsertStatus('No placeholders to insert');
+      setTimeout(() => setPrPlaceholderInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(trimmedReminders);
+    setPrPlaceholderInsertStatus(inserted ? 'Inserted reminders' : 'Unable to insert');
+    if (inserted) {
+      setShowPrHelper(false);
+    }
+
+    setTimeout(() => setPrPlaceholderInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, placeholderReminderText]);
+
   const handleInsertPrTemplate = () => {
     const shareInfo = preparePrContentForSharing(prTemplateText);
     const inserted = insertTextIntoComposer(shareInfo.text);
@@ -4722,6 +4740,11 @@ export default function ChatGptUIPersist() {
                 onCopyPlaceholderReminders={handleCopyPlaceholderReminders}
                 placeholderCopyStatus={prPlaceholderCopyStatus}
                 placeholderCopyDisabled={!prTemplateStats.hasPlaceholders}
+                onInsertPlaceholderReminders={handleInsertPlaceholderReminders}
+                placeholderInsertStatus={
+                  prPlaceholderInsertStatus || (prTemplateStats.hasPlaceholders ? '' : 'No placeholders to insert')
+                }
+                placeholderInsertDisabled={!prTemplateStats.hasPlaceholders}
               />
             </div>
           </div>
