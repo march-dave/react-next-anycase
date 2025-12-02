@@ -856,6 +856,7 @@ export default function ChatGptUIPersist() {
   const [prTemplateTrimStatus, setPrTemplateTrimStatus] = useState('');
   const [prReferenceStatus, setPrReferenceStatus] = useState('');
   const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
+  const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -2697,6 +2698,23 @@ export default function ChatGptUIPersist() {
     setTimeout(() => setPrPlaceholderCopyStatus(''), 2000);
   }, [placeholderReminderText]);
 
+  const handleInsertPlaceholderReminders = useCallback(() => {
+    const trimmedReminders = placeholderReminderText.trim();
+    if (!trimmedReminders) {
+      setPrPlaceholderInsertStatus('No placeholders to insert');
+      setTimeout(() => setPrPlaceholderInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(trimmedReminders);
+    setPrPlaceholderInsertStatus(inserted ? 'Inserted reminders' : 'Unable to insert');
+    if (inserted) {
+      setShowPrHelper(false);
+    }
+
+    setTimeout(() => setPrPlaceholderInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, placeholderReminderText]);
+
   const handleInsertPrTemplate = () => {
     const shareInfo = preparePrContentForSharing(prTemplateText);
     const inserted = insertTextIntoComposer(shareInfo.text);
@@ -3598,6 +3616,37 @@ export default function ChatGptUIPersist() {
               )}
             </div>
           )}
+          <div
+            className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+            aria-live="polite"
+          >
+            <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
+              PR overview
+            </span>
+            {prSectionStatusDetails.map((section) => (
+              <div
+                key={section.id}
+                className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
+                      section.ready
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
+                    }`}
+                  >
+                    {section.ready ? 'Ready' : 'Needs update'}
+                  </span>
+                </div>
+                <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">{section.message}</p>
+                {section.placeholderMessage && (
+                  <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
+                )}
+              </div>
+            ))}
+          </div>
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
               {headerMessageCountLabel}
@@ -4605,6 +4654,11 @@ export default function ChatGptUIPersist() {
                 onCopyPlaceholderReminders={handleCopyPlaceholderReminders}
                 placeholderCopyStatus={prPlaceholderCopyStatus}
                 placeholderCopyDisabled={!prTemplateStats.hasPlaceholders}
+                onInsertPlaceholderReminders={handleInsertPlaceholderReminders}
+                placeholderInsertStatus={
+                  prPlaceholderInsertStatus || (prTemplateStats.hasPlaceholders ? '' : 'No placeholders to insert')
+                }
+                placeholderInsertDisabled={!prTemplateStats.hasPlaceholders}
               />
             </div>
           </div>
