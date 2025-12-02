@@ -1849,130 +1849,6 @@ export default function ChatGptUIPersist() {
     () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
     [prTemplateStats.testingPlaceholderWarnings]
   );
-  const prSectionStatusDetails = useMemo(() => {
-    const formatLengthLabel = (words, characters) => {
-      if (!Number.isFinite(words) || words <= 0 || !Number.isFinite(characters)) {
-        return 'Add details to enable the copy shortcut.';
-      }
-      const wordLabel = `${formatNumber(words)} ${words === 1 ? 'word' : 'words'}`;
-      const charLabel = `${formatNumber(characters)} ${characters === 1 ? 'char' : 'chars'}`;
-      return `${wordLabel} · ${charLabel}`;
-    };
-
-    const buildEntry = ({
-      id,
-      label,
-      ready,
-      hasSection,
-      hasContent,
-      words,
-      characters,
-      preview,
-      hasPlaceholders,
-      placeholderAction,
-      missingHeadingMessage,
-      missingContentMessage,
-    }) => {
-      let message = '';
-      if (!hasSection) {
-        message = missingHeadingMessage;
-      } else if (!hasContent) {
-        message = missingContentMessage;
-      } else {
-        message = formatLengthLabel(words, characters);
-        const trimmedPreview = typeof preview === 'string' ? preview.trim() : '';
-
-        if (trimmedPreview) {
-          message = `${message} — ${trimmedPreview}`;
-        }
-      }
-
-      const placeholderMessage = hasPlaceholders
-        ? placeholderAction || 'Resolve placeholder details before sharing.'
-        : '';
-
-      return {
-        id,
-        label,
-        ready: Boolean(hasSection && hasContent && ready),
-        message,
-        placeholderMessage,
-      };
-    };
-
-    return [
-      buildEntry({
-        id: 'summary',
-        label: 'Summary',
-        ready: summaryReady,
-        hasSection: prTemplateStats.hasSummarySection,
-        hasContent: prTemplateStats.hasSummaryContent,
-        words: prTemplateStats.summaryWords,
-        characters: prTemplateStats.summaryCharacters,
-        preview: prTemplateStats.summaryPreview,
-        hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
-        placeholderAction: summaryPlaceholderAction,
-        missingHeadingMessage: 'Add a "Summary" heading so you can copy it in one click.',
-        missingContentMessage: 'Add summary details beneath the heading to unlock quick copy.',
-      }),
-      buildEntry({
-        id: 'release',
-        label: 'Changelog & Release notes',
-        ready: releaseNotesReady,
-        hasSection: prTemplateStats.hasReleaseNotesSection,
-        hasContent: prTemplateStats.hasReleaseNotesContent,
-        words: prTemplateStats.releaseNotesWords,
-        characters: prTemplateStats.releaseNotesCharacters,
-        preview: prTemplateStats.releaseNotesPreview,
-        hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
-        placeholderAction: releasePlaceholderAction,
-        missingHeadingMessage:
-          'Add a "Changelog & Release notes" heading so you can copy rollout messaging instantly.',
-        missingContentMessage:
-          'Outline customer-facing updates beneath the heading to enable the quick copy shortcut.',
-      }),
-      buildEntry({
-        id: 'testing',
-        label: 'Testing',
-        ready: testingReady,
-        hasSection: prTemplateStats.hasTestingSection,
-        hasContent: prTemplateStats.hasTestingContent,
-        words: prTemplateStats.testingWords,
-        characters: prTemplateStats.testingCharacters,
-        preview: prTemplateStats.testingPreview,
-        hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
-        placeholderAction: testingPlaceholderAction,
-        missingHeadingMessage: 'Add a "Testing" heading so you can copy the verification checklist instantly.',
-        missingContentMessage: 'Document verification notes beneath the heading to unlock quick copy.',
-      }),
-    ];
-  }, [
-    prTemplateStats.hasReleaseNotesContent,
-    prTemplateStats.hasReleaseNotesPlaceholders,
-    prTemplateStats.hasReleaseNotesSection,
-    prTemplateStats.hasSummaryContent,
-    prTemplateStats.hasSummaryPlaceholders,
-    prTemplateStats.hasSummarySection,
-    prTemplateStats.hasTestingContent,
-    prTemplateStats.hasTestingPlaceholders,
-    prTemplateStats.hasTestingSection,
-    prTemplateStats.releaseNotesCharacters,
-    prTemplateStats.releaseNotesPreview,
-    prTemplateStats.releaseNotesWords,
-    prTemplateStats.summaryCharacters,
-    prTemplateStats.summaryPreview,
-    prTemplateStats.summaryWords,
-    prTemplateStats.testingCharacters,
-    prTemplateStats.testingPreview,
-    prTemplateStats.testingWords,
-    releaseNotesReady,
-    releasePlaceholderAction,
-    summaryPlaceholderAction,
-    summaryReady,
-    testingPlaceholderAction,
-    testingReady,
-  ]);
-
   const placeholderReminderText = useMemo(() => {
     if (!prTemplateStats.hasPlaceholders) {
       return '';
@@ -2008,6 +1884,15 @@ export default function ChatGptUIPersist() {
   ]);
 
   const prSectionReadiness = useMemo(() => {
+    const formatLengthLabel = (words, characters) => {
+      if (!Number.isFinite(words) || words <= 0 || !Number.isFinite(characters)) {
+        return '';
+      }
+      const wordLabel = `${formatNumber(words)} ${words === 1 ? 'word' : 'words'}`;
+      const charLabel = `${formatNumber(characters)} ${characters === 1 ? 'char' : 'chars'}`;
+      return `${wordLabel} · ${charLabel}`;
+    };
+
     const sections = [
       {
         id: 'summary',
@@ -2015,6 +1900,12 @@ export default function ChatGptUIPersist() {
         hasSection: prTemplateStats.hasSummarySection,
         hasContent: prTemplateStats.hasSummaryContent,
         placeholderWarnings: prTemplateStats.summaryPlaceholderWarnings,
+        placeholderAction: summaryPlaceholderAction,
+        words: prTemplateStats.summaryWords,
+        characters: prTemplateStats.summaryCharacters,
+        preview: prTemplateStats.summaryPreview,
+        missingHeadingMessage: 'Add a "Summary" heading so you can copy it in one click.',
+        missingContentMessage: 'Add summary details beneath the heading to unlock quick copy.',
       },
       {
         id: 'release',
@@ -2022,6 +1913,12 @@ export default function ChatGptUIPersist() {
         hasSection: prTemplateStats.hasReleaseNotesSection,
         hasContent: prTemplateStats.hasReleaseNotesContent,
         placeholderWarnings: prTemplateStats.releaseNotesPlaceholderWarnings,
+        placeholderAction: releasePlaceholderAction,
+        words: prTemplateStats.releaseNotesWords,
+        characters: prTemplateStats.releaseNotesCharacters,
+        preview: prTemplateStats.releaseNotesPreview,
+        missingHeadingMessage: 'Add a "Changelog & Release notes" heading to unlock quick copy.',
+        missingContentMessage: 'Outline customer-facing updates beneath the heading.',
       },
       {
         id: 'testing',
@@ -2029,33 +1926,73 @@ export default function ChatGptUIPersist() {
         hasSection: prTemplateStats.hasTestingSection,
         hasContent: prTemplateStats.hasTestingContent,
         placeholderWarnings: prTemplateStats.testingPlaceholderWarnings,
+        placeholderAction: testingPlaceholderAction,
+        words: prTemplateStats.testingWords,
+        characters: prTemplateStats.testingCharacters,
+        preview: prTemplateStats.testingPreview,
+        missingHeadingMessage: 'Add a "Testing" heading so you can copy the verification checklist instantly.',
+        missingContentMessage: 'Document verification notes beneath the heading to unlock quick copy.',
       },
     ];
 
     return sections.map((section) => {
       const placeholderCount = countPlaceholderOccurrences(section.placeholderWarnings);
+      const placeholderLabel = placeholderCount === 1 ? 'placeholder' : 'placeholders';
+      let status = 'Ready';
+      let tone = 'ready';
+      let detail = '';
 
       if (!section.hasSection) {
-        return { ...section, placeholderCount, status: 'Add heading', tone: 'missing' };
+        status = 'Add heading';
+        tone = 'missing';
+        detail = section.missingHeadingMessage || '';
+      } else if (!section.hasContent) {
+        status = 'Add notes';
+        tone = 'missing';
+        detail = section.missingContentMessage || '';
+      } else if (placeholderCount > 0) {
+        status = `${formatNumber(placeholderCount)} ${placeholderLabel}`;
+        tone = 'warn';
+        detail =
+          section.placeholderAction || 'Resolve placeholder details before copying or sharing this section.';
+      } else {
+        const lengthLabel = formatLengthLabel(section.words, section.characters);
+        const previewText = typeof section.preview === 'string' ? section.preview.trim() : '';
+        detail = [lengthLabel, previewText].filter(Boolean).join(' — ');
       }
 
-      if (!section.hasContent) {
-        return { ...section, placeholderCount, status: 'Add notes', tone: 'missing' };
+      const titleParts = [detail];
+      if (placeholderCount > 0 && section.placeholderAction) {
+        titleParts.push(section.placeholderAction);
       }
+      const title = titleParts.filter(Boolean).join(' ');
+      const ariaLabel = title ? `${section.label}: ${status}. ${title}` : `${section.label}: ${status}`;
 
-      if (placeholderCount > 0) {
-        const placeholderLabel = placeholderCount === 1 ? 'placeholder' : 'placeholders';
-        return {
-          ...section,
-          placeholderCount,
-          status: `${formatNumber(placeholderCount)} ${placeholderLabel}`,
-          tone: 'warn',
-        };
-      }
-
-      return { ...section, placeholderCount, status: 'Ready', tone: 'ready' };
+      return { ...section, placeholderCount, status, tone, detail, title, ariaLabel };
     });
-  }, [prTemplateStats]);
+  }, [
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingSection,
+    prTemplateStats.releaseNotesCharacters,
+    prTemplateStats.releaseNotesPreview,
+    prTemplateStats.releaseNotesWords,
+    prTemplateStats.summaryCharacters,
+    prTemplateStats.summaryPreview,
+    prTemplateStats.summaryWords,
+    prTemplateStats.testingCharacters,
+    prTemplateStats.testingPreview,
+    prTemplateStats.testingWords,
+    prTemplateStats.releaseNotesPlaceholderWarnings,
+    prTemplateStats.summaryPlaceholderWarnings,
+    prTemplateStats.testingPlaceholderWarnings,
+    releasePlaceholderAction,
+    summaryPlaceholderAction,
+    testingPlaceholderAction,
+  ]);
   const prSectionToneClass = {
     ready:
       'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-400/40',
@@ -4541,13 +4478,8 @@ export default function ChatGptUIPersist() {
                       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold ${
                         prSectionToneClass[section.tone]
                       }`}
-                      title={
-                        section.placeholderCount > 0
-                          ? `${section.label} includes ${section.placeholderCount} placeholder${
-                              section.placeholderCount === 1 ? '' : 's'
-                            }`
-                          : undefined
-                      }
+                      title={section.title || section.status}
+                      aria-label={section.ariaLabel || `${section.label}: ${section.status}`}
                     >
                       <span>{section.label}:</span>
                       <span>{section.status}</span>
