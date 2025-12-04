@@ -3659,6 +3659,17 @@ export default function ChatGptUIPersist() {
                   Copy or insert sections without placeholder cleanup.
                 </span>
               )}
+              {prTemplateStats.hasPlaceholders && (
+                <button
+                  type="button"
+                  onClick={handleCopyPlaceholderReminders}
+                  className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                >
+                  <span aria-live="polite">
+                    {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
+                  </span>
+                </button>
+              )}
             </div>
           )}
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
