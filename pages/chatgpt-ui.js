@@ -2001,6 +2001,107 @@ export default function ChatGptUIPersist() {
     summaryPlaceholderAction,
     testingPlaceholderAction,
   ]);
+  const prSectionStatusDetails = useMemo(() => {
+    const baseSections = [
+      {
+        id: 'summary',
+        label: 'Summary',
+        hasSection: prTemplateStats.hasSummarySection,
+        hasContent: prTemplateStats.hasSummaryContent,
+        placeholderWarnings: prTemplateStats.summaryPlaceholderWarnings,
+        placeholderAction: summaryPlaceholderAction,
+        preview: prTemplateStats.summaryPreview,
+        words: prTemplateStats.summaryWords,
+      },
+      {
+        id: 'release',
+        label: 'Release notes',
+        hasSection: prTemplateStats.hasReleaseNotesSection,
+        hasContent: prTemplateStats.hasReleaseNotesContent,
+        placeholderWarnings: prTemplateStats.releaseNotesPlaceholderWarnings,
+        placeholderAction: releasePlaceholderAction,
+        preview: prTemplateStats.releaseNotesPreview,
+        words: prTemplateStats.releaseNotesWords,
+      },
+      {
+        id: 'testing',
+        label: 'Testing',
+        hasSection: prTemplateStats.hasTestingSection,
+        hasContent: prTemplateStats.hasTestingContent,
+        placeholderWarnings: prTemplateStats.testingPlaceholderWarnings,
+        placeholderAction: testingPlaceholderAction,
+        preview: prTemplateStats.testingPreview,
+        words: prTemplateStats.testingWords,
+      },
+    ];
+
+    return baseSections.map((section) => {
+      const placeholderCount = countPlaceholderOccurrences(section.placeholderWarnings);
+      const placeholderLabel = placeholderCount === 1 ? 'placeholder' : 'placeholders';
+
+      if (!section.hasSection) {
+        return {
+          ...section,
+          ready: false,
+          message: 'Add the heading to enable quick copy.',
+          placeholderMessage: '',
+        };
+      }
+
+      if (!section.hasContent) {
+        return {
+          ...section,
+          ready: false,
+          message: 'Add details to share this section.',
+          placeholderMessage: '',
+        };
+      }
+
+      if (placeholderCount > 0) {
+        return {
+          ...section,
+          ready: false,
+          message: `${formatNumber(placeholderCount)} ${placeholderLabel} to replace`,
+          placeholderMessage:
+            section.placeholderAction || 'Swap placeholder citations or links before sharing.',
+        };
+      }
+
+      const parts = [];
+      if (Number.isFinite(section.words) && section.words > 0) {
+        parts.push(`${formatNumber(section.words)} ${section.words === 1 ? 'word' : 'words'}`);
+      }
+      if (section.preview) {
+        parts.push(`Preview: ${section.preview}`);
+      }
+
+      return {
+        ...section,
+        ready: true,
+        message: parts.join(' · ') || 'Ready to copy or insert.',
+        placeholderMessage: '',
+      };
+    });
+  }, [
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingSection,
+    prTemplateStats.releaseNotesPlaceholderWarnings,
+    prTemplateStats.releaseNotesPreview,
+    prTemplateStats.releaseNotesWords,
+    prTemplateStats.summaryPlaceholderWarnings,
+    prTemplateStats.summaryPreview,
+    prTemplateStats.summaryWords,
+    prTemplateStats.testingPlaceholderWarnings,
+    prTemplateStats.testingPreview,
+    prTemplateStats.testingWords,
+    releasePlaceholderAction,
+    summaryPlaceholderAction,
+    testingPlaceholderAction,
+  ]);
   const prSectionToneClass = {
     ready:
       'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-400/40',
