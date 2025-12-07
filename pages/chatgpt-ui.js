@@ -1833,6 +1833,14 @@ export default function ChatGptUIPersist() {
     templatePlaceholderSummaryDisplay,
   ]);
 
+  const prHelperButtonStatus = prHelperStatusBadges.join(' • ');
+  const prHelperButtonTitle = prHelperButtonStatus || 'Open PR helper';
+  const prHelperButtonAriaLabel =
+    prHelperButtonStatus ||
+    (prHelperHasPlaceholders
+      ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
+      : 'PR helper ready to share');
+
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
     [prTemplateStats.placeholderWarnings]
