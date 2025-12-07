@@ -1993,6 +1993,37 @@ export default function ChatGptUIPersist() {
     summaryPlaceholderAction,
     testingPlaceholderAction,
   ]);
+
+  const prSectionStatusDetails = useMemo(
+    () =>
+      prSectionReadiness.map((section) => {
+        const placeholderSummary = formatPlaceholderSummary(section.placeholderWarnings);
+
+        let message = section.detail || '';
+        let placeholderMessage = '';
+
+        if (!section.hasSection) {
+          message = section.missingHeadingMessage || 'Add heading to unlock quick copy.';
+        } else if (!section.hasContent) {
+          message = section.missingContentMessage || 'Add notes to unlock quick copy.';
+        } else if (section.placeholderCount > 0) {
+          message =
+            section.placeholderAction || 'Resolve placeholder details before copying or inserting this section.';
+          placeholderMessage = placeholderSummary ? `${placeholderSummary}.` : '';
+        } else if (!message) {
+          message = 'Ready to copy or insert without placeholder cleanup.';
+        }
+
+        return {
+          id: section.id,
+          label: section.label,
+          ready: section.tone === 'ready',
+          message,
+          placeholderMessage,
+        };
+      }),
+    [prSectionReadiness]
+  );
   const prSectionToneClass = {
     ready:
       'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-400/40',
