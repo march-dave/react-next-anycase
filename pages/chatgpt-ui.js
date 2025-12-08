@@ -857,6 +857,7 @@ export default function ChatGptUIPersist() {
   const [prReferenceStatus, setPrReferenceStatus] = useState('');
   const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
   const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
+  const [prOverviewCopyStatus, setPrOverviewCopyStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -1841,6 +1842,33 @@ export default function ChatGptUIPersist() {
       ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
       : 'PR helper ready to share');
 
+  const prOverviewSummaryText = useMemo(() => {
+    const lines = [];
+    const headline = prHelperHasPlaceholders
+      ? templatePlaceholderSummaryDisplay ||
+        `${formatNumber(prTemplatePlaceholderCount)} placeholders remaining.`
+      : prHelperHasShareableContent
+      ? 'Template ready to share.'
+      : 'Add Summary, Release notes, and Testing details to start.';
+
+    if (headline) {
+      lines.push(`PR helper status: ${headline}`);
+    }
+
+    prSectionReadiness.forEach((section) => {
+      const detail = section.detail ? ` — ${section.detail}` : '';
+      lines.push(`${section.label}: ${section.status}${detail}`);
+    });
+
+    return lines.filter(Boolean).join('\n');
+  }, [
+    prHelperHasPlaceholders,
+    prHelperHasShareableContent,
+    prSectionReadiness,
+    prTemplatePlaceholderCount,
+    templatePlaceholderSummaryDisplay,
+  ]);
+
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
     [prTemplateStats.placeholderWarnings]
@@ -1975,8 +2003,14 @@ export default function ChatGptUIPersist() {
       }
       const title = titleParts.filter(Boolean).join(' ');
       const ariaLabel = title ? `${section.label}: ${status}. ${title}` : `${section.label}: ${status}`;
+      const ready = tone === 'ready';
+      const placeholderMessage =
+        placeholderCount > 0
+          ? section.placeholderAction ||
+            'Resolve placeholder details before copying or sharing this section.'
+          : '';
 
-      return { ...section, placeholderCount, status, tone, detail, title, ariaLabel };
+      return { ...section, placeholderCount, status, tone, detail, title, ariaLabel, ready, placeholderMessage };
     });
   }, [
     prTemplateStats.hasReleaseNotesContent,
@@ -2736,6 +2770,24 @@ export default function ChatGptUIPersist() {
 
     setTimeout(() => setPrPlaceholderCopyStatus(''), 2000);
   }, [placeholderReminderText]);
+
+  const handleCopyPrOverview = useCallback(async () => {
+    const trimmedOverview = prOverviewSummaryText.trim();
+    if (!trimmedOverview) {
+      setPrOverviewCopyStatus('Overview not ready');
+      setTimeout(() => setPrOverviewCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(trimmedOverview);
+      setPrOverviewCopyStatus('Copied overview');
+    } catch (err) {
+      setPrOverviewCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setPrOverviewCopyStatus(''), 2000);
+  }, [prOverviewSummaryText]);
 
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
@@ -3673,29 +3725,40 @@ export default function ChatGptUIPersist() {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
               PR overview
             </span>
-            {prSectionStatusDetails.map((section) => (
-              <div
-                key={section.id}
-                className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
-                      section.ready
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
-                        : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
-                    }`}
-                  >
-                    {section.ready ? 'Ready' : 'Needs update'}
-                  </span>
+            <div className="flex flex-1 flex-wrap items-center gap-2">
+              {prSectionReadiness.map((section) => (
+                <div
+                  key={section.id}
+                  className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
+                        section.ready
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
+                      }`}
+                    >
+                      {section.ready ? 'Ready' : 'Needs update'}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">
+                    {section.detail || section.placeholderMessage || 'Add details to summarize readiness.'}
+                  </p>
+                  {section.placeholderMessage && (
+                    <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
+                  )}
                 </div>
-                <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">{section.message}</p>
-                {section.placeholderMessage && (
-                  <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
-                )}
-              </div>
-            ))}
+              ))}
+              <button
+                type="button"
+                onClick={handleCopyPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+              </button>
+            </div>
           </div>
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
