@@ -1738,6 +1738,45 @@ export default function ChatGptUIPersist() {
     prTemplateStats.totalPlaceholders,
     templatePlaceholderSummary,
   ]);
+  const prHelperSectionStatusLine = useMemo(() => {
+    const describeSection = (label, hasSection, hasContent, hasPlaceholders) => {
+      if (!hasSection) return `${label}: Add heading`;
+      if (!hasContent) return `${label}: Add details`;
+      if (hasPlaceholders) return `${label}: Swap placeholders`;
+      return `${label}: Ready`;
+    };
+
+    return [
+      describeSection(
+        'Summary',
+        prTemplateStats.hasSummarySection,
+        prTemplateStats.hasSummaryContent,
+        prTemplateStats.hasSummaryPlaceholders
+      ),
+      describeSection(
+        'Release notes',
+        prTemplateStats.hasReleaseNotesSection,
+        prTemplateStats.hasReleaseNotesContent,
+        prTemplateStats.hasReleaseNotesPlaceholders
+      ),
+      describeSection(
+        'Testing',
+        prTemplateStats.hasTestingSection,
+        prTemplateStats.hasTestingContent,
+        prTemplateStats.hasTestingPlaceholders
+      ),
+    ].join(' · ');
+  }, [
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.hasTestingSection,
+  ]);
   const prHelperHasShareableContent =
     prTemplateStats.hasSummaryContent ||
     prTemplateStats.hasReleaseNotesContent ||
@@ -3703,6 +3742,11 @@ export default function ChatGptUIPersist() {
               {!prHelperHasPlaceholders && prHelperHasShareableContent && (
                 <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
                   Copy or insert sections without placeholder cleanup.
+                </span>
+              )}
+              {prHelperSectionStatusLine && (
+                <span className="w-full text-[0.65rem] text-blue-700 dark:text-blue-200">
+                  {prHelperSectionStatusLine}
                 </span>
               )}
               {prTemplateStats.hasPlaceholders && (
