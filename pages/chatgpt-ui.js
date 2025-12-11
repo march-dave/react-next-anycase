@@ -1881,33 +1881,6 @@ export default function ChatGptUIPersist() {
       ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
       : 'PR helper ready to share');
 
-  const prOverviewSummaryText = useMemo(() => {
-    const lines = [];
-    const headline = prHelperHasPlaceholders
-      ? templatePlaceholderSummaryDisplay ||
-        `${formatNumber(prTemplatePlaceholderCount)} placeholders remaining.`
-      : prHelperHasShareableContent
-      ? 'Template ready to share.'
-      : 'Add Summary, Release notes, and Testing details to start.';
-
-    if (headline) {
-      lines.push(`PR helper status: ${headline}`);
-    }
-
-    prSectionReadiness.forEach((section) => {
-      const detail = section.detail ? ` — ${section.detail}` : '';
-      lines.push(`${section.label}: ${section.status}${detail}`);
-    });
-
-    return lines.filter(Boolean).join('\n');
-  }, [
-    prHelperHasPlaceholders,
-    prHelperHasShareableContent,
-    prSectionReadiness,
-    prTemplatePlaceholderCount,
-    templatePlaceholderSummaryDisplay,
-  ]);
-
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
     [prTemplateStats.placeholderWarnings]
@@ -2073,6 +2046,33 @@ export default function ChatGptUIPersist() {
     releasePlaceholderAction,
     summaryPlaceholderAction,
     testingPlaceholderAction,
+  ]);
+
+  const prOverviewSummaryText = useMemo(() => {
+    const lines = [];
+    const headline = prHelperHasPlaceholders
+      ? templatePlaceholderSummaryDisplay ||
+        `${formatNumber(prTemplatePlaceholderCount)} placeholders remaining.`
+      : prHelperHasShareableContent
+      ? 'Template ready to share.'
+      : 'Add Summary, Release notes, and Testing details to start.';
+
+    if (headline) {
+      lines.push(`PR helper status: ${headline}`);
+    }
+
+    prSectionReadiness.forEach((section) => {
+      const detail = section.detail ? ` — ${section.detail}` : '';
+      lines.push(`${section.label}: ${section.status}${detail}`);
+    });
+
+    return lines.filter(Boolean).join('\n');
+  }, [
+    prHelperHasPlaceholders,
+    prHelperHasShareableContent,
+    prSectionReadiness,
+    prTemplatePlaceholderCount,
+    templatePlaceholderSummaryDisplay,
   ]);
 
   const prSectionStatusDetails = useMemo(
