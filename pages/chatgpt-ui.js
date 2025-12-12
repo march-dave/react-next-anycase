@@ -1738,6 +1738,45 @@ export default function ChatGptUIPersist() {
     prTemplateStats.totalPlaceholders,
     templatePlaceholderSummary,
   ]);
+  const prHelperSectionStatusLine = useMemo(() => {
+    const describeSection = (label, hasSection, hasContent, hasPlaceholders) => {
+      if (!hasSection) return `${label}: Add heading`;
+      if (!hasContent) return `${label}: Add details`;
+      if (hasPlaceholders) return `${label}: Swap placeholders`;
+      return `${label}: Ready`;
+    };
+
+    return [
+      describeSection(
+        'Summary',
+        prTemplateStats.hasSummarySection,
+        prTemplateStats.hasSummaryContent,
+        prTemplateStats.hasSummaryPlaceholders
+      ),
+      describeSection(
+        'Release notes',
+        prTemplateStats.hasReleaseNotesSection,
+        prTemplateStats.hasReleaseNotesContent,
+        prTemplateStats.hasReleaseNotesPlaceholders
+      ),
+      describeSection(
+        'Testing',
+        prTemplateStats.hasTestingSection,
+        prTemplateStats.hasTestingContent,
+        prTemplateStats.hasTestingPlaceholders
+      ),
+    ].join(' · ');
+  }, [
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.hasTestingSection,
+  ]);
   const prHelperHasShareableContent =
     prTemplateStats.hasSummaryContent ||
     prTemplateStats.hasReleaseNotesContent ||
@@ -1976,8 +2015,14 @@ export default function ChatGptUIPersist() {
       }
       const title = titleParts.filter(Boolean).join(' ');
       const ariaLabel = title ? `${section.label}: ${status}. ${title}` : `${section.label}: ${status}`;
+      const ready = tone === 'ready';
+      const placeholderMessage =
+        placeholderCount > 0
+          ? section.placeholderAction ||
+            'Resolve placeholder details before copying or sharing this section.'
+          : '';
 
-      return { ...section, placeholderCount, status, tone, detail, title, ariaLabel };
+      return { ...section, placeholderCount, status, tone, detail, title, ariaLabel, ready, placeholderMessage };
     });
   }, [
     prTemplateStats.hasReleaseNotesContent,
@@ -2001,6 +2046,33 @@ export default function ChatGptUIPersist() {
     releasePlaceholderAction,
     summaryPlaceholderAction,
     testingPlaceholderAction,
+  ]);
+
+  const prOverviewSummaryText = useMemo(() => {
+    const lines = [];
+    const headline = prHelperHasPlaceholders
+      ? templatePlaceholderSummaryDisplay ||
+        `${formatNumber(prTemplatePlaceholderCount)} placeholders remaining.`
+      : prHelperHasShareableContent
+      ? 'Template ready to share.'
+      : 'Add Summary, Release notes, and Testing details to start.';
+
+    if (headline) {
+      lines.push(`PR helper status: ${headline}`);
+    }
+
+    prSectionReadiness.forEach((section) => {
+      const detail = section.detail ? ` — ${section.detail}` : '';
+      lines.push(`${section.label}: ${section.status}${detail}`);
+    });
+
+    return lines.filter(Boolean).join('\n');
+  }, [
+    prHelperHasPlaceholders,
+    prHelperHasShareableContent,
+    prSectionReadiness,
+    prTemplatePlaceholderCount,
+    templatePlaceholderSummaryDisplay,
   ]);
 
   const prSectionStatusDetails = useMemo(
@@ -3697,6 +3769,11 @@ export default function ChatGptUIPersist() {
                   Copy or insert sections without placeholder cleanup.
                 </span>
               )}
+              {prHelperSectionStatusLine && (
+                <span className="w-full text-[0.65rem] text-blue-700 dark:text-blue-200">
+                  {prHelperSectionStatusLine}
+                </span>
+              )}
               {prTemplateStats.hasPlaceholders && (
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -3754,12 +3831,15 @@ export default function ChatGptUIPersist() {
                     {section.ready ? 'Ready' : 'Needs update'}
                   </span>
                 </div>
-                <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">{section.message}</p>
-                {section.placeholderMessage && (
-                  <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
-                )}
-              </div>
-            ))}
+              ))}
+              <button
+                type="button"
+                onClick={handleCopyPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+              </button>
+            </div>
           </div>
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
