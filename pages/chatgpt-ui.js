@@ -2105,6 +2105,31 @@ export default function ChatGptUIPersist() {
       }),
     [prSectionReadiness]
   );
+  const prOverviewText = useMemo(() => {
+    const lines = ['PR overview'];
+
+    if (prHelperHasPlaceholders) {
+      const placeholderLabel =
+        templatePlaceholderSummaryDisplay ||
+        `${formatNumber(prTemplatePlaceholderCount)} placeholder${
+          prTemplatePlaceholderCount === 1 ? '' : 's'
+        } remaining.`;
+      lines.push(placeholderLabel);
+    }
+
+    prSectionStatusDetails.forEach((section) => {
+      const status = section.ready ? 'Ready' : 'Needs update';
+      const details = [section.message, section.placeholderMessage].filter(Boolean).join(' ');
+      lines.push(`- ${section.label}: ${status}${details ? ` — ${details}` : ''}`);
+    });
+
+    return lines.join('\n').trim();
+  }, [
+    prHelperHasPlaceholders,
+    prSectionStatusDetails,
+    prTemplatePlaceholderCount,
+    templatePlaceholderSummaryDisplay,
+  ]);
   const prSectionToneClass = {
     ready:
       'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-400/40',
@@ -2811,22 +2836,22 @@ export default function ChatGptUIPersist() {
   }, [placeholderReminderText]);
 
   const handleCopyPrOverview = useCallback(async () => {
-    const trimmedOverview = prOverviewSummaryText.trim();
-    if (!trimmedOverview) {
-      setPrOverviewCopyStatus('Overview not ready');
+    const trimmed = prOverviewText.trim();
+    if (!trimmed) {
+      setPrOverviewCopyStatus('No overview to copy');
       setTimeout(() => setPrOverviewCopyStatus(''), 2000);
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(trimmedOverview);
-      setPrOverviewCopyStatus('Copied overview');
+      await navigator.clipboard.writeText(trimmed);
+      setPrOverviewCopyStatus('Copied PR overview');
     } catch (err) {
       setPrOverviewCopyStatus('Copy failed');
     }
 
     setTimeout(() => setPrOverviewCopyStatus(''), 2000);
-  }, [prOverviewSummaryText]);
+  }, [prOverviewText]);
 
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
@@ -3750,15 +3775,26 @@ export default function ChatGptUIPersist() {
                 </span>
               )}
               {prTemplateStats.hasPlaceholders && (
-                <button
-                  type="button"
-                  onClick={handleCopyPlaceholderReminders}
-                  className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
-                >
-                  <span aria-live="polite">
-                    {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
-                  </span>
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyPlaceholderReminders}
+                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                  >
+                    <span aria-live="polite">
+                      {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleInsertPlaceholderReminders}
+                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                  >
+                    <span aria-live="polite">
+                      {prPlaceholderInsertStatus || 'Insert reminders into chat'}
+                    </span>
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -3766,33 +3802,34 @@ export default function ChatGptUIPersist() {
             className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
             aria-live="polite"
           >
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
-              PR overview
-            </span>
-            <div className="flex flex-1 flex-wrap items-center gap-2">
-              {prSectionReadiness.map((section) => (
-                <div
-                  key={section.id}
-                  className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
-                        section.ready
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
-                          : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
-                      }`}
-                    >
-                      {section.ready ? 'Ready' : 'Needs update'}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">
-                    {section.detail || section.placeholderMessage || 'Add details to summarize readiness.'}
-                  </p>
-                  {section.placeholderMessage && (
-                    <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
-                  )}
+            <div className="flex items-center gap-2">
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
+                PR overview
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400"
+              >
+                <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+              </button>
+            </div>
+            {prSectionStatusDetails.map((section) => (
+              <div
+                key={section.id}
+                className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
+                      section.ready
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
+                    }`}
+                  >
+                    {section.ready ? 'Ready' : 'Needs update'}
+                  </span>
                 </div>
               ))}
               <button
