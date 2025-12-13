@@ -1738,6 +1738,45 @@ export default function ChatGptUIPersist() {
     prTemplateStats.totalPlaceholders,
     templatePlaceholderSummary,
   ]);
+  const prHelperSectionStatusLine = useMemo(() => {
+    const describeSection = (label, hasSection, hasContent, hasPlaceholders) => {
+      if (!hasSection) return `${label}: Add heading`;
+      if (!hasContent) return `${label}: Add details`;
+      if (hasPlaceholders) return `${label}: Swap placeholders`;
+      return `${label}: Ready`;
+    };
+
+    return [
+      describeSection(
+        'Summary',
+        prTemplateStats.hasSummarySection,
+        prTemplateStats.hasSummaryContent,
+        prTemplateStats.hasSummaryPlaceholders
+      ),
+      describeSection(
+        'Release notes',
+        prTemplateStats.hasReleaseNotesSection,
+        prTemplateStats.hasReleaseNotesContent,
+        prTemplateStats.hasReleaseNotesPlaceholders
+      ),
+      describeSection(
+        'Testing',
+        prTemplateStats.hasTestingSection,
+        prTemplateStats.hasTestingContent,
+        prTemplateStats.hasTestingPlaceholders
+      ),
+    ].join(' · ');
+  }, [
+    prTemplateStats.hasReleaseNotesContent,
+    prTemplateStats.hasReleaseNotesPlaceholders,
+    prTemplateStats.hasReleaseNotesSection,
+    prTemplateStats.hasSummaryContent,
+    prTemplateStats.hasSummaryPlaceholders,
+    prTemplateStats.hasSummarySection,
+    prTemplateStats.hasTestingContent,
+    prTemplateStats.hasTestingPlaceholders,
+    prTemplateStats.hasTestingSection,
+  ]);
   const prHelperHasShareableContent =
     prTemplateStats.hasSummaryContent ||
     prTemplateStats.hasReleaseNotesContent ||
@@ -1797,33 +1836,6 @@ export default function ChatGptUIPersist() {
     (prHelperHasPlaceholders
       ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
       : 'PR helper ready to share');
-
-  const prOverviewSummaryText = useMemo(() => {
-    const lines = [];
-    const headline = prHelperHasPlaceholders
-      ? templatePlaceholderSummaryDisplay ||
-        `${formatNumber(prTemplatePlaceholderCount)} placeholders remaining.`
-      : prHelperHasShareableContent
-      ? 'Template ready to share.'
-      : 'Add Summary, Release notes, and Testing details to start.';
-
-    if (headline) {
-      lines.push(`PR helper status: ${headline}`);
-    }
-
-    prSectionReadiness.forEach((section) => {
-      const detail = section.detail ? ` — ${section.detail}` : '';
-      lines.push(`${section.label}: ${section.status}${detail}`);
-    });
-
-    return lines.filter(Boolean).join('\n');
-  }, [
-    prHelperHasPlaceholders,
-    prHelperHasShareableContent,
-    prSectionReadiness,
-    prTemplatePlaceholderCount,
-    templatePlaceholderSummaryDisplay,
-  ]);
 
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
@@ -2006,6 +2018,33 @@ export default function ChatGptUIPersist() {
     testingPlaceholderAction,
   ]);
 
+  const prOverviewSummaryText = useMemo(() => {
+    const lines = [];
+    const headline = prHelperHasPlaceholders
+      ? templatePlaceholderSummaryDisplay ||
+        `${formatNumber(prTemplatePlaceholderCount)} placeholders remaining.`
+      : prHelperHasShareableContent
+      ? 'Template ready to share.'
+      : 'Add Summary, Release notes, and Testing details to start.';
+
+    if (headline) {
+      lines.push(`PR helper status: ${headline}`);
+    }
+
+    prSectionReadiness.forEach((section) => {
+      const detail = section.detail ? ` — ${section.detail}` : '';
+      lines.push(`${section.label}: ${section.status}${detail}`);
+    });
+
+    return lines.filter(Boolean).join('\n');
+  }, [
+    prHelperHasPlaceholders,
+    prHelperHasShareableContent,
+    prSectionReadiness,
+    prTemplatePlaceholderCount,
+    templatePlaceholderSummaryDisplay,
+  ]);
+
   const prSectionStatusDetails = useMemo(
     () =>
       prSectionReadiness.map((section) => {
@@ -2036,6 +2075,31 @@ export default function ChatGptUIPersist() {
       }),
     [prSectionReadiness]
   );
+  const prOverviewText = useMemo(() => {
+    const lines = ['PR overview'];
+
+    if (prHelperHasPlaceholders) {
+      const placeholderLabel =
+        templatePlaceholderSummaryDisplay ||
+        `${formatNumber(prTemplatePlaceholderCount)} placeholder${
+          prTemplatePlaceholderCount === 1 ? '' : 's'
+        } remaining.`;
+      lines.push(placeholderLabel);
+    }
+
+    prSectionStatusDetails.forEach((section) => {
+      const status = section.ready ? 'Ready' : 'Needs update';
+      const details = [section.message, section.placeholderMessage].filter(Boolean).join(' ');
+      lines.push(`- ${section.label}: ${status}${details ? ` — ${details}` : ''}`);
+    });
+
+    return lines.join('\n').trim();
+  }, [
+    prHelperHasPlaceholders,
+    prSectionStatusDetails,
+    prTemplatePlaceholderCount,
+    templatePlaceholderSummaryDisplay,
+  ]);
   const prSectionToneClass = {
     ready:
       'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-400/40',
@@ -2742,22 +2806,22 @@ export default function ChatGptUIPersist() {
   }, [placeholderReminderText]);
 
   const handleCopyPrOverview = useCallback(async () => {
-    const trimmedOverview = prOverviewSummaryText.trim();
-    if (!trimmedOverview) {
-      setPrOverviewCopyStatus('Overview not ready');
+    const trimmed = prOverviewText.trim();
+    if (!trimmed) {
+      setPrOverviewCopyStatus('No overview to copy');
       setTimeout(() => setPrOverviewCopyStatus(''), 2000);
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(trimmedOverview);
-      setPrOverviewCopyStatus('Copied overview');
+      await navigator.clipboard.writeText(trimmed);
+      setPrOverviewCopyStatus('Copied PR overview');
     } catch (err) {
       setPrOverviewCopyStatus('Copy failed');
     }
 
     setTimeout(() => setPrOverviewCopyStatus(''), 2000);
-  }, [prOverviewSummaryText]);
+  }, [prOverviewText]);
 
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
@@ -3675,16 +3739,32 @@ export default function ChatGptUIPersist() {
                   Copy or insert sections without placeholder cleanup.
                 </span>
               )}
+              {prHelperSectionStatusLine && (
+                <span className="w-full text-[0.65rem] text-blue-700 dark:text-blue-200">
+                  {prHelperSectionStatusLine}
+                </span>
+              )}
               {prTemplateStats.hasPlaceholders && (
-                <button
-                  type="button"
-                  onClick={handleCopyPlaceholderReminders}
-                  className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
-                >
-                  <span aria-live="polite">
-                    {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
-                  </span>
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyPlaceholderReminders}
+                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                  >
+                    <span aria-live="polite">
+                      {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleInsertPlaceholderReminders}
+                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                  >
+                    <span aria-live="polite">
+                      {prPlaceholderInsertStatus || 'Insert reminders into chat'}
+                    </span>
+                  </button>
+                </div>
               )}
             </div>
           )}
