@@ -1764,73 +1764,29 @@ export default function ChatGptUIPersist() {
       badges.push('Template ready to share');
     }
 
-    const addSectionBadge = (
-      label,
-      { hasSection, hasContent, preview, hasPlaceholders, missingSectionLabel, missingContentLabel }
-    ) => {
-      if (!hasSection) {
-        badges.push(`${label}: ${missingSectionLabel || 'Add heading'}`);
-        return;
+    prSectionReadiness.forEach((section) => {
+      let statusLabel = 'Ready';
+
+      if (!section.hasSection) {
+        statusLabel = 'Add heading';
+      } else if (!section.hasContent) {
+        statusLabel = 'Add notes';
+      } else if (section.placeholderCount > 0) {
+        const placeholderLabel = section.placeholderCount === 1 ? 'placeholder' : 'placeholders';
+        statusLabel = `${formatNumber(section.placeholderCount)} ${placeholderLabel}`;
+      } else if (section.lengthLabel) {
+        statusLabel = section.lengthLabel;
       }
 
-      if (!hasContent) {
-        badges.push(`${label}: ${missingContentLabel || 'Add details'}`);
-        return;
-      }
-
-      const previewText = preview ? ` — ${preview}` : '';
-
-      if (hasPlaceholders) {
-        badges.push(`${label}: Swap placeholders${previewText}`);
-        return;
-      }
-
-      badges.push(`${label}: Ready${previewText}`);
-    };
-
-    addSectionBadge('Summary', {
-      hasSection: prTemplateStats.hasSummarySection,
-      hasContent: prTemplateStats.hasSummaryContent,
-      preview: prTemplateStats.summaryPreview,
-      hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
-      missingSectionLabel: 'Add Summary heading',
-      missingContentLabel: 'Add summary details',
-    });
-
-    addSectionBadge('Release notes', {
-      hasSection: prTemplateStats.hasReleaseNotesSection,
-      hasContent: prTemplateStats.hasReleaseNotesContent,
-      preview: prTemplateStats.releaseNotesPreview,
-      hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
-      missingSectionLabel: 'Add release notes heading',
-      missingContentLabel: 'Add release notes details',
-    });
-
-    addSectionBadge('Testing', {
-      hasSection: prTemplateStats.hasTestingSection,
-      hasContent: prTemplateStats.hasTestingContent,
-      preview: prTemplateStats.testingPreview,
-      hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
-      missingSectionLabel: 'Add Testing heading',
-      missingContentLabel: 'Add testing notes',
+      const previewLabel = section.previewText ? ` — ${section.previewText}` : '';
+      badges.push(`${section.label}: ${statusLabel}${previewLabel}`);
     });
 
     return badges;
   }, [
     prHelperHasPlaceholders,
     prHelperHasShareableContent,
-    prTemplateStats.hasReleaseNotesContent,
-    prTemplateStats.hasSummaryContent,
-    prTemplateStats.hasTestingContent,
-    prTemplateStats.releaseNotesPreview,
-    prTemplateStats.summaryPreview,
-    prTemplateStats.testingPreview,
-    prTemplateStats.hasReleaseNotesPlaceholders,
-    prTemplateStats.hasReleaseNotesSection,
-    prTemplateStats.hasSummaryPlaceholders,
-    prTemplateStats.hasSummarySection,
-    prTemplateStats.hasTestingPlaceholders,
-    prTemplateStats.hasTestingSection,
+    prSectionReadiness,
     templatePlaceholderSummaryDisplay,
   ]);
 
@@ -1974,6 +1930,9 @@ export default function ChatGptUIPersist() {
     return sections.map((section) => {
       const placeholderCount = countPlaceholderOccurrences(section.placeholderWarnings);
       const placeholderLabel = placeholderCount === 1 ? 'placeholder' : 'placeholders';
+      const lengthLabel = formatLengthLabel(section.words, section.characters);
+      const previewText = typeof section.preview === 'string' ? section.preview.trim() : '';
+      const placeholderSummary = formatPlaceholderSummary(section.placeholderWarnings);
       let status = 'Ready';
       let tone = 'ready';
       let detail = '';
@@ -1992,8 +1951,6 @@ export default function ChatGptUIPersist() {
         detail =
           section.placeholderAction || 'Resolve placeholder details before copying or sharing this section.';
       } else {
-        const lengthLabel = formatLengthLabel(section.words, section.characters);
-        const previewText = typeof section.preview === 'string' ? section.preview.trim() : '';
         detail = [lengthLabel, previewText].filter(Boolean).join(' — ');
       }
 
@@ -2010,7 +1967,20 @@ export default function ChatGptUIPersist() {
             'Resolve placeholder details before copying or sharing this section.'
           : '';
 
-      return { ...section, placeholderCount, status, tone, detail, title, ariaLabel, ready, placeholderMessage };
+      return {
+        ...section,
+        placeholderCount,
+        placeholderSummary,
+        status,
+        tone,
+        detail,
+        title,
+        ariaLabel,
+        ready,
+        placeholderMessage,
+        lengthLabel,
+        previewText,
+      };
     });
   }, [
     prTemplateStats.hasReleaseNotesContent,
@@ -3746,6 +3716,21 @@ export default function ChatGptUIPersist() {
                   <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">
                     {section.detail || section.placeholderMessage || 'Add details to summarize readiness.'}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {section.lengthLabel && (
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-100">
+                        {section.lengthLabel}
+                      </span>
+                    )}
+                    {section.placeholderCount > 0 && section.placeholderSummary && (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-[0.65rem] font-semibold text-amber-800 dark:bg-amber-500/20 dark:text-amber-100">
+                        {section.placeholderSummary}
+                      </span>
+                    )}
+                  </div>
+                  {section.previewText && (
+                    <p className="mt-1 text-[0.65rem] text-gray-600 dark:text-gray-300">Preview: {section.previewText}</p>
+                  )}
                   {section.placeholderMessage && (
                     <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
                   )}
