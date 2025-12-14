@@ -1782,18 +1782,6 @@ export default function ChatGptUIPersist() {
     prTemplateStats.hasReleaseNotesContent ||
     prTemplateStats.hasTestingContent;
   const prHelperHasPlaceholders = prTemplatePlaceholderCount > 0;
-  const showPrHelperBadge = prHelperHasPlaceholders || prHelperHasShareableContent;
-  const prHelperBadgeText = prHelperHasPlaceholders
-    ? formatNumber(prTemplatePlaceholderCount)
-    : 'Ready';
-  const prHelperBadgeAriaText = prHelperHasPlaceholders
-    ? `${formatNumber(prTemplatePlaceholderCount)} placeholder${
-        prTemplatePlaceholderCount === 1 ? '' : 's'
-      } to resolve`
-    : 'Template ready to share';
-  const prHelperBadgeClass = prHelperHasPlaceholders
-    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
-    : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
   const prHelperStatusBadges = useMemo(() => {
     const badges = [];
 
@@ -1872,6 +1860,25 @@ export default function ChatGptUIPersist() {
     prTemplateStats.hasTestingSection,
     templatePlaceholderSummaryDisplay,
   ]);
+
+  const showPrHelperBadge = prHelperStatusBadges.length > 0;
+  const prHelperBadgeText = prHelperHasPlaceholders
+    ? formatNumber(prTemplatePlaceholderCount)
+    : prHelperHasShareableContent
+    ? 'Ready'
+    : 'Start';
+  const prHelperBadgeAriaText = prHelperHasPlaceholders
+    ? `${formatNumber(prTemplatePlaceholderCount)} placeholder${
+        prTemplatePlaceholderCount === 1 ? '' : 's'
+      } to resolve`
+    : prHelperHasShareableContent
+    ? 'Template ready to share'
+    : 'Add Summary, Release notes, or Testing notes to get the template ready';
+  const prHelperBadgeClass = prHelperHasPlaceholders
+    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
+    : prHelperHasShareableContent
+    ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
+    : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-100';
 
   const prHelperButtonStatus = prHelperStatusBadges.join(' • ');
   const prHelperButtonTitle = prHelperButtonStatus || 'Open PR helper';
@@ -3742,6 +3749,11 @@ export default function ChatGptUIPersist() {
               {!prHelperHasPlaceholders && prHelperHasShareableContent && (
                 <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
                   Copy or insert sections without placeholder cleanup.
+                </span>
+              )}
+              {!prHelperHasPlaceholders && !prHelperHasShareableContent && (
+                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
+                  Add Summary, Release notes, or Testing details to prep the template.
                 </span>
               )}
               {prHelperSectionStatusLine && (
