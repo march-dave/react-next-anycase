@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
+import { GoogleGenerativeAI } from '@google/genai'
 
 const navItems = [
   { id: 'concierge', label: 'Concierge' },
@@ -50,10 +51,13 @@ const initialMessages = [
   {
     id: 'intro',
     sender: 'lumi',
-    text: "Welcome back, Alexander. I am Lumi, your concierge. Shall I arrange tonight's turndown with lavender and soft jazz?",
+    text: "Welcome back, Alexander. I am Lumi, your private concierge. Shall I arrange tonight's turndown with lavender and soft jazz?",
     timestamp: 'Now'
   }
 ]
+
+const SYSTEM_INSTRUCTION =
+  'You are Lumi, a sophisticated concierge. Use elevated vocabulary (e.g., Certainly, Splendid). You can book services and provide local recommendations.'
 
 const SparklesIcon = ({ className }) => (
   <svg
@@ -163,6 +167,19 @@ const KeyIcon = ({ className }) => (
   </svg>
 )
 
+const requestHotelService = async (request) =>
+  new Promise((resolve) =>
+    setTimeout(
+      () =>
+        resolve({
+          status: 'confirmed',
+          eta: '10 minutes',
+          request
+        }),
+      550
+    )
+  )
+
 function TypingLoader() {
   return (
     <div className="flex items-center gap-1 px-3 py-2">
@@ -226,13 +243,18 @@ export default function LumiereApp() {
   const [isTyping, setIsTyping] = useState(false)
   const [filter, setFilter] = useState('All')
   const [bookings, setBookings] = useState({})
+  const apiKey = useMemo(() => process.env.NEXT_PUBLIC_API_KEY || process.env.API_KEY || '', [])
+  const genAiClient = useMemo(() => {
+    if (!apiKey) return null
+    return new GoogleGenerativeAI(apiKey)
+  }, [apiKey])
 
   const filteredExperiences = useMemo(() => {
     if (filter === 'All') return experiences
     return experiences.filter((item) => item.category === filter)
   }, [filter])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return
 
     const userMessage = {
@@ -246,19 +268,18 @@ export default function LumiereApp() {
     setInputValue('')
     setIsTyping(true)
 
-    setTimeout(() => {
-      const reply = simulateGeminiResponse(userMessage.text)
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `${userMessage.id}-reply`,
-          sender: 'lumi',
-          text: reply,
-          timestamp: 'Just now'
-        }
-      ])
-      setIsTyping(false)
-    }, 650)
+    const reply = await generateLumiReply(userMessage.text)
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `${userMessage.id}-reply`,
+        sender: 'lumi',
+        text: reply,
+        timestamp: 'Just now'
+      }
+    ])
+    setIsTyping(false)
   }
 
   const simulateGeminiResponse = (prompt) => {
@@ -282,6 +303,67 @@ export default function LumiereApp() {
     }
 
     return response
+  }
+
+  const generateLumiReply = async (prompt) => {
+    const lower = prompt.toLowerCase()
+    if (!genAiClient) {
+      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
+        const service = await requestHotelService(prompt)
+        return `Splendid. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
+      }
+      return simulateGeminiResponse(prompt)
+    }
+
+    try {
+      const model = genAiClient.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+        systemInstruction: SYSTEM_INSTRUCTION,
+        tools: [
+          {
+            functionDeclarations: [
+              {
+                name: 'requestHotelService',
+                description: 'Place a request for hotel services such as towels, pillows, or housekeeping.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    request: {
+                      type: 'string',
+                      description: 'Details of the service to be requested.'
+                    }
+                  },
+                  required: ['request']
+                }
+              }
+            ]
+          }
+        ]
+      })
+
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }]
+          }
+        ]
+      })
+
+      const text = result?.response?.text()
+      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
+        const service = await requestHotelService(prompt)
+        return `${text}\n\nrequestHotelService • ${service.status} · ETA ${service.eta}`
+      }
+      return text || simulateGeminiResponse(prompt)
+    } catch (error) {
+      console.error('Gemini error', error)
+      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
+        const service = await requestHotelService(prompt)
+        return `Certainly. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
+      }
+      return simulateGeminiResponse(prompt)
+    }
   }
 
   const handleReserve = (id) => {
