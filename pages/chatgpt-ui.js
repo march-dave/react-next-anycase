@@ -1874,9 +1874,13 @@ export default function ChatGptUIPersist() {
   ]);
 
   const prHelperButtonStatus = prHelperStatusBadges.join(' • ');
-  const prHelperButtonTitle = prHelperButtonStatus || 'Open PR helper';
+  const prHelperButtonTitle =
+    prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
+    'Open PR helper';
   const prHelperButtonAriaLabel =
     prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
     (prHelperHasPlaceholders
       ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
       : 'PR helper ready to share');
