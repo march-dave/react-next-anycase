@@ -1837,9 +1837,13 @@ export default function ChatGptUIPersist() {
     : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-100';
 
   const prHelperButtonStatus = prHelperStatusBadges.join(' • ');
-  const prHelperButtonTitle = prHelperButtonStatus || 'Open PR helper';
+  const prHelperButtonTitle =
+    prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
+    'Open PR helper';
   const prHelperButtonAriaLabel =
     prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
     (prHelperHasPlaceholders
       ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
       : 'PR helper ready to share');
