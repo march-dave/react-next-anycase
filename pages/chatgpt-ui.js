@@ -3831,14 +3831,21 @@ export default function ChatGptUIPersist() {
                     {section.ready ? 'Ready' : 'Needs update'}
                   </span>
                 </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleCopyPrOverview}
-                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
-              >
-                <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
-              </button>
+                <p className="mt-1 leading-snug text-gray-700 dark:text-gray-200">{section.message}</p>
+                {section.placeholderMessage && (
+                  <p className="mt-1 leading-snug text-amber-700 dark:text-amber-200">
+                    {section.placeholderMessage}
+                  </p>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleCopyPrOverview}
+              className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+            >
+              <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+            </button>
             </div>
           </div>
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
