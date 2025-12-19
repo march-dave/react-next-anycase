@@ -1,5 +1,7 @@
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
+import { GoogleGenerativeAI } from '@google/genai'
+import { CheckCircle2, KeyRound, MessageCircle, Send, Sparkles, User, Wifi } from 'lucide-react'
 
 const navItems = [
   { id: 'concierge', label: 'Concierge' },
@@ -50,118 +52,26 @@ const initialMessages = [
   {
     id: 'intro',
     sender: 'lumi',
-    text: "Welcome back, Alexander. I am Lumi, your concierge. Shall I arrange tonight's turndown with lavender and soft jazz?",
+    text: "Welcome back, Alexander. I am Lumi, your private concierge. Shall I arrange tonight's turndown with lavender and soft jazz?",
     timestamp: 'Now'
   }
 ]
 
-const SparklesIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 3l1.46 3.54L17 8l-3.54 1.46L12 13l-1.46-3.54L7 8l3.54-1.46L12 3z" />
-    <path d="M5 17l.75 1.5L7 19l-1.25.5L5 21l-.75-1.5L3 19l1.25-.5z" />
-    <path d="M17 14l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />
-  </svg>
-)
+const SYSTEM_INSTRUCTION =
+  'You are Lumi, a sophisticated concierge. Use elevated vocabulary (e.g., Certainly, Splendid). You can book services and provide local recommendations.'
 
-const MessageCircleIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.38 8.38 0 0 1-5.4-1.9L3 21l1.9-4.1A8.38 8.38 0 0 1 3 11.5 8.5 8.5 0 0 1 11.5 3 8.5 8.5 0 0 1 21 11.5z" />
-  </svg>
-)
-
-const UserIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z" />
-    <path d="M4 21v-1a7 7 0 0 1 14 0v1" />
-  </svg>
-)
-
-const SendIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M22 2 11 13" />
-    <path d="M22 2 15 22 11 13 2 9z" />
-  </svg>
-)
-
-const WifiIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M5 12.55a11 11 0 0 1 14 0" />
-    <path d="M8.5 16a6 6 0 0 1 7 0" />
-    <path d="M12 20h.01" />
-  </svg>
-)
-
-const CheckCircleIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <path d="m22 4-10 10-3-3" />
-  </svg>
-)
-
-const KeyIcon = ({ className }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M21 2l-2 2" />
-    <path d="M15 8l-2 2" />
-    <path d="M18 5l-7.5 7.5a4.5 4.5 0 1 1-2-2L16 3" />
-    <path d="m16 3 5 5" />
-  </svg>
-)
+const requestHotelService = async (request) =>
+  new Promise((resolve) =>
+    setTimeout(
+      () =>
+        resolve({
+          status: 'confirmed',
+          eta: '10 minutes',
+          request
+        }),
+      550
+    )
+  )
 
 function TypingLoader() {
   return (
@@ -226,13 +136,18 @@ export default function LumiereApp() {
   const [isTyping, setIsTyping] = useState(false)
   const [filter, setFilter] = useState('All')
   const [bookings, setBookings] = useState({})
+  const apiKey = useMemo(() => process.env.NEXT_PUBLIC_API_KEY || process.env.API_KEY || '', [])
+  const genAiClient = useMemo(() => {
+    if (!apiKey) return null
+    return new GoogleGenerativeAI(apiKey)
+  }, [apiKey])
 
   const filteredExperiences = useMemo(() => {
     if (filter === 'All') return experiences
     return experiences.filter((item) => item.category === filter)
   }, [filter])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return
 
     const userMessage = {
@@ -246,19 +161,18 @@ export default function LumiereApp() {
     setInputValue('')
     setIsTyping(true)
 
-    setTimeout(() => {
-      const reply = simulateGeminiResponse(userMessage.text)
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `${userMessage.id}-reply`,
-          sender: 'lumi',
-          text: reply,
-          timestamp: 'Just now'
-        }
-      ])
-      setIsTyping(false)
-    }, 650)
+    const reply = await generateLumiReply(userMessage.text)
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `${userMessage.id}-reply`,
+        sender: 'lumi',
+        text: reply,
+        timestamp: 'Just now'
+      }
+    ])
+    setIsTyping(false)
   }
 
   const simulateGeminiResponse = (prompt) => {
@@ -284,6 +198,67 @@ export default function LumiereApp() {
     return response
   }
 
+  const generateLumiReply = async (prompt) => {
+    const lower = prompt.toLowerCase()
+    if (!genAiClient) {
+      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
+        const service = await requestHotelService(prompt)
+        return `Splendid. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
+      }
+      return simulateGeminiResponse(prompt)
+    }
+
+    try {
+      const model = genAiClient.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+        systemInstruction: SYSTEM_INSTRUCTION,
+        tools: [
+          {
+            functionDeclarations: [
+              {
+                name: 'requestHotelService',
+                description: 'Place a request for hotel services such as towels, pillows, or housekeeping.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    request: {
+                      type: 'string',
+                      description: 'Details of the service to be requested.'
+                    }
+                  },
+                  required: ['request']
+                }
+              }
+            ]
+          }
+        ]
+      })
+
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }]
+          }
+        ]
+      })
+
+      const text = result?.response?.text()
+      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
+        const service = await requestHotelService(prompt)
+        return `${text}\n\nrequestHotelService • ${service.status} · ETA ${service.eta}`
+      }
+      return text || simulateGeminiResponse(prompt)
+    } catch (error) {
+      console.error('Gemini error', error)
+      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
+        const service = await requestHotelService(prompt)
+        return `Certainly. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
+      }
+      return simulateGeminiResponse(prompt)
+    }
+  }
+
   const handleReserve = (id) => {
     setBookings((prev) => ({
       ...prev,
@@ -292,9 +267,9 @@ export default function LumiereApp() {
   }
 
   const activeNavIcon = {
-    concierge: MessageCircleIcon,
-    curated: SparklesIcon,
-    account: UserIcon
+    concierge: MessageCircle,
+    curated: Sparkles,
+    account: User
   }
 
   return (
@@ -330,7 +305,7 @@ export default function LumiereApp() {
               <div className="flex items-center justify-between text-sm uppercase tracking-widest text-white/70">
                 <span>Suite</span>
                 <span className="flex items-center gap-2">
-                  <WifiIcon className="h-4 w-4" /> Connected
+                  <Wifi strokeWidth={1.5} className="h-4 w-4" /> Connected
                 </span>
               </div>
               <div className="mt-3 flex items-end justify-between">
@@ -399,7 +374,7 @@ export default function LumiereApp() {
                       className="flex h-11 w-11 items-center justify-center rounded-[2px] bg-onyx text-white transition duration-300 ease-out hover:-translate-y-0.5 hover:bg-onyx/90"
                       aria-label="Send"
                     >
-                      <SendIcon className="h-5 w-5" />
+                      <Send strokeWidth={1.5} className="h-5 w-5" />
                     </button>
                   </div>
                   <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-onyx/50">
@@ -416,7 +391,7 @@ export default function LumiereApp() {
                     <p className="text-xs uppercase tracking-[0.25em] text-onyx/50">Curated Exclusives</p>
                     <h2 className="font-serif text-3xl font-semibold">Made for Room 402</h2>
                   </div>
-                  <SparklesIcon className="h-7 w-7 text-gold" />
+                  <Sparkles strokeWidth={1.5} className="h-7 w-7 text-gold" />
                 </div>
 
                 <div className="mb-6 flex gap-3 overflow-x-auto no-scrollbar">
@@ -482,7 +457,7 @@ export default function LumiereApp() {
                       <h2 className="font-serif text-3xl font-semibold">Alexander Mercer</h2>
                       <p className="text-sm text-white/70">Platinum Guest</p>
                     </div>
-                    <SparklesIcon className="h-8 w-8 text-gold" />
+                          <Sparkles strokeWidth={1.5} className="h-8 w-8 text-gold" />
                   </div>
                   <div className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 px-5 py-4 text-sm">
                     <div>
@@ -504,13 +479,13 @@ export default function LumiereApp() {
                   </div>
                   <div className="flex items-center justify-between border-t border-white/10 px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <KeyIcon className="h-5 w-5 text-gold" />
+                      <KeyRound strokeWidth={1.5} className="h-5 w-5 text-gold" />
                       <div>
                         <p className="text-xs uppercase tracking-[0.25em] text-white/60">Mobile Key</p>
                         <p className="text-sm font-semibold">Active for Suite 402</p>
                       </div>
                     </div>
-                    <CheckCircleIcon className="h-6 w-6 text-gold" />
+                    <CheckCircle2 strokeWidth={1.5} className="h-6 w-6 text-gold" />
                   </div>
                 </div>
 
@@ -539,7 +514,7 @@ export default function LumiereApp() {
                       isActive ? 'text-gold' : 'text-onyx/60 hover:text-onyx'
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon strokeWidth={1.5} className="h-5 w-5" />
                     <span className={`font-serif text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
                   </button>
                 )

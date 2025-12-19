@@ -1782,18 +1782,6 @@ export default function ChatGptUIPersist() {
     prTemplateStats.hasReleaseNotesContent ||
     prTemplateStats.hasTestingContent;
   const prHelperHasPlaceholders = prTemplatePlaceholderCount > 0;
-  const showPrHelperBadge = prHelperHasPlaceholders || prHelperHasShareableContent;
-  const prHelperBadgeText = prHelperHasPlaceholders
-    ? formatNumber(prTemplatePlaceholderCount)
-    : 'Ready';
-  const prHelperBadgeAriaText = prHelperHasPlaceholders
-    ? `${formatNumber(prTemplatePlaceholderCount)} placeholder${
-        prTemplatePlaceholderCount === 1 ? '' : 's'
-      } to resolve`
-    : 'Template ready to share';
-  const prHelperBadgeClass = prHelperHasPlaceholders
-    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
-    : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200';
   const prHelperStatusBadges = useMemo(() => {
     const badges = [];
 
@@ -1803,80 +1791,59 @@ export default function ChatGptUIPersist() {
       badges.push('Template ready to share');
     }
 
-    const addSectionBadge = (
-      label,
-      { hasSection, hasContent, preview, hasPlaceholders, missingSectionLabel, missingContentLabel }
-    ) => {
-      if (!hasSection) {
-        badges.push(`${label}: ${missingSectionLabel || 'Add heading'}`);
-        return;
+    prSectionReadiness.forEach((section) => {
+      let statusLabel = 'Ready';
+
+      if (!section.hasSection) {
+        statusLabel = 'Add heading';
+      } else if (!section.hasContent) {
+        statusLabel = 'Add notes';
+      } else if (section.placeholderCount > 0) {
+        const placeholderLabel = section.placeholderCount === 1 ? 'placeholder' : 'placeholders';
+        statusLabel = `${formatNumber(section.placeholderCount)} ${placeholderLabel}`;
+      } else if (section.lengthLabel) {
+        statusLabel = section.lengthLabel;
       }
 
-      if (!hasContent) {
-        badges.push(`${label}: ${missingContentLabel || 'Add details'}`);
-        return;
-      }
-
-      const previewText = preview ? ` — ${preview}` : '';
-
-      if (hasPlaceholders) {
-        badges.push(`${label}: Swap placeholders${previewText}`);
-        return;
-      }
-
-      badges.push(`${label}: Ready${previewText}`);
-    };
-
-    addSectionBadge('Summary', {
-      hasSection: prTemplateStats.hasSummarySection,
-      hasContent: prTemplateStats.hasSummaryContent,
-      preview: prTemplateStats.summaryPreview,
-      hasPlaceholders: prTemplateStats.hasSummaryPlaceholders,
-      missingSectionLabel: 'Add Summary heading',
-      missingContentLabel: 'Add summary details',
-    });
-
-    addSectionBadge('Release notes', {
-      hasSection: prTemplateStats.hasReleaseNotesSection,
-      hasContent: prTemplateStats.hasReleaseNotesContent,
-      preview: prTemplateStats.releaseNotesPreview,
-      hasPlaceholders: prTemplateStats.hasReleaseNotesPlaceholders,
-      missingSectionLabel: 'Add release notes heading',
-      missingContentLabel: 'Add release notes details',
-    });
-
-    addSectionBadge('Testing', {
-      hasSection: prTemplateStats.hasTestingSection,
-      hasContent: prTemplateStats.hasTestingContent,
-      preview: prTemplateStats.testingPreview,
-      hasPlaceholders: prTemplateStats.hasTestingPlaceholders,
-      missingSectionLabel: 'Add Testing heading',
-      missingContentLabel: 'Add testing notes',
+      const previewLabel = section.previewText ? ` — ${section.previewText}` : '';
+      badges.push(`${section.label}: ${statusLabel}${previewLabel}`);
     });
 
     return badges;
   }, [
     prHelperHasPlaceholders,
     prHelperHasShareableContent,
-    prTemplateStats.hasReleaseNotesContent,
-    prTemplateStats.hasSummaryContent,
-    prTemplateStats.hasTestingContent,
-    prTemplateStats.releaseNotesPreview,
-    prTemplateStats.summaryPreview,
-    prTemplateStats.testingPreview,
-    prTemplateStats.hasReleaseNotesPlaceholders,
-    prTemplateStats.hasReleaseNotesSection,
-    prTemplateStats.hasSummaryPlaceholders,
-    prTemplateStats.hasSummarySection,
-    prTemplateStats.hasTestingPlaceholders,
-    prTemplateStats.hasTestingSection,
+    prSectionReadiness,
     templatePlaceholderSummaryDisplay,
   ]);
 
+  const showPrHelperBadge = prHelperStatusBadges.length > 0;
+  const prHelperBadgeText = prHelperHasPlaceholders
+    ? formatNumber(prTemplatePlaceholderCount)
+    : prHelperHasShareableContent
+    ? 'Ready'
+    : 'Start';
+  const prHelperBadgeAriaText = prHelperHasPlaceholders
+    ? `${formatNumber(prTemplatePlaceholderCount)} placeholder${
+        prTemplatePlaceholderCount === 1 ? '' : 's'
+      } to resolve`
+    : prHelperHasShareableContent
+    ? 'Template ready to share'
+    : 'Add Summary, Release notes, or Testing notes to get the template ready';
+  const prHelperBadgeClass = prHelperHasPlaceholders
+    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
+    : prHelperHasShareableContent
+    ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
+    : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-100';
+
   const prHelperButtonStatus = prHelperStatusBadges.join(' • ');
-  const prHelperButtonTitle = prHelperButtonStatus || 'Open PR helper';
+  const prHelperButtonTitle =
+    prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
+    'Open PR helper';
   const prHelperButtonAriaLabel =
     prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
     (prHelperHasPlaceholders
       ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
       : 'PR helper ready to share');
@@ -1986,6 +1953,9 @@ export default function ChatGptUIPersist() {
     return sections.map((section) => {
       const placeholderCount = countPlaceholderOccurrences(section.placeholderWarnings);
       const placeholderLabel = placeholderCount === 1 ? 'placeholder' : 'placeholders';
+      const lengthLabel = formatLengthLabel(section.words, section.characters);
+      const previewText = typeof section.preview === 'string' ? section.preview.trim() : '';
+      const placeholderSummary = formatPlaceholderSummary(section.placeholderWarnings);
       let status = 'Ready';
       let tone = 'ready';
       let detail = '';
@@ -2004,8 +1974,6 @@ export default function ChatGptUIPersist() {
         detail =
           section.placeholderAction || 'Resolve placeholder details before copying or sharing this section.';
       } else {
-        const lengthLabel = formatLengthLabel(section.words, section.characters);
-        const previewText = typeof section.preview === 'string' ? section.preview.trim() : '';
         detail = [lengthLabel, previewText].filter(Boolean).join(' — ');
       }
 
@@ -2022,7 +1990,20 @@ export default function ChatGptUIPersist() {
             'Resolve placeholder details before copying or sharing this section.'
           : '';
 
-      return { ...section, placeholderCount, status, tone, detail, title, ariaLabel, ready, placeholderMessage };
+      return {
+        ...section,
+        placeholderCount,
+        placeholderSummary,
+        status,
+        tone,
+        detail,
+        title,
+        ariaLabel,
+        ready,
+        placeholderMessage,
+        lengthLabel,
+        previewText,
+      };
     });
   }, [
     prTemplateStats.hasReleaseNotesContent,
