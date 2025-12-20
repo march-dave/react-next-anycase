@@ -858,6 +858,7 @@ export default function ChatGptUIPersist() {
   const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
   const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
   const [prOverviewCopyStatus, setPrOverviewCopyStatus] = useState('');
+  const [prOverviewInsertStatus, setPrOverviewInsertStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -2830,6 +2831,23 @@ export default function ChatGptUIPersist() {
     setTimeout(() => setPrOverviewCopyStatus(''), 2000);
   }, [prOverviewText]);
 
+  const handleInsertPrOverview = useCallback(() => {
+    const trimmed = prOverviewText.trim();
+    if (!trimmed) {
+      setPrOverviewInsertStatus('No overview to insert');
+      setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(trimmed);
+    setPrOverviewInsertStatus(inserted ? 'Inserted PR overview' : 'Unable to insert');
+    if (inserted) {
+      setShowPrHelper(false);
+    }
+
+    setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, prOverviewText]);
+
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
     if (!trimmedReminders) {
@@ -2943,6 +2961,8 @@ export default function ChatGptUIPersist() {
     setPrInsightsAppendStatus('');
     setPrTemplateTrimStatus('');
     setPrReferenceStatus('');
+    setPrOverviewCopyStatus('');
+    setPrOverviewInsertStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -3834,6 +3854,13 @@ export default function ChatGptUIPersist() {
                 className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
               >
                 <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleInsertPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prOverviewInsertStatus || 'Insert overview into chat'}</span>
               </button>
             </div>
           </div>
