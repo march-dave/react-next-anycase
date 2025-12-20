@@ -858,6 +858,7 @@ export default function ChatGptUIPersist() {
   const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
   const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
   const [prOverviewCopyStatus, setPrOverviewCopyStatus] = useState('');
+  const [prOverviewInsertStatus, setPrOverviewInsertStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -2834,6 +2835,23 @@ export default function ChatGptUIPersist() {
     setTimeout(() => setPrOverviewCopyStatus(''), 2000);
   }, [prOverviewText]);
 
+  const handleInsertPrOverview = useCallback(() => {
+    const trimmed = prOverviewText.trim();
+    if (!trimmed) {
+      setPrOverviewInsertStatus('No overview to insert');
+      setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(trimmed);
+    setPrOverviewInsertStatus(inserted ? 'Inserted PR overview' : 'Unable to insert');
+    if (inserted) {
+      setShowPrHelper(false);
+    }
+
+    setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, prOverviewText]);
+
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
     if (!trimmedReminders) {
@@ -2947,6 +2965,8 @@ export default function ChatGptUIPersist() {
     setPrInsightsAppendStatus('');
     setPrTemplateTrimStatus('');
     setPrReferenceStatus('');
+    setPrOverviewCopyStatus('');
+    setPrOverviewInsertStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -3784,39 +3804,21 @@ export default function ChatGptUIPersist() {
                     )}
                   </div>
                 </div>
-                {prOverviewSummaryText && (
-                  <p className="text-[0.68rem] text-gray-600 dark:text-gray-300" aria-label="PR overview summary">
-                    {prOverviewSummaryText}
-                  </p>
-                )}
-                <div className="grid w-full gap-2 sm:grid-cols-3">
-                  {prSectionStatusDetails.map((section) => (
-                    <div
-                      key={section.id}
-                      className="rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                      title={section.message}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
-                            section.ready
-                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
-                              : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
-                          }`}
-                          aria-label={`${section.label} status: ${section.ready ? 'Ready' : 'Needs update'}`}
-                        >
-                          {section.ready ? 'Ready' : 'Needs update'}
-                        </span>
-                      </div>
-                      <p className="mt-1 leading-snug text-gray-700 dark:text-gray-200">{section.message}</p>
-                      {section.placeholderMessage && (
-                        <p className="mt-1 text-[0.65rem] font-medium text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleCopyPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleInsertPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prOverviewInsertStatus || 'Insert overview into chat'}</span>
+              </button>
             </div>
           )}
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
