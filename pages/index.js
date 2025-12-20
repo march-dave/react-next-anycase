@@ -1,2 +1,2 @@
-// Use the Lumiere concierge experience as the landing page
-export { default } from './lumiere'
+// Default to the persistent ChatGPT UI on the home page
+export { default } from './chatgpt-ui'
