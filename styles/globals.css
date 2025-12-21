@@ -9,6 +9,11 @@
   color: #1c1c1c;
 }
 
+::selection {
+  background-color: #C5A059;
+  color: #1c1c1c;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   letter-spacing: 0.01em;

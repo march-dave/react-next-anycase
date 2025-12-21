@@ -343,7 +343,13 @@ export default function LumiereApp() {
                       <p className="font-serif text-xl font-semibold">Lumi at The Lumiere</p>
                     </div>
                   </div>
-                  <div className="text-right text-xs uppercase tracking-[0.3em] text-gold">Platinum</div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 rounded-[2px] border border-stone-200 bg-white/70 px-3 py-2 text-[11px] uppercase tracking-[0.25em] text-onyx/70 shadow-sm">
+                      <WifiIcon className="h-4 w-4 text-gold" />
+                      Connected
+                    </div>
+                    <div className="text-right text-xs uppercase tracking-[0.3em] text-gold">Platinum</div>
+                  </div>
                 </header>
 
                 <div className="flex-1 space-y-4 px-5 py-6">
