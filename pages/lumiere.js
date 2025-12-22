@@ -352,7 +352,7 @@ export default function LumiereApp() {
                   </div>
                 </header>
 
-                <div className="flex-1 space-y-4 px-5 py-6">
+                <div className="flex-1 space-y-4 px-5 py-6 no-scrollbar">
                   {messages.map((message) => (
                     <MessageBubble key={message.id} sender={message.sender} text={message.text} timestamp={message.timestamp} />
                   ))}
@@ -405,7 +405,7 @@ export default function LumiereApp() {
                     <button
                       key={item}
                       onClick={() => setFilter(item)}
-                      className={`rounded-[2px] border px-4 py-2 text-sm uppercase tracking-[0.2em] transition duration-300 ease-out ${
+                      className={`rounded-[2px] border px-4 py-2 text-sm uppercase tracking-[0.2em] transition duration-300 ease-out font-serif ${
                         filter === item
                           ? 'border-gold bg-gold text-onyx'
                           : 'border-stone-200 bg-white/70 text-onyx hover:border-gold hover:text-onyx'
