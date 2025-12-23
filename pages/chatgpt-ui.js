@@ -858,6 +858,7 @@ export default function ChatGptUIPersist() {
   const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
   const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
   const [prOverviewCopyStatus, setPrOverviewCopyStatus] = useState('');
+  const [prOverviewInsertStatus, setPrOverviewInsertStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -2834,6 +2835,23 @@ export default function ChatGptUIPersist() {
     setTimeout(() => setPrOverviewCopyStatus(''), 2000);
   }, [prOverviewText]);
 
+  const handleInsertPrOverview = useCallback(() => {
+    const trimmed = prOverviewText.trim();
+    if (!trimmed) {
+      setPrOverviewInsertStatus('No overview to insert');
+      setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(trimmed);
+    setPrOverviewInsertStatus(inserted ? 'Inserted PR overview' : 'Unable to insert');
+    if (inserted) {
+      setShowPrHelper(false);
+    }
+
+    setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, prOverviewText]);
+
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
     if (!trimmedReminders) {
@@ -2947,6 +2965,8 @@ export default function ChatGptUIPersist() {
     setPrInsightsAppendStatus('');
     setPrTemplateTrimStatus('');
     setPrReferenceStatus('');
+    setPrOverviewCopyStatus('');
+    setPrOverviewInsertStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -3729,125 +3749,78 @@ export default function ChatGptUIPersist() {
           >
             {showSettings ? 'Hide settings' : 'Settings'}
           </button>
-          {showPrHelperBadge && prHelperStatusBadges.length > 0 && (
+          {prSectionStatusDetails.length > 0 && (
             <div
-              className="flex w-full flex-wrap items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-[0.72rem] text-blue-800 dark:border-blue-700/50 dark:bg-blue-950/40 dark:text-blue-200"
+              className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
               aria-live="polite"
             >
-              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100">
-                PR helper status
-              </span>
-              {prHelperStatusBadges.map((badge, index) => (
-                <span
-                  key={`${badge}-${index}`}
-                  className="inline-flex items-center rounded-full border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-medium text-blue-700 shadow-sm dark:border-blue-600 dark:bg-gray-800 dark:text-blue-200"
-                >
-                  {badge}
-                </span>
-              ))}
-              {!prHelperHasPlaceholders && prHelperHasShareableContent && (
-                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
-                  Copy or insert sections without placeholder cleanup.
-                </span>
-              )}
-              {!prHelperHasPlaceholders && !prHelperHasShareableContent && (
-                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
-                  Add Summary, Release notes, or Testing details to prep the template.
-                </span>
-              )}
-              {prHelperSectionStatusLine && (
-                <span className="w-full text-[0.65rem] text-blue-700 dark:text-blue-200">
-                  {prHelperSectionStatusLine}
-                </span>
-              )}
-              {prTemplateStats.hasPlaceholders && (
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={handleCopyPlaceholderReminders}
-                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
-                  >
-                    <span aria-live="polite">
-                      {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
+              <div className="flex flex-1 flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
+                    PR status
+                  </span>
+                  {prHelperStatusBadges.map((badge, index) => (
+                    <span
+                      key={`${badge}-${index}`}
+                      className="inline-flex items-center rounded-full border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-medium text-blue-700 shadow-sm dark:border-blue-600 dark:bg-gray-800 dark:text-blue-200"
+                    >
+                      {badge}
                     </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleInsertPlaceholderReminders}
-                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
-                  >
-                    <span aria-live="polite">
-                      {prPlaceholderInsertStatus || 'Insert reminders into chat'}
+                  ))}
+                  {prHelperSectionStatusLine && (
+                    <span className="text-[0.65rem] text-blue-700 dark:text-blue-200">
+                      {prHelperSectionStatusLine}
                     </span>
-                  </button>
+                  )}
+                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopyPrOverview}
+                      className="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400"
+                    >
+                      <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+                    </button>
+                    {prTemplateStats.hasPlaceholders && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handleCopyPlaceholderReminders}
+                          className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                        >
+                          <span aria-live="polite">
+                            {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleInsertPlaceholderReminders}
+                          className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                        >
+                          <span aria-live="polite">
+                            {prPlaceholderInsertStatus || 'Insert reminders into chat'}
+                          </span>
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              )}
+              ))}
+              <button
+                type="button"
+                onClick={handleCopyPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleInsertPrOverview}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prOverviewInsertStatus || 'Insert overview into chat'}</span>
+              </button>
             </div>
           )}
-          <div
-            className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
-            aria-live="polite"
-          >
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
-              PR overview
-            </span>
-            <div className="flex flex-1 flex-wrap items-center gap-2">
-              {prSectionReadiness.map((section) => (
-                <div
-                  key={section.id}
-                  className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
-                        section.ready
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
-                          : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
-                      }`}
-                    >
-                      {section.ready ? 'Ready' : 'Needs update'}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">
-                    {section.detail || section.placeholderMessage || 'Add details to summarize readiness.'}
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {section.lengthLabel && (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-100">
-                        {section.lengthLabel}
-                      </span>
-                    )}
-                    {section.placeholderCount > 0 && section.placeholderSummary && (
-                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-[0.65rem] font-semibold text-amber-800 dark:bg-amber-500/20 dark:text-amber-100">
-                        {section.placeholderSummary}
-                      </span>
-                    )}
-                  </div>
-                  {section.previewText && (
-                    <p className="mt-1 text-[0.65rem] text-gray-600 dark:text-gray-300">Preview: {section.previewText}</p>
-                  )}
-                  {section.placeholderMessage && (
-                    <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
-                  )}
-                </div>
-                <p className="mt-1 leading-snug text-gray-700 dark:text-gray-200">{section.message}</p>
-                {section.placeholderMessage && (
-                  <p className="mt-1 leading-snug text-amber-700 dark:text-amber-200">
-                    {section.placeholderMessage}
-                  </p>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleCopyPrOverview}
-              className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
-            >
-              <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
-            </button>
-            </div>
-          </div>
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
               {headerMessageCountLabel}
