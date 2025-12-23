@@ -15,6 +15,16 @@ body {
   background-color: #F2F2EF;
   color: #1c1c1c;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  transition: color 0.3s ease-out;
+}
+
+::selection {
+  background: rgba(197, 160, 89, 0.25);
+  color: #1c1c1c;
 }
 
 h1, h2, h3, h4, h5, h6 {
