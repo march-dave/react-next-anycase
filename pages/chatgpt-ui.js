@@ -2086,6 +2086,15 @@ export default function ChatGptUIPersist() {
       }),
     [prSectionReadiness]
   );
+  const prSectionStatusMap = useMemo(() => {
+    const map = {};
+
+    prSectionStatusDetails.forEach((section) => {
+      map[section.id] = section;
+    });
+
+    return map;
+  }, [prSectionStatusDetails]);
   const prOverviewText = useMemo(() => {
     const lines = ['PR overview'];
 
@@ -3792,53 +3801,58 @@ export default function ChatGptUIPersist() {
               PR overview
             </span>
             <div className="flex flex-1 flex-wrap items-center gap-2">
-              {prSectionReadiness.map((section) => (
-                <div
-                  key={section.id}
-                  className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
-                        section.ready
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
-                          : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
-                      }`}
-                    >
-                      {section.ready ? 'Ready' : 'Needs update'}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">
-                    {section.detail || section.placeholderMessage || 'Add details to summarize readiness.'}
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {section.lengthLabel && (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-100">
-                        {section.lengthLabel}
+              {prSectionReadiness.map((section) => {
+                const statusDetail = prSectionStatusMap[section.id] || {};
+                const cardDetail =
+                  section.detail || section.placeholderMessage || 'Add details to summarize readiness.';
+                const statusMessage =
+                  statusDetail.message || 'Ready to copy or insert without placeholder cleanup.';
+                const placeholderNote = statusDetail.placeholderMessage || section.placeholderMessage;
+                const showStatusMessage = statusMessage && statusMessage !== cardDetail;
+
+                return (
+                  <div
+                    key={section.id}
+                    className="min-w-[220px] rounded border border-gray-200 bg-white px-3 py-2 text-[0.72rem] shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">{section.label}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[0.65rem] font-semibold ${
+                          section.ready
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100'
+                            : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100'
+                        }`}
+                      >
+                        {section.ready ? 'Ready' : 'Needs update'}
                       </span>
+                    </div>
+                    <p className="mt-1 text-[0.7rem] text-gray-600 dark:text-gray-300">{cardDetail}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {section.lengthLabel && (
+                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-100">
+                          {section.lengthLabel}
+                        </span>
+                      )}
+                      {section.placeholderCount > 0 && section.placeholderSummary && (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-[0.65rem] font-semibold text-amber-800 dark:bg-amber-500/20 dark:text-amber-100">
+                          {section.placeholderSummary}
+                        </span>
+                      )}
+                    </div>
+                    {section.previewText && (
+                      <p className="mt-1 text-[0.65rem] text-gray-600 dark:text-gray-300">Preview: {section.previewText}</p>
                     )}
-                    {section.placeholderCount > 0 && section.placeholderSummary && (
-                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-[0.65rem] font-semibold text-amber-800 dark:bg-amber-500/20 dark:text-amber-100">
-                        {section.placeholderSummary}
-                      </span>
+                    {showStatusMessage && (
+                      <p className="mt-2 leading-snug text-gray-700 dark:text-gray-200">{statusMessage}</p>
+                    )}
+                    {placeholderNote && (
+                      <p className="mt-1 leading-snug text-amber-700 dark:text-amber-200">{placeholderNote}</p>
                     )}
                   </div>
-                  {section.previewText && (
-                    <p className="mt-1 text-[0.65rem] text-gray-600 dark:text-gray-300">Preview: {section.previewText}</p>
-                  )}
-                  {section.placeholderMessage && (
-                    <p className="mt-1 text-[0.65rem] text-amber-700 dark:text-amber-200">{section.placeholderMessage}</p>
-                  )}
-                </div>
-                <p className="mt-1 leading-snug text-gray-700 dark:text-gray-200">{section.message}</p>
-                {section.placeholderMessage && (
-                  <p className="mt-1 leading-snug text-amber-700 dark:text-amber-200">
-                    {section.placeholderMessage}
-                  </p>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </div>
             <button
               type="button"
               onClick={handleCopyPrOverview}
