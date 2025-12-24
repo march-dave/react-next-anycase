@@ -858,6 +858,7 @@ export default function ChatGptUIPersist() {
   const [prPlaceholderCopyStatus, setPrPlaceholderCopyStatus] = useState('');
   const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
   const [prOverviewCopyStatus, setPrOverviewCopyStatus] = useState('');
+  const [prOverviewInsertStatus, setPrOverviewInsertStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -2843,6 +2844,23 @@ export default function ChatGptUIPersist() {
     setTimeout(() => setPrOverviewCopyStatus(''), 2000);
   }, [prOverviewText]);
 
+  const handleInsertPrOverview = useCallback(() => {
+    const trimmed = prOverviewText.trim();
+    if (!trimmed) {
+      setPrOverviewInsertStatus('No overview to insert');
+      setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(trimmed);
+    setPrOverviewInsertStatus(inserted ? 'Inserted PR overview' : 'Unable to insert');
+    if (inserted) {
+      setShowPrHelper(false);
+    }
+
+    setTimeout(() => setPrOverviewInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, prOverviewText]);
+
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
     if (!trimmedReminders) {
@@ -2956,6 +2974,8 @@ export default function ChatGptUIPersist() {
     setPrInsightsAppendStatus('');
     setPrTemplateTrimStatus('');
     setPrReferenceStatus('');
+    setPrOverviewCopyStatus('');
+    setPrOverviewInsertStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -3738,9 +3758,9 @@ export default function ChatGptUIPersist() {
           >
             {showSettings ? 'Hide settings' : 'Settings'}
           </button>
-          {showPrHelperBadge && prHelperStatusBadges.length > 0 && (
+          {prSectionStatusDetails.length > 0 && (
             <div
-              className="flex w-full flex-wrap items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-[0.72rem] text-blue-800 dark:border-blue-700/50 dark:bg-blue-950/40 dark:text-blue-200"
+              className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
               aria-live="polite"
             >
               <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100">
@@ -3861,7 +3881,7 @@ export default function ChatGptUIPersist() {
               <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
             </button>
             </div>
-          </div>
+          )}
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
               {headerMessageCountLabel}
