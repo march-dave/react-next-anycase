@@ -859,6 +859,8 @@ export default function ChatGptUIPersist() {
   const [prPlaceholderInsertStatus, setPrPlaceholderInsertStatus] = useState('');
   const [prOverviewCopyStatus, setPrOverviewCopyStatus] = useState('');
   const [prOverviewInsertStatus, setPrOverviewInsertStatus] = useState('');
+  const [prStatusCopyStatus, setPrStatusCopyStatus] = useState('');
+  const [prStatusInsertStatus, setPrStatusInsertStatus] = useState('');
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState('');
   const endRef = useRef(null);
@@ -2087,6 +2089,15 @@ export default function ChatGptUIPersist() {
       }),
     [prSectionReadiness]
   );
+  const prSectionStatusMap = useMemo(() => {
+    const map = {};
+
+    prSectionStatusDetails.forEach((section) => {
+      map[section.id] = section;
+    });
+
+    return map;
+  }, [prSectionStatusDetails]);
   const prOverviewText = useMemo(() => {
     const lines = ['PR overview'];
 
@@ -2110,6 +2121,37 @@ export default function ChatGptUIPersist() {
     prHelperHasPlaceholders,
     prSectionStatusDetails,
     prTemplatePlaceholderCount,
+    templatePlaceholderSummaryDisplay,
+  ]);
+  const prStatusSummaryText = useMemo(() => {
+    const lines = [];
+
+    if (prHelperStatusBadges.length > 0) {
+      lines.push(`Status: ${prHelperStatusBadges.join(' • ')}`);
+    }
+
+    if (prHelperSectionStatusLine) {
+      lines.push(`Highlights: ${prHelperSectionStatusLine}`);
+    }
+
+    if (prHelperHasPlaceholders && templatePlaceholderSummaryDisplay) {
+      lines.push(`Placeholders: ${templatePlaceholderSummaryDisplay}`);
+    }
+
+    prSectionStatusDetails.forEach((section) => {
+      const statusLabel = section.ready ? 'Ready' : 'Needs updates';
+      const details = [section.message, section.placeholderMessage]
+        .filter(Boolean)
+        .join(' ');
+      lines.push(`- ${section.label}: ${statusLabel}${details ? ` — ${details}` : ''}`);
+    });
+
+    return lines.join('\n').trim();
+  }, [
+    prHelperHasPlaceholders,
+    prHelperSectionStatusLine,
+    prHelperStatusBadges,
+    prSectionStatusDetails,
     templatePlaceholderSummaryDisplay,
   ]);
   const prSectionToneClass = {
@@ -2851,6 +2893,39 @@ export default function ChatGptUIPersist() {
 
     setTimeout(() => setPrOverviewInsertStatus(''), 2000);
   }, [insertTextIntoComposer, prOverviewText]);
+  const handleCopyPrStatusSummary = useCallback(async () => {
+    const trimmed = prStatusSummaryText.trim();
+    if (!trimmed) {
+      setPrStatusCopyStatus('No status to copy');
+      setTimeout(() => setPrStatusCopyStatus(''), 2000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(trimmed);
+      setPrStatusCopyStatus('Copied PR status');
+    } catch (err) {
+      setPrStatusCopyStatus('Copy failed');
+    }
+
+    setTimeout(() => setPrStatusCopyStatus(''), 2000);
+  }, [prStatusSummaryText]);
+  const handleInsertPrStatusSummary = useCallback(() => {
+    const trimmed = prStatusSummaryText.trim();
+    if (!trimmed) {
+      setPrStatusInsertStatus('No status to insert');
+      setTimeout(() => setPrStatusInsertStatus(''), 2000);
+      return;
+    }
+
+    const inserted = insertTextIntoComposer(trimmed);
+    setPrStatusInsertStatus(inserted ? 'Inserted PR status' : 'Unable to insert');
+    if (inserted) {
+      setShowPrHelper(false);
+    }
+
+    setTimeout(() => setPrStatusInsertStatus(''), 2000);
+  }, [insertTextIntoComposer, prStatusSummaryText]);
 
   const handleInsertPlaceholderReminders = useCallback(() => {
     const trimmedReminders = placeholderReminderText.trim();
@@ -2967,6 +3042,8 @@ export default function ChatGptUIPersist() {
     setPrReferenceStatus('');
     setPrOverviewCopyStatus('');
     setPrOverviewInsertStatus('');
+    setPrStatusCopyStatus('');
+    setPrStatusInsertStatus('');
     requestAnimationFrame(() => {
       if (prHelperTextareaRef.current) {
         prHelperTextareaRef.current.focus();
@@ -3754,22 +3831,50 @@ export default function ChatGptUIPersist() {
               className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
               aria-live="polite"
             >
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
-                    PR status
-                  </span>
-                  {prHelperStatusBadges.map((badge, index) => (
-                    <span
-                      key={`${badge}-${index}`}
-                      className="inline-flex items-center rounded-full border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-medium text-blue-700 shadow-sm dark:border-blue-600 dark:bg-gray-800 dark:text-blue-200"
-                    >
-                      {badge}
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100">
+                PR helper status
+              </span>
+              {prHelperStatusBadges.map((badge, index) => (
+                <span
+                  key={`${badge}-${index}`}
+                  className="inline-flex items-center rounded-full border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-medium text-blue-700 shadow-sm dark:border-blue-600 dark:bg-gray-800 dark:text-blue-200"
+                >
+                  {badge}
+                </span>
+              ))}
+              {!prHelperHasPlaceholders && prHelperHasShareableContent && (
+                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
+                  Copy or insert sections without placeholder cleanup.
+                </span>
+              )}
+              {!prHelperHasPlaceholders && !prHelperHasShareableContent && (
+                <span className="text-[0.65rem] font-medium text-blue-700 dark:text-blue-200">
+                  Add Summary, Release notes, or Testing details to prep the template.
+                </span>
+              )}
+              {prHelperSectionStatusLine && (
+                <span className="w-full text-[0.65rem] text-blue-700 dark:text-blue-200">
+                  {prHelperSectionStatusLine}
+                </span>
+              )}
+              {prTemplateStats.hasPlaceholders && (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyPlaceholderReminders}
+                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                  >
+                    <span aria-live="polite">
+                      {prPlaceholderCopyStatus || 'Copy placeholder reminders'}
                     </span>
-                  ))}
-                  {prHelperSectionStatusLine && (
-                    <span className="text-[0.65rem] text-blue-700 dark:text-blue-200">
-                      {prHelperSectionStatusLine}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleInsertPlaceholderReminders}
+                    className="inline-flex items-center rounded border border-blue-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+                  >
+                    <span aria-live="polite">
+                      {prPlaceholderInsertStatus || 'Insert reminders into chat'}
                     </span>
                   )}
                   <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -3779,6 +3884,13 @@ export default function ChatGptUIPersist() {
                       className="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400"
                     >
                       <span aria-live="polite">{prOverviewCopyStatus || 'Copy overview'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyPrStatusSummary}
+                      className="inline-flex items-center rounded border border-blue-200 bg-white px-2 py-1 text-[0.65rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500"
+                    >
+                      <span aria-live="polite">{prStatusCopyStatus || 'Copy status'}</span>
                     </button>
                     {prTemplateStats.hasPlaceholders && (
                       <>
@@ -3802,6 +3914,13 @@ export default function ChatGptUIPersist() {
                         </button>
                       </>
                     )}
+                    <button
+                      type="button"
+                      onClick={handleInsertPrStatusSummary}
+                      className="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-[0.65rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400"
+                    >
+                      <span aria-live="polite">{prStatusInsertStatus || 'Insert status into chat'}</span>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -3814,10 +3933,24 @@ export default function ChatGptUIPersist() {
               </button>
               <button
                 type="button"
+                onClick={handleCopyPrStatusSummary}
+                className="inline-flex items-center rounded border border-blue-200 bg-white px-3 py-2 text-[0.72rem] font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-200 dark:hover:border-blue-500 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prStatusCopyStatus || 'Copy status'}</span>
+              </button>
+              <button
+                type="button"
                 onClick={handleInsertPrOverview}
                 className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
               >
                 <span aria-live="polite">{prOverviewInsertStatus || 'Insert overview into chat'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleInsertPrStatusSummary}
+                className="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-[0.72rem] font-semibold text-gray-700 transition hover:border-blue-400 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-blue-400 dark:hover:text-blue-100"
+              >
+                <span aria-live="polite">{prStatusInsertStatus || 'Insert status into chat'}</span>
               </button>
             </div>
           )}

@@ -1,7 +1,15 @@
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
 import { GoogleGenerativeAI } from '@google/genai'
-import { CheckCircle2, KeyRound, MessageCircle, Send, Sparkles, User, Wifi } from 'lucide-react'
+import {
+  CheckCircle2,
+  KeyRound,
+  MessageCircle,
+  Send,
+  Sparkles,
+  User,
+  Wifi
+} from 'lucide-react'
 
 const navItems = [
   { id: 'concierge', label: 'Concierge' },
@@ -120,7 +128,7 @@ function MessageBubble({ sender, text, timestamp }) {
             )
           )}
         </p>
-        <span className="mt-2 block text-[11px] uppercase tracking-widest text-onyx/50">
+        <span className="mt-2 block text-[11px] uppercase tracking-[0.25em] text-onyx/50">
           {timestamp}
         </span>
       </div>
@@ -280,29 +288,27 @@ export default function LumiereApp() {
       </Head>
 
       {!hasAccess ? (
-        <section
-          className="relative flex min-h-screen items-center justify-center overflow-hidden bg-onyx text-white"
-        >
+        <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-onyx text-white">
           <div
             className="absolute inset-0"
             style={{
               backgroundImage:
-                'linear-gradient( rgba(12,12,12,0.55), rgba(12,12,12,0.65)), url(https://images.unsplash.com/photo-1501117716987-c8e1ecb210af?auto=format&fit=crop&w=1600&q=80)',
+                'linear-gradient( rgba(12,12,12,0.6), rgba(12,12,12,0.7)), url(https://images.unsplash.com/photo-1501117716987-c8e1ecb210af?auto=format&fit=crop&w=1600&q=80)',
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}
           />
-          <div className="relative z-10 flex max-w-xl flex-col gap-10 px-6 text-center">
+          <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-10 px-6 text-center sm:px-10">
             <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.25em] text-white/70">The Lumiere, San Francisco</p>
-              <h1 className="text-4xl font-semibold sm:text-5xl">Welcome to your private residence</h1>
-              <p className="text-lg text-white/80">
+              <p className="text-sm uppercase tracking-[0.28em] text-white/70">The Lumiere · San Francisco</p>
+              <h1 className="font-serif text-4xl font-semibold sm:text-5xl">Welcome to your private residence</h1>
+              <p className="text-lg leading-relaxed text-white/80">
                 Crafted for discerning travelers. An AI concierge to curate every detail with grace.
               </p>
             </div>
 
-            <div className="rounded-[2px] border border-white/20 bg-white/10 p-5 text-left shadow-2xl backdrop-blur-md">
-              <div className="flex items-center justify-between text-sm uppercase tracking-widest text-white/70">
+            <div className="rounded-[2px] border border-white/20 bg-white/10 p-5 text-left shadow-2xl backdrop-blur-md sm:p-6">
+              <div className="flex items-center justify-between text-sm uppercase tracking-[0.28em] text-white/70">
                 <span>Suite</span>
                 <span className="flex items-center gap-2">
                   <Wifi strokeWidth={1.5} className="h-4 w-4" /> Connected
@@ -310,12 +316,22 @@ export default function LumiereApp() {
               </div>
               <div className="mt-3 flex items-end justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.35em] text-white/60">Guest</p>
+                  <p className="text-xs uppercase tracking-[0.32em] text-white/60">Guest</p>
                   <p className="text-2xl font-semibold">Alexander Mercer</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs uppercase tracking-[0.35em] text-white/60">Room</p>
+                  <p className="text-xs uppercase tracking-[0.32em] text-white/60">Room</p>
                   <p className="text-3xl font-semibold text-gold">402</p>
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-[0.28em] text-white/60">
+                <div className="rounded-[2px] border border-white/10 bg-white/5 p-3">
+                  <p className="text-white/80">Platinum Concierge</p>
+                  <p className="mt-1 text-[11px] text-white/50">Priority response</p>
+                </div>
+                <div className="rounded-[2px] border border-white/10 bg-white/5 p-3 text-right">
+                  <p className="text-white/80">Mobile Key</p>
+                  <p className="mt-1 text-[11px] text-white/50">Active for 402</p>
                 </div>
               </div>
             </div>
@@ -329,11 +345,11 @@ export default function LumiereApp() {
           </div>
         </section>
       ) : (
-        <div className="relative flex min-h-screen flex-col">
+        <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col">
           <main className="flex-1 overflow-y-auto pb-24 no-scrollbar">
             {activeTab === 'concierge' && (
               <section className="flex h-full flex-col">
-                <header className="sticky top-0 z-20 flex items-center justify-between border-b border-stone-200/70 bg-white/70 px-5 py-4 backdrop-blur-md">
+                <header className="sticky top-0 z-20 flex items-center justify-between border-b border-stone-200/70 bg-white/80 px-5 py-4 backdrop-blur-md">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-[2px] border border-gold/60 bg-white text-xl font-semibold text-onyx shadow-sm">
                       L
@@ -352,7 +368,7 @@ export default function LumiereApp() {
                   </div>
                 </header>
 
-                <div className="flex-1 space-y-4 px-5 py-6 no-scrollbar">
+                <div className="flex-1 space-y-4 bg-gradient-to-b from-stone-50/70 via-stone-50/40 to-stone-100 px-5 py-6">
                   {messages.map((message) => (
                     <MessageBubble key={message.id} sender={message.sender} text={message.text} timestamp={message.timestamp} />
                   ))}
@@ -365,7 +381,7 @@ export default function LumiereApp() {
                   )}
                 </div>
 
-                <div className="sticky bottom-16 z-20 border-t border-stone-200/60 bg-white/80 px-5 py-4 backdrop-blur-md">
+                <div className="sticky bottom-16 z-20 border-t border-stone-200/60 bg-white/85 px-5 py-4 backdrop-blur-md">
                   <div className="flex items-center gap-3 rounded-[2px] border border-stone-200 bg-white px-3 py-2 shadow-sm">
                     <input
                       type="text"
@@ -456,14 +472,17 @@ export default function LumiereApp() {
 
             {activeTab === 'account' && (
               <section className="space-y-6 px-5 py-6">
-                <div className="rounded-[2px] border border-gold/60 bg-onyx text-white shadow-card">
+                <div className="overflow-hidden rounded-[2px] border border-gold/60 bg-gradient-to-br from-onyx via-onyx to-[#0f0f0f] text-white shadow-card">
+                  <div className="h-1 w-full bg-gradient-to-r from-gold/60 via-white/30 to-gold/60" />
                   <div className="flex items-start justify-between px-5 pt-5">
                     <div>
                       <p className="text-xs uppercase tracking-[0.3em] text-gold">The Lumiere</p>
                       <h2 className="font-serif text-3xl font-semibold">Alexander Mercer</h2>
                       <p className="text-sm text-white/70">Platinum Guest</p>
                     </div>
-                          <Sparkles strokeWidth={1.5} className="h-8 w-8 text-gold" />
+                    <div className="rounded-[2px] border border-gold/40 bg-white/5 px-2 py-1 text-[11px] uppercase tracking-[0.25em] text-gold">
+                      Member ID · 402
+                    </div>
                   </div>
                   <div className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 px-5 py-4 text-sm">
                     <div>
@@ -491,7 +510,9 @@ export default function LumiereApp() {
                         <p className="text-sm font-semibold">Active for Suite 402</p>
                       </div>
                     </div>
-                    <CheckCircle2 strokeWidth={1.5} className="h-6 w-6 text-gold" />
+                    <div className="flex items-center gap-2 rounded-[2px] border border-gold/40 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-gold">
+                      <CheckCircle2 strokeWidth={1.5} className="h-4 w-4" /> Secure
+                    </div>
                   </div>
                 </div>
 
@@ -507,7 +528,7 @@ export default function LumiereApp() {
             )}
           </main>
 
-          <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-stone-200/70 bg-white/80 backdrop-blur-md">
+          <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-stone-200/70 bg-white/85 backdrop-blur-md">
             <div className="mx-auto flex max-w-3xl items-center justify-around px-4 py-3">
               {navItems.map((item) => {
                 const Icon = activeNavIcon[item.id]
@@ -517,7 +538,9 @@ export default function LumiereApp() {
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
                     className={`flex flex-col items-center gap-1 rounded-[2px] px-3 py-1 text-xs uppercase tracking-[0.2em] transition duration-300 ease-out ${
-                      isActive ? 'text-gold' : 'text-onyx/60 hover:text-onyx'
+                      isActive
+                        ? 'border border-gold/50 bg-white text-gold shadow-sm'
+                        : 'border border-transparent text-onyx/60 hover:border-stone-200 hover:text-onyx'
                     }`}
                   >
                     <Icon strokeWidth={1.5} className="h-5 w-5" />
