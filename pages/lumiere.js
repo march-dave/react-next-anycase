@@ -360,8 +360,8 @@ export default function LumiereApp() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1 rounded-[2px] border border-stone-200 bg-white/70 px-3 py-2 text-[11px] uppercase tracking-[0.25em] text-onyx/70 shadow-sm">
-                    <Wifi className="h-4 w-4 text-gold" />
+                    <div className="flex items-center gap-1 rounded-[2px] border border-stone-200 bg-white/70 px-3 py-2 text-[11px] uppercase tracking-[0.25em] text-onyx/70 shadow-sm">
+                      <Wifi strokeWidth={1.5} className="h-4 w-4 text-gold" />
                       Connected
                     </div>
                     <div className="text-right text-xs uppercase tracking-[0.3em] text-gold">Platinum</div>
