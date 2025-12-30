@@ -58,6 +58,14 @@ const promptSuggestions = [
     tags: ['Collaboration', 'Pull Request'],
   },
   {
+    id: 'reviewer-checklist',
+    title: 'Build a review checklist',
+    description: 'List the PR-ready items reviewers expect before sign-off.',
+    prompt:
+      'Create a pull request review checklist for the following changes. Include documentation updates, testing coverage, rollout or risk callouts, and which artifacts or screenshots to attach for reviewers:\n\n',
+    tags: ['Pull Request', 'Quality'],
+  },
+  {
     id: 'compose-final-update',
     title: 'Compose a final update',
     description:
@@ -163,6 +171,10 @@ const DEFAULT_PR_TEMPLATE = [
   '',
   '**Testing**',
   '* ✅ `command or suite` — Passed locally. 【chunk†L#-L#】',
+  '',
+  '**Review checklist**',
+  '* Summary/testing filled in, citations updated, and artifacts linked. 【F:path/to/file†L#-L#】',
+  '* Stakeholders notified, rollout plan captured, and follow-up tickets filed. 【F:path/to/file†L#-L#】',
   '',
   '**Manual Verification**',
   '* Walk through manual checks or sign-offs completed before handoff. 【F:path/to/file†L#-L#】',
@@ -329,6 +341,17 @@ const PR_SECTION_SNIPPETS = [
     snippet: [
       '**Manual Verification**',
       '* Walk through manual checks or sign-offs completed before handoff. 【F:path/to/file†L#-L#】',
+    ].join('\n'),
+  },
+  {
+    id: 'review-checklist',
+    label: 'Review checklist',
+    heading: '**Review checklist**',
+    helperText: 'Track readiness items to complete before reviewers sign off.',
+    snippet: [
+      '**Review checklist**',
+      '* Summary/testing filled in, citations updated, and artifacts linked. 【F:path/to/file†L#-L#】',
+      '* Stakeholders notified, rollout plan captured, and follow-up tickets filed. 【F:path/to/file†L#-L#】',
     ].join('\n'),
   },
   {
@@ -1783,72 +1806,6 @@ export default function ChatGptUIPersist() {
     prTemplateStats.hasReleaseNotesContent ||
     prTemplateStats.hasTestingContent;
   const prHelperHasPlaceholders = prTemplatePlaceholderCount > 0;
-  const prHelperStatusBadges = useMemo(() => {
-    const badges = [];
-
-    if (prHelperHasPlaceholders) {
-      badges.push(templatePlaceholderSummaryDisplay || 'Resolve remaining placeholders');
-    } else if (prHelperHasShareableContent) {
-      badges.push('Template ready to share');
-    }
-
-    prSectionReadiness.forEach((section) => {
-      let statusLabel = 'Ready';
-
-      if (!section.hasSection) {
-        statusLabel = 'Add heading';
-      } else if (!section.hasContent) {
-        statusLabel = 'Add notes';
-      } else if (section.placeholderCount > 0) {
-        const placeholderLabel = section.placeholderCount === 1 ? 'placeholder' : 'placeholders';
-        statusLabel = `${formatNumber(section.placeholderCount)} ${placeholderLabel}`;
-      } else if (section.lengthLabel) {
-        statusLabel = section.lengthLabel;
-      }
-
-      const previewLabel = section.previewText ? ` — ${section.previewText}` : '';
-      badges.push(`${section.label}: ${statusLabel}${previewLabel}`);
-    });
-
-    return badges;
-  }, [
-    prHelperHasPlaceholders,
-    prHelperHasShareableContent,
-    prSectionReadiness,
-    templatePlaceholderSummaryDisplay,
-  ]);
-
-  const showPrHelperBadge = prHelperStatusBadges.length > 0;
-  const prHelperBadgeText = prHelperHasPlaceholders
-    ? formatNumber(prTemplatePlaceholderCount)
-    : prHelperHasShareableContent
-    ? 'Ready'
-    : 'Start';
-  const prHelperBadgeAriaText = prHelperHasPlaceholders
-    ? `${formatNumber(prTemplatePlaceholderCount)} placeholder${
-        prTemplatePlaceholderCount === 1 ? '' : 's'
-      } to resolve`
-    : prHelperHasShareableContent
-    ? 'Template ready to share'
-    : 'Add Summary, Release notes, or Testing notes to get the template ready';
-  const prHelperBadgeClass = prHelperHasPlaceholders
-    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
-    : prHelperHasShareableContent
-    ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
-    : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-100';
-
-  const prHelperButtonStatus = prHelperStatusBadges.join(' • ');
-  const prHelperButtonTitle =
-    prHelperButtonStatus ||
-    prHelperSectionStatusLine ||
-    'Open PR helper';
-  const prHelperButtonAriaLabel =
-    prHelperButtonStatus ||
-    prHelperSectionStatusLine ||
-    (prHelperHasPlaceholders
-      ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
-      : 'PR helper ready to share');
-
   const templatePlaceholderAction = useMemo(
     () => createPlaceholderActionText(prTemplateStats.placeholderWarnings),
     [prTemplateStats.placeholderWarnings]
@@ -1865,40 +1822,6 @@ export default function ChatGptUIPersist() {
     () => createPlaceholderActionText(prTemplateStats.testingPlaceholderWarnings),
     [prTemplateStats.testingPlaceholderWarnings]
   );
-  const placeholderReminderText = useMemo(() => {
-    if (!prTemplateStats.hasPlaceholders) {
-      return '';
-    }
-
-    const lines = ['Placeholder reminders'];
-    if (templatePlaceholderSummaryDisplay) {
-      lines.push(templatePlaceholderSummaryDisplay);
-    }
-
-    prTemplateStats.placeholderWarnings.forEach(({ count, rule }) => {
-      if (!rule) {
-        return;
-      }
-      const summaryLabel = rule.summaryLabel || 'placeholder';
-      const summaryLabelPlural = rule.summaryLabelPlural || `${summaryLabel}s`;
-      const label = count === 1 ? summaryLabel : summaryLabelPlural;
-      let entry = `* ${formatNumber(count)} ${label}`;
-      if (rule.example) {
-        entry += ` (e.g. ${rule.example})`;
-      }
-      if (rule.guidance) {
-        entry += ` — ${rule.guidance}`;
-      }
-      lines.push(entry);
-    });
-
-    return lines.filter(Boolean).join('\n');
-  }, [
-    prTemplateStats.hasPlaceholders,
-    prTemplateStats.placeholderWarnings,
-    templatePlaceholderSummaryDisplay,
-  ]);
-
   const prSectionReadiness = useMemo(() => {
     const formatLengthLabel = (words, characters) => {
       if (!Number.isFinite(words) || words <= 0 || !Number.isFinite(characters)) {
@@ -2028,6 +1951,104 @@ export default function ChatGptUIPersist() {
     releasePlaceholderAction,
     summaryPlaceholderAction,
     testingPlaceholderAction,
+  ]);
+  const prHelperStatusBadges = useMemo(() => {
+    const badges = [];
+
+    if (prHelperHasPlaceholders) {
+      badges.push(templatePlaceholderSummaryDisplay || 'Resolve remaining placeholders');
+    } else if (prHelperHasShareableContent) {
+      badges.push('Template ready to share');
+    }
+
+    prSectionReadiness.forEach((section) => {
+      let statusLabel = 'Ready';
+
+      if (!section.hasSection) {
+        statusLabel = 'Add heading';
+      } else if (!section.hasContent) {
+        statusLabel = 'Add notes';
+      } else if (section.placeholderCount > 0) {
+        const placeholderLabel = section.placeholderCount === 1 ? 'placeholder' : 'placeholders';
+        statusLabel = `${formatNumber(section.placeholderCount)} ${placeholderLabel}`;
+      } else if (section.lengthLabel) {
+        statusLabel = section.lengthLabel;
+      }
+
+      const previewLabel = section.previewText ? ` — ${section.previewText}` : '';
+      badges.push(`${section.label}: ${statusLabel}${previewLabel}`);
+    });
+
+    return badges;
+  }, [
+    prHelperHasPlaceholders,
+    prHelperHasShareableContent,
+    prSectionReadiness,
+    templatePlaceholderSummaryDisplay,
+  ]);
+
+  const showPrHelperBadge = prHelperStatusBadges.length > 0;
+  const prHelperBadgeText = prHelperHasPlaceholders
+    ? formatNumber(prTemplatePlaceholderCount)
+    : prHelperHasShareableContent
+    ? 'Ready'
+    : 'Start';
+  const prHelperBadgeAriaText = prHelperHasPlaceholders
+    ? `${formatNumber(prTemplatePlaceholderCount)} placeholder${
+        prTemplatePlaceholderCount === 1 ? '' : 's'
+      } to resolve`
+    : prHelperHasShareableContent
+    ? 'Template ready to share'
+    : 'Add Summary, Release notes, or Testing notes to get the template ready';
+  const prHelperBadgeClass = prHelperHasPlaceholders
+    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200'
+    : prHelperHasShareableContent
+    ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
+    : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[0.65rem] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-100';
+
+  const prHelperButtonStatus = prHelperStatusBadges.join(' • ');
+  const prHelperButtonTitle =
+    prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
+    'Open PR helper';
+  const prHelperButtonAriaLabel =
+    prHelperButtonStatus ||
+    prHelperSectionStatusLine ||
+    (prHelperHasPlaceholders
+      ? `${formatNumber(prTemplatePlaceholderCount)} placeholders to resolve`
+      : 'PR helper ready to share');
+  const placeholderReminderText = useMemo(() => {
+    if (!prTemplateStats.hasPlaceholders) {
+      return '';
+    }
+
+    const lines = ['Placeholder reminders'];
+    if (templatePlaceholderSummaryDisplay) {
+      lines.push(templatePlaceholderSummaryDisplay);
+    }
+
+    prTemplateStats.placeholderWarnings.forEach(({ count, rule }) => {
+      if (!rule) {
+        return;
+      }
+      const summaryLabel = rule.summaryLabel || 'placeholder';
+      const summaryLabelPlural = rule.summaryLabelPlural || `${summaryLabel}s`;
+      const label = count === 1 ? summaryLabel : summaryLabelPlural;
+      let entry = `* ${formatNumber(count)} ${label}`;
+      if (rule.example) {
+        entry += ` (e.g. ${rule.example})`;
+      }
+      if (rule.guidance) {
+        entry += ` — ${rule.guidance}`;
+      }
+      lines.push(entry);
+    });
+
+    return lines.filter(Boolean).join('\n');
+  }, [
+    prTemplateStats.hasPlaceholders,
+    prTemplateStats.placeholderWarnings,
+    templatePlaceholderSummaryDisplay,
   ]);
 
   const prOverviewSummaryText = useMemo(() => {
@@ -3813,6 +3834,7 @@ export default function ChatGptUIPersist() {
               )}
             </div>
           )}
+          {prSectionReadiness.length > 0 && (
           <div
             className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
             aria-live="polite"
