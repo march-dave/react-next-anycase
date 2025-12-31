@@ -309,7 +309,7 @@ export default function LumiereApp() {
 
             <div className="rounded-[2px] border border-white/20 bg-white/10 p-5 text-left shadow-2xl backdrop-blur-md sm:p-6">
               <div className="flex items-center justify-between text-sm uppercase tracking-[0.28em] text-white/70">
-                <span>Suite</span>
+                <span>Room</span>
                 <span className="flex items-center gap-2">
                   <Wifi strokeWidth={1.5} className="h-4 w-4" /> Connected
                 </span>
@@ -507,7 +507,7 @@ export default function LumiereApp() {
                       <KeyRound strokeWidth={1.5} className="h-5 w-5 text-gold" />
                       <div>
                         <p className="text-xs uppercase tracking-[0.25em] text-white/60">Mobile Key</p>
-                        <p className="text-sm font-semibold">Active for Suite 402</p>
+                        <p className="text-sm font-semibold">Active for Room 402</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 rounded-[2px] border border-gold/40 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-gold">
