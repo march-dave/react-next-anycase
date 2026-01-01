@@ -1,2 +1,2 @@
-// Default to the persistent ChatGPT UI on the home page
-export { default } from './chatgpt-ui'
+// Default to the Lumiere concierge experience on the home page
+export { default } from './lumiere'
