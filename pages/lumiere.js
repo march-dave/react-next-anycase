@@ -300,8 +300,8 @@ export default function LumiereApp() {
           />
           <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-10 px-6 text-center sm:px-10">
             <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.28em] text-white/70">The Lumiere · San Francisco</p>
-              <h1 className="font-serif text-4xl font-semibold sm:text-5xl">Welcome to your private residence</h1>
+              <p className="text-sm uppercase tracking-[0.28em] text-white/70">The Lumiere, San Francisco</p>
+              <h1 className="font-serif text-4xl font-semibold sm:text-5xl">Welcome to The Lumiere, San Francisco</h1>
               <p className="text-lg leading-relaxed text-white/80">
                 Crafted for discerning travelers. An AI concierge to curate every detail with grace.
               </p>
