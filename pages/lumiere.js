@@ -144,7 +144,7 @@ export default function LumiereApp() {
   const [isTyping, setIsTyping] = useState(false)
   const [filter, setFilter] = useState('All')
   const [bookings, setBookings] = useState({})
-  const apiKey = useMemo(() => process.env.NEXT_PUBLIC_API_KEY || process.env.API_KEY || '', [])
+  const apiKey = useMemo(() => process.env.API_KEY || '', [])
   const genAiClient = useMemo(() => {
     if (!apiKey) return null
     return new GoogleGenerativeAI(apiKey)
@@ -506,8 +506,8 @@ export default function LumiereApp() {
                     <div className="flex items-center gap-3">
                       <KeyRound strokeWidth={1.5} className="h-5 w-5 text-gold" />
                       <div>
-                        <p className="text-xs uppercase tracking-[0.25em] text-white/60">Mobile Key</p>
-                        <p className="text-sm font-semibold">Active for Room 402</p>
+                      <p className="text-xs uppercase tracking-[0.25em] text-white/60">Mobile Key</p>
+                      <p className="text-sm font-semibold">Active for Room 402</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 rounded-[2px] border border-gold/40 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-gold">
