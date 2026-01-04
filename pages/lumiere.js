@@ -144,7 +144,7 @@ export default function LumiereApp() {
   const [isTyping, setIsTyping] = useState(false)
   const [filter, setFilter] = useState('All')
   const [bookings, setBookings] = useState({})
-  const apiKey = useMemo(() => process.env.NEXT_PUBLIC_API_KEY || process.env.API_KEY || '', [])
+  const apiKey = useMemo(() => process.env.API_KEY || '', [])
   const genAiClient = useMemo(() => {
     if (!apiKey) return null
     return new GoogleGenerativeAI(apiKey)
