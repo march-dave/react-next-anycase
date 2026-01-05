@@ -152,6 +152,9 @@ const DEFAULT_PR_TEMPLATE = [
   '**Performance**',
   '* Benchmarks, profiling output, or observed regressions. 【F:path/to/file†L#-L#】',
   '',
+  '**Operational readiness**',
+  '* On-call prep, runbook updates, and alert coverage. 【F:path/to/file†L#-L#】',
+  '',
   '**Analytics & Monitoring**',
   '* Dashboards, alerts, or events to watch after release. 【F:path/to/file†L#-L#】',
   '',
@@ -3903,10 +3906,10 @@ export default function ChatGptUIPersist() {
             </div>
           )}
           {prSectionReadiness.length > 0 && (
-          <div
-            className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
-            aria-live="polite"
-          >
+            <div
+              className="flex w-full flex-wrap items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[0.72rem] text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+              aria-live="polite"
+            >
             <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-300">
               PR overview
             </span>
@@ -3967,8 +3970,8 @@ export default function ChatGptUIPersist() {
                       <span aria-live="polite">{prStatusInsertStatus || 'Insert status into chat'}</span>
                     </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <button
                 type="button"
                 onClick={handleCopyPrOverview}
@@ -3998,6 +4001,7 @@ export default function ChatGptUIPersist() {
                 <span aria-live="polite">{prStatusInsertStatus || 'Insert status into chat'}</span>
               </button>
             </div>
+          </div>
           )}
           <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-gray-500 dark:text-gray-400">
             <span className="self-center" aria-label={headerMessageCountLabel} aria-live="polite">
