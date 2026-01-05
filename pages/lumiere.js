@@ -309,7 +309,7 @@ export default function LumiereApp() {
 
             <div className="rounded-[2px] border border-white/20 bg-white/10 p-5 text-left shadow-2xl backdrop-blur-md sm:p-6">
               <div className="flex items-center justify-between text-sm uppercase tracking-[0.28em] text-white/70">
-                <span>Suite</span>
+                <span>Room 402</span>
                 <span className="flex items-center gap-2">
                   <Wifi strokeWidth={1.5} className="h-4 w-4" /> Connected
                 </span>
