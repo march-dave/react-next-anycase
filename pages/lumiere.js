@@ -144,7 +144,7 @@ export default function LumiereApp() {
   const [isTyping, setIsTyping] = useState(false)
   const [filter, setFilter] = useState('All')
   const [bookings, setBookings] = useState({})
-  const apiKey = useMemo(() => process.env.NEXT_PUBLIC_API_KEY || process.env.API_KEY || '', [])
+  const apiKey = useMemo(() => process.env.API_KEY || '', [])
   const genAiClient = useMemo(() => {
     if (!apiKey) return null
     return new GoogleGenerativeAI(apiKey)
@@ -300,7 +300,7 @@ export default function LumiereApp() {
           />
           <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-10 px-6 text-center sm:px-10">
             <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.28em] text-white/70">The Lumiere · San Francisco</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-white/70">The Lumiere, San Francisco</p>
               <h1 className="font-serif text-4xl font-semibold sm:text-5xl">Welcome to The Lumiere, San Francisco</h1>
               <p className="text-lg leading-relaxed text-white/80">
                 Crafted for discerning travelers. An AI concierge to curate every detail with grace.
@@ -506,8 +506,8 @@ export default function LumiereApp() {
                     <div className="flex items-center gap-3">
                       <KeyRound strokeWidth={1.5} className="h-5 w-5 text-gold" />
                       <div>
-                        <p className="text-xs uppercase tracking-[0.25em] text-white/60">Mobile Key</p>
-                        <p className="text-sm font-semibold">Active for Suite 402</p>
+                      <p className="text-xs uppercase tracking-[0.25em] text-white/60">Mobile Key</p>
+                      <p className="text-sm font-semibold">Active for Room 402</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 rounded-[2px] border border-gold/40 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-gold">
