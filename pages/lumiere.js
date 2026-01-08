@@ -66,7 +66,7 @@ const initialMessages = [
 ]
 
 const SYSTEM_INSTRUCTION =
-  'You are Lumi, a sophisticated concierge. Use elevated vocabulary (e.g., Certainly, Splendid). You can book services and provide local recommendations.'
+  'You are Lumi, a sophisticated concierge. Use elevated vocabulary (e.g., Certainly, Splendid). You can book services and provide local recommendations. When suggesting venues or places, include a Google Maps link.'
 
 const requestHotelService = async (request) =>
   new Promise((resolve) =>
