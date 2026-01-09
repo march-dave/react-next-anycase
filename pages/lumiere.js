@@ -81,6 +81,12 @@ const requestHotelService = async (request) =>
     )
   )
 
+const appendMapsLink = (text, query) => {
+  if (text.includes('http')) return text
+  const mapsLink = `https://maps.google.com/?q=${encodeURIComponent(query)}`
+  return `${text}\n\n${mapsLink}`
+}
+
 function TypingLoader() {
   return (
     <div className="flex items-center gap-1 px-3 py-2">
@@ -213,6 +219,9 @@ export default function LumiereApp() {
         const service = await requestHotelService(prompt)
         return `Splendid. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
       }
+      if (lower.includes('restaurant') || lower.includes('dinner') || lower.includes('eat') || lower.includes('recommend')) {
+        return appendMapsLink(simulateGeminiResponse(prompt), prompt)
+      }
       return simulateGeminiResponse(prompt)
     }
 
@@ -256,12 +265,18 @@ export default function LumiereApp() {
         const service = await requestHotelService(prompt)
         return `${text}\n\nrequestHotelService • ${service.status} · ETA ${service.eta}`
       }
+      if (text && (lower.includes('restaurant') || lower.includes('dinner') || lower.includes('eat') || lower.includes('recommend'))) {
+        return appendMapsLink(text, prompt)
+      }
       return text || simulateGeminiResponse(prompt)
     } catch (error) {
       console.error('Gemini error', error)
       if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
         const service = await requestHotelService(prompt)
         return `Certainly. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
+      }
+      if (lower.includes('restaurant') || lower.includes('dinner') || lower.includes('eat') || lower.includes('recommend')) {
+        return appendMapsLink(simulateGeminiResponse(prompt), prompt)
       }
       return simulateGeminiResponse(prompt)
     }
@@ -270,7 +285,7 @@ export default function LumiereApp() {
   const handleReserve = (id) => {
     setBookings((prev) => ({
       ...prev,
-      [id]: prev[id] === 'confirmed' ? 'confirmed' : 'confirmed'
+      [id]: 'confirmed'
     }))
   }
 
