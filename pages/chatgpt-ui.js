@@ -15,6 +15,8 @@ const PROMPT_FAVORITES_STORAGE_KEY = 'chatgptUiFavoritePrompts';
 
 const ARTIFACTS_AND_REFERENCES_HEADING = '**Artifacts & References**';
 
+const QUICK_STARTER_IDS = ['summarize-change-set', 'draft-pr-summary', 'reviewer-checklist'];
+
 const promptSuggestions = [
   {
     id: 'summarize-meeting',
@@ -923,6 +925,11 @@ export default function ChatGptUIPersist() {
       ? `${trimmedSystemPrompt.slice(0, 77)}...`
       : trimmedSystemPrompt;
   }, [trimmedSystemPrompt]);
+  const quickStarterPrompts = useMemo(
+    () =>
+      QUICK_STARTER_IDS.map((id) => promptSuggestions.find((suggestion) => suggestion.id === id)).filter(Boolean),
+    []
+  );
   const conversationInsights = useMemo(() => {
     if (messages.length === 0) {
       return {
@@ -4463,6 +4470,24 @@ export default function ChatGptUIPersist() {
                 onKeyDown={handleKeyDown}
                 placeholder="Send a message (Shift+Enter for newline, Up Arrow to recall last message)"
               />
+              {quickStarterPrompts.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400">
+                  <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                    Quick starters
+                  </span>
+                  {quickStarterPrompts.map((starter) => (
+                    <button
+                      key={starter.id}
+                      type="button"
+                      onClick={() => applySuggestedPrompt(starter.prompt)}
+                      className="rounded-full border border-blue-200 px-2 py-1 font-medium text-blue-700 transition hover:border-blue-400 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-200 dark:hover:border-blue-400 dark:hover:bg-blue-900/40"
+                      aria-label={`Insert ${starter.title} starter prompt`}
+                    >
+                      {starter.title}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
                 <span aria-live="polite">
                   {hasMessages
