@@ -544,7 +544,11 @@ export default function LumiereApp() {
                     }`}
                   >
                     <Icon strokeWidth={1.5} className="h-5 w-5" />
-                    <span className={`font-serif text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+                    <span
+                      className={`text-sm ${isActive ? 'font-serif font-semibold text-gold' : 'font-sans font-medium'}`}
+                    >
+                      {item.label}
+                    </span>
                   </button>
                 )
               })}
