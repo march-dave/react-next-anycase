@@ -743,29 +743,34 @@ swarm.deploy({
 })`}
                   </pre>
                 </div>
-              </div>
+              </section>
+            )}
+          </main>
 
-              <div className="grid gap-4">
-                {features.map((feature) => {
-                  const Icon = feature.icon
-                  return (
-                    <div
-                      key={feature.title}
-                      className="rounded-2xl border border-white/10 bg-slate-800/60 p-5 backdrop-blur"
+          <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-stone-200/70 bg-white/85 backdrop-blur-md">
+            <div className="mx-auto flex max-w-3xl items-center justify-around px-4 py-3">
+              {navItems.map((item) => {
+                const Icon = activeNavIcon[item.id]
+                const isActive = activeTab === item.id
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`flex flex-col items-center gap-1 rounded-[2px] px-3 py-1 text-xs uppercase tracking-[0.2em] transition duration-300 ease-out ${
+                      isActive
+                        ? 'border border-gold/50 bg-white text-gold shadow-sm'
+                        : 'border border-transparent text-onyx/60 hover:border-stone-200 hover:text-onyx'
+                    }`}
+                  >
+                    <Icon strokeWidth={1.5} className="h-5 w-5" />
+                    <span
+                      className={`text-sm ${isActive ? 'font-serif font-semibold text-gold' : 'font-sans font-medium'}`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-lg font-semibold text-white">{feature.title}</p>
-                          <p className="text-sm text-slate-300">{feature.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                      {item.label}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
 
             <button
