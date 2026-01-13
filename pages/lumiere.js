@@ -339,6 +339,7 @@ export default function LumiereApp() {
                   ))}
                 </div>
               </div>
+              <p className="leading-relaxed text-slate-400">Trace level: info · 12 live shards · latency 42ms</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg">
               <div className="flex items-center gap-2 text-sm text-slate-300">
