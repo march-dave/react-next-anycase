@@ -1,572 +1,680 @@
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
-import { GoogleGenerativeAI } from '@google/genai'
 import {
+  Activity,
+  Bell,
+  Bot,
   CheckCircle2,
-  KeyRound,
-  MessageCircle,
-  Send,
+  ChevronRight,
+  CircleDot,
+  Cpu,
+  Gauge,
+  LayoutGrid,
+  Menu,
+  MessageSquare,
+  MessagesSquare,
+  Network,
+  ShieldCheck,
   Sparkles,
-  User,
-  Wifi
+  TerminalSquare,
+  Workflow,
+  X
 } from 'lucide-react'
 
 const navItems = [
-  { id: 'concierge', label: 'Concierge' },
-  { id: 'curated', label: 'Curated' },
-  { id: 'account', label: 'Account' }
+  { id: 'overview', label: 'Overview', icon: LayoutGrid },
+  { id: 'comms', label: 'Comms', icon: MessagesSquare },
+  { id: 'orchestration', label: 'Orchestration', icon: Workflow },
+  { id: 'fleet', label: 'Agent Fleet', icon: Bot }
 ]
 
-const experiences = [
+const featureCards = [
   {
-    id: 1,
-    title: 'Sunset Bay Charter',
-    price: '$125',
-    category: 'Experience',
-    image:
-      'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=80',
-    description: 'Private yacht charter with champagne and curated bites.'
+    title: 'Semantic Bus',
+    description: 'Route high-volume agent traffic with intent-aware topic shaping and priority lanes.',
+    icon: Network,
+    accent: 'text-emerald-300'
   },
   {
-    id: 2,
-    title: 'Extended Sanctuary',
-    price: '$45',
-    category: 'Service',
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=80',
-    description: 'Late checkout to linger a little longer in comfort.'
+    title: 'Consensus Engine',
+    description: 'Multi-agent voting, quorum guarantees, and audit trails for critical decisions.',
+    icon: CheckCircle2,
+    accent: 'text-indigo-300'
   },
   {
-    id: 3,
-    title: 'In-Suite Couples Massage',
-    price: '$280',
-    category: 'Experience',
-    image:
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1000&q=80',
-    description: 'Therapists arrive to your suite for a 90-minute ritual.'
-  },
-  {
-    id: 4,
-    title: 'The Pinnacle Tasting Menu',
-    price: '$180',
-    category: 'Dining',
-    image:
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1000&q=80',
-    description: 'Seven-course seasonal tasting paired with sommelier wines.'
+    title: 'Guardian Rails',
+    description: 'Policy enforcement with safety checks, escalation paths, and throttled autonomy.',
+    icon: ShieldCheck,
+    accent: 'text-amber-300'
   }
+]
+
+const metrics = [
+  { label: 'Active Agents', value: '128', delta: '+12%', icon: Bot },
+  { label: 'Messages/min', value: '8.4k', delta: '+4%', icon: MessageSquare },
+  { label: 'Consensus Rate', value: '96.2%', delta: '+1.2%', icon: CheckCircle2 },
+  { label: 'Token Usage', value: '2.3M', delta: '-6%', icon: Cpu }
+]
+
+const chartData = [
+  { time: '00:00', load: 22, tokens: 18 },
+  { time: '03:00', load: 34, tokens: 28 },
+  { time: '06:00', load: 48, tokens: 43 },
+  { time: '09:00', load: 62, tokens: 51 },
+  { time: '12:00', load: 57, tokens: 64 },
+  { time: '15:00', load: 68, tokens: 58 },
+  { time: '18:00', load: 74, tokens: 71 },
+  { time: '21:00', load: 61, tokens: 66 }
+]
+
+const terminalLogs = [
+  '[INFO] Agent-2 connected to semantic bus.',
+  '[INFO] Swarm-Delta established quorum at 3/3 votes.',
+  '[WARN] High latency detected on region eu-west-2.',
+  '[INFO] Guardian Rails approved escalation for task Q-1121.',
+  '[SUCCESS] Orchestrator merged 14 sub-tasks into master plan.',
+  '[INFO] Token consumption stabilized after adaptive throttling.'
+]
+
+const channels = [
+  { id: 'migration', name: '#migration-api-v2', status: 'active' },
+  { id: 'security', name: '#security-audit', status: 'monitor' },
+  { id: 'ops', name: '#ops-sync', status: 'active' },
+  { id: 'models', name: '#model-evals', status: 'idle' }
 ]
 
 const initialMessages = [
   {
-    id: 'intro',
-    sender: 'lumi',
-    text: "Welcome back, Alexander. I am Lumi, your private concierge. Shall I arrange tonight's turndown with lavender and soft jazz?",
-    timestamp: 'Now'
+    id: 1,
+    sender: 'Atlas-Orchestrator',
+    timestamp: '09:42',
+    type: 'text',
+    content: 'Consensus check: deploying hotfix to latency governor in eu-west-2.'
+  },
+  {
+    id: 2,
+    sender: 'Sentry-Sec',
+    timestamp: '09:43',
+    type: 'alert',
+    content: 'Guardian Rails flagged anomalous token spikes on task Q-1121.'
+  },
+  {
+    id: 3,
+    sender: 'Codex-Dev',
+    timestamp: '09:44',
+    type: 'code',
+    content: `const swarm = new Consendus.Swarm({\n  agents: ['atlas', 'codex', 'sentry'],\n  quorum: 0.67,\n  policy: 'guardian-rails',\n  bus: 'semantic',\n})`
   }
 ]
 
-const SYSTEM_INSTRUCTION =
-  'You are Lumi, a sophisticated concierge. Use elevated vocabulary (e.g., Certainly, Splendid). You can book services and provide local recommendations. When suggesting venues or places, include a Google Maps link.'
+const orchestrationColumns = [
+  {
+    title: 'Pending',
+    items: [
+      { title: 'Sync topology metadata', agent: 'Atlas-Orchestrator' },
+      { title: 'Backfill compliance logs', agent: 'Sentry-Sec' }
+    ]
+  },
+  {
+    title: 'In Progress',
+    items: [
+      { title: 'Latency governor tuning', agent: 'Codex-Dev' },
+      { title: 'Semantic bus load shedding', agent: 'Atlas-Orchestrator' }
+    ]
+  },
+  {
+    title: 'Needs Consensus',
+    items: [
+      { title: 'Deploy autonomous escalation playbook', agent: 'Swarm-Delta', votes: '1/3' },
+      { title: 'Enable autonomous rerouting', agent: 'Sentry-Sec', votes: '2/3' }
+    ]
+  },
+  {
+    title: 'Completed',
+    items: [
+      { title: 'Agent handshake protocol v3', agent: 'Atlas-Orchestrator' },
+      { title: 'Token budget alerting', agent: 'Codex-Dev' }
+    ]
+  }
+]
 
-const requestHotelService = async (request) =>
-  new Promise((resolve) =>
-    setTimeout(
-      () =>
-        resolve({
-          status: 'confirmed',
-          eta: '10 minutes',
-          request
-        }),
-      550
-    )
-  )
+const agents = [
+  {
+    name: 'Atlas-Orchestrator',
+    role: 'Coordinator',
+    specialization: 'Consensus + routing',
+    uptime: '14d 03h',
+    status: 'idle'
+  },
+  {
+    name: 'Codex-Dev',
+    role: 'Builder',
+    specialization: 'Task execution',
+    uptime: '11d 19h',
+    status: 'busy'
+  },
+  {
+    name: 'Sentry-Sec',
+    role: 'Guardian',
+    specialization: 'Threat detection',
+    uptime: '21d 02h',
+    status: 'busy'
+  },
+  {
+    name: 'Helix-Research',
+    role: 'Analyst',
+    specialization: 'Model evaluation',
+    uptime: '7d 12h',
+    status: 'idle'
+  },
+  {
+    name: 'Nova-UX',
+    role: 'Experience',
+    specialization: 'Agent guidance',
+    uptime: '4d 08h',
+    status: 'error'
+  },
+  {
+    name: 'Pulse-Observer',
+    role: 'Telemetry',
+    specialization: 'System diagnostics',
+    uptime: '18d 21h',
+    status: 'idle'
+  }
+]
 
-const appendMapsLink = (text, query) => {
-  if (text.includes('http')) return text
-  const mapsLink = `https://maps.google.com/?q=${encodeURIComponent(query)}`
-  return `${text}\n\n${mapsLink}`
+const statusStyles = {
+  idle: 'bg-emerald-400',
+  busy: 'bg-amber-400',
+  error: 'bg-red-400'
 }
 
-function TypingLoader() {
+const simulateQueue = [
+  {
+    sender: 'Atlas-Orchestrator',
+    type: 'text',
+    content: 'Pushing consensus request to Swarm-Delta for automated rollback.'
+  },
+  {
+    sender: 'Sentry-Sec',
+    type: 'alert',
+    content: 'Alert: consensus variance detected. Recommending manual review.'
+  },
+  {
+    sender: 'Codex-Dev',
+    type: 'code',
+    content: `swarm.vote({\n  task: 'rollback-plan',\n  confidence: 0.71,\n  notes: 'latency spikes normalized'\n})`
+  }
+]
+
+function CodeWindow() {
   return (
-    <div className="flex items-center gap-1 px-3 py-2">
-      {[0, 1, 2].map((dot) => (
-        <span
-          key={dot}
-          className="h-2 w-2 rounded-full bg-gold"
-          style={{
-            animation: 'bounce 1.2s ease-in-out infinite',
-            animationDelay: `${dot * 120}ms`
-          }}
-        />
-      ))}
+    <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-[0_0_40px_rgba(99,102,241,0.15)] backdrop-blur">
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
+        <span className="h-2 w-2 rounded-full bg-emerald-400" />
+        <span className="h-2 w-2 rounded-full bg-amber-400" />
+        <span className="h-2 w-2 rounded-full bg-rose-400" />
+        <span className="ml-auto text-[10px]">swarm.config.ts</span>
+      </div>
+      <pre className="mt-4 whitespace-pre-wrap text-sm text-emerald-100/90">
+        <code className="font-mono">{`const swarm = new Consendus.Swarm({
+  id: 'consensus-eu-west',
+  agents: ['atlas', 'codex', 'sentry', 'nova'],
+  policy: 'guardian-rails',
+  consensus: {
+    quorum: 0.67,
+    maxLatencyMs: 180,
+  },
+  bus: {
+    type: 'semantic',
+    priority: ['infra', 'security', 'ops'],
+  },
+})`}</code>
+      </pre>
     </div>
   )
 }
 
-function MessageBubble({ sender, text, timestamp }) {
-  const isGuest = sender === 'guest'
-  const segments = text.split(/(https?:\/\/\S+)/g)
+function AreaChart() {
+  const points = useMemo(() => {
+    const maxValue = Math.max(...chartData.map((item) => Math.max(item.load, item.tokens)))
+    return chartData.map((item, index) => {
+      const x = (index / (chartData.length - 1)) * 100
+      const loadY = 100 - (item.load / maxValue) * 100
+      const tokenY = 100 - (item.tokens / maxValue) * 100
+      return { x, loadY, tokenY }
+    })
+  }, [])
+
+  const buildPath = (key) => {
+    const coords = points
+      .map((point) => `${point.x},${key === 'load' ? point.loadY : point.tokenY}`)
+      .join(' ')
+    return `M 0 100 L ${coords} L 100 100 Z`
+  }
 
   return (
-    <div className={`flex ${isGuest ? 'justify-end' : 'justify-start'}`}>
-      <div
-        className={`max-w-[85%] rounded-[2px] px-4 py-3 text-sm leading-relaxed shadow-sm transition duration-300 ease-out ${
-          isGuest
-            ? 'bg-onyx text-white'
-            : 'bg-white/90 text-onyx border border-stone-200 shadow-card'
-        }`}
-      >
-        <p className="whitespace-pre-line">
-          {segments.map((segment, index) =>
-            segment.startsWith('http') ? (
-              <a
-                key={index}
-                href={segment}
-                target="_blank"
-                rel="noreferrer"
-                className="underline decoration-gold decoration-2 underline-offset-4"
-              >
-                {segment}
-              </a>
-            ) : (
-              <span key={index}>{segment}</span>
-            )
-          )}
-        </p>
-        <span className="mt-2 block text-[11px] uppercase tracking-[0.25em] text-onyx/50">
-          {timestamp}
+    <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">System Load</p>
+          <h3 className="text-xl font-semibold text-white">Orchestration Pressure</h3>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-slate-400">
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-indigo-400" /> Load
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-purple-400" /> Tokens
+          </span>
+        </div>
+      </div>
+      <div className="mt-6 h-52 w-full">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
+          <path d={buildPath('load')} fill="rgba(99, 102, 241, 0.35)" />
+          <path d={buildPath('tokens')} fill="rgba(168, 85, 247, 0.35)" />
+          <polyline
+            fill="none"
+            stroke="rgba(99, 102, 241, 0.9)"
+            strokeWidth="1.2"
+            points={points.map((point) => `${point.x},${point.loadY}`).join(' ')}
+          />
+          <polyline
+            fill="none"
+            stroke="rgba(168, 85, 247, 0.9)"
+            strokeWidth="1.2"
+            points={points.map((point) => `${point.x},${point.tokenY}`).join(' ')}
+          />
+        </svg>
+      </div>
+      <div className="mt-4 flex justify-between text-xs text-slate-500">
+        {chartData.map((item) => (
+          <span key={item.time}>{item.time}</span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function MessageBubble({ message }) {
+  const bubbleStyles = {
+    text: 'border-white/10 bg-slate-800/70 text-slate-100',
+    code: 'border-emerald-500/40 bg-slate-950/80 text-emerald-100 font-mono',
+    alert: 'border-amber-500/40 bg-amber-500/10 text-amber-200'
+  }
+
+  return (
+    <div className="flex flex-col gap-2 rounded-xl border px-4 py-3" style={{ animation: 'fadeIn 0.4s ease' }}>
+      <div className="flex items-center justify-between text-xs text-slate-400">
+        <span className="flex items-center gap-2">
+          <CircleDot className="h-3 w-3 text-indigo-400" /> {message.sender}
         </span>
+        <span>{message.timestamp}</span>
+      </div>
+      <div className={`text-sm leading-relaxed ${bubbleStyles[message.type]}`}>
+        {message.type === 'code' ? (
+          <pre className="whitespace-pre-wrap rounded-lg border border-emerald-500/20 bg-slate-950/70 p-3 text-xs">
+            <code>{message.content}</code>
+          </pre>
+        ) : (
+          <p>{message.content}</p>
+        )}
       </div>
     </div>
   )
 }
 
 export default function LumiereApp() {
-  const [hasAccess, setHasAccess] = useState(false)
-  const [activeTab, setActiveTab] = useState('concierge')
-  const [messages, setMessages] = useState(initialMessages)
-  const [inputValue, setInputValue] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const [filter, setFilter] = useState('All')
-  const [bookings, setBookings] = useState({})
-  const apiKey = useMemo(() => process.env.API_KEY || '', [])
-  const genAiClient = useMemo(() => {
-    if (!apiKey) return null
-    return new GoogleGenerativeAI(apiKey)
-  }, [apiKey])
+  const [mode, setMode] = useState('landing')
+  const [activeTab, setActiveTab] = useState('overview')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [chatMessages, setChatMessages] = useState(initialMessages)
+  const [isSimulating, setIsSimulating] = useState(false)
+  const [typingAgents, setTypingAgents] = useState([])
 
-  const filteredExperiences = useMemo(() => {
-    if (filter === 'All') return experiences
-    return experiences.filter((item) => item.category === filter)
-  }, [filter])
+  const handleSimulate = () => {
+    if (isSimulating) return
+    setIsSimulating(true)
+    setTypingAgents(simulateQueue.map((item) => item.sender))
 
-  const handleSend = async () => {
-    if (!inputValue.trim()) return
-
-    const userMessage = {
-      id: Date.now().toString(),
-      sender: 'guest',
-      text: inputValue.trim(),
-      timestamp: 'Just now'
-    }
-
-    setMessages((prev) => [...prev, userMessage])
-    setInputValue('')
-    setIsTyping(true)
-
-    const reply = await generateLumiReply(userMessage.text)
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `${userMessage.id}-reply`,
-        sender: 'lumi',
-        text: reply,
-        timestamp: 'Just now'
-      }
-    ])
-    setIsTyping(false)
-  }
-
-  const simulateGeminiResponse = (prompt) => {
-    const lower = prompt.toLowerCase()
-    let response =
-      'Certainly. I have noted your preference. Would you like me to pair it with a chilled Sancerre from the cellar?'
-
-    if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
-      response =
-        'Splendid. I have dispatched a request via requestHotelService — fresh Egyptian cotton towels and pillows will arrive within 10 minutes.'
-    }
-
-    if (lower.includes('dinner') || lower.includes('restaurant') || lower.includes('eat')) {
-      response =
-        'Absolutely. I recommend the seasonal omakase at “Nori”. Here is the location for your driver: https://maps.google.com/?q=Nori+San+Francisco. Shall I secure a table for two at 8 PM?'
-    }
-
-    if (lower.includes('spa') || lower.includes('massage')) {
-      response =
-        'Allow me to arrange a 90-minute aromatherapy massage in your suite. I will align it with your schedule and confirm discreetly.'
-    }
-
-    return response
-  }
-
-  const generateLumiReply = async (prompt) => {
-    const lower = prompt.toLowerCase()
-    if (!genAiClient) {
-      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
-        const service = await requestHotelService(prompt)
-        return `Splendid. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
-      }
-      if (lower.includes('restaurant') || lower.includes('dinner') || lower.includes('eat') || lower.includes('recommend')) {
-        return appendMapsLink(simulateGeminiResponse(prompt), prompt)
-      }
-      return simulateGeminiResponse(prompt)
-    }
-
-    try {
-      const model = genAiClient.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        systemInstruction: SYSTEM_INSTRUCTION,
-        tools: [
+    simulateQueue.forEach((message, index) => {
+      setTimeout(() => {
+        setChatMessages((prev) => [
+          ...prev,
           {
-            functionDeclarations: [
-              {
-                name: 'requestHotelService',
-                description: 'Place a request for hotel services such as towels, pillows, or housekeeping.',
-                parameters: {
-                  type: 'object',
-                  properties: {
-                    request: {
-                      type: 'string',
-                      description: 'Details of the service to be requested.'
-                    }
-                  },
-                  required: ['request']
-                }
-              }
-            ]
+            id: Date.now() + index,
+            timestamp: `09:${45 + index}`,
+            ...message
           }
-        ]
-      })
+        ])
+        setTypingAgents((prev) => prev.filter((sender) => sender !== message.sender))
+        if (index === simulateQueue.length - 1) {
+          setIsSimulating(false)
+        }
+      }, 700 * (index + 1))
+    })
+  }
 
-      const result = await model.generateContent({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: prompt }]
-          }
-        ]
-      })
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="space-y-6" style={{ animation: 'fadeIn 0.4s ease' }}>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {metrics.map((metric) => {
+                const Icon = metric.icon
+                return (
+                  <div
+                    key={metric.label}
+                    className="rounded-2xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{metric.label}</p>
+                      <Icon className="h-4 w-4 text-indigo-300" />
+                    </div>
+                    <div className="mt-3 flex items-end justify-between">
+                      <p className="text-2xl font-semibold text-white">{metric.value}</p>
+                      <span className="text-xs text-emerald-300">{metric.delta}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
 
-      const text = result?.response?.text()
-      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
-        const service = await requestHotelService(prompt)
-        return `${text}\n\nrequestHotelService • ${service.status} · ETA ${service.eta}`
-      }
-      if (text && (lower.includes('restaurant') || lower.includes('dinner') || lower.includes('eat') || lower.includes('recommend'))) {
-        return appendMapsLink(text, prompt)
-      }
-      return text || simulateGeminiResponse(prompt)
-    } catch (error) {
-      console.error('Gemini error', error)
-      if (lower.includes('towel') || lower.includes('pillows') || lower.includes('housekeeping')) {
-        const service = await requestHotelService(prompt)
-        return `Certainly. requestHotelService is confirmed for “${service.request}.” A runner will arrive within ${service.eta}.`
-      }
-      if (lower.includes('restaurant') || lower.includes('dinner') || lower.includes('eat') || lower.includes('recommend')) {
-        return appendMapsLink(simulateGeminiResponse(prompt), prompt)
-      }
-      return simulateGeminiResponse(prompt)
+            <div className="grid gap-6 xl:grid-cols-[2fr,1fr]">
+              <AreaChart />
+              <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Terminal Log</p>
+                    <h3 className="text-xl font-semibold text-white">Realtime Events</h3>
+                  </div>
+                  <TerminalSquare className="h-5 w-5 text-emerald-300" />
+                </div>
+                <div className="mt-4 max-h-60 space-y-3 overflow-y-auto rounded-xl border border-white/5 bg-slate-950/60 p-4 text-xs text-emerald-100/80">
+                  {terminalLogs.map((log) => (
+                    <p key={log} className="font-mono">
+                      {log}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      case 'comms':
+        return (
+          <div className="grid gap-6 xl:grid-cols-[260px,1fr]" style={{ animation: 'fadeIn 0.4s ease' }}>
+            <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
+              <div className="mt-4 space-y-3">
+                {channels.map((channel) => (
+                  <button
+                    key={channel.id}
+                    className="flex w-full items-center justify-between rounded-xl border border-white/5 bg-slate-900/60 px-3 py-2 text-sm text-slate-200"
+                  >
+                    <span>{channel.name}</span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                      {channel.status}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={handleSimulate}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400"
+              >
+                <Sparkles className="h-4 w-4" />
+                Simulate Activity
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Comms Bus</p>
+                  <h3 className="text-xl font-semibold text-white">#migration-api-v2</h3>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <Gauge className="h-4 w-4 text-indigo-300" />
+                  Stable · 12 agents online
+                </div>
+              </div>
+              <div className="mt-5 space-y-4">
+                {chatMessages.map((message) => (
+                  <MessageBubble key={message.id} message={message} />
+                ))}
+                {typingAgents.length > 0 && (
+                  <div className="rounded-xl border border-white/10 bg-slate-900/60 px-4 py-3 text-xs text-slate-400">
+                    <span className="font-mono">{typingAgents.join(', ')}</span> is typing...
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      case 'orchestration':
+        return (
+          <div className="grid gap-6 lg:grid-cols-4" style={{ animation: 'fadeIn 0.4s ease' }}>
+            {orchestrationColumns.map((column) => (
+              <div key={column.title} className="rounded-2xl border border-white/10 bg-slate-800/70 p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{column.title}</p>
+                  <span className="text-xs text-slate-500">{column.items.length}</span>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {column.items.map((item) => (
+                    <div key={item.title} className="rounded-xl border border-white/5 bg-slate-900/70 p-3">
+                      <p className="text-sm font-semibold text-white">{item.title}</p>
+                      <p className="mt-2 text-xs text-slate-400">{item.agent}</p>
+                      {item.votes && (
+                        <div className="mt-3">
+                          <div className="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>Consensus</span>
+                            <span>{item.votes}</span>
+                          </div>
+                          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-700">
+                            <div
+                              className="h-full bg-indigo-400"
+                              style={{ width: `${(Number(item.votes.split('/')[0]) / Number(item.votes.split('/')[1])) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      case 'fleet':
+        return (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" style={{ animation: 'fadeIn 0.4s ease' }}>
+            {agents.map((agent) => (
+              <div key={agent.name} className="rounded-2xl border border-white/10 bg-slate-800/70 p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{agent.name}</p>
+                    <p className="text-xs text-slate-400">{agent.role}</p>
+                  </div>
+                  <span className={`h-2.5 w-2.5 rounded-full ${statusStyles[agent.status]}`} />
+                </div>
+                <div className="mt-4 space-y-2 text-xs text-slate-400">
+                  <p>
+                    <span className="text-slate-500">Specialization:</span> {agent.specialization}
+                  </p>
+                  <p>
+                    <span className="text-slate-500">Uptime:</span> {agent.uptime}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      default:
+        return null
     }
-  }
-
-  const handleReserve = (id) => {
-    setBookings((prev) => ({
-      ...prev,
-      [id]: 'confirmed'
-    }))
-  }
-
-  const activeNavIcon = {
-    concierge: MessageCircle,
-    curated: Sparkles,
-    account: User
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 text-onyx">
+    <div className="min-h-screen bg-slate-900 text-white">
       <Head>
-        <title>The Lumiere | AI Concierge</title>
-        <meta name="description" content="Lumi, your personal concierge at The Lumiere, San Francisco" />
+        <title>Consendus.ai | Agent Swarm Orchestration</title>
       </Head>
 
-      {!hasAccess ? (
-        <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-onyx text-white">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                'linear-gradient( rgba(12,12,12,0.6), rgba(12,12,12,0.7)), url(https://images.unsplash.com/photo-1501117716987-c8e1ecb210af?auto=format&fit=crop&w=1600&q=80)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          />
-          <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-10 px-6 text-center sm:px-10">
-            <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.28em] text-white/70">The Lumiere, San Francisco</p>
-              <h1 className="font-serif text-4xl font-semibold sm:text-5xl">Welcome to The Lumiere, San Francisco</h1>
-              <p className="text-lg leading-relaxed text-white/80">
-                Crafted for discerning travelers. An AI concierge to curate every detail with grace.
+      {mode === 'landing' ? (
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(16,185,129,0.12),_transparent_45%)]" />
+          <section className="relative mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-16 lg:flex-row lg:items-center">
+            <div className="flex-1 space-y-6">
+              <p className="text-xs uppercase tracking-[0.35em] text-indigo-300">Consendus.ai</p>
+              <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
+                Orchestrate Your Agent Swarm
+              </h1>
+              <p className="text-lg text-slate-300">
+                Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
               </p>
-            </div>
-
-            <div className="rounded-[2px] border border-white/20 bg-white/10 p-5 text-left shadow-2xl backdrop-blur-md sm:p-6">
-              <div className="flex items-center justify-between text-sm uppercase tracking-[0.28em] text-white/70">
-                <span>Room 402</span>
-                <span className="flex items-center gap-2">
-                  <Wifi strokeWidth={1.5} className="h-4 w-4" /> Connected
-                </span>
-              </div>
-              <div className="mt-3 flex items-end justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.32em] text-white/60">Guest</p>
-                  <p className="text-2xl font-semibold">Alexander Mercer</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs uppercase tracking-[0.32em] text-white/60">Room</p>
-                  <p className="text-3xl font-semibold text-gold">402</p>
-                </div>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-3 text-xs uppercase tracking-[0.28em] text-white/60">
-                <div className="rounded-[2px] border border-white/10 bg-white/5 p-3">
-                  <p className="text-white/80">Platinum Concierge</p>
-                  <p className="mt-1 text-[11px] text-white/50">Priority response</p>
-                </div>
-                <div className="rounded-[2px] border border-white/10 bg-white/5 p-3 text-right">
-                  <p className="text-white/80">Mobile Key</p>
-                  <p className="mt-1 text-[11px] text-white/50">Active for 402</p>
-                </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => setMode('console')}
+                  className="rounded-xl bg-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400"
+                >
+                  Access Console
+                </button>
+                <button className="rounded-xl border border-white/10 bg-slate-800/60 px-6 py-3 text-sm text-slate-200">
+                  View Documentation
+                </button>
               </div>
             </div>
+            <div className="flex-1">
+              <CodeWindow />
+            </div>
+          </section>
 
-            <button
-              onClick={() => setHasAccess(true)}
-              className="mx-auto w-full max-w-sm rounded-[2px] border border-gold bg-gold px-6 py-4 text-lg font-semibold uppercase tracking-[0.25em] text-onyx shadow-lg transition duration-300 ease-out hover:-translate-y-0.5 hover:shadow-xl"
-            >
-              Access Concierge
-            </button>
-          </div>
-        </section>
+          <section className="relative mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-3">
+            {featureCards.map((feature) => {
+              const Icon = feature.icon
+              return (
+                <div
+                  key={feature.title}
+                  className="rounded-2xl border border-white/10 bg-slate-800/70 p-6 shadow-lg shadow-slate-950/40"
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className={`h-5 w-5 ${feature.accent}`} />
+                    <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
+                  </div>
+                  <p className="mt-3 text-sm text-slate-300">{feature.description}</p>
+                </div>
+              )}
+            )}
+          </section>
+        </div>
       ) : (
-        <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col">
-          <main className="flex-1 overflow-y-auto pb-24 no-scrollbar">
-            {activeTab === 'concierge' && (
-              <section className="flex h-full flex-col">
-                <header className="sticky top-0 z-20 flex items-center justify-between border-b border-stone-200/70 bg-white/80 px-5 py-4 backdrop-blur-md">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[2px] border border-gold/60 bg-white text-xl font-semibold text-onyx shadow-sm">
-                      L
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.25em] text-onyx/50">Concierge</p>
-                      <p className="font-serif text-xl font-semibold">Lumi at The Lumiere</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 rounded-[2px] border border-stone-200 bg-white/70 px-3 py-2 text-[11px] uppercase tracking-[0.25em] text-onyx/70 shadow-sm">
-                      <Wifi strokeWidth={1.5} className="h-4 w-4 text-gold" />
-                      Connected
-                    </div>
-                    <div className="text-right text-xs uppercase tracking-[0.3em] text-gold">Platinum</div>
-                  </div>
-                </header>
-
-                <div className="flex-1 space-y-4 bg-gradient-to-b from-stone-50/70 via-stone-50/40 to-stone-100 px-5 py-6">
-                  {messages.map((message) => (
-                    <MessageBubble key={message.id} sender={message.sender} text={message.text} timestamp={message.timestamp} />
-                  ))}
-                  {isTyping && (
-                    <div className="flex justify-start">
-                      <div className="rounded-[2px] border border-stone-200 bg-white/90 text-onyx shadow-card">
-                        <TypingLoader />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="sticky bottom-16 z-20 border-t border-stone-200/60 bg-white/85 px-5 py-4 backdrop-blur-md">
-                  <div className="flex items-center gap-3 rounded-[2px] border border-stone-200 bg-white px-3 py-2 shadow-sm">
-                    <input
-                      type="text"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                      placeholder="Request anything – e.g., fresh towels or a dinner table"
-                      className="flex-1 bg-transparent px-2 py-2 text-sm text-onyx placeholder:text-onyx/40 focus:outline-none"
-                    />
-                    <button
-                      onClick={handleSend}
-                      className="flex h-11 w-11 items-center justify-center rounded-[2px] bg-onyx text-white transition duration-300 ease-out hover:-translate-y-0.5 hover:bg-onyx/90"
-                      aria-label="Send"
-                    >
-                      <Send strokeWidth={1.5} className="h-5 w-5" />
-                    </button>
-                  </div>
-                  <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-onyx/50">
-                    Gemini-secured · Grounded recommendations with Google Maps
-                  </p>
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'curated' && (
-              <section className="px-5 py-6">
-                <div className="mb-5 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-onyx/50">Curated Exclusives</p>
-                    <h2 className="font-serif text-3xl font-semibold">Made for Room 402</h2>
-                  </div>
-                  <Sparkles strokeWidth={1.5} className="h-7 w-7 text-gold" />
-                </div>
-
-                <div className="mb-6 flex gap-3 overflow-x-auto no-scrollbar">
-                  {['All', 'Experience', 'Service', 'Dining'].map((item) => (
-                    <button
-                      key={item}
-                      onClick={() => setFilter(item)}
-                      className={`rounded-[2px] border px-4 py-2 text-sm uppercase tracking-[0.2em] transition duration-300 ease-out font-serif ${
-                        filter === item
-                          ? 'border-gold bg-gold text-onyx'
-                          : 'border-stone-200 bg-white/70 text-onyx hover:border-gold hover:text-onyx'
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="grid gap-5 sm:grid-cols-2">
-                  {filteredExperiences.map((item) => (
-                    <div key={item.id} className="overflow-hidden rounded-[2px] border border-stone-200 bg-white shadow-card">
-                      <div className="relative h-44 w-full overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-full w-full object-cover transition duration-500 ease-out hover:scale-105"
-                        />
-                        <div className="absolute right-3 top-3 rounded-[2px] border border-white/30 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-onyx">
-                          {item.price}
-                        </div>
-                      </div>
-                      <div className="space-y-3 p-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-serif text-xl font-semibold">{item.title}</h3>
-                          <span className="rounded-[2px] border border-stone-200 bg-stone-50 px-2 py-1 text-[11px] uppercase tracking-[0.25em] text-onyx/70">
-                            {item.category}
-                          </span>
-                        </div>
-                        <p className="text-sm text-onyx/70">{item.description}</p>
-                        <button
-                          onClick={() => handleReserve(item.id)}
-                          className={`flex w-full items-center justify-center gap-2 rounded-[2px] px-4 py-3 text-sm font-semibold uppercase tracking-[0.25em] transition duration-300 ease-out ${
-                            bookings[item.id] === 'confirmed'
-                              ? 'border border-gold bg-white text-gold'
-                              : 'border border-onyx bg-onyx text-white hover:-translate-y-0.5'
-                          }`}
-                        >
-                          {bookings[item.id] === 'confirmed' ? 'Confirmed' : 'Reserve'}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {activeTab === 'account' && (
-              <section className="space-y-6 px-5 py-6">
-                <div className="overflow-hidden rounded-[2px] border border-gold/60 bg-gradient-to-br from-onyx via-onyx to-[#0f0f0f] text-white shadow-card">
-                  <div className="h-1 w-full bg-gradient-to-r from-gold/60 via-white/30 to-gold/60" />
-                  <div className="flex items-start justify-between px-5 pt-5">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-gold">The Lumiere</p>
-                      <h2 className="font-serif text-3xl font-semibold">Alexander Mercer</h2>
-                      <p className="text-sm text-white/70">Platinum Guest</p>
-                    </div>
-                    <div className="rounded-[2px] border border-gold/40 bg-white/5 px-2 py-1 text-[11px] uppercase tracking-[0.25em] text-gold">
-                      Member ID · 402
-                    </div>
-                  </div>
-                  <div className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 px-5 py-4 text-sm">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.25em] text-white/50">Room</p>
-                      <p className="text-lg font-semibold text-gold">402</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs uppercase tracking-[0.25em] text-white/50">Checkout</p>
-                      <p className="text-lg font-semibold">Dec 12, 12:00</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.25em] text-white/50">Status</p>
-                      <p className="text-lg font-semibold">Platinum</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs uppercase tracking-[0.25em] text-white/50">Balance</p>
-                      <p className="text-lg font-semibold">$0.00</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-white/10 px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <KeyRound strokeWidth={1.5} className="h-5 w-5 text-gold" />
-                      <div>
-                      <p className="text-xs uppercase tracking-[0.25em] text-white/60">Mobile Key</p>
-                      <p className="text-sm font-semibold">Active for Room 402</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 rounded-[2px] border border-gold/40 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-gold">
-                      <CheckCircle2 strokeWidth={1.5} className="h-4 w-4" /> Secure
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-[2px] border border-stone-200 bg-white/80 p-4 shadow-card">
-                  <h3 className="font-serif text-xl font-semibold text-onyx">Stay preferences</h3>
-                  <ul className="mt-3 space-y-2 text-sm text-onyx/70">
-                    <li>• Turndown with lavender and soft jazz at 8:30 PM</li>
-                    <li>• Feather pillows, hypoallergenic duvet</li>
-                    <li>• Black car transfer on checkout morning</li>
-                  </ul>
-                </div>
-              </section>
-            )}
-          </main>
-
-          <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-stone-200/70 bg-white/85 backdrop-blur-md">
-            <div className="mx-auto flex max-w-3xl items-center justify-around px-4 py-3">
+        <div className="relative flex min-h-screen">
+          <aside
+            className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-white/10 bg-slate-950/90 p-6 transition-transform lg:static lg:translate-x-0 ${
+              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Consendus.ai</p>
+                <p className="text-lg font-semibold">Console</p>
+              </div>
+              <button
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="mt-10 space-y-2">
               {navItems.map((item) => {
-                const Icon = activeNavIcon[item.id]
+                const Icon = item.icon
                 const isActive = activeTab === item.id
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`flex flex-col items-center gap-1 rounded-[2px] px-3 py-1 text-xs uppercase tracking-[0.2em] transition duration-300 ease-out ${
+                    onClick={() => {
+                      setActiveTab(item.id)
+                      setSidebarOpen(false)
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
                       isActive
-                        ? 'border border-gold/50 bg-white text-gold shadow-sm'
-                        : 'border border-transparent text-onyx/60 hover:border-stone-200 hover:text-onyx'
+                        ? 'bg-indigo-500/20 text-indigo-200'
+                        : 'text-slate-300 hover:bg-slate-800/70'
                     }`}
                   >
-                    <Icon strokeWidth={1.5} className="h-5 w-5" />
-                    <span className={`font-serif text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+                    <Icon className="h-4 w-4" />
+                    {item.label}
                   </button>
                 )
               })}
+            </nav>
+            <div className="mt-auto pt-10 text-xs text-slate-400">
+              <p className="uppercase tracking-[0.3em]">Agent Swarm</p>
+              <p className="mt-2">Cluster: eu-west-2 · 128 agents</p>
             </div>
-          </nav>
+          </aside>
+
+          <div className="flex-1 lg:ml-0">
+            <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-slate-900/80 px-6 py-4 backdrop-blur">
+              <div className="flex items-center gap-3">
+                <button className="lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar">
+                  <Menu className="h-5 w-5" />
+                </button>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Active View</p>
+                  <h2 className="text-xl font-semibold text-white">{navItems.find((item) => item.id === activeTab)?.label}</h2>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button className="rounded-xl border border-white/10 bg-slate-800/70 p-2">
+                  <Bell className="h-4 w-4" />
+                </button>
+                <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800/70 px-3 py-2 text-sm">
+                  <span className="h-7 w-7 rounded-full bg-indigo-500/40" />
+                  <span className="hidden text-slate-200 sm:inline">admin@consendus.ai</span>
+                  <ChevronRight className="h-4 w-4 text-slate-500" />
+                </button>
+              </div>
+            </header>
+
+            <main className="px-6 py-8">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">System Status</p>
+                  <div className="mt-2 flex items-center gap-3 text-sm text-slate-300">
+                    <Activity className="h-4 w-4 text-emerald-400" />
+                    All systems operational · 0 incidents
+                  </div>
+                </div>
+                <div className="hidden items-center gap-2 rounded-xl border border-white/10 bg-slate-800/70 px-4 py-2 text-xs text-slate-300 md:flex">
+                  <Gauge className="h-4 w-4 text-indigo-300" />
+                  Autonomy: 82% · Guardian Rails engaged
+                </div>
+              </div>
+
+              {renderContent()}
+            </main>
+          </div>
         </div>
       )}
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
