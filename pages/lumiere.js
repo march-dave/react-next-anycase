@@ -320,6 +320,13 @@ function MessageBubble({ message }) {
           <p>{message.content}</p>
         )}
       </div>
+      {message.content.includes('```') ? (
+        <pre className="mt-2 overflow-x-auto rounded-lg bg-slate-900/80 p-3 text-xs text-emerald-200">
+          <code className="font-mono">{message.content.replace(/```(ts)?/g, '')}</code>
+        </pre>
+      ) : (
+        <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
+      )}
     </div>
   )
 }
@@ -398,6 +405,10 @@ export default function LumiereApp() {
                     </p>
                   ))}
                 </div>
+                <span className="flex items-center gap-2 text-xs text-emerald-300">
+                  <Activity className="h-4 w-4" />
+                  live
+                </span>
               </div>
             </div>
           </div>
