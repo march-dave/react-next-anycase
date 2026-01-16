@@ -362,22 +362,150 @@ export default function LumiereApp() {
     })
   }
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'overview':
-        return (
-          <div className="space-y-6" style={{ animation: 'fadeIn 0.4s ease' }}>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {metrics.map((metric) => {
-                const Icon = metric.icon
-                return (
-                  <div
-                    key={metric.label}
-                    className="rounded-2xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"
-                  >
+  const groupedTasks = useMemo(() => {
+    return tasks.reduce((acc, task) => {
+      if (!acc[task.status]) acc[task.status] = []
+      acc[task.status].push(task)
+      return acc
+    }, {})
+  }, [])
+
+  const mainContent = (
+    <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
+      <header className="flex items-center justify-between border-b border-white/10 bg-slate-900/80 px-6 py-4 backdrop-blur">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-slate-800/60 text-slate-200 md:hidden"
+            aria-label="Toggle sidebar"
+          >
+            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Consendus.ai</p>
+            <h1 className="text-xl font-semibold font-sans">Swarm Console</h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-slate-800/70 px-3 py-1 text-xs text-slate-300 md:flex">
+            <Activity className="h-4 w-4 text-emerald-400" />
+            System Nominal
+          </div>
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/60 px-3 py-1 text-xs text-slate-300">
+            <User className="h-4 w-4 text-indigo-400" />
+            admin@consendus
+          </div>
+        </div>
+      </header>
+
+      <div className="relative flex flex-1">
+        <aside
+          className={`fixed inset-y-0 left-0 z-30 w-64 border-r border-white/10 bg-slate-900/95 px-4 py-6 backdrop-blur transition-transform md:static md:translate-x-0 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-3 py-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300">
+              <Bot className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Agent Swarm</p>
+              <p className="text-xs text-slate-400">Quorum 3 · Region us-east</p>
+            </div>
+          </div>
+
+          <nav className="mt-6 space-y-2">
+            {navigation.map((item) => {
+              const Icon = item.icon
+              const isActive = activeView === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveView(item.id)
+                    setSidebarOpen(false)
+                  }}
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition ${
+                    isActive
+                      ? 'bg-indigo-500/20 text-indigo-200'
+                      : 'text-slate-300 hover:bg-white/5'
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-slate-500" />
+                </button>
+              )}
+            )}
+          </nav>
+
+          <div className="mt-auto hidden md:block">
+            <div className="mt-8 rounded-xl border border-white/10 bg-slate-800/60 p-4 text-xs text-slate-300">
+              <div className="mb-2 flex items-center gap-2 text-sm text-white">
+                <TerminalSquare className="h-4 w-4 text-emerald-400" />
+                Live Telemetry
+              </div>
+              <p className="leading-relaxed text-slate-400">Trace level: info · 12 live shards · latency 42ms</p>
+            </div>
+          </div>
+        </aside>
+
+        {sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-20 bg-black/40 md:hidden"
+            aria-label="Close sidebar"
+          />
+        )}
+
+        <main className="flex-1 px-6 py-6 md:px-10">
+          <FadeWrapper active={viewVisible}>
+            {activeView === 'overview' && (
+              <section className="space-y-6">
+                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 shadow-lg shadow-black/20">
+                  <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Overview</p>
+                      <h2 className="text-2xl font-semibold font-sans">Swarm Analytics</h2>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-xs text-slate-300">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                      All systems green
+                    </div>
+                  </div>
+                  <div className="mt-6 grid gap-4 md:grid-cols-4">
+                    {stats.map((stat) => (
+                      <div
+                        key={stat.label}
+                        className="rounded-xl border border-white/10 bg-slate-900/60 p-4"
+                      >
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{stat.label}</p>
+                        <div className="mt-2 flex items-end justify-between">
+                          <p className="text-2xl font-semibold text-white">{stat.value}</p>
+                          <span className="text-xs text-emerald-400">{stat.delta}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+                  <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{metric.label}</p>
-                      <Icon className="h-4 w-4 text-indigo-300" />
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">System Load</p>
+                        <h3 className="text-lg font-semibold font-sans">Load vs Token Consumption</h3>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-slate-300">
+                        <span className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-indigo-400" /> Load
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400" /> Tokens
+                        </span>
+                      </div>
                     </div>
                     <div className="mt-3 flex items-end justify-between">
                       <p className="text-2xl font-semibold text-white">{metric.value}</p>
@@ -388,22 +516,45 @@ export default function LumiereApp() {
               })}
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[2fr,1fr]">
-              <AreaChart />
-              <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Terminal Log</p>
-                    <h3 className="text-xl font-semibold text-white">Realtime Events</h3>
+                  <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Terminal Log</p>
+                        <h3 className="text-lg font-semibold font-sans">Event Stream</h3>
+                      </div>
+                      <TerminalSquare className="h-5 w-5 text-emerald-400" />
+                    </div>
+                    <div className="mt-4 h-56 space-y-2 overflow-y-auto rounded-xl border border-white/10 bg-slate-900/60 p-3 font-mono text-xs text-emerald-200">
+                      {terminalEvents.map((event, index) => (
+                        <p key={`${event}-${index}`}>{event}</p>
+                      ))}
+                    </div>
                   </div>
                   <TerminalSquare className="h-5 w-5 text-emerald-300" />
                 </div>
-                <div className="mt-4 max-h-60 space-y-3 overflow-y-auto rounded-xl border border-white/5 bg-slate-950/60 p-4 text-xs text-emerald-100/80">
-                  {terminalLogs.map((log) => (
-                    <p key={log} className="font-mono">
-                      {log}
-                    </p>
-                  ))}
+              </section>
+            )}
+
+            {activeView === 'comms' && (
+              <section className="grid gap-6 lg:grid-cols-[1fr_2fr]">
+                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
+                      <h3 className="text-lg font-semibold font-sans">Swarm Comms</h3>
+                    </div>
+                    <MessageCircle className="h-5 w-5 text-indigo-400" />
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {channels.map((channel) => (
+                      <div
+                        key={channel}
+                        className="rounded-xl border border-white/10 bg-slate-900/50 px-4 py-3 font-mono text-sm text-slate-200"
+                      >
+                        {channel}
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <span className="flex items-center gap-2 text-xs text-emerald-300">
                   <Activity className="h-4 w-4" />
@@ -440,38 +591,56 @@ export default function LumiereApp() {
               </button>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Comms Bus</p>
-                  <h3 className="text-xl font-semibold text-white">#migration-api-v2</h3>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <Gauge className="h-4 w-4 text-indigo-300" />
-                  Stable · 12 agents online
-                </div>
-              </div>
-              <div className="mt-5 space-y-4">
-                {chatMessages.map((message) => (
-                  <MessageBubble key={message.id} message={message} />
-                ))}
-                {typingAgents.length > 0 && (
-                  <div className="rounded-xl border border-white/10 bg-slate-900/60 px-4 py-3 text-xs text-slate-400">
-                    <span className="font-mono">{typingAgents.join(', ')}</span> is typing...
+                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Live Channel</p>
+                      <h3 className="text-lg font-semibold font-sans">#migration-api-v2</h3>
+                    </div>
+                    <button
+                      onClick={handleSimulate}
+                      className="inline-flex items-center gap-2 rounded-full border border-indigo-400/50 bg-indigo-500/20 px-4 py-2 text-xs uppercase tracking-[0.3em] text-indigo-200 transition hover:bg-indigo-500/30"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      {isSimulating ? 'Simulating...' : 'Simulate Activity'}
+                    </button>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )
-      case 'orchestration':
-        return (
-          <div className="grid gap-6 lg:grid-cols-4" style={{ animation: 'fadeIn 0.4s ease' }}>
-            {orchestrationColumns.map((column) => (
-              <div key={column.title} className="rounded-2xl border border-white/10 bg-slate-800/70 p-4">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{column.title}</p>
-                  <span className="text-xs text-slate-500">{column.items.length}</span>
+                  <div className="mt-4 h-96 space-y-4 overflow-y-auto rounded-xl border border-white/10 bg-slate-900/60 p-4">
+                    {chatMessages.map((message) => (
+                      <div key={message.id} className="space-y-2">
+                        <div className="flex items-center gap-3 text-xs text-slate-400">
+                          <span className="font-semibold text-slate-200">{message.agent}</span>
+                          <span>{message.timestamp}</span>
+                        </div>
+                        {message.type === 'code' && <CodeBlock content={message.content} />}
+                        {message.type === 'alert' && (
+                          <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                            {message.content}
+                          </div>
+                        )}
+                        {message.type === 'text' && (
+                          <p className="rounded-xl border border-white/10 bg-slate-800/60 px-4 py-3 text-sm text-slate-200">
+                            {message.content}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                    {isTyping && (
+                      <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400" />
+                        Agents are typing...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {activeView === 'orchestration' && (
+              <section className="space-y-6">
+                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Orchestration</p>
+                  <h2 className="text-2xl font-semibold font-sans">Consensus Task Board</h2>
                 </div>
                 <div className="mt-4 space-y-3">
                   {column.items.map((item) => (
@@ -495,21 +664,14 @@ export default function LumiereApp() {
                     </div>
                   ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        )
-      case 'fleet':
-        return (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" style={{ animation: 'fadeIn 0.4s ease' }}>
-            {agents.map((agent) => (
-              <div key={agent.name} className="rounded-2xl border border-white/10 bg-slate-800/70 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-white">{agent.name}</p>
-                    <p className="text-xs text-slate-400">{agent.role}</p>
-                  </div>
-                  <span className={`h-2.5 w-2.5 rounded-full ${statusStyles[agent.status]}`} />
+              </section>
+            )}
+
+            {activeView === 'fleet' && (
+              <section className="space-y-6">
+                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Agent Fleet</p>
+                  <h2 className="text-2xl font-semibold font-sans">Directory</h2>
                 </div>
                 <div className="mt-4 space-y-2 text-xs text-slate-400">
                   <p>
@@ -536,11 +698,13 @@ export default function LumiereApp() {
 
       {mode === 'landing' ? (
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(16,185,129,0.12),_transparent_45%)]" />
-          <section className="relative mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-16 lg:flex-row lg:items-center">
-            <div className="flex-1 space-y-6">
-              <p className="text-xs uppercase tracking-[0.35em] text-indigo-300">Consendus.ai</p>
-              <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.25),_rgba(15,23,42,0.95))]" />
+          <section className="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16">
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-[0.4em] text-indigo-200/80">
+                Consendus.ai
+              </p>
+              <h1 className="mt-4 text-4xl font-semibold font-sans text-white md:text-6xl">
                 Orchestrate Your Agent Swarm
               </h1>
               <p className="text-lg text-slate-300">
@@ -563,19 +727,15 @@ export default function LumiereApp() {
             </div>
           </section>
 
-          <section className="relative mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-3">
-            {featureCards.map((feature) => {
-              const Icon = feature.icon
-              return (
-                <div
-                  key={feature.title}
-                  className="rounded-2xl border border-white/10 bg-slate-800/70 p-6 shadow-lg shadow-slate-950/40"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`h-5 w-5 ${feature.accent}`} />
-                    <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
-                  </div>
-                  <p className="mt-3 text-sm text-slate-300">{feature.description}</p>
+            <div className="mt-12 grid w-full gap-8 lg:grid-cols-[1.2fr_1fr]">
+              <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 shadow-xl shadow-black/40">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <span className="text-xs uppercase tracking-[0.3em] text-slate-400 font-mono">
+                    swarm.config.ts
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-xs text-emerald-300">
+                    Connected
+                  </span>
                 </div>
               )}
             )}
