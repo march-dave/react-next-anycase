@@ -320,7 +320,7 @@ export default function LumiereApp() {
           </button>
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Consendus.ai</p>
-            <h1 className="text-xl font-semibold">Swarm Console</h1>
+            <h1 className="text-xl font-semibold font-sans">Swarm Console</h1>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -405,7 +405,7 @@ export default function LumiereApp() {
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Overview</p>
-                      <h2 className="text-2xl font-semibold">Swarm Analytics</h2>
+                      <h2 className="text-2xl font-semibold font-sans">Swarm Analytics</h2>
                     </div>
                     <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-xs text-slate-300">
                       <CheckCircle2 className="h-4 w-4 text-emerald-400" />
@@ -433,7 +433,7 @@ export default function LumiereApp() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs uppercase tracking-[0.3em] text-slate-400">System Load</p>
-                        <h3 className="text-lg font-semibold">Load vs Token Consumption</h3>
+                        <h3 className="text-lg font-semibold font-sans">Load vs Token Consumption</h3>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-slate-300">
                         <span className="flex items-center gap-2">
@@ -512,7 +512,7 @@ export default function LumiereApp() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Terminal Log</p>
-                        <h3 className="text-lg font-semibold">Event Stream</h3>
+                        <h3 className="text-lg font-semibold font-sans">Event Stream</h3>
                       </div>
                       <TerminalSquare className="h-5 w-5 text-emerald-400" />
                     </div>
@@ -532,7 +532,7 @@ export default function LumiereApp() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
-                      <h3 className="text-lg font-semibold">Swarm Comms</h3>
+                      <h3 className="text-lg font-semibold font-sans">Swarm Comms</h3>
                     </div>
                     <MessageCircle className="h-5 w-5 text-indigo-400" />
                   </div>
@@ -540,7 +540,7 @@ export default function LumiereApp() {
                     {channels.map((channel) => (
                       <div
                         key={channel}
-                        className="rounded-xl border border-white/10 bg-slate-900/50 px-4 py-3 text-sm text-slate-200"
+                        className="rounded-xl border border-white/10 bg-slate-900/50 px-4 py-3 font-mono text-sm text-slate-200"
                       >
                         {channel}
                       </div>
@@ -552,7 +552,7 @@ export default function LumiereApp() {
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Live Channel</p>
-                      <h3 className="text-lg font-semibold">#migration-api-v2</h3>
+                      <h3 className="text-lg font-semibold font-sans">#migration-api-v2</h3>
                     </div>
                     <button
                       onClick={handleSimulate}
@@ -597,7 +597,7 @@ export default function LumiereApp() {
               <section className="space-y-6">
                 <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Orchestration</p>
-                  <h2 className="text-2xl font-semibold">Consensus Task Board</h2>
+                  <h2 className="text-2xl font-semibold font-sans">Consensus Task Board</h2>
                 </div>
                 <div className="grid gap-4 lg:grid-cols-4">
                   {['Pending', 'In Progress', 'Needs Consensus', 'Completed'].map((status) => (
@@ -650,7 +650,7 @@ export default function LumiereApp() {
               <section className="space-y-6">
                 <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Agent Fleet</p>
-                  <h2 className="text-2xl font-semibold">Directory</h2>
+                  <h2 className="text-2xl font-semibold font-sans">Directory</h2>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {agents.map((agent) => (
@@ -704,7 +704,7 @@ export default function LumiereApp() {
               <p className="text-xs uppercase tracking-[0.4em] text-indigo-200/80">
                 Consendus.ai
               </p>
-              <h1 className="mt-4 text-4xl font-semibold text-white md:text-6xl">
+              <h1 className="mt-4 text-4xl font-semibold font-sans text-white md:text-6xl">
                 Orchestrate Your Agent Swarm
               </h1>
               <p className="mt-4 max-w-2xl text-lg text-slate-300">
@@ -715,7 +715,7 @@ export default function LumiereApp() {
             <div className="mt-12 grid w-full gap-8 lg:grid-cols-[1.2fr_1fr]">
               <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 shadow-xl shadow-black/40">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  <span className="text-xs uppercase tracking-[0.3em] text-slate-400 font-mono">
                     swarm.config.ts
                   </span>
                   <span className="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-xs text-emerald-300">
