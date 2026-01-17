@@ -1,788 +1,430 @@
 import Head from 'next/head'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  Activity,
-  AlertTriangle,
-  Bot,
   CheckCircle2,
   ChevronRight,
-  Gauge,
-  LayoutGrid,
+  LineChart,
   MessageCircle,
-  Menu,
-  Shield,
-  Sparkles,
-  TerminalSquare,
-  User,
-  Users,
-  X
+  PieChart as PieChartIcon,
+  TrendingUp,
+  UserPlus,
+  Zap
 } from 'lucide-react'
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
 
-const features = [
-  {
-    title: 'Semantic Bus',
-    description: 'Route intent, memory, and telemetry across every agent in the swarm.',
-    icon: Sparkles
-  },
-  {
-    title: 'Consensus Engine',
-    description: 'Vote-aware workflows that prevent rogue agent actions.',
-    icon: Shield
-  },
-  {
-    title: 'Guardian Rails',
-    description: 'Policy enforcement and audit trails for every decision.',
-    icon: AlertTriangle
-  }
+const netWorthData = [
+  { month: 'Jan', value: 482000 },
+  { month: 'Feb', value: 498000 },
+  { month: 'Mar', value: 512500 },
+  { month: 'Apr', value: 521200 },
+  { month: 'May', value: 536800 },
+  { month: 'Jun', value: 549600 },
+  { month: 'Jul', value: 567300 },
+  { month: 'Aug', value: 581000 },
+  { month: 'Sep', value: 593400 },
+  { month: 'Oct', value: 608900 },
+  { month: 'Nov', value: 621700 },
+  { month: 'Dec', value: 634300 }
 ]
 
-const stats = [
-  { label: 'Active Agents', value: '128', delta: '+12%' },
-  { label: 'Messages / min', value: '4.2k', delta: '+8%' },
-  { label: 'Consensus Rate', value: '97.4%', delta: '+1.1%' },
-  { label: 'Token Usage', value: '82k', delta: '-6%' }
+const allocationData = [
+  { name: 'VOO', value: 35, color: '#6366f1' },
+  { name: 'QQQ', value: 20, color: '#4f46e5' },
+  { name: 'Bonds', value: 15, color: '#a5b4fc' },
+  { name: 'Crypto', value: 5, color: '#818cf8' },
+  { name: 'Private Equity', value: 10, color: '#c7d2fe' },
+  { name: 'Cash', value: 15, color: '#1f2937' }
 ]
 
-const chartData = [
-  { time: '00:00', load: 40, tokens: 30 },
-  { time: '02:00', load: 46, tokens: 34 },
-  { time: '04:00', load: 38, tokens: 29 },
-  { time: '06:00', load: 54, tokens: 42 },
-  { time: '08:00', load: 62, tokens: 48 },
-  { time: '10:00', load: 58, tokens: 55 },
-  { time: '12:00', load: 71, tokens: 63 },
-  { time: '14:00', load: 64, tokens: 52 },
-  { time: '16:00', load: 69, tokens: 61 },
-  { time: '18:00', load: 58, tokens: 49 },
-  { time: '20:00', load: 52, tokens: 45 },
-  { time: '22:00', load: 47, tokens: 38 }
+const holdings = [
+  { name: 'S&P 500 ETF (VOO)', value: '$221,905', allocation: '35%' },
+  { name: 'Nasdaq 100 (QQQ)', value: '$126,860', allocation: '20%' },
+  { name: 'Investment Grade Bonds', value: '$95,145', allocation: '15%' },
+  { name: 'Private Credit', value: '$63,430', allocation: '10%' },
+  { name: 'Bitcoin', value: '$31,715', allocation: '5%' },
+  { name: 'Cash Management', value: '$95,145', allocation: '15%' }
 ]
 
-const terminalEvents = [
-  '[INFO] Agent-2 connected to semantic bus',
-  '[INFO] Consensus reached for task-17',
-  '[WARN] Elevated latency on region-us-east',
-  '[INFO] Agent-7 requested new memory shard',
-  '[INFO] Guardian Rails validated action-policy-12',
-  '[WARN] Token burst detected from Agent-33',
-  '[INFO] Orchestration plan updated for migration-app',
-  '[INFO] Agent-5 heartbeat stable — 99.98% uptime'
+const banks = ['Chase', 'Goldman Sachs', 'Morgan Stanley', 'Bank of America']
+
+const chatResponses = [
+  'Under current volatility, we should lean into quality beta and keep duration short. Your risk-adjusted return remains top quartile.',
+  'I recommend harvesting losses in QQQ to offset private equity carry. We can redeploy into VOO with minimal tracking error.',
+  'Crypto exposure drifted above target. I would rebalance 2% into Treasuries to stabilize drawdown risk.'
 ]
 
-const channels = ['#migration-api-v2', '#security-audit', '#swarm-ops', '#consensus-labs']
-
-const initialMessages = [
-  {
-    id: 'msg-1',
-    agent: 'Atlas-Orchestrator',
-    content: 'Swarm sync complete. Preparing deployment window for migration-api-v2.',
-    type: 'text',
-    timestamp: '2m ago'
-  },
-  {
-    id: 'msg-2',
-    agent: 'Codex-Dev',
-    content: '```ts\nconst swarm = new Consendus.Swarm({\n  quorum: 3,\n  memory: "vector://primary",\n  guardrails: ["policy-12", "policy-15"]\n})\n```',
-    type: 'code',
-    timestamp: '1m ago'
-  },
-  {
-    id: 'msg-3',
-    agent: 'Sentry-Sec',
-    content: 'System alert: Consensus vote required before pushing schema changes.',
-    type: 'alert',
-    timestamp: 'just now'
-  }
-]
-
-const simulatedMessages = [
-  {
-    agent: 'Nova-Research',
-    content: 'Telemetry indicates drift on Agent-22. Recommending recalibration.',
-    type: 'text'
-  },
-  {
-    agent: 'Pulse-Observer',
-    content: 'I have opened a channel for consensus vote on task-41 (needs 3/3).',
-    type: 'alert'
-  },
-  {
-    agent: 'Codex-Dev',
-    content: '```bash\n$ consendus swarm deploy --zone=us-east-1 --canary\n```',
-    type: 'code'
-  },
-  {
-    agent: 'Atlas-Orchestrator',
-    content: 'Swarm is aligned. Executing staged rollout at 5% traffic.',
-    type: 'text'
-  }
-]
-
-const tasks = [
-  {
-    title: 'Normalize API schema',
-    agent: 'Codex-Dev',
-    status: 'Pending'
-  },
-  {
-    title: 'Pen-test payment gateway',
-    agent: 'Sentry-Sec',
-    status: 'In Progress'
-  },
-  {
-    title: 'Deploy canary to us-east-1',
-    agent: 'Atlas-Orchestrator',
-    status: 'Needs Consensus',
-    votes: 1,
-    totalVotes: 3
-  },
-  {
-    title: 'Train anomaly detector v4',
-    agent: 'Nova-Research',
-    status: 'Completed'
-  },
-  {
-    title: 'Shard memory for agent-7',
-    agent: 'Pulse-Observer',
-    status: 'Needs Consensus',
-    votes: 2,
-    totalVotes: 3
-  }
-]
-
-const agents = [
-  {
-    name: 'Atlas-Orchestrator',
-    role: 'Swarm Coordinator',
-    specialization: 'Routing, consensus, execution',
-    status: 'Busy',
-    uptime: '99.98%'
-  },
-  {
-    name: 'Codex-Dev',
-    role: 'Agent Engineer',
-    specialization: 'Code synthesis & deployment',
-    status: 'Idle',
-    uptime: '99.6%'
-  },
-  {
-    name: 'Sentry-Sec',
-    role: 'Security Guardian',
-    specialization: 'Threat modeling & audit trails',
-    status: 'Error',
-    uptime: '98.2%'
-  },
-  {
-    name: 'Nova-Research',
-    role: 'Exploration Node',
-    specialization: 'Experiments & memory',
-    status: 'Busy',
-    uptime: '97.9%'
-  },
-  {
-    name: 'Pulse-Observer',
-    role: 'Telemetry Monitor',
-    specialization: 'Metrics, alerts, diagnostics',
-    status: 'Idle',
-    uptime: '99.4%'
-  }
-]
-
-const navigation = [
-  { id: 'overview', label: 'Overview', icon: LayoutGrid },
-  { id: 'comms', label: 'Comms', icon: MessageCircle },
-  { id: 'orchestration', label: 'Orchestration', icon: Gauge },
-  { id: 'fleet', label: 'Agent Fleet', icon: Users }
-]
-
-const statusColors = {
-  Idle: 'bg-emerald-400',
-  Busy: 'bg-amber-400',
-  Error: 'bg-red-400'
-}
-
-function buildPath(points, width, height, maxValue) {
-  return points
-    .map((point, index) => {
-      const x = (index / (points.length - 1)) * width
-      const y = height - (point / maxValue) * height
-      return `${index === 0 ? 'M' : 'L'}${x},${y}`
-    })
-    .join(' ')
-}
-
-function buildArea(points, width, height, maxValue) {
-  const line = buildPath(points, width, height, maxValue)
-  return `${line} L ${width},${height} L 0,${height} Z`
-}
-
-function FadeWrapper({ active, children }) {
-  return (
-    <div
-      className={`transition-opacity duration-500 ${
-        active ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
-      {children}
-    </div>
-  )
-}
-
-function CodeBlock({ content }) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4 font-mono text-sm text-emerald-200">
-      <pre className="whitespace-pre-wrap">{content}</pre>
-    </div>
-  )
-}
-
-export default function LumiereApp() {
-  const [hasAccess, setHasAccess] = useState(false)
-  const [activeView, setActiveView] = useState('overview')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [chatMessages, setChatMessages] = useState(initialMessages)
-  const [isSimulating, setIsSimulating] = useState(false)
+export default function Supernormal() {
+  const [isConnected, setIsConnected] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const [connectionState, setConnectionState] = useState('idle')
+  const [activeView, setActiveView] = useState('dashboard')
+  const [selectedBank, setSelectedBank] = useState(null)
+  const [messages, setMessages] = useState([
+    {
+      id: 'intro',
+      role: 'ai',
+      text:
+        "Hello. Markets have been choppy, but your Autonomous Index is up. I've analyzed your spending and have tax-loss harvesting ideas."
+    }
+  ])
+  const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [viewVisible, setViewVisible] = useState(true)
-  const timeoutsRef = useRef([])
 
-  const chartMeta = useMemo(() => {
-    const load = chartData.map((point) => point.load)
-    const tokens = chartData.map((point) => point.tokens)
-    return {
-      width: 640,
-      height: 220,
-      maxLoad: Math.max(...load),
-      maxTokens: Math.max(...tokens)
-    }
-  }, [])
-
-  useEffect(() => {
-    setViewVisible(false)
-    const timeout = setTimeout(() => setViewVisible(true), 80)
-    return () => clearTimeout(timeout)
-  }, [activeView])
-
-  useEffect(() => {
-    return () => {
-      timeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
-    }
-  }, [])
-
-  const handleSimulate = () => {
-    if (isSimulating) return
-    setIsSimulating(true)
-    setIsTyping(true)
-
-    const messageBatch = [...simulatedMessages]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, 3)
-
-    messageBatch.forEach((message, index) => {
-      const timeout = setTimeout(() => {
-        setChatMessages((prev) => [
-          ...prev,
-          {
-            ...message,
-            id: `sim-${Date.now()}-${index}`,
-            timestamp: 'just now'
-          }
-        ])
-      }, 700 * (index + 1))
-      timeoutsRef.current.push(timeout)
+  const totalNetWorth = useMemo(() => {
+    const last = netWorthData[netWorthData.length - 1]
+    return last.value.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
     })
+  }, [])
 
-    const finishTimeout = setTimeout(() => {
-      setIsTyping(false)
-      setIsSimulating(false)
-    }, 700 * (messageBatch.length + 1))
-    timeoutsRef.current.push(finishTimeout)
+  const handleBankConnect = (bank) => {
+    setSelectedBank(bank)
+    setConnectionState('verifying')
+    setTimeout(() => {
+      setConnectionState('success')
+      setTimeout(() => {
+        setShowModal(false)
+        setIsConnected(true)
+        setActiveView('dashboard')
+        setConnectionState('idle')
+      }, 1200)
+    }, 1500)
   }
 
-  const groupedTasks = useMemo(() => {
-    return tasks.reduce((acc, task) => {
-      if (!acc[task.status]) acc[task.status] = []
-      acc[task.status].push(task)
-      return acc
-    }, {})
-  }, [])
-
-  const mainContent = (
-    <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
-      <header className="flex items-center justify-between border-b border-white/10 bg-slate-900/80 px-6 py-4 backdrop-blur">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setSidebarOpen((prev) => !prev)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-slate-800/60 text-slate-200 md:hidden"
-            aria-label="Toggle sidebar"
-          >
-            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Consendus.ai</p>
-            <h1 className="text-xl font-semibold">Swarm Console</h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-slate-800/70 px-3 py-1 text-xs text-slate-300 md:flex">
-            <Activity className="h-4 w-4 text-emerald-400" />
-            System Nominal
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/60 px-3 py-1 text-xs text-slate-300">
-            <User className="h-4 w-4 text-indigo-400" />
-            admin@consendus
-          </div>
-        </div>
-      </header>
-
-      <div className="relative flex flex-1">
-        <aside
-          className={`fixed inset-y-0 left-0 z-30 w-64 border-r border-white/10 bg-slate-900/95 px-4 py-6 backdrop-blur transition-transform md:static md:translate-x-0 ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
-        >
-          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-3 py-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300">
-              <Bot className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Agent Swarm</p>
-              <p className="text-xs text-slate-400">Quorum 3 · Region us-east</p>
-            </div>
-          </div>
-
-          <nav className="mt-6 space-y-2">
-            {navigation.map((item) => {
-              const Icon = item.icon
-              const isActive = activeView === item.id
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveView(item.id)
-                    setSidebarOpen(false)
-                  }}
-                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition ${
-                    isActive
-                      ? 'bg-indigo-500/20 text-indigo-200'
-                      : 'text-slate-300 hover:bg-white/5'
-                  }`}
-                >
-                  <span className="flex items-center gap-3">
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </span>
-                  <ChevronRight className="h-4 w-4 text-slate-500" />
-                </button>
-              )}
-            )}
-          </nav>
-
-          <div className="mt-auto hidden md:block">
-            <div className="mt-8 rounded-xl border border-white/10 bg-slate-800/60 p-4 text-xs text-slate-300">
-              <div className="mb-2 flex items-center gap-2 text-sm text-white">
-                <TerminalSquare className="h-4 w-4 text-emerald-400" />
-                Live Telemetry
-              </div>
-              <p className="leading-relaxed text-slate-400">Trace level: info · 12 live shards · latency 42ms</p>
-            </div>
-          </div>
-        </aside>
-
-        {sidebarOpen && (
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-20 bg-black/40 md:hidden"
-            aria-label="Close sidebar"
-          />
-        )}
-
-        <main className="flex-1 px-6 py-6 md:px-10">
-          <FadeWrapper active={viewVisible}>
-            {activeView === 'overview' && (
-              <section className="space-y-6">
-                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 shadow-lg shadow-black/20">
-                  <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Overview</p>
-                      <h2 className="text-2xl font-semibold">Swarm Analytics</h2>
-                    </div>
-                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-xs text-slate-300">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      All systems green
-                    </div>
-                  </div>
-                  <div className="mt-6 grid gap-4 md:grid-cols-4">
-                    {stats.map((stat) => (
-                      <div
-                        key={stat.label}
-                        className="rounded-xl border border-white/10 bg-slate-900/60 p-4"
-                      >
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{stat.label}</p>
-                        <div className="mt-2 flex items-end justify-between">
-                          <p className="text-2xl font-semibold text-white">{stat.value}</p>
-                          <span className="text-xs text-emerald-400">{stat.delta}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-                  <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">System Load</p>
-                        <h3 className="text-lg font-semibold">Load vs Token Consumption</h3>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-300">
-                        <span className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-indigo-400" /> Load
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-emerald-400" /> Tokens
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mt-6 w-full overflow-hidden">
-                      <svg
-                        viewBox={`0 0 ${chartMeta.width} ${chartMeta.height}`}
-                        className="h-56 w-full"
-                      >
-                        <defs>
-                          <linearGradient id="loadGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.7" />
-                            <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
-                          </linearGradient>
-                          <linearGradient id="tokenGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#34d399" stopOpacity="0.6" />
-                            <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d={buildArea(
-                            chartData.map((point) => point.load),
-                            chartMeta.width,
-                            chartMeta.height,
-                            chartMeta.maxLoad
-                          )}
-                          fill="url(#loadGradient)"
-                        />
-                        <path
-                          d={buildArea(
-                            chartData.map((point) => point.tokens),
-                            chartMeta.width,
-                            chartMeta.height,
-                            chartMeta.maxTokens
-                          )}
-                          fill="url(#tokenGradient)"
-                        />
-                        <path
-                          d={buildPath(
-                            chartData.map((point) => point.load),
-                            chartMeta.width,
-                            chartMeta.height,
-                            chartMeta.maxLoad
-                          )}
-                          fill="none"
-                          stroke="#6366f1"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d={buildPath(
-                            chartData.map((point) => point.tokens),
-                            chartMeta.width,
-                            chartMeta.height,
-                            chartMeta.maxTokens
-                          )}
-                          fill="none"
-                          stroke="#34d399"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                      <div className="mt-3 flex justify-between text-xs text-slate-400">
-                        {chartData.map((point) => (
-                          <span key={point.time}>{point.time}</span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Terminal Log</p>
-                        <h3 className="text-lg font-semibold">Event Stream</h3>
-                      </div>
-                      <TerminalSquare className="h-5 w-5 text-emerald-400" />
-                    </div>
-                    <div className="mt-4 h-56 space-y-2 overflow-y-auto rounded-xl border border-white/10 bg-slate-900/60 p-3 font-mono text-xs text-emerald-200">
-                      {terminalEvents.map((event, index) => (
-                        <p key={`${event}-${index}`}>{event}</p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {activeView === 'comms' && (
-              <section className="grid gap-6 lg:grid-cols-[1fr_2fr]">
-                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
-                      <h3 className="text-lg font-semibold">Swarm Comms</h3>
-                    </div>
-                    <MessageCircle className="h-5 w-5 text-indigo-400" />
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    {channels.map((channel) => (
-                      <div
-                        key={channel}
-                        className="rounded-xl border border-white/10 bg-slate-900/50 px-4 py-3 text-sm text-slate-200"
-                      >
-                        {channel}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Live Channel</p>
-                      <h3 className="text-lg font-semibold">#migration-api-v2</h3>
-                    </div>
-                    <button
-                      onClick={handleSimulate}
-                      className="inline-flex items-center gap-2 rounded-full border border-indigo-400/50 bg-indigo-500/20 px-4 py-2 text-xs uppercase tracking-[0.3em] text-indigo-200 transition hover:bg-indigo-500/30"
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      {isSimulating ? 'Simulating...' : 'Simulate Activity'}
-                    </button>
-                  </div>
-                  <div className="mt-4 h-96 space-y-4 overflow-y-auto rounded-xl border border-white/10 bg-slate-900/60 p-4">
-                    {chatMessages.map((message) => (
-                      <div key={message.id} className="space-y-2">
-                        <div className="flex items-center gap-3 text-xs text-slate-400">
-                          <span className="font-semibold text-slate-200">{message.agent}</span>
-                          <span>{message.timestamp}</span>
-                        </div>
-                        {message.type === 'code' && <CodeBlock content={message.content} />}
-                        {message.type === 'alert' && (
-                          <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                            {message.content}
-                          </div>
-                        )}
-                        {message.type === 'text' && (
-                          <p className="rounded-xl border border-white/10 bg-slate-800/60 px-4 py-3 text-sm text-slate-200">
-                            {message.content}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                    {isTyping && (
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400" />
-                        Agents are typing...
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {activeView === 'orchestration' && (
-              <section className="space-y-6">
-                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Orchestration</p>
-                  <h2 className="text-2xl font-semibold">Consensus Task Board</h2>
-                </div>
-                <div className="grid gap-4 lg:grid-cols-4">
-                  {['Pending', 'In Progress', 'Needs Consensus', 'Completed'].map((status) => (
-                    <div
-                      key={status}
-                      className="rounded-2xl border border-white/10 bg-slate-800/60 p-4"
-                    >
-                      <div className="mb-4 flex items-center justify-between">
-                        <p className="text-sm font-semibold text-slate-200">{status}</p>
-                        <span className="text-xs text-slate-400">
-                          {groupedTasks[status]?.length || 0}
-                        </span>
-                      </div>
-                      <div className="space-y-3">
-                        {(groupedTasks[status] || []).map((task) => (
-                          <div
-                            key={task.title}
-                            className="rounded-xl border border-white/10 bg-slate-900/60 p-3"
-                          >
-                            <p className="text-sm font-semibold text-slate-100">{task.title}</p>
-                            <p className="text-xs text-slate-400">{task.agent}</p>
-                            {task.status === 'Needs Consensus' && (
-                              <div className="mt-3">
-                                <div className="flex items-center justify-between text-xs text-slate-400">
-                                  <span>Consensus votes</span>
-                                  <span>
-                                    {task.votes}/{task.totalVotes} votes
-                                  </span>
-                                </div>
-                                <div className="mt-2 h-2 rounded-full bg-slate-800">
-                                  <div
-                                    className="h-2 rounded-full bg-indigo-400"
-                                    style={{
-                                      width: `${(task.votes / task.totalVotes) * 100}%`
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {activeView === 'fleet' && (
-              <section className="space-y-6">
-                <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Agent Fleet</p>
-                  <h2 className="text-2xl font-semibold">Directory</h2>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {agents.map((agent) => (
-                    <div
-                      key={agent.name}
-                      className="rounded-2xl border border-white/10 bg-slate-800/60 p-5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-lg font-semibold text-white">{agent.name}</p>
-                          <p className="text-xs text-slate-400">{agent.role}</p>
-                        </div>
-                        <span className="flex items-center gap-2 text-xs text-slate-300">
-                          <span
-                            className={`h-2 w-2 rounded-full ${statusColors[agent.status]}`}
-                          />
-                          {agent.status}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-sm text-slate-300">{agent.specialization}</p>
-                      <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-xs text-slate-400">
-                        <span>Uptime</span>
-                        <span className="text-emerald-300">{agent.uptime}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </FadeWrapper>
-        </main>
-      </div>
-    </div>
-  )
+  const handleSend = () => {
+    const trimmed = input.trim()
+    if (!trimmed || isTyping) return
+    const newMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      text: trimmed
+    }
+    setMessages((prev) => [...prev, newMessage])
+    setInput('')
+    setIsTyping(true)
+    const response = chatResponses[Math.floor(Math.random() * chatResponses.length)]
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        { id: `ai-${Date.now()}`, role: 'ai', text: response }
+      ])
+      setIsTyping(false)
+    }, 1200)
+  }
 
   return (
-    <div className="min-h-screen bg-slate-900 font-sans text-white">
+    <div className="min-h-screen bg-[#0a0a0c] text-white">
       <Head>
-        <title>Consendus.ai · Agent Swarm Orchestration</title>
-        <meta
-          name="description"
-          content="Consendus.ai — infrastructure for autonomous agents to communicate, coordinate, and reach consensus."
-        />
+        <title>Supernormal — AI Wealth Strategist</title>
       </Head>
 
-      {!hasAccess ? (
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.25),_rgba(15,23,42,0.95))]" />
-          <section className="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16">
-            <div className="text-center">
-              <p className="text-xs uppercase tracking-[0.4em] text-indigo-200/80">
-                Consendus.ai
-              </p>
-              <h1 className="mt-4 text-4xl font-semibold text-white md:text-6xl">
-                Orchestrate Your Agent Swarm
-              </h1>
-              <p className="mt-4 max-w-2xl text-lg text-slate-300">
-                Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
-              </p>
-            </div>
+      {!isConnected ? (
+        <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-indigo-500/30 bg-indigo-500/10">
+            <Zap className="h-10 w-10 text-indigo-400" />
+          </div>
+          <h1 className="mt-6 text-4xl font-semibold tracking-tight">Supernormal</h1>
+          <p className="mt-3 max-w-xs text-sm text-white/70">
+            Wealth strategy for the 1%. Now available to you.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30"
+          >
+            Get Started
+            <ChevronRight className="h-4 w-4" />
+          </button>
 
-            <div className="mt-12 grid w-full gap-8 lg:grid-cols-[1.2fr_1fr]">
-              <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 shadow-xl shadow-black/40">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                    swarm.config.ts
-                  </span>
-                  <span className="rounded-full border border-white/10 bg-slate-900/60 px-3 py-1 text-xs text-emerald-300">
-                    Connected
-                  </span>
+          {showModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
+              <div className="w-full max-w-sm rounded-2xl bg-[#131316] p-6 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/40">
+                      Secure Link
+                    </p>
+                    <h2 className="mt-2 text-lg font-semibold">Connect your bank</h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false)
+                      setConnectionState('idle')
+                      setSelectedBank(null)
+                    }}
+                    className="rounded-full border border-white/10 p-2"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <div className="mt-4 font-mono text-sm text-slate-200">
-                  <pre className="whitespace-pre-wrap">
-{`import { Consendus } from "@consendus/sdk"
 
-const swarm = new Consendus.Swarm({
-  quorum: 3,
-  topology: "mesh",
-  consensus: "byzantine",
-  guardrails: ["policy-12", "policy-15"],
-  memory: {
-    vector: "pinecone://swarm-primary",
-    cache: "redis://swarm-cache"
-  }
-})
+                <div className="mt-5 space-y-3">
+                  {banks.map((bank) => (
+                    <button
+                      key={bank}
+                      type="button"
+                      onClick={() => handleBankConnect(bank)}
+                      disabled={connectionState === 'verifying'}
+                      className="flex w-full items-center justify-between rounded-xl border border-white/5 bg-black/30 px-4 py-3 text-left text-sm transition hover:border-indigo-500/40"
+                    >
+                      <span>{bank}</span>
+                      <UserPlus className="h-4 w-4 text-white/60" />
+                    </button>
+                  ))}
+                </div>
 
-swarm.deploy({
-  channel: "#migration-api-v2",
-  mission: "Safely migrate schema with 99.9% uptime"
-})`}
-                  </pre>
+                <div className="mt-6 rounded-xl border border-white/10 bg-black/40 p-4 text-xs text-white/70">
+                  {connectionState === 'idle' && 'Select a bank to verify credentials.'}
+                  {connectionState === 'verifying' && (
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400" />
+                      Verifying credentials for {selectedBank}...
+                    </div>
+                  )}
+                  {connectionState === 'success' && (
+                    <div className="flex items-center gap-2 text-emerald-300">
+                      <CheckCircle2 className="h-4 w-4" /> Connected. Redirecting to dashboard.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      ) : (
+        <div className="flex min-h-screen flex-col">
+          <header className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-500/20">
+                <Zap className="h-5 w-5 text-indigo-300" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Supernormal</p>
+                <p className="text-xs text-white/60">AI Wealth Strategist</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
+              <span className="h-2 w-2 rounded-full bg-emerald-300" />
+              Live Sync
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-y-auto px-5 pb-28 pt-6">
+            {activeView === 'dashboard' && (
+              <section className="space-y-6">
+                <div className="rounded-2xl border border-white/10 bg-[#131316] p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-white/40">Total Net Worth</p>
+                      <p className="mt-3 text-3xl font-semibold text-white font-mono">
+                        {totalNetWorth}
+                      </p>
+                    </div>
+                    <div className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-200">
+                      <TrendingUp className="mr-1 inline h-3 w-3" />+10.4% YTD
+                    </div>
+                  </div>
+                  <div className="mt-6 h-44">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={netWorthData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="netWorth" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35} />
+                            <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                        <XAxis dataKey="month" stroke="#475569" fontSize={10} />
+                        <YAxis
+                          stroke="#475569"
+                          fontSize={10}
+                          tickFormatter={(value) => `$${value / 1000}k`}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: '#0a0a0c',
+                            border: '1px solid #1f2937',
+                            fontSize: '12px'
+                          }}
+                          labelStyle={{ color: '#e2e8f0' }}
+                          formatter={(value) => [`$${value.toLocaleString()}`, 'Net Worth']}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#6366f1"
+                          strokeWidth={2}
+                          fill="url(#netWorth)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-[#131316] p-4">
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/40">Weekly Deposit</p>
+                    <p className="mt-4 text-2xl font-mono text-white">$500</p>
+                    <p className="mt-2 text-xs text-white/60">Auto-invest to Autonomous Index</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-[#131316] p-4">
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/40">Risk Level</p>
+                    <p className="mt-4 text-2xl font-semibold">Aggressive</p>
+                    <p className="mt-2 text-xs text-white/60">Optimized for long-term alpha</p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4 text-sm">
+                  <p className="text-sm font-semibold">Insight</p>
+                  <p className="mt-2 text-white/70">
+                    Smart Cash Sweep: Move idle cash into short-duration Treasury ETFs to capture
+                    5.1% yield.
+                  </p>
+                </div>
+              </section>
+            )}
+
+            {activeView === 'portfolio' && (
+              <section className="space-y-6">
+                <div className="rounded-2xl border border-white/10 bg-[#131316] p-5">
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/40">Strategy</p>
+                  <h2 className="mt-3 text-2xl font-semibold">Autonomous Index</h2>
+                  <p className="mt-2 text-sm text-white/70">
+                    Built on the Endowment Model with adaptive hedging and dynamic rebalancing.
+                  </p>
+                  <div className="mt-6 h-52">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={allocationData}
+                          innerRadius={55}
+                          outerRadius={90}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {allocationData.map((entry) => (
+                            <Cell key={entry.name} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            background: '#0a0a0c',
+                            border: '1px solid #1f2937',
+                            fontSize: '12px'
+                          }}
+                          formatter={(value, name) => [`${value}%`, name]}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {holdings.map((holding) => (
+                    <div
+                      key={holding.name}
+                      className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#131316] px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold">{holding.name}</p>
+                        <p className="text-xs text-white/60">{holding.allocation}</p>
+                      </div>
+                      <p className="font-mono text-sm text-white">{holding.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm">
+                  <p className="text-sm font-semibold text-amber-200">
+                    Rebalancing needed: Crypto exposure drifted +2%.
+                  </p>
+                </div>
+              </section>
+            )}
+
+            {activeView === 'chat' && (
+              <section className="flex h-full flex-col">
+                <div className="space-y-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                          message.role === 'user'
+                            ? 'bg-indigo-500 text-white'
+                            : 'bg-[#131316] text-white/80'
+                        }`}
+                      >
+                        {message.text}
+                      </div>
+                    </div>
+                  ))}
+                  {isTyping && (
+                    <div className="flex justify-start">
+                      <div className="rounded-2xl bg-[#131316] px-4 py-3 text-sm text-white/70">
+                        <span className="mr-2 inline-flex h-2 w-2 animate-pulse rounded-full bg-indigo-400" />
+                        Supernormal is typing...
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-6 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-2">
+                  <input
+                    value={input}
+                    onChange={(event) => setInput(event.target.value)}
+                    placeholder="Ask for a portfolio insight"
+                    className="flex-1 bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSend}
+                    className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold"
+                  >
+                    Send
+                  </button>
                 </div>
               </section>
             )}
           </main>
 
-          <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-stone-200/70 bg-white/85 backdrop-blur-md">
-            <div className="mx-auto flex max-w-3xl items-center justify-around px-4 py-3">
-              {navItems.map((item) => {
-                const Icon = activeNavIcon[item.id]
-                const isActive = activeTab === item.id
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`flex flex-col items-center gap-1 rounded-[2px] px-3 py-1 text-xs uppercase tracking-[0.2em] transition duration-300 ease-out ${
-                      isActive
-                        ? 'border border-gold/50 bg-white text-gold shadow-sm'
-                        : 'border border-transparent text-onyx/60 hover:border-stone-200 hover:text-onyx'
-                    }`}
-                  >
-                    <Icon strokeWidth={1.5} className="h-5 w-5" />
-                    <span
-                      className={`text-sm ${isActive ? 'font-serif font-semibold text-gold' : 'font-sans font-medium'}`}
-                    >
-                      {item.label}
-                    </span>
-                  </button>
-                )
-              })}
+          <nav className="fixed bottom-6 left-1/2 z-40 w-[90%] max-w-sm -translate-x-1/2 rounded-full border border-white/10 bg-[#131316]/90 px-4 py-3 backdrop-blur">
+            <div className="flex items-center justify-between">
+              {[
+                { id: 'dashboard', icon: LineChart, label: 'Dashboard' },
+                { id: 'chat', icon: MessageCircle, label: 'Chat' },
+                { id: 'portfolio', icon: PieChartIcon, label: 'Portfolio' }
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveView(item.id)}
+                  className={`flex flex-1 flex-col items-center gap-1 text-[10px] ${
+                    activeView === item.id ? 'text-indigo-300' : 'text-white/60'
+                  }`}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </button>
+              ))}
             </div>
-
-            <button
-              onClick={() => setHasAccess(true)}
-              className="mt-12 inline-flex items-center justify-center rounded-full border border-indigo-400 bg-indigo-500/30 px-8 py-3 text-sm uppercase tracking-[0.3em] text-indigo-100 transition hover:bg-indigo-500/40"
-            >
-              Access Console
-            </button>
-          </section>
+          </nav>
         </div>
-      ) : (
-        mainContent
       )}
     </div>
   )
