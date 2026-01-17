@@ -272,6 +272,7 @@ export default function Supernormal() {
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
+                  <TerminalSquare className="h-5 w-5 text-emerald-300" />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -286,6 +287,40 @@ export default function Supernormal() {
                     <p className="mt-2 text-xs text-white/60">Optimized for long-term alpha</p>
                   </div>
                 </div>
+                <span className="flex items-center gap-2 text-xs text-emerald-300">
+                  <Activity className="h-4 w-4" />
+                  live
+                </span>
+              </div>
+            </div>
+          </div>
+        )
+      case 'comms':
+        return (
+          <div className="grid gap-6 xl:grid-cols-[260px,1fr]" style={{ animation: 'fadeIn 0.4s ease' }}>
+            <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
+              <div className="mt-4 space-y-3">
+                {channels.map((channel) => (
+                  <button
+                    key={channel.id}
+                    className="flex w-full items-center justify-between rounded-xl border border-white/5 bg-slate-900/60 px-3 py-2 text-sm text-slate-200"
+                  >
+                    <span>{channel.name}</span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                      {channel.status}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={handleSimulate}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400"
+              >
+                <Sparkles className="h-4 w-4" />
+                Simulate Activity
+              </button>
+            </div>
 
                 <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4 text-sm">
                   <p className="text-sm font-semibold">Insight</p>
@@ -426,6 +461,19 @@ export default function Supernormal() {
           </nav>
         </div>
       )}
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
