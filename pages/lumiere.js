@@ -346,7 +346,7 @@ export default function LumiereApp() {
                 <TerminalSquare className="h-4 w-4" />
                 Terminal Log
               </div>
-              <div className="mt-4 space-y-3 text-xs text-emerald-200">
+              <div className="no-scrollbar mt-4 max-h-56 space-y-3 overflow-y-auto pr-2 text-xs text-emerald-200">
                 {terminalEvents.map((event) => (
                   <p key={event} className="font-mono">
                     {event}
