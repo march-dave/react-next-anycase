@@ -293,24 +293,16 @@ export default function Supernormal() {
                 </span>
               </div>
             </div>
-          </div>
-        )
-      case 'comms':
-        return (
-          <div className="grid gap-6 xl:grid-cols-[260px,1fr]" style={{ animation: 'fadeIn 0.4s ease' }}>
-            <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-5">
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
-              <div className="mt-4 space-y-3">
-                {channels.map((channel) => (
-                  <button
-                    key={channel.id}
-                    className="flex w-full items-center justify-between rounded-xl border border-white/5 bg-slate-900/60 px-3 py-2 text-sm text-slate-200"
-                  >
-                    <span>{channel.name}</span>
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                      {channel.status}
-                    </span>
-                  </button>
+            <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg">
+              <div className="flex items-center gap-2 text-sm text-slate-300">
+                <TerminalSquare className="h-4 w-4" />
+                Terminal Log
+              </div>
+              <div className="no-scrollbar mt-4 max-h-56 space-y-3 overflow-y-auto pr-2 text-xs text-emerald-200">
+                {terminalEvents.map((event) => (
+                  <p key={event} className="font-mono">
+                    {event}
+                  </p>
                 ))}
               </div>
               <button
