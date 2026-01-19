@@ -172,18 +172,22 @@ export default function Consendus() {
     setIsSimulating(true)
     setShowTyping(true)
 
-    setTimeout(() => {
-      setMessages((prev) => {
-        const nextMessages = simulatedMessages.map((message, index) => ({
-          ...message,
-          id: prev.length + index + 1,
-          time: `09:4${index + 3}`,
-        }))
-        return [...prev, ...nextMessages]
-      })
-      setShowTyping(false)
-      setIsSimulating(false)
-    }, 900)
+    simulatedMessages.forEach((message, index) => {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...message,
+            id: prev.length + 1,
+            time: `09:4${index + 3}`,
+          },
+        ])
+        if (index === simulatedMessages.length - 1) {
+          setShowTyping(false)
+          setIsSimulating(false)
+        }
+      }, 600 + index * 450)
+    })
   }
 
   return (
@@ -525,7 +529,7 @@ await swarm.deploy()`}
                     </div>
                     <div className="mt-4 h-72 space-y-4 overflow-y-auto rounded-xl bg-slate-900/80 p-4 text-sm no-scrollbar">
                       {messages.map((message) => (
-                        <div key={message.id} className="space-y-2">
+                        <div key={message.id} className="space-y-2 animate-fade-in">
                           <div className="flex items-center gap-2 text-xs text-slate-400">
                             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
                               {message.agent}
@@ -547,8 +551,17 @@ await swarm.deploy()`}
                         </div>
                       ))}
                       {showTyping && (
-                        <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">
-                          Agents typing...
+                        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">
+                          Agents typing
+                          <span className="flex items-center gap-1">
+                            {[0, 1, 2].map((dot) => (
+                              <span
+                                key={dot}
+                                className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300/80"
+                                style={{ animationDelay: `${dot * 0.12}s` }}
+                              />
+                            ))}
+                          </span>
                         </div>
                       )}
                     </div>
