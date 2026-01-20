@@ -173,6 +173,7 @@ export default function Consendus() {
     setShowTyping(true)
 
     simulatedMessages.forEach((message, index) => {
+      const delay = 700 + index * 650
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
@@ -182,12 +183,14 @@ export default function Consendus() {
             time: `09:4${index + 3}`,
           },
         ])
-        if (index === simulatedMessages.length - 1) {
-          setShowTyping(false)
-          setIsSimulating(false)
-        }
-      }, 600 + index * 450)
+      }, delay)
     })
+
+    const totalDelay = 700 + simulatedMessages.length * 650
+    setTimeout(() => {
+      setShowTyping(false)
+      setIsSimulating(false)
+    }, totalDelay)
   }
 
   return (
@@ -551,17 +554,8 @@ await swarm.deploy()`}
                         </div>
                       ))}
                       {showTyping && (
-                        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">
-                          Agents typing
-                          <span className="flex items-center gap-1">
-                            {[0, 1, 2].map((dot) => (
-                              <span
-                                key={dot}
-                                className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300/80"
-                                style={{ animationDelay: `${dot * 0.12}s` }}
-                              />
-                            ))}
-                          </span>
+                        <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400 animate-pulse">
+                          Agents typing...
                         </div>
                       )}
                     </div>
