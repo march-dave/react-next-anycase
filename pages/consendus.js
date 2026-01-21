@@ -123,6 +123,21 @@ export default function Consendus() {
     setChatInput('')
     setIsTyping(true)
 
+    simulatedMessages.forEach((message, index) => {
+      const delay = 700 + index * 650
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...message,
+            id: prev.length + 1,
+            time: `09:4${index + 3}`,
+          },
+        ])
+      }, delay)
+    })
+
+    const totalDelay = 700 + simulatedMessages.length * 650
     setTimeout(() => {
       setChatMessages((prev) => [
         ...prev,
