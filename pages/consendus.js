@@ -91,66 +91,26 @@ export default function Consendus() {
     []
   )
 
-  const handleGetStarted = () => {
-    setShowModal(true)
-    setConnectionState('select')
-    setSelectedBank('')
-  }
-
-  const handleBankSelect = (bank) => {
-    setSelectedBank(bank)
-    setConnectionState('loading')
-
-    setTimeout(() => {
-      setConnectionState('success')
-      setTimeout(() => {
-        setShowModal(false)
-        setView('app')
-        setActiveTab('dashboard')
-      }, 900)
-    }, 1400)
-  }
-
-  const handleSend = () => {
-    if (!chatInput.trim() || isTyping) return
-    const newMessage = {
-      id: Date.now(),
-      author: 'You',
-      role: 'user',
-      content: chatInput.trim(),
-    }
-    setChatMessages((prev) => [...prev, newMessage])
-    setChatInput('')
-    setIsTyping(true)
+  const handleSimulate = () => {
+    if (isSimulating) return
+    setIsSimulating(true)
+    setShowTyping(true)
+    const baseDelay = 650
+    const cadence = 550
 
     simulatedMessages.forEach((message, index) => {
-      const delay = 700 + index * 650
       setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            ...message,
-            id: prev.length + 1,
-            time: `09:4${index + 3}`,
-          },
-        ])
-      }, delay)
+        setMessages((prev) => {
+          const minute = 43 + prev.length
+          const time = `09:${minute.toString().padStart(2, '0')}`
+          return [...prev, { ...message, id: prev.length + 1, time }]
+        })
+        if (index === simulatedMessages.length - 1) {
+          setShowTyping(false)
+          setIsSimulating(false)
+        }
+      }, baseDelay + index * cadence)
     })
-
-    const totalDelay = 700 + simulatedMessages.length * 650
-    setTimeout(() => {
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          author: 'Supernormal',
-          role: 'assistant',
-          content:
-            'Your portfolio beta is balanced, but we can tilt 3% toward quality growth without increasing drawdown. I recommend trimming excess cash and redeploying into high-conviction dividend growers.',
-        },
-      ])
-      setIsTyping(false)
-    }, 1200)
   }
 
   return (
