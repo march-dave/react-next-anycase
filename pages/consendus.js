@@ -171,19 +171,22 @@ export default function Consendus() {
     if (isSimulating) return
     setIsSimulating(true)
     setShowTyping(true)
+    const baseDelay = 650
+    const cadence = 550
 
-    setTimeout(() => {
-      setMessages((prev) => {
-        const nextMessages = simulatedMessages.map((message, index) => ({
-          ...message,
-          id: prev.length + index + 1,
-          time: `09:4${index + 3}`,
-        }))
-        return [...prev, ...nextMessages]
-      })
-      setShowTyping(false)
-      setIsSimulating(false)
-    }, 900)
+    simulatedMessages.forEach((message, index) => {
+      setTimeout(() => {
+        setMessages((prev) => {
+          const minute = 43 + prev.length
+          const time = `09:${minute.toString().padStart(2, '0')}`
+          return [...prev, { ...message, id: prev.length + 1, time }]
+        })
+        if (index === simulatedMessages.length - 1) {
+          setShowTyping(false)
+          setIsSimulating(false)
+        }
+      }, baseDelay + index * cadence)
+    })
   }
 
   return (
