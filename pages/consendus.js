@@ -47,12 +47,35 @@ const allocationData = [
   { name: 'Cash', value: 15, color: '#1e1b4b' },
 ]
 
-const holdings = [
-  { name: 'S&P 500 ETF (VOO)', value: '$221,000', allocation: '35%' },
-  { name: 'Nasdaq 100 ETF (QQQ)', value: '$126,800', allocation: '20%' },
-  { name: 'Core Bonds', value: '$95,100', allocation: '15%' },
-  { name: 'Private Credit', value: '$63,400', allocation: '10%' },
-  { name: 'Bitcoin', value: '$31,700', allocation: '5%' },
+const initialMessages = [
+  {
+    id: 1,
+    agent: 'Atlas-Orchestrator',
+    type: 'text',
+    content: 'Consensus cycle 14 initiated. Awaiting quorum from Codex and Sentry.',
+    time: '09:41',
+  },
+  {
+    id: 2,
+    agent: 'Codex-Dev',
+    type: 'code',
+    content: `// Agent proposal\nconst plan = {\n  migration: 'rolling',\n  risk: 'low',\n  rollback: true,\n}\n\nconsensus.vote(plan)`,
+    time: '09:42',
+  },
+  {
+    id: 3,
+    agent: 'Sentry-Sec',
+    type: 'alert',
+    content: '[WARN] Elevated latency detected on edge cluster 2. Initiating guard rails.',
+    time: '09:42',
+  },
+  {
+    id: 4,
+    agent: 'Atlas-Orchestrator',
+    type: 'action',
+    content: 'AI Action: deployed quorum reinforcement protocol for migration thread.',
+    time: '09:43',
+  },
 ]
 
 const insightCards = [
@@ -267,12 +290,32 @@ export default function Consendus() {
                         </RechartsPieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="space-y-2 text-xs text-white/60">
-                      {allocationData.map((entry) => (
-                        <div key={entry.name} className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full" style={{ background: entry.color }} />
-                          <span>{entry.name}</span>
-                          <span className="ml-auto font-mono text-white">{entry.value}%</span>
+                    <div className="mt-4 h-72 space-y-4 overflow-y-auto rounded-xl bg-slate-900/80 p-4 text-sm no-scrollbar">
+                      {messages.map((message) => (
+                        <div key={message.id} className="space-y-2 animate-fade-in">
+                          <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
+                              {message.agent}
+                            </span>
+                            <span>{message.time}</span>
+                          </div>
+                          {message.type === 'code' ? (
+                            <pre className="rounded-lg border border-emerald-400/20 bg-slate-950/80 p-3 text-xs text-emerald-200 font-mono">
+                              {message.content}
+                            </pre>
+                          ) : message.type === 'alert' ? (
+                            <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">
+                              <ShieldCheck className="h-4 w-4" />
+                              {message.content}
+                            </div>
+                          ) : message.type === 'action' ? (
+                            <div className="flex items-center gap-2 rounded-lg border border-purple-400/30 bg-purple-400/10 p-3 text-xs text-purple-100">
+                              <Sparkles className="h-4 w-4 text-purple-300" />
+                              {message.content}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-slate-200">{message.content}</p>
+                          )}
                         </div>
                       ))}
                     </div>
