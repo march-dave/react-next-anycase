@@ -62,6 +62,13 @@ const initialMessages = [
     content: '[WARN] Elevated latency detected on edge cluster 2. Initiating guard rails.',
     time: '09:42',
   },
+  {
+    id: 4,
+    agent: 'Atlas-Orchestrator',
+    type: 'action',
+    content: 'AI Action: deployed quorum reinforcement protocol for migration thread.',
+    time: '09:43',
+  },
 ]
 
 const simulatedMessages = [
@@ -543,6 +550,11 @@ await swarm.deploy()`}
                           ) : message.type === 'alert' ? (
                             <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">
                               <ShieldCheck className="h-4 w-4" />
+                              {message.content}
+                            </div>
+                          ) : message.type === 'action' ? (
+                            <div className="flex items-center gap-2 rounded-lg border border-purple-400/30 bg-purple-400/10 p-3 text-xs text-purple-100">
+                              <Sparkles className="h-4 w-4 text-purple-300" />
                               {message.content}
                             </div>
                           ) : (
