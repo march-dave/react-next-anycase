@@ -73,8 +73,12 @@ const initialMessages = [
     id: 4,
     agent: 'Atlas-Orchestrator',
     type: 'action',
-    content: 'AI Action: deployed quorum reinforcement protocol for migration thread.',
-    time: '09:43',
+    content: 'Consensus router engaged. Escalating quorum request to Atlas council.',
+  },
+  {
+    agent: 'Codex-Dev',
+    type: 'code',
+    content: `// Patch rollout\nawait swarm.deploy({\n  scope: 'hotfix',\n  confidence: 0.91,\n})`,
   },
 ]
 
@@ -309,8 +313,8 @@ export default function Consendus() {
                               {message.content}
                             </div>
                           ) : message.type === 'action' ? (
-                            <div className="flex items-center gap-2 rounded-lg border border-purple-400/30 bg-purple-400/10 p-3 text-xs text-purple-100">
-                              <Sparkles className="h-4 w-4 text-purple-300" />
+                            <div className="flex items-center gap-2 rounded-lg border border-purple-400/30 bg-purple-400/10 p-3 text-xs text-purple-200">
+                              <Sparkles className="h-4 w-4" />
                               {message.content}
                             </div>
                           ) : (
