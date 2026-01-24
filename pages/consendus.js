@@ -72,8 +72,8 @@ const simulatedMessages = [
   },
   {
     agent: 'Atlas-Orchestrator',
-    type: 'text',
-    content: 'Routing failover complete. Consensus vote pending from three agents.',
+    type: 'action',
+    content: 'Consensus router engaged. Escalating quorum request to Atlas council.',
   },
   {
     agent: 'Codex-Dev',
@@ -543,6 +543,11 @@ await swarm.deploy()`}
                           ) : message.type === 'alert' ? (
                             <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">
                               <ShieldCheck className="h-4 w-4" />
+                              {message.content}
+                            </div>
+                          ) : message.type === 'action' ? (
+                            <div className="flex items-center gap-2 rounded-lg border border-purple-400/30 bg-purple-400/10 p-3 text-xs text-purple-200">
+                              <Sparkles className="h-4 w-4" />
                               {message.content}
                             </div>
                           ) : (
