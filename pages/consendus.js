@@ -730,8 +730,27 @@ export default function Consendus() {
               )}
             </main>
           </div>
-        </div>
-      )}
+        </section>
+
+        <section id="pricing" className="mt-16 flex flex-col items-center text-center">
+          <h2 className="text-2xl font-semibold [font-family:'Libre_Baskerville',serif]">Pricing</h2>
+          <p className="mt-2 max-w-md text-sm text-[#2d2a26]/70">
+            Early readers get exclusive access to the first production run and a lifetime of AI updates.
+          </p>
+          <div className="mt-6 rounded-3xl border border-[#e6dfd2] bg-white px-10 py-6 shadow-sm">
+            <p className="text-sm uppercase tracking-[0.3em] text-[#8c5e3c]">Founders Edition</p>
+            <p className="mt-3 text-4xl font-semibold">$49</p>
+            <button className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#8c5e3c] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#754b2f]">
+              Pre-order now
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </section>
+
+        <footer className="mt-20 text-center text-xs text-[#2d2a26]/60">
+          © 2024 Bookmarkr Labs. All rights reserved.
+        </footer>
+      </div>
     </div>
   )
 }
