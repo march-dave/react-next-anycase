@@ -1,23 +1,20 @@
 import { useMemo, useState } from 'react'
 import {
   Activity,
-  ArrowUpRight,
+  AlertTriangle,
   Bot,
+  Boxes,
   CheckCircle2,
   ChevronRight,
-  Code2,
   Cpu,
-  Flame,
+  FileTerminal,
   Layers,
-  LayoutDashboard,
   MessageCircle,
-  PanelLeft,
-  PlayCircle,
+  Orbit,
   ShieldCheck,
-  Signal,
-  Terminal,
-  Users,
-  Wifi,
+  Sparkles,
+  UserCircle2,
+  Zap,
 } from 'lucide-react'
 import {
   Area,
@@ -32,220 +29,182 @@ import {
 const featureCards = [
   {
     title: 'Semantic Bus',
-    description: 'Route intents, embeddings, and semantic events across your swarm.',
-    icon: Layers,
+    description: 'A low-latency message fabric that keeps every agent in sync.',
+    icon: Orbit,
   },
   {
     title: 'Consensus Engine',
-    description: 'Built-in voting, quorum, and dispute resolution for agent decisions.',
-    icon: CheckCircle2,
+    description: 'Distributed voting for critical actions with quorum enforcement.',
+    icon: Layers,
   },
   {
     title: 'Guardian Rails',
-    description: 'Policy enforcement and rollback controls for sensitive operations.',
+    description: 'Policy-aware safety gates that prevent swarm drift.',
     icon: ShieldCheck,
   },
 ]
 
 const overviewStats = [
-  { label: 'Active Agents', value: '128', delta: '+12%', icon: Bot },
-  { label: 'Messages / min', value: '3.4k', delta: '+8%', icon: MessageCircle },
-  { label: 'Consensus Rate', value: '98.2%', delta: '+1.4%', icon: CheckCircle2 },
-  { label: 'Token Usage', value: '1.9M', delta: '+6%', icon: Flame },
+  { label: 'Active Agents', value: '24', trend: '+4', icon: Bot },
+  { label: 'Messages / min', value: '1,482', trend: '+12%', icon: MessageCircle },
+  { label: 'Consensus Rate', value: '96.2%', trend: '+1.8%', icon: CheckCircle2 },
+  { label: 'Token Usage', value: '4.8M', trend: '+6%', icon: Cpu },
 ]
 
-const systemLoadData = [
-  { time: '08:00', load: 42, tokens: 32 },
-  { time: '09:00', load: 48, tokens: 37 },
-  { time: '10:00', load: 61, tokens: 45 },
-  { time: '11:00', load: 54, tokens: 52 },
-  { time: '12:00', load: 68, tokens: 58 },
-  { time: '13:00', load: 71, tokens: 63 },
-  { time: '14:00', load: 64, tokens: 57 },
-  { time: '15:00', load: 77, tokens: 69 },
-  { time: '16:00', load: 83, tokens: 74 },
-  { time: '17:00', load: 76, tokens: 67 },
+const loadChartData = [
+  { time: '09:00', systemLoad: 45, tokens: 30 },
+  { time: '10:00', systemLoad: 52, tokens: 34 },
+  { time: '11:00', systemLoad: 60, tokens: 40 },
+  { time: '12:00', systemLoad: 58, tokens: 44 },
+  { time: '13:00', systemLoad: 63, tokens: 46 },
+  { time: '14:00', systemLoad: 71, tokens: 55 },
+  { time: '15:00', systemLoad: 76, tokens: 61 },
+  { time: '16:00', systemLoad: 70, tokens: 58 },
+  { time: '17:00', systemLoad: 68, tokens: 53 },
+  { time: '18:00', systemLoad: 72, tokens: 57 },
 ]
 
-const terminalLogs = [
-  '[INFO] Agent-2 connected to semantic bus.',
-  '[INFO] Consensus quorum reached for deployment-7.',
-  '[WARN] Elevated latency in us-east-2 region.',
-  '[INFO] Guardian rail validated policy update.',
-  '[SUCCESS] Swarm checkpoint saved at epoch 214.',
-  '[INFO] Agent-5 spawned to handle incident #482.',
+const terminalEvents = [
+  '[INFO] Agent-2 connected to shard east-1',
+  '[INFO] Consensus vote started for task: migration-api-v2',
+  '[WARN] High latency detected on edge cluster 2',
+  '[INFO] Agent-7 entered standby',
+  '[INFO] Guardian Rail: policy check passed (build-4281)',
+  '[INFO] Agent-14 scaled to 3 replicas',
 ]
 
-const channels = [
-  { id: 'migration', name: '#migration-api-v2', unread: 2 },
-  { id: 'security', name: '#security-audit', unread: 0 },
-  { id: 'ops', name: '#ops-incident', unread: 4 },
-  { id: 'research', name: '#research-lab', unread: 1 },
-]
+const channels = ['#migration-api-v2', '#security-audit', '#prompt-ops', '#consensus-log']
 
-const initialMessages = {
-  migration: [
-    {
-      id: 1,
-      author: 'Atlas-Orchestrator',
-      role: 'Agent',
-      content: 'Spinning up migration agents for API v2 rollout.',
-      timestamp: '09:14',
-    },
-    {
-      id: 2,
-      author: 'Codex-Dev',
-      role: 'Agent',
-      content: 'Schema diffs validated. Preparing blue/green switch.',
-      timestamp: '09:15',
-    },
-  ],
-  security: [
-    {
-      id: 1,
-      author: 'Sentry-Sec',
-      role: 'Agent',
-      content: 'Threat model review complete. No critical issues detected.',
-      timestamp: '09:05',
-    },
-  ],
-  ops: [
-    {
-      id: 1,
-      author: 'Pulse-Observer',
-      role: 'Agent',
-      content: 'CPU saturation detected in cluster-3. Suggest autoscaling.',
-      timestamp: '09:02',
-      variant: 'alert',
-    },
-  ],
-  research: [
-    {
-      id: 1,
-      author: 'Nova-Research',
-      role: 'Agent',
-      content: 'Exploring multi-agent consensus under adversarial load.',
-      timestamp: '08:58',
-    },
-  ],
-}
+const initialMessages = [
+  {
+    id: 1,
+    agent: 'Atlas-Orchestrator',
+    type: 'text',
+    content: 'Standing up quorum for API migration. Waiting for Codex-Dev and Sentry-Sec.',
+    time: '09:41',
+  },
+  {
+    id: 2,
+    agent: 'Codex-Dev',
+    type: 'code',
+    content: `// Swarm proposal\nconst plan = {\n  migration: 'rolling',\n  risk: 'low',\n  rollback: true,\n}\n\nconsensus.vote(plan)`,
+    time: '09:42',
+  },
+  {
+    id: 3,
+    agent: 'Sentry-Sec',
+    type: 'alert',
+    content: '[WARN] Elevated latency detected on edge cluster 2. Guard rails engaged.',
+    time: '09:42',
+  },
+  {
+    id: 4,
+    agent: 'Atlas-Orchestrator',
+    type: 'action',
+    content: 'AI Action: quorum reinforcement protocol deployed for migration thread.',
+    time: '09:43',
+  },
+]
 
 const simulatedMessages = [
   {
-    author: 'Atlas-Orchestrator',
-    role: 'Agent',
-    content: 'Routing 4 new intents through semantic bus. Latency stable.',
+    agent: 'Helios-Observer',
+    type: 'text',
+    content: 'Telemetry indicates reduced error rate after shard rebalance.',
   },
   {
-    author: 'Sentry-Sec',
-    role: 'Agent',
-    content: 'Guardian rails flagged a policy drift. Awaiting approval.',
-    variant: 'alert',
+    agent: 'Codex-Dev',
+    type: 'code',
+    content: `// Patch suggestion\nconst guard = {\n  retries: 3,\n  circuit: 'half-open',\n}\n\napply(guard)`,
   },
   {
-    author: 'Codex-Dev',
-    role: 'Agent',
-    content: 'Consensus vote started for hotfix deployment. 1/3 votes.',
-    variant: 'code',
-    code: 'consensus.vote({ deployment: "hotfix-17", quorum: 3 })',
+    agent: 'Sentry-Sec',
+    type: 'alert',
+    content: '[ALERT] Consensus threshold reached. Executing guarded rollout.',
   },
 ]
 
 const orchestrationColumns = [
   {
     title: 'Pending',
-    items: [
-      {
-        title: 'Vectorize new documentation corpus',
-        agent: 'Nova-Research',
-      },
-      {
-        title: 'Audit data retention policy',
-        agent: 'Sentry-Sec',
-      },
+    tasks: [
+      { title: 'Shard west-2 upgrade', agent: 'Atlas-Orchestrator' },
+      { title: 'SLA audit prep', agent: 'Sentry-Sec' },
     ],
   },
   {
     title: 'In Progress',
-    items: [
-      {
-        title: 'Deploy API v2 migration swarm',
-        agent: 'Atlas-Orchestrator',
-      },
-      {
-        title: 'Optimize token routing strategy',
-        agent: 'Codex-Dev',
-      },
+    tasks: [
+      { title: 'Migration API v2', agent: 'Codex-Dev' },
+      { title: 'Stream latency pass', agent: 'Helios-Observer' },
     ],
   },
   {
     title: 'Needs Consensus',
-    items: [
-      {
-        title: 'Approve cross-region failover plan',
-        agent: 'Pulse-Observer',
-        votes: '1/3 Votes',
-        progress: 33,
-      },
-      {
-        title: 'Enable autonomous access for agent-13',
-        agent: 'Sentry-Sec',
-        votes: '2/3 Votes',
-        progress: 66,
-      },
+    tasks: [
+      { title: 'Edge failover strategy', agent: 'Atlas-Orchestrator', votes: '1/3' },
+      { title: 'Token budget increase', agent: 'Ops-Auditor', votes: '2/3' },
     ],
   },
   {
     title: 'Completed',
-    items: [
-      {
-        title: 'Patch inference pipeline latency',
-        agent: 'Atlas-Orchestrator',
-      },
-      {
-        title: 'Archive legacy prompt sets',
-        agent: 'Codex-Dev',
-      },
+    tasks: [
+      { title: 'Guardian policy update', agent: 'Sentry-Sec' },
+      { title: 'Memory cache warmup', agent: 'Codex-Dev' },
     ],
   },
 ]
 
-const agents = [
+const agentFleet = [
   {
     name: 'Atlas-Orchestrator',
-    role: 'Swarm coordinator',
-    specialization: 'Routing & scheduling',
-    uptime: '98.7%',
     status: 'idle',
+    role: 'Coordinator',
+    specialization: 'Consensus Routing',
+    uptime: '12d 4h',
   },
   {
     name: 'Codex-Dev',
-    role: 'Implementation agent',
-    specialization: 'Infrastructure automation',
-    uptime: '96.1%',
     status: 'busy',
+    role: 'Builder',
+    specialization: 'Infrastructure Ops',
+    uptime: '7d 22h',
   },
   {
     name: 'Sentry-Sec',
-    role: 'Security auditor',
-    specialization: 'Policy & compliance',
-    uptime: '99.3%',
-    status: 'idle',
-  },
-  {
-    name: 'Nova-Research',
-    role: 'R&D agent',
-    specialization: 'Consensus modeling',
-    uptime: '94.4%',
     status: 'busy',
+    role: 'Guardian',
+    specialization: 'Threat Modeling',
+    uptime: '19d 6h',
   },
   {
-    name: 'Pulse-Observer',
-    role: 'Telemetry watcher',
-    specialization: 'Performance & alerting',
-    uptime: '97.9%',
-    status: 'error',
+    name: 'Helios-Observer',
+    status: 'idle',
+    role: 'Observer',
+    specialization: 'Telemetry & Metrics',
+    uptime: '9d 3h',
   },
+  {
+    name: 'Ops-Auditor',
+    status: 'error',
+    role: 'Auditor',
+    specialization: 'Compliance',
+    uptime: '2d 18h',
+  },
+  {
+    name: 'Nova-Query',
+    status: 'idle',
+    role: 'Analyst',
+    specialization: 'Knowledge Graphs',
+    uptime: '5d 10h',
+  },
+]
+
+const navItems = [
+  { id: 'overview', label: 'Overview', icon: Activity },
+  { id: 'comms', label: 'Comms', icon: MessageCircle },
+  { id: 'orchestration', label: 'Orchestration', icon: Boxes },
+  { id: 'fleet', label: 'Agent Fleet', icon: Bot },
 ]
 
 const statusStyles = {
@@ -254,159 +213,119 @@ const statusStyles = {
   error: 'bg-rose-400',
 }
 
-const navigation = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'comms', label: 'Comms', icon: MessageCircle },
-  { id: 'orchestration', label: 'Orchestration', icon: Layers },
-  { id: 'fleet', label: 'Agent Fleet', icon: Users },
-]
-
 export default function Consendus() {
   const [view, setView] = useState('landing')
   const [activeTab, setActiveTab] = useState('overview')
-  const [selectedChannel, setSelectedChannel] = useState('migration')
-  const [messagesByChannel, setMessagesByChannel] = useState(initialMessages)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [messages, setMessages] = useState(initialMessages)
   const [isSimulating, setIsSimulating] = useState(false)
   const [showTyping, setShowTyping] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const totalMessages = useMemo(() => {
-    return Object.values(messagesByChannel).reduce((sum, list) => sum + list.length, 0)
-  }, [messagesByChannel])
 
   const handleSimulate = () => {
     if (isSimulating) return
     setIsSimulating(true)
     setShowTyping(true)
-    const cadence = 750
 
     simulatedMessages.forEach((message, index) => {
+      const delay = 800 + index * 750
       setTimeout(() => {
-        setMessagesByChannel((prev) => {
-          const next = prev[selectedChannel] ?? []
-          const nextMessage = {
-            id: next.length + 1,
-            timestamp: `09:${(18 + next.length).toString().padStart(2, '0')}`,
-            ...message,
-          }
-          return {
-            ...prev,
-            [selectedChannel]: [...next, nextMessage],
-          }
+        setMessages((prev) => {
+          const minute = 44 + prev.length
+          const time = `09:${minute.toString().padStart(2, '0')}`
+          return [...prev, { ...message, id: prev.length + 1, time }]
         })
 
         if (index === simulatedMessages.length - 1) {
-          setShowTyping(false)
-          setIsSimulating(false)
+          setTimeout(() => {
+            setShowTyping(false)
+            setIsSimulating(false)
+          }, 500)
         }
-      }, cadence * (index + 1))
+      }, delay)
     })
   }
+
+  const chartTooltipStyle = useMemo(
+    () => ({
+      backgroundColor: '#0f172a',
+      border: '1px solid rgba(148, 163, 184, 0.2)',
+      borderRadius: '12px',
+      color: '#e2e8f0',
+    }),
+    []
+  )
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
       {view === 'landing' ? (
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50" />
-          <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-10 px-6 py-16">
-            <div className="flex w-full flex-col items-center gap-8 text-center">
-              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-slate-800/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-300">
-                <Signal className="h-4 w-4 text-indigo-300" />
-                Consendus.ai
-              </div>
-              <div className="space-y-4">
-                <h1 className="text-4xl font-semibold tracking-tight text-white md:text-6xl">
-                  Orchestrate Your Agent Swarm
-                </h1>
-                <p className="mx-auto max-w-2xl text-base text-slate-300 md:text-lg">
-                  Infrastructure for autonomous agents to communicate, coordinate, and reach
-                  consensus.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <button
-                  onClick={() => setView('dashboard')}
-                  className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400"
-                >
-                  Access Console
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800/70 px-6 py-3 text-sm font-semibold text-white/80 transition hover:border-white/30">
-                  View API Docs
-                  <ArrowUpRight className="h-4 w-4" />
-                </button>
-              </div>
+        <main className="relative overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.2),_transparent_45%)]" />
+          <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-10 px-6 py-16 text-center">
+            <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-indigo-200">
+              <Sparkles className="h-4 w-4" />
+              Consendus.ai
             </div>
-
-            <div className="grid w-full gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-6 shadow-2xl shadow-slate-950/50 backdrop-blur">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-slate-300">
-                    <Code2 className="h-4 w-4 text-emerald-300" />
-                    swarm.config.ts
+            <div className="space-y-4">
+              <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+                Orchestrate Your Agent Swarm
+              </h1>
+              <p className="mx-auto max-w-2xl text-base text-slate-300 sm:text-lg">
+                Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
+              </p>
+            </div>
+            <div className="w-full max-w-3xl rounded-2xl border border-white/10 bg-slate-800/70 p-6 text-left shadow-2xl shadow-indigo-500/10 backdrop-blur">
+              <div className="mb-4 flex items-center gap-2 text-xs text-slate-400">
+                <span className="h-2 w-2 rounded-full bg-rose-400" />
+                <span className="h-2 w-2 rounded-full bg-amber-400" />
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span className="ml-2 font-medium text-slate-300">swarm.config.ts</span>
+              </div>
+              <pre className="whitespace-pre-wrap font-mono text-sm text-emerald-200">
+                {`import { Consendus } from '@consendus/sdk'\n\nconst swarm = new Consendus.Swarm({\n  agents: ['Atlas', 'Codex', 'Sentry'],\n  consensus: { quorum: 3, timeout: '15s' },\n  rails: ['security', 'budget', 'compliance'],\n  channels: ['#migration-api-v2', '#security-audit']\n})\n\nswarm.deploy()`}
+              </pre>
+            </div>
+            <div className="grid w-full gap-6 md:grid-cols-3">
+              {featureCards.map((feature) => {
+                const Icon = feature.icon
+                return (
+                  <div
+                    key={feature.title}
+                    className="rounded-2xl border border-white/10 bg-slate-800/70 p-6 text-left shadow-lg"
+                  >
+                    <Icon className="h-6 w-6 text-indigo-300" />
+                    <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
+                    <p className="mt-2 text-sm text-slate-300">{feature.description}</p>
                   </div>
-                  <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">
-                    Connected
-                  </span>
-                </div>
-                <pre className="mt-4 whitespace-pre-wrap rounded-xl bg-slate-900/70 p-4 font-mono text-xs leading-6 text-slate-200">
-                  <code>
-                    {`import { Consendus } from "@consendus/core"\n\nconst swarm = new Consendus.Swarm({\n  name: "atlas-swarm",\n  consensus: { quorum: 3, strategy: "weighted" },\n  channels: ["comms", "orchestration", "guardrails"],\n  agents: [\n    { id: "atlas-01", role: "orchestrator" },\n    { id: "codex-02", role: "builder" },\n    { id: "sentry-03", role: "security" },\n  ],\n})\n\nawait swarm.deploy({ region: "us-east-1" })`}
-                  </code>
-                </pre>
-              </div>
-
-              <div className="grid gap-4">
-                {featureCards.map((card) => {
-                  const Icon = card.icon
-                  return (
-                    <div
-                      key={card.title}
-                      className="rounded-2xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-slate-950/40"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-base font-semibold text-white">{card.title}</p>
-                          <p className="mt-2 text-sm text-slate-300">{card.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                )
+              })}
             </div>
-          </div>
-        </div>
+            <button
+              onClick={() => setView('console')}
+              className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
+            >
+              Access Console
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </section>
+        </main>
       ) : (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-slate-900">
           <aside
-            className={`fixed inset-y-0 left-0 z-20 w-64 flex-col border-r border-white/10 bg-slate-900/95 px-4 pb-6 pt-6 backdrop-blur transition-transform lg:static lg:flex lg:translate-x-0 ${
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-slate-900/95 p-6 transition-transform duration-300 md:static md:translate-x-0 ${
+              sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
             }`}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
-                  <Cpu className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Consendus</p>
-                  <p className="text-sm font-semibold text-white">Swarm Console</p>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
+                <Zap className="h-5 w-5" />
               </div>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="rounded-lg border border-white/10 p-2 text-slate-300 lg:hidden"
-              >
-                <PanelLeft className="h-4 w-4" />
-              </button>
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Consendus</p>
+                <p className="text-sm font-semibold">Swarm Console</p>
+              </div>
             </div>
-
             <nav className="mt-10 space-y-2">
-              {navigation.map((item) => {
+              {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = activeTab === item.id
                 return (
@@ -418,8 +337,8 @@ export default function Consendus() {
                     }}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
                       isActive
-                        ? 'bg-indigo-500/20 text-indigo-200'
-                        : 'text-slate-300 hover:bg-slate-800/70'
+                        ? 'bg-indigo-500/20 text-white'
+                        : 'text-slate-300 hover:bg-white/5'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -428,50 +347,44 @@ export default function Consendus() {
                 )
               })}
             </nav>
-
-            <div className="mt-auto rounded-2xl border border-white/10 bg-slate-800/70 p-4 text-xs text-slate-300">
-              <div className="flex items-center gap-2 text-sm text-emerald-300">
-                <Wifi className="h-4 w-4" />
-                Live swarm link
-              </div>
-              <p className="mt-2 text-slate-400">
-                12 regions • 3 quorum engines • 99.98% uptime
-              </p>
+            <div className="mt-auto hidden text-xs text-slate-500 md:block">
+              <p className="mt-10">Status: All systems operational</p>
             </div>
           </aside>
-
-          <div className="flex-1 lg:ml-0">
-            <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-slate-900/80 px-6 py-4 backdrop-blur">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="rounded-lg border border-white/10 p-2 text-slate-300 lg:hidden"
-                >
-                  <PanelLeft className="h-4 w-4" />
-                </button>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Console</p>
-                  <h2 className="text-lg font-semibold text-white">{navigation.find((item) => item.id === activeTab)?.label}</h2>
-                </div>
+          {sidebarOpen && (
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="fixed inset-0 z-30 bg-black/40 md:hidden"
+              aria-label="Close sidebar"
+            />
+          )}
+          <div className="flex flex-1 flex-col">
+            <header className="flex items-center justify-between border-b border-white/10 bg-slate-900/70 px-6 py-4 backdrop-blur">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="inline-flex items-center gap-2 text-sm text-slate-300 md:hidden"
+              >
+                <FileTerminal className="h-4 w-4" />
+                Menu
+              </button>
+              <div className="hidden items-center gap-2 text-xs text-emerald-300 md:flex">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                Live swarm telemetry
               </div>
               <div className="flex items-center gap-3">
-                <div className="hidden rounded-full border border-white/10 bg-slate-800/80 px-4 py-2 text-xs text-slate-300 md:flex">
-                  128 agents online • {totalMessages} messages
-                </div>
-                <button className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/80 px-4 py-2 text-xs text-slate-200">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  architect@consendus.ai
+                <button className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200">
+                  Deploy Log
                 </button>
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200">
+                  <UserCircle2 className="h-4 w-4" />
+                  admin@consendus.ai
+                </div>
               </div>
             </header>
-
-            <main
-              key={activeTab}
-              className="space-y-6 px-6 py-6 pb-16 animate-[fadeIn_0.5s_ease]"
-            >
+            <main className="flex-1 space-y-8 overflow-y-auto px-6 py-6">
               {activeTab === 'overview' && (
-                <section className="space-y-6">
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <section className="space-y-6 animate-[fade-in_0.5s_ease]">
+                  <div className="grid gap-4 md:grid-cols-4">
                     {overviewStats.map((stat) => {
                       const Icon = stat.icon
                       return (
@@ -480,248 +393,239 @@ export default function Consendus() {
                           className="rounded-2xl border border-white/10 bg-slate-800/80 p-4"
                         >
                           <div className="flex items-center justify-between">
-                            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                               {stat.label}
                             </p>
                             <Icon className="h-4 w-4 text-indigo-300" />
                           </div>
-                          <div className="mt-4 flex items-end justify-between">
+                          <div className="mt-3 flex items-baseline justify-between">
                             <p className="text-2xl font-semibold text-white">{stat.value}</p>
-                            <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300">
-                              {stat.delta}
-                            </span>
+                            <span className="text-xs text-emerald-300">{stat.trend}</span>
                           </div>
                         </div>
                       )
                     })}
                   </div>
-
-                  <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
-                    <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-6">
-                      <div className="flex items-center justify-between">
+                  <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
+                    <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-5">
+                      <div className="mb-4 flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-slate-300">System Load vs Token Consumption</p>
-                          <p className="text-xs text-slate-500">Real-time telemetry feed</p>
+                          <p className="text-sm font-semibold text-white">System Load vs Tokens</p>
+                          <p className="text-xs text-slate-400">Realtime swarm resource mix</p>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
-                          <Activity className="h-4 w-4 text-indigo-300" />
-                          Last 10h
-                        </div>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/20 px-3 py-1 text-xs text-indigo-200">
+                          <Activity className="h-3 w-3" />
+                          Live
+                        </span>
                       </div>
-                      <div className="mt-4 h-64">
+                      <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={systemLoadData} margin={{ left: -10, right: 16, top: 10 }}>
+                          <AreaChart data={loadChartData} margin={{ left: -10, right: 10, top: 10 }}>
                             <defs>
-                              <linearGradient id="loadGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                              <linearGradient id="systemLoad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#6366f1" stopOpacity={0.6} />
+                                <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
                               </linearGradient>
-                              <linearGradient id="tokenGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#34d399" stopOpacity={0.35} />
-                                <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                              <linearGradient id="tokenUsage" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#34d399" stopOpacity={0.5} />
+                                <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
                               </linearGradient>
                             </defs>
-                            <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
-                            <XAxis dataKey="time" stroke="#475569" tickLine={false} axisLine={false} />
-                            <YAxis stroke="#475569" tickLine={false} axisLine={false} />
-                            <Tooltip
-                              contentStyle={{
-                                background: '#0f172a',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                borderRadius: 12,
-                                color: '#e2e8f0',
-                              }}
-                              labelStyle={{ color: '#94a3b8' }}
-                            />
+                            <CartesianGrid stroke="rgba(148,163,184,0.1)" vertical={false} />
+                            <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
+                            <YAxis stroke="#94a3b8" fontSize={12} />
+                            <Tooltip contentStyle={chartTooltipStyle} />
                             <Area
                               type="monotone"
-                              dataKey="load"
+                              dataKey="systemLoad"
                               stroke="#6366f1"
+                              fill="url(#systemLoad)"
                               strokeWidth={2}
-                              fill="url(#loadGradient)"
                             />
                             <Area
                               type="monotone"
                               dataKey="tokens"
                               stroke="#34d399"
+                              fill="url(#tokenUsage)"
                               strokeWidth={2}
-                              fill="url(#tokenGradient)"
                             />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
-
-                    <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-slate-300">Terminal Log</p>
-                          <p className="text-xs text-slate-500">Streaming system events</p>
-                        </div>
-                        <Terminal className="h-4 w-4 text-emerald-300" />
+                    <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-5">
+                      <div className="mb-4 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-white">Terminal Log</p>
+                        <span className="text-xs text-amber-300">Live events</span>
                       </div>
-                      <div className="mt-4 max-h-64 space-y-3 overflow-y-auto rounded-xl bg-slate-900/70 p-4 font-mono text-xs text-slate-200">
-                        {terminalLogs.map((log, index) => (
-                          <p key={index} className="text-slate-200">
-                            {log}
-                          </p>
+                      <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl bg-slate-900/60 p-4 font-mono text-xs text-emerald-200">
+                        {terminalEvents.map((event) => (
+                          <p key={event}>{event}</p>
                         ))}
                       </div>
                     </div>
                   </div>
                 </section>
               )}
-
               {activeTab === 'comms' && (
-                <section className="grid gap-6 lg:grid-cols-[0.35fr_1fr]">
+                <section className="grid gap-6 lg:grid-cols-[260px,1fr] animate-[fade-in_0.5s_ease]">
                   <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-white">Channels</p>
-                      <span className="text-xs text-slate-400">{channels.length}</span>
-                    </div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Channels</p>
                     <div className="mt-4 space-y-2">
                       {channels.map((channel) => (
-                        <button
-                          key={channel.id}
-                          onClick={() => setSelectedChannel(channel.id)}
-                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm transition ${
-                            selectedChannel === channel.id
-                              ? 'bg-indigo-500/20 text-indigo-200'
-                              : 'text-slate-300 hover:bg-slate-800/70'
-                          }`}
+                        <div
+                          key={channel}
+                          className="rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-sm text-slate-200"
                         >
-                          <span>{channel.name}</span>
-                          {channel.unread > 0 && (
-                            <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs text-amber-200">
-                              {channel.unread}
-                            </span>
-                          )}
-                        </button>
+                          {channel}
+                        </div>
                       ))}
                     </div>
                   </div>
-
-                  <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-6">
+                  <div className="rounded-2xl border border-white/10 bg-slate-800/80 p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm text-slate-300">{channels.find((c) => c.id === selectedChannel)?.name}</p>
-                        <p className="text-xs text-slate-500">Agent-to-agent coordination</p>
+                        <p className="text-sm font-semibold text-white">#migration-api-v2</p>
+                        <p className="text-xs text-slate-400">AI swarm conversation feed</p>
                       </div>
                       <button
                         onClick={handleSimulate}
-                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400"
+                        disabled={isSimulating}
+                        className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        <PlayCircle className="h-4 w-4" />
-                        Simulate Activity
+                        <Sparkles className="h-4 w-4" />
+                        {isSimulating ? 'Simulating...' : 'Simulate Activity'}
                       </button>
                     </div>
-
-                    <div className="mt-4 space-y-4">
-                      {(messagesByChannel[selectedChannel] ?? []).map((message) => (
-                        <div key={`${selectedChannel}-${message.id}`} className="space-y-2">
+                    <div className="mt-6 space-y-4">
+                      {messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className="rounded-xl border border-white/10 bg-slate-900/70 p-4"
+                        >
                           <div className="flex items-center justify-between text-xs text-slate-400">
-                            <div className="flex items-center gap-2">
-                              <span className="text-slate-200">{message.author}</span>
-                              <span className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[10px] uppercase tracking-widest text-slate-400">
-                                {message.role}
-                              </span>
-                              {message.variant === 'alert' && (
-                                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-amber-200">
-                                  Alert
-                                </span>
-                              )}
-                            </div>
-                            <span>{message.timestamp}</span>
+                            <span className="font-semibold text-slate-200">{message.agent}</span>
+                            <span>{message.time}</span>
                           </div>
-                          <div
-                            className={`rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-200 ${
-                              message.variant === 'alert'
-                                ? 'bg-amber-500/10 text-amber-100'
-                                : 'bg-slate-900/70'
-                            }`}
-                          >
-                            <p>{message.content}</p>
-                            {message.code && (
-                              <pre className="mt-3 overflow-x-auto rounded-lg bg-slate-950/80 p-3 font-mono text-xs text-emerald-200">
-                                <code>{message.code}</code>
-                              </pre>
-                            )}
-                          </div>
+                          {message.type === 'code' ? (
+                            <pre className="mt-3 rounded-lg bg-slate-950/70 p-3 font-mono text-xs text-emerald-200">
+                              {message.content}
+                            </pre>
+                          ) : (
+                            <p
+                              className={`mt-3 text-sm leading-relaxed ${
+                                message.type === 'alert'
+                                  ? 'text-amber-200'
+                                  : message.type === 'action'
+                                  ? 'text-purple-200'
+                                  : 'text-slate-200'
+                              }`}
+                            >
+                              {message.content}
+                            </p>
+                          )}
                         </div>
                       ))}
                       {showTyping && (
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
-                          <span className="flex h-2 w-2 animate-bounce rounded-full bg-indigo-400" />
-                          Agents are typing...
+                        <div className="rounded-xl border border-white/10 bg-slate-900/70 p-4 text-sm text-slate-400">
+                          <span className="mr-2 inline-flex h-2 w-2 animate-bounce rounded-full bg-indigo-300" />
+                          Agents are composing updates...
                         </div>
                       )}
                     </div>
                   </div>
                 </section>
               )}
-
               {activeTab === 'orchestration' && (
-                <section className="grid gap-6 lg:grid-cols-4">
-                  {orchestrationColumns.map((column) => (
-                    <div key={column.title} className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-white">{column.title}</p>
-                        <span className="text-xs text-slate-400">{column.items.length}</span>
-                      </div>
-                      <div className="space-y-3">
-                        {column.items.map((item) => (
-                          <div
-                            key={item.title}
-                            className="rounded-2xl border border-white/10 bg-slate-800/80 p-4"
-                          >
-                            <p className="text-sm text-white">{item.title}</p>
-                            <p className="mt-2 text-xs text-slate-400">Assigned to {item.agent}</p>
-                            {item.votes && (
-                              <div className="mt-3">
-                                <div className="flex items-center justify-between text-xs text-slate-400">
-                                  <span>{item.votes}</span>
-                                  <span>{item.progress}%</span>
-                                </div>
-                                <div className="mt-2 h-2 rounded-full bg-slate-900/70">
-                                  <div
-                                    className="h-2 rounded-full bg-purple-400"
-                                    style={{ width: `${item.progress}%` }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                <section className="space-y-6 animate-[fade-in_0.5s_ease]">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Orchestration Board</p>
+                      <p className="text-xs text-slate-400">Task execution across the swarm</p>
                     </div>
-                  ))}
+                    <button className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-200">
+                      <AlertTriangle className="h-4 w-4 text-amber-300" />
+                      Review blockers
+                    </button>
+                  </div>
+                  <div className="grid gap-4 lg:grid-cols-4">
+                    {orchestrationColumns.map((column) => (
+                      <div
+                        key={column.title}
+                        className="rounded-2xl border border-white/10 bg-slate-800/80 p-4"
+                      >
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                          {column.title}
+                        </p>
+                        <div className="mt-4 space-y-3">
+                          {column.tasks.map((task) => (
+                            <div
+                              key={task.title}
+                              className="rounded-xl border border-white/10 bg-slate-900/70 p-3"
+                            >
+                              <p className="text-sm text-slate-100">{task.title}</p>
+                              <p className="mt-2 text-xs text-slate-400">{task.agent}</p>
+                              {task.votes && (
+                                <div className="mt-3">
+                                  <div className="flex items-center justify-between text-xs text-slate-400">
+                                    <span>Consensus</span>
+                                    <span>{task.votes}</span>
+                                  </div>
+                                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
+                                    <div
+                                      className="h-full rounded-full bg-indigo-400"
+                                      style={{ width: `${(parseInt(task.votes, 10) / 3) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </section>
               )}
-
               {activeTab === 'fleet' && (
-                <section className="space-y-6">
+                <section className="space-y-6 animate-[fade-in_0.5s_ease]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Agent Fleet</p>
+                      <p className="text-xs text-slate-400">Directory of autonomous agents</p>
+                    </div>
+                    <button className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-4 py-2 text-xs text-emerald-200">
+                      <Bot className="h-4 w-4" />
+                      Provision Agent
+                    </button>
+                  </div>
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {agents.map((agent) => (
+                    {agentFleet.map((agent) => (
                       <div
                         key={agent.name}
                         className="rounded-2xl border border-white/10 bg-slate-800/80 p-5"
                       >
                         <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-base font-semibold text-white">{agent.name}</p>
-                            <p className="text-xs text-slate-400">{agent.role}</p>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`h-2.5 w-2.5 rounded-full ${statusStyles[agent.status]}`}
+                            />
+                            <p className="text-sm font-semibold text-white">{agent.name}</p>
                           </div>
-                          <span className={`h-3 w-3 rounded-full ${statusStyles[agent.status]}`} />
+                          <span className="rounded-full bg-white/5 px-2 py-1 text-xs text-slate-300">
+                            {agent.status}
+                          </span>
                         </div>
                         <div className="mt-4 space-y-2 text-xs text-slate-300">
-                          <div className="flex items-center justify-between">
-                            <span>Specialization</span>
-                            <span className="text-slate-100">{agent.specialization}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span>Uptime</span>
-                            <span className="text-slate-100">{agent.uptime}</span>
-                          </div>
+                          <p>
+                            <span className="text-slate-400">Role:</span> {agent.role}
+                          </p>
+                          <p>
+                            <span className="text-slate-400">Specialization:</span> {agent.specialization}
+                          </p>
+                          <p>
+                            <span className="text-slate-400">Uptime:</span> {agent.uptime}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -730,27 +634,20 @@ export default function Consendus() {
               )}
             </main>
           </div>
-        </section>
-
-        <section id="pricing" className="mt-16 flex flex-col items-center text-center">
-          <h2 className="text-2xl font-semibold [font-family:'Libre_Baskerville',serif]">Pricing</h2>
-          <p className="mt-2 max-w-md text-sm text-[#2d2a26]/70">
-            Early readers get exclusive access to the first production run and a lifetime of AI updates.
-          </p>
-          <div className="mt-6 rounded-3xl border border-[#e6dfd2] bg-white px-10 py-6 shadow-sm">
-            <p className="text-sm uppercase tracking-[0.3em] text-[#8c5e3c]">Founders Edition</p>
-            <p className="mt-3 text-4xl font-semibold">$49</p>
-            <button className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#8c5e3c] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#754b2f]">
-              Pre-order now
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-        </section>
-
-        <footer className="mt-20 text-center text-xs text-[#2d2a26]/60">
-          © 2024 Bookmarkr Labs. All rights reserved.
-        </footer>
-      </div>
+        </div>
+      )}
+      <style jsx global>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
