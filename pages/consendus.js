@@ -234,6 +234,7 @@ export default function Consendus() {
           const time = `09:${minute.toString().padStart(2, '0')}`
           return [...prev, { ...message, id: prev.length + 1, time }]
         })
+
         if (index === simulatedMessages.length - 1) {
           setTimeout(() => {
             setShowTyping(false)
