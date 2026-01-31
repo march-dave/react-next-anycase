@@ -1,7 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowUpRight,
-  Bot,
   CheckCircle2,
   ChevronRight,
   MessageCircle,
@@ -44,52 +43,20 @@ const allocationData = [
   { name: 'Bonds', value: 15, color: '#a5b4fc' },
   { name: 'Crypto', value: 5, color: '#c7d2fe' },
   { name: 'Private Equity', value: 10, color: '#4338ca' },
-  { name: 'Cash', value: 15, color: '#1e1b4b' },
 ]
 
-const initialMessages = [
-  {
-    id: 1,
-    agent: 'Atlas-Orchestrator',
-    type: 'text',
-    content: 'Consensus cycle 14 initiated. Awaiting quorum from Codex and Sentry.',
-    time: '09:41',
-  },
-  {
-    id: 2,
-    agent: 'Codex-Dev',
-    type: 'code',
-    content: `// Agent proposal\nconst plan = {\n  migration: 'rolling',\n  risk: 'low',\n  rollback: true,\n}\n\nconsensus.vote(plan)`,
-    time: '09:42',
-  },
-  {
-    id: 3,
-    agent: 'Sentry-Sec',
-    type: 'alert',
-    content: '[WARN] Elevated latency detected on edge cluster 2. Initiating guard rails.',
-    time: '09:42',
-  },
-  {
-    id: 4,
-    agent: 'Atlas-Orchestrator',
-    type: 'action',
-    content: 'Consensus router engaged. Escalating quorum request to Atlas council.',
-  },
-  {
-    agent: 'Codex-Dev',
-    type: 'code',
-    content: `// Patch rollout\nawait swarm.deploy({\n  scope: 'hotfix',\n  confidence: 0.91,\n})`,
-  },
+const holdings = [
+  { name: 'S&P 500 ETF (VOO)', allocation: '35%', value: '$221,000' },
+  { name: 'NASDAQ 100 (QQQ)', allocation: '20%', value: '$126,800' },
+  { name: 'Core Bonds', allocation: '15%', value: '$95,000' },
+  { name: 'Private Credit', allocation: '10%', value: '$63,400' },
+  { name: 'Bitcoin', allocation: '5%', value: '$31,700' },
 ]
 
 const insightCards = [
   {
     title: 'Smart Cash Sweep',
-    description: 'Move idle balances into short-duration Treasury ETFs for +4.9% yield.',
-  },
-  {
-    title: 'Tax Alpha',
-    description: 'Harvest $3,200 in losses to offset Q4 gains automatically.',
+    description: 'Move idle cash into short-duration Treasury ETFs for +4.9% yield.',
   },
 ]
 
@@ -101,6 +68,12 @@ const initialChat = [
     content:
       "Hello. Markets have been choppy, but your Autonomous Index is up. I've analyzed your spending and have tax-loss harvesting ideas.",
   },
+]
+
+const aiResponses = [
+  'Your VOO and QQQ sleeve is carrying equity risk well. I would trim 2% from crypto and redirect to short-duration Treasuries until volatility normalizes.',
+  'Cash drag is elevated. We can sweep idle balances into a laddered Treasury ETF mix without compromising liquidity.',
+  'Private credit yields remain attractive. I recommend holding steady while we harvest losses in the growth sleeve for tax alpha.',
 ]
 
 export default function Consendus() {
@@ -118,26 +91,64 @@ export default function Consendus() {
     []
   )
 
-  const handleSimulate = () => {
-    if (isSimulating) return
-    setIsSimulating(true)
-    setShowTyping(true)
-    const baseDelay = 650
-    const cadence = 550
+  useEffect(() => {
+    if (connectionState !== 'verifying') return
 
-    simulatedMessages.forEach((message, index) => {
-      setTimeout(() => {
-        setMessages((prev) => {
-          const minute = 43 + prev.length
-          const time = `09:${minute.toString().padStart(2, '0')}`
-          return [...prev, { ...message, id: prev.length + 1, time }]
-        })
-        if (index === simulatedMessages.length - 1) {
-          setShowTyping(false)
-          setIsSimulating(false)
-        }
-      }, baseDelay + index * cadence)
-    })
+    const verifyTimer = setTimeout(() => {
+      setConnectionState('success')
+    }, 1400)
+
+    const redirectTimer = setTimeout(() => {
+      setShowModal(false)
+      setView('app')
+      setActiveTab('dashboard')
+      setConnectionState('select')
+      setSelectedBank('')
+    }, 2400)
+
+    return () => {
+      clearTimeout(verifyTimer)
+      clearTimeout(redirectTimer)
+    }
+  }, [connectionState])
+
+  const handleGetStarted = () => {
+    setShowModal(true)
+    setConnectionState('select')
+  }
+
+  const handleSelectBank = (bank) => {
+    setSelectedBank(bank)
+    setConnectionState('verifying')
+  }
+
+  const handleSend = () => {
+    if (!chatInput.trim() || isTyping) return
+    const nextId = chatMessages.length + 1
+    const userMessage = {
+      id: nextId,
+      author: 'You',
+      role: 'user',
+      content: chatInput.trim(),
+    }
+
+    setChatMessages((prev) => [...prev, userMessage])
+    setChatInput('')
+    setIsTyping(true)
+
+    const response = aiResponses[nextId % aiResponses.length]
+    setTimeout(() => {
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          author: 'Supernormal',
+          role: 'assistant',
+          content: response,
+        },
+      ])
+      setIsTyping(false)
+    }, 900)
   }
 
   return (
@@ -267,7 +278,8 @@ export default function Consendus() {
                   <p className="text-xs uppercase tracking-[0.3em] text-white/40">Strategy</p>
                   <h2 className="mt-3 text-2xl font-semibold">Autonomous Index</h2>
                   <p className="mt-2 text-sm text-white/60">
-                    A diversified endowment-style portfolio blending public markets with private credit.
+                    An endowment-model portfolio mixing public markets, private credit, and disciplined
+                    rebalancing.
                   </p>
                 </div>
 
@@ -276,7 +288,7 @@ export default function Consendus() {
                     <p className="text-sm text-white/70">Asset allocation</p>
                     <span className="text-xs text-white/40">Total {allocationTotal}%</span>
                   </div>
-                  <div className="mt-4 flex items-center gap-6">
+                  <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-center">
                     <div className="h-40 w-40">
                       <ResponsiveContainer width="100%" height="100%">
                         <RechartsPieChart>
@@ -294,32 +306,14 @@ export default function Consendus() {
                         </RechartsPieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="mt-4 h-72 space-y-4 overflow-y-auto rounded-xl bg-slate-900/80 p-4 text-sm no-scrollbar">
-                      {messages.map((message) => (
-                        <div key={message.id} className="space-y-2 animate-fade-in">
-                          <div className="flex items-center gap-2 text-xs text-slate-400">
-                            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
-                              {message.agent}
-                            </span>
-                            <span>{message.time}</span>
+                    <div className="flex-1 space-y-3 text-xs text-white/70">
+                      {allocationData.map((entry) => (
+                        <div key={entry.name} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full" style={{ background: entry.color }} />
+                            <span>{entry.name}</span>
                           </div>
-                          {message.type === 'code' ? (
-                            <pre className="rounded-lg border border-emerald-400/20 bg-slate-950/80 p-3 text-xs text-emerald-200 font-mono">
-                              {message.content}
-                            </pre>
-                          ) : message.type === 'alert' ? (
-                            <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">
-                              <ShieldCheck className="h-4 w-4" />
-                              {message.content}
-                            </div>
-                          ) : message.type === 'action' ? (
-                            <div className="flex items-center gap-2 rounded-lg border border-purple-400/30 bg-purple-400/10 p-3 text-xs text-purple-200">
-                              <Sparkles className="h-4 w-4" />
-                              {message.content}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-slate-200">{message.content}</p>
-                          )}
+                          <span className="font-mono text-white">{entry.value}%</span>
                         </div>
                       ))}
                     </div>
@@ -401,76 +395,89 @@ export default function Consendus() {
             )}
           </main>
 
-          <nav className="fixed bottom-6 left-1/2 z-20 w-[90%] max-w-sm -translate-x-1/2 rounded-full bg-[#131316] p-2 shadow-2xl shadow-black/40">
-            <div className="flex items-center justify-between">
-              {[
-                { id: 'dashboard', label: 'Dashboard', icon: Wallet },
-                { id: 'chat', label: 'Chat', icon: Bot },
-                { id: 'portfolio', label: 'Portfolio', icon: PieChart },
-              ].map((item) => {
-                const Icon = item.icon
-                const isActive = activeTab === item.id
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`flex flex-1 flex-col items-center gap-1 rounded-full px-4 py-2 text-xs transition ${
-                      isActive ? 'bg-indigo-500/20 text-indigo-200' : 'text-white/60'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </button>
-                )
-              })}
+          <nav className="fixed bottom-6 left-1/2 z-10 w-[90%] max-w-sm -translate-x-1/2">
+            <div className="flex items-center justify-between rounded-full border border-white/10 bg-[#131316]/90 px-6 py-3 backdrop-blur">
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex flex-col items-center gap-1 text-xs ${
+                  activeTab === 'dashboard' ? 'text-white' : 'text-white/50'
+                }`}
+              >
+                <Wallet className="h-5 w-5" />
+                Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`flex flex-col items-center gap-1 text-xs ${
+                  activeTab === 'chat' ? 'text-white' : 'text-white/50'
+                }`}
+              >
+                <MessageCircle className="h-5 w-5" />
+                Chat
+              </button>
+              <button
+                onClick={() => setActiveTab('portfolio')}
+                className={`flex flex-col items-center gap-1 text-xs ${
+                  activeTab === 'portfolio' ? 'text-white' : 'text-white/50'
+                }`}
+              >
+                <PieChart className="h-5 w-5" />
+                Portfolio
+              </button>
             </div>
           </nav>
         </div>
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
-          <div className="w-full max-w-sm rounded-3xl bg-[#131316] p-6 text-white">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
-                <Wallet className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/40">Secure link</p>
-                <p className="text-sm font-semibold">Connect your bank</p>
-              </div>
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/70 px-6">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#131316] p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-white">Connect your bank</p>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-xs text-white/50 hover:text-white"
+              >
+                Close
+              </button>
             </div>
 
             {connectionState === 'select' && (
-              <div className="mt-6 space-y-3">
+              <div className="mt-4 space-y-3">
                 {bankList.map((bank) => (
                   <button
                     key={bank}
-                    onClick={() => handleBankSelect(bank)}
-                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 px-4 py-3 text-sm text-white/70 transition hover:border-indigo-400/40 hover:text-white"
+                    onClick={() => handleSelectBank(bank)}
+                    className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-left text-sm text-white/80 transition hover:border-indigo-400/40"
                   >
                     {bank}
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4 text-white/50" />
                   </button>
                 ))}
               </div>
             )}
 
-            {connectionState === 'loading' && (
+            {connectionState === 'verifying' && (
               <div className="mt-6 space-y-4 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-indigo-500/40">
-                  <span className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300">
+                  <Zap className="h-5 w-5 animate-pulse" />
                 </div>
-                <p className="text-sm text-white/70">Verifying credentials...</p>
-                <p className="text-xs text-white/40">{selectedBank}</p>
+                <div>
+                  <p className="text-sm font-semibold">Verifying credentials...</p>
+                  <p className="mt-1 text-xs text-white/50">{selectedBank} linked securely.</p>
+                </div>
               </div>
             )}
 
             {connectionState === 'success' && (
-              <div className="mt-6 space-y-3 text-center">
-                <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-300" />
-                <p className="text-sm font-semibold">Connected successfully</p>
-                <p className="text-xs text-white/50">Redirecting to dashboard...</p>
+              <div className="mt-6 space-y-4 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Connection secure</p>
+                  <p className="mt-1 text-xs text-white/50">Redirecting to your dashboard.</p>
+                </div>
               </div>
             )}
           </div>
