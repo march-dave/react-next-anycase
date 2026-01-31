@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
-  Activity,
-  Bot,
+  ArrowUpRight,
+  CheckCircle2,
   ChevronRight,
   Command,
   LayoutGrid,
@@ -29,94 +29,26 @@ const stats = [
   { label: 'Token Usage', value: '18.6M', trend: '-2.1%' },
 ]
 
-const chartData = [
-  { time: '00:00', load: 38, tokens: 52 },
-  { time: '02:00', load: 48, tokens: 58 },
-  { time: '04:00', load: 41, tokens: 66 },
-  { time: '06:00', load: 55, tokens: 72 },
-  { time: '08:00', load: 62, tokens: 70 },
-  { time: '10:00', load: 68, tokens: 78 },
-  { time: '12:00', load: 74, tokens: 84 },
-  { time: '14:00', load: 70, tokens: 88 },
-  { time: '16:00', load: 76, tokens: 92 },
-  { time: '18:00', load: 82, tokens: 96 },
-  { time: '20:00', load: 68, tokens: 86 },
-  { time: '22:00', load: 60, tokens: 74 },
+const allocationData = [
+  { name: 'VOO', value: 35, color: '#6366f1' },
+  { name: 'QQQ', value: 20, color: '#818cf8' },
+  { name: 'Bonds', value: 15, color: '#a5b4fc' },
+  { name: 'Crypto', value: 5, color: '#c7d2fe' },
+  { name: 'Private Equity', value: 10, color: '#4338ca' },
 ]
 
-const logs = [
-  { type: 'info', text: 'Agent-2 connected to semantic bus.' },
-  { type: 'warn', text: 'High latency on east cluster. Rerouting traffic.' },
-  { type: 'success', text: 'Consensus reached for migration plan v4.2.' },
-  { type: 'info', text: 'Guardian rails engaged for security audit.' },
-]
-
-const channels = ['#migration-api-v2', '#security-audit', '#consensus-labs', '#agent-health']
-
-const initialMessages = [
-  {
-    id: 1,
-    agent: 'Atlas-Orchestrator',
-    type: 'text',
-    content: 'Standing up quorum for API migration. Waiting for Codex-Dev and Sentry-Sec.',
-    time: '09:41',
-  },
-  {
-    id: 2,
-    agent: 'Codex-Dev',
-    type: 'code',
-    content: `// Swarm proposal\nconst plan = {\n  migration: 'rolling',\n  risk: 'low',\n  rollback: true,\n}\n\nconsensus.vote(plan)`,
-    time: '09:42',
-  },
-  {
-    id: 3,
-    agent: 'Sentry-Sec',
-    type: 'alert',
-    content: '[WARN] Elevated latency detected on edge cluster 2. Guard rails engaged.',
-    time: '09:42',
-  },
-]
-
-const simulatedMessages = [
-  {
-    agent: 'Helix-Observer',
-    type: 'text',
-    content: 'Telemetry sync complete. 12 agents now aligned on objective tree.',
-  },
-  {
-    agent: 'Atlas-Orchestrator',
-    type: 'action',
-    content: 'AI Action: consensus-weighted routing enabled for migration thread.',
-  },
-  {
-    agent: 'Codex-Dev',
-    type: 'code',
-    content: `// Patch diff\nconst quorum = await swarm.vote('migration');\nif (quorum.approved) deploy()`,
-  },
+const holdings = [
+  { name: 'S&P 500 ETF (VOO)', allocation: '35%', value: '$221,000' },
+  { name: 'NASDAQ 100 (QQQ)', allocation: '20%', value: '$126,800' },
+  { name: 'Core Bonds', allocation: '15%', value: '$95,000' },
+  { name: 'Private Credit', allocation: '10%', value: '$63,400' },
+  { name: 'Bitcoin', allocation: '5%', value: '$31,700' },
 ]
 
 const tasks = [
   {
-    title: 'Rotate auth keys in edge cluster',
-    agent: 'Sentry-Sec',
-    state: 'Pending',
-  },
-  {
-    title: 'Scale semantic bus throughput',
-    agent: 'Atlas-Orchestrator',
-    state: 'In Progress',
-  },
-  {
-    title: 'Validate new retrieval router',
-    agent: 'Codex-Dev',
-    state: 'Needs Consensus',
-    votes: 1,
-    totalVotes: 3,
-  },
-  {
-    title: 'Ship migration report',
-    agent: 'Pulse-Analyst',
-    state: 'Completed',
+    title: 'Smart Cash Sweep',
+    description: 'Move idle cash into short-duration Treasury ETFs for +4.9% yield.',
   },
 ]
 
@@ -151,7 +83,11 @@ const agents = [
   },
 ]
 
-const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+const aiResponses = [
+  'Your VOO and QQQ sleeve is carrying equity risk well. I would trim 2% from crypto and redirect to short-duration Treasuries until volatility normalizes.',
+  'Cash drag is elevated. We can sweep idle balances into a laddered Treasury ETF mix without compromising liquidity.',
+  'Private credit yields remain attractive. I recommend holding steady while we harvest losses in the growth sleeve for tax alpha.',
+]
 
 export default function Consendus() {
   const [view, setView] = useState('landing')
@@ -168,27 +104,64 @@ export default function Consendus() {
     }, {})
   }, [])
 
-  const handleSimulate = () => {
-    if (isSimulating) return
-    setIsSimulating(true)
-    setShowTyping(true)
-    simulatedMessages.forEach((message, index) => {
-      const delay = 800 + index * 750
-      setTimeout(() => {
-        setMessages((prev) => {
-          const minute = 44 + prev.length
-          const time = `09:${minute.toString().padStart(2, '0')}`
-          return [...prev, { ...message, id: prev.length + 1, time }]
-        })
+  useEffect(() => {
+    if (connectionState !== 'verifying') return
 
-        if (index === simulatedMessages.length - 1) {
-          setTimeout(() => {
-            setShowTyping(false)
-            setIsSimulating(false)
-          }, 500)
-        }
-      }, 600 + index * 520)
-    })
+    const verifyTimer = setTimeout(() => {
+      setConnectionState('success')
+    }, 1400)
+
+    const redirectTimer = setTimeout(() => {
+      setShowModal(false)
+      setView('app')
+      setActiveTab('dashboard')
+      setConnectionState('select')
+      setSelectedBank('')
+    }, 2400)
+
+    return () => {
+      clearTimeout(verifyTimer)
+      clearTimeout(redirectTimer)
+    }
+  }, [connectionState])
+
+  const handleGetStarted = () => {
+    setShowModal(true)
+    setConnectionState('select')
+  }
+
+  const handleSelectBank = (bank) => {
+    setSelectedBank(bank)
+    setConnectionState('verifying')
+  }
+
+  const handleSend = () => {
+    if (!chatInput.trim() || isTyping) return
+    const nextId = chatMessages.length + 1
+    const userMessage = {
+      id: nextId,
+      author: 'You',
+      role: 'user',
+      content: chatInput.trim(),
+    }
+
+    setChatMessages((prev) => [...prev, userMessage])
+    setChatInput('')
+    setIsTyping(true)
+
+    const response = aiResponses[nextId % aiResponses.length]
+    setTimeout(() => {
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          author: 'Supernormal',
+          role: 'assistant',
+          content: response,
+        },
+      ])
+      setIsTyping(false)
+    }, 900)
   }
 
   const chartTooltipStyle = useMemo(
@@ -433,28 +406,16 @@ swarm.deploy('migration-api-v2')`}
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
-                      <div className="mb-4 flex items-center justify-between">
-                        <p className="text-sm text-slate-200">Terminal Log</p>
-                        <Terminal className="h-4 w-4 text-slate-400" />
-                      </div>
-                      <div className="space-y-3 text-xs text-slate-300">
-                        {logs.map((log, index) => (
-                          <div
-                            key={`${log.type}-${index}`}
-                            className="rounded-lg border border-white/10 bg-slate-900/70 px-3 py-2"
-                          >
-                            <span className="mr-2 font-mono text-emerald-300">
-                              [{log.type.toUpperCase()}]
-                            </span>
-                            {log.text}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              )}
+            {activeTab === 'portfolio' && (
+              <section className="space-y-6">
+                <div className="rounded-2xl bg-[#131316] p-4">
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/40">Strategy</p>
+                  <h2 className="mt-3 text-2xl font-semibold">Autonomous Index</h2>
+                  <p className="mt-2 text-sm text-white/60">
+                    An endowment-model portfolio mixing public markets, private credit, and disciplined
+                    rebalancing.
+                  </p>
+                </div>
 
               {activeTab === 'comms' && (
                 <section className="grid gap-6 lg:grid-cols-[240px,1fr] animate-fade-in">
@@ -471,57 +432,32 @@ swarm.deploy('migration-api-v2')`}
                       ))}
                     </div>
                   </div>
-
-                  <div className="flex flex-col rounded-xl border border-white/10 bg-slate-800/70 p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-white">Agent Comms</p>
-                        <p className="text-xs text-slate-400">Live coordination feed</p>
-                      </div>
-                      <button
-                        onClick={handleSimulate}
-                        className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400"
-                      >
-                        {isSimulating ? 'Simulating...' : 'Simulate Activity'}
-                      </button>
+                  <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-center">
+                    <div className="h-40 w-40">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={allocationData}
+                            dataKey="value"
+                            innerRadius={45}
+                            outerRadius={70}
+                            paddingAngle={2}
+                          >
+                            {allocationData.map((entry) => (
+                              <Cell key={entry.name} fill={entry.color} />
+                            ))}
+                          </Pie>
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
                     </div>
-
-                    <div className="mt-4 flex-1 space-y-4 overflow-y-auto rounded-xl bg-slate-900/70 p-4 text-sm no-scrollbar">
-                      {messages.map((message) => (
-                        <div key={message.id} className="space-y-2">
-                          <div className="flex items-center gap-2 text-xs text-slate-400">
-                            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
-                              {message.agent}
-                            </span>
-                            <span>{message.time}</span>
+                    <div className="flex-1 space-y-3 text-xs text-white/70">
+                      {allocationData.map((entry) => (
+                        <div key={entry.name} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full" style={{ background: entry.color }} />
+                            <span>{entry.name}</span>
                           </div>
-                          {message.type === 'code' ? (
-                            <pre className="mt-3 rounded-lg bg-slate-950/70 p-3 font-mono text-xs text-emerald-200">
-                              {message.content}
-                            </pre>
-                          ) : message.type === 'alert' ? (
-                            <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">
-                              <ShieldAlert className="h-4 w-4" />
-                              {message.content}
-                            </div>
-                          ) : message.type === 'action' ? (
-                            <div className="flex items-center gap-2 rounded-lg border border-purple-400/30 bg-purple-400/10 p-3 text-xs text-purple-100">
-                              <Sparkles className="h-4 w-4 text-purple-300" />
-                              {message.content}
-                            </div>
-                          ) : (
-                            <p
-                              className={`mt-3 text-sm leading-relaxed ${
-                                message.type === 'alert'
-                                  ? 'text-amber-200'
-                                  : message.type === 'action'
-                                  ? 'text-purple-200'
-                                  : 'text-slate-200'
-                              }`}
-                            >
-                              {message.content}
-                            </p>
-                          )}
+                          <span className="font-mono text-white">{entry.value}%</span>
                         </div>
                       ))}
                       {showTyping && (
@@ -617,19 +553,96 @@ swarm.deploy('migration-api-v2')`}
                       </div>
                     ))}
                   </div>
-                </section>
-              )}
-              {activeTab === 'fleet' && (
-                <section className="space-y-6 animate-[fade-in_0.5s_ease]">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-white">Agent Fleet</p>
-                      <p className="text-xs text-slate-400">Directory of autonomous agents</p>
-                    </div>
-                  ))}
-                </section>
-              )}
-            </main>
+                </div>
+              </section>
+            )}
+          </main>
+
+          <nav className="fixed bottom-6 left-1/2 z-10 w-[90%] max-w-sm -translate-x-1/2">
+            <div className="flex items-center justify-between rounded-full border border-white/10 bg-[#131316]/90 px-6 py-3 backdrop-blur">
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`flex flex-col items-center gap-1 text-xs ${
+                  activeTab === 'dashboard' ? 'text-white' : 'text-white/50'
+                }`}
+              >
+                <Wallet className="h-5 w-5" />
+                Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`flex flex-col items-center gap-1 text-xs ${
+                  activeTab === 'chat' ? 'text-white' : 'text-white/50'
+                }`}
+              >
+                <MessageCircle className="h-5 w-5" />
+                Chat
+              </button>
+              <button
+                onClick={() => setActiveTab('portfolio')}
+                className={`flex flex-col items-center gap-1 text-xs ${
+                  activeTab === 'portfolio' ? 'text-white' : 'text-white/50'
+                }`}
+              >
+                <PieChart className="h-5 w-5" />
+                Portfolio
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/70 px-6">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#131316] p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-white">Connect your bank</p>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-xs text-white/50 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            {connectionState === 'select' && (
+              <div className="mt-4 space-y-3">
+                {bankList.map((bank) => (
+                  <button
+                    key={bank}
+                    onClick={() => handleSelectBank(bank)}
+                    className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-left text-sm text-white/80 transition hover:border-indigo-400/40"
+                  >
+                    {bank}
+                    <ChevronRight className="h-4 w-4 text-white/50" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {connectionState === 'verifying' && (
+              <div className="mt-6 space-y-4 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-300">
+                  <Zap className="h-5 w-5 animate-pulse" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Verifying credentials...</p>
+                  <p className="mt-1 text-xs text-white/50">{selectedBank} linked securely.</p>
+                </div>
+              </div>
+            )}
+
+            {connectionState === 'success' && (
+              <div className="mt-6 space-y-4 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Connection secure</p>
+                  <p className="mt-1 text-xs text-white/50">Redirecting to your dashboard.</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
