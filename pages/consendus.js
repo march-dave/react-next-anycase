@@ -58,21 +58,21 @@ const initialMessages = [
     id: 1,
     agent: 'Atlas-Orchestrator',
     type: 'text',
-    content: 'Consensus cycle 14 initiated. Awaiting quorum from Codex and Sentry.',
+    content: 'Standing up quorum for API migration. Waiting for Codex-Dev and Sentry-Sec.',
     time: '09:41',
   },
   {
     id: 2,
     agent: 'Codex-Dev',
     type: 'code',
-    content: `// Agent proposal\nconst plan = {\n  migration: 'rolling',\n  risk: 'low',\n  rollback: true,\n}\n\nconsensus.vote(plan)`,
+    content: `// Swarm proposal\nconst plan = {\n  migration: 'rolling',\n  risk: 'low',\n  rollback: true,\n}\n\nconsensus.vote(plan)`,
     time: '09:42',
   },
   {
     id: 3,
     agent: 'Sentry-Sec',
     type: 'alert',
-    content: '[WARN] Elevated latency detected on edge cluster 2. Initiating guard rails.',
+    content: '[WARN] Elevated latency detected on edge cluster 2. Guard rails engaged.',
     time: '09:42',
   },
 ]
@@ -173,19 +173,33 @@ export default function Consendus() {
     setIsSimulating(true)
     setShowTyping(true)
     simulatedMessages.forEach((message, index) => {
+      const delay = 800 + index * 750
       setTimeout(() => {
         setMessages((prev) => {
           const minute = 44 + prev.length
           const time = `09:${minute.toString().padStart(2, '0')}`
           return [...prev, { ...message, id: prev.length + 1, time }]
         })
+
         if (index === simulatedMessages.length - 1) {
-          setShowTyping(false)
-          setIsSimulating(false)
+          setTimeout(() => {
+            setShowTyping(false)
+            setIsSimulating(false)
+          }, 500)
         }
       }, 600 + index * 520)
     })
   }
+
+  const chartTooltipStyle = useMemo(
+    () => ({
+      backgroundColor: '#0f172a',
+      border: '1px solid rgba(148, 163, 184, 0.2)',
+      borderRadius: '12px',
+      color: '#e2e8f0',
+    }),
+    []
+  )
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
@@ -482,7 +496,7 @@ swarm.deploy('migration-api-v2')`}
                             <span>{message.time}</span>
                           </div>
                           {message.type === 'code' ? (
-                            <pre className="rounded-lg border border-emerald-400/20 bg-slate-950/80 p-3 text-xs text-emerald-200 font-mono">
+                            <pre className="mt-3 rounded-lg bg-slate-950/70 p-3 font-mono text-xs text-emerald-200">
                               {message.content}
                             </pre>
                           ) : message.type === 'alert' ? (
@@ -496,7 +510,17 @@ swarm.deploy('migration-api-v2')`}
                               {message.content}
                             </div>
                           ) : (
-                            <p className="text-sm text-slate-200">{message.content}</p>
+                            <p
+                              className={`mt-3 text-sm leading-relaxed ${
+                                message.type === 'alert'
+                                  ? 'text-amber-200'
+                                  : message.type === 'action'
+                                  ? 'text-purple-200'
+                                  : 'text-slate-200'
+                              }`}
+                            >
+                              {message.content}
+                            </p>
                           )}
                         </div>
                       ))}
@@ -591,6 +615,16 @@ swarm.deploy('migration-api-v2')`}
                           <span className="text-white">{agent.uptime}</span>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {activeTab === 'fleet' && (
+                <section className="space-y-6 animate-[fade-in_0.5s_ease]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Agent Fleet</p>
+                      <p className="text-xs text-slate-400">Directory of autonomous agents</p>
                     </div>
                   ))}
                 </section>
@@ -599,6 +633,18 @@ swarm.deploy('migration-api-v2')`}
           </div>
         </div>
       )}
+      <style jsx global>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
