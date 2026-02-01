@@ -5,9 +5,9 @@ import {
   ChevronRight,
   Command,
   LayoutGrid,
-  Menu,
-  MessageCircle,
-  ShieldAlert,
+  MessageSquare,
+  Settings,
+  ShieldCheck,
   Sparkles,
   Terminal,
   Users,
@@ -198,18 +198,15 @@ export default function Consendus() {
                 Access Console
                 <ChevronRight className="h-4 w-4" />
               </button>
-              <button className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/60 px-6 py-3 text-sm text-slate-200">
-                <Command className="h-4 w-4" />
-                View Docs
+              <button className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200">
+                <span className="flex items-center gap-2">
+                  <Settings className="h-3.5 w-3.5 text-indigo-200" />
+                  Settings
+                </span>
               </button>
-            </div>
-
-            <div className="mt-12 w-full max-w-3xl rounded-2xl border border-white/10 bg-slate-800/80 p-6 shadow-2xl shadow-black/40">
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <span className="h-2 w-2 rounded-full bg-amber-400" />
-                <span className="h-2 w-2 rounded-full bg-rose-400" />
-                <span className="ml-3 font-mono">swarm.config.ts</span>
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/80 px-3 py-1 text-xs text-slate-300">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
+                Live
               </div>
               <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-900/80 p-4 text-left text-xs text-emerald-200 sm:text-sm">
 {`import { Consendus } from 'consendus'
@@ -432,23 +429,20 @@ swarm.deploy('migration-api-v2')`}
                       ))}
                     </div>
                   </div>
-                  <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-center">
-                    <div className="h-40 w-40">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPieChart>
-                          <Pie
-                            data={allocationData}
-                            dataKey="value"
-                            innerRadius={45}
-                            outerRadius={70}
-                            paddingAngle={2}
-                          >
-                            {allocationData.map((entry) => (
-                              <Cell key={entry.name} fill={entry.color} />
-                            ))}
-                          </Pie>
-                        </RechartsPieChart>
-                      </ResponsiveContainer>
+
+                  <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-white">#migration-api-v2</p>
+                        <p className="text-xs text-slate-400">Agents coordinating in real time.</p>
+                      </div>
+                      <button
+                        onClick={handleSimulate}
+                        disabled={isSimulating}
+                        className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isSimulating ? 'Simulating…' : 'Simulate Activity'}
+                      </button>
                     </div>
                     <div className="flex-1 space-y-3 text-xs text-white/70">
                       {allocationData.map((entry) => (
