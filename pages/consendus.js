@@ -6,6 +6,7 @@ import {
   Cpu,
   LayoutGrid,
   MessageSquare,
+  Settings,
   ShieldCheck,
   Sparkles,
   Terminal,
@@ -366,6 +367,12 @@ export default function Consendus() {
               >
                 Back to Landing
               </button>
+              <button className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200">
+                <span className="flex items-center gap-2">
+                  <Settings className="h-3.5 w-3.5 text-indigo-200" />
+                  Settings
+                </span>
+              </button>
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/80 px-3 py-1 text-xs text-slate-300">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
                 Live
@@ -556,7 +563,8 @@ export default function Consendus() {
                       </div>
                       <button
                         onClick={handleSimulate}
-                        className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400"
+                        disabled={isSimulating}
+                        className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isSimulating ? 'Simulating…' : 'Simulate Activity'}
                       </button>
