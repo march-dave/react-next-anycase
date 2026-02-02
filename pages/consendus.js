@@ -1,12 +1,6 @@
 import Head from 'next/head'
 import { ArrowRight, BookOpen, Brain, Mic } from 'lucide-react'
 
-const statusStyles = {
-  idle: 'bg-emerald-400',
-  busy: 'bg-amber-400',
-  error: 'bg-rose-400',
-}
-
 export default function Consendus() {
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#2d2a26]">
