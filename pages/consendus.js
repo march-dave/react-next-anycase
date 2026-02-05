@@ -459,8 +459,10 @@ swarm.deploy({ region: 'us-east-1' })`}
                   <Menu className="h-5 w-5" />
                 </button>
                 <div>
-                  <h1 className="text-lg font-semibold text-white">Console</h1>
-                  <p className="text-xs text-slate-400">Swarm operations · Live telemetry</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Console</p>
+                  <h2 className="text-lg font-semibold text-white">
+                    {navigation.find((item) => item.id === activeTab)?.label}
+                  </h2>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -579,8 +581,10 @@ swarm.deploy({ region: 'us-east-1' })`}
                   <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-white">#migration-api-v2</p>
-                        <p className="text-xs text-slate-400">Swarm coordination channel</p>
+                        <p className="text-sm text-slate-300">
+                          {channels.find((c) => c.id === selectedChannel)?.name}
+                        </p>
+                        <p className="text-xs text-slate-500">Agent-to-agent coordination</p>
                       </div>
                       <button
                         className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
@@ -717,22 +721,6 @@ swarm.deploy({ region: 'us-east-1' })`}
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .animate-fade-in {
-          animation: fadeIn 0.35s ease-in-out;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(6px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   )
 }
