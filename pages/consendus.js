@@ -179,11 +179,19 @@ const statusStyles = {
   error: 'bg-rose-400',
 }
 
-const taskStyles = {
-  Pending: 'border border-white/10 bg-white/5 text-white',
-  'In Progress': 'border border-indigo-400/40 bg-indigo-500/10 text-indigo-100',
-  Completed: 'border border-emerald-400/40 bg-emerald-500/10 text-emerald-100',
-  'Needs Consensus': 'border border-amber-400/40 bg-amber-500/10 text-amber-100',
+const messageBadges = {
+  code: {
+    label: 'Code',
+    className: 'bg-emerald-500/20 text-emerald-200',
+  },
+  alert: {
+    label: 'Alert',
+    className: 'bg-amber-500/20 text-amber-200',
+  },
+  action: {
+    label: 'AI Action',
+    className: 'bg-purple-500/20 text-purple-200',
+  },
 }
 
 export default function Consendus() {
@@ -600,11 +608,20 @@ swarm.deploy({ region: 'us-east-1' })`}
                       {messages.map((message) => (
                         <div key={message.id} className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
                           <div className="flex items-center justify-between text-xs text-slate-400">
-                            <span className="flex items-center gap-2 text-slate-200">
-                              <span className="h-2 w-2 rounded-full bg-indigo-400" />
-                              {message.author}
-                            </span>
-                            <span>{message.role}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-slate-200">{message.agent}</span>
+                              {message.type !== 'text' && (
+                                <span
+                                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                                    messageBadges[message.type]?.className ??
+                                    'bg-white/10 text-slate-200'
+                                  }`}
+                                >
+                                  {messageBadges[message.type]?.label ?? 'Update'}
+                                </span>
+                              )}
+                            </div>
+                            <span>{message.time}</span>
                           </div>
                           {message.type === 'alert' ? (
                             <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
