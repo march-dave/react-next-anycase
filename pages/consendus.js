@@ -213,6 +213,21 @@ const statusStyles = {
   error: 'bg-rose-400',
 }
 
+const messageBadges = {
+  code: {
+    label: 'Code',
+    className: 'bg-emerald-500/20 text-emerald-200',
+  },
+  alert: {
+    label: 'Alert',
+    className: 'bg-amber-500/20 text-amber-200',
+  },
+  action: {
+    label: 'AI Action',
+    className: 'bg-purple-500/20 text-purple-200',
+  },
+}
+
 export default function Consendus() {
   const [view, setView] = useState('landing')
   const [activeTab, setActiveTab] = useState('overview')
@@ -504,7 +519,19 @@ export default function Consendus() {
                           className="rounded-xl border border-white/10 bg-slate-900/70 p-4"
                         >
                           <div className="flex items-center justify-between text-xs text-slate-400">
-                            <span className="font-semibold text-slate-200">{message.agent}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-slate-200">{message.agent}</span>
+                              {message.type !== 'text' && (
+                                <span
+                                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                                    messageBadges[message.type]?.className ??
+                                    'bg-white/10 text-slate-200'
+                                  }`}
+                                >
+                                  {messageBadges[message.type]?.label ?? 'Update'}
+                                </span>
+                              )}
+                            </div>
                             <span>{message.time}</span>
                           </div>
                           {message.type === 'code' ? (
