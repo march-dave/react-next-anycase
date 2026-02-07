@@ -1,11 +1,7 @@
-import Head from 'next/head'
 import { useMemo, useState } from 'react'
 import {
   Activity,
-  AlertTriangle,
-  ArrowRight,
   Bot,
-  CheckCircle2,
   ChevronRight,
   Code2,
   LayoutGrid,
@@ -61,77 +57,88 @@ const stats = [
 ]
 
 const chartData = [
-  { name: '00:00', load: 32, tokens: 60 },
-  { name: '02:00', load: 45, tokens: 72 },
-  { name: '04:00', load: 38, tokens: 65 },
-  { name: '06:00', load: 55, tokens: 80 },
-  { name: '08:00', load: 62, tokens: 92 },
-  { name: '10:00', load: 58, tokens: 88 },
-  { name: '12:00', load: 70, tokens: 110 },
-  { name: '14:00', load: 66, tokens: 98 },
+  { time: '01:00', load: 52, tokens: 38 },
+  { time: '04:00', load: 61, tokens: 45 },
+  { time: '08:00', load: 72, tokens: 54 },
+  { time: '12:00', load: 68, tokens: 62 },
+  { time: '16:00', load: 74, tokens: 58 },
+  { time: '20:00', load: 66, tokens: 70 },
+  { time: '24:00', load: 58, tokens: 64 },
 ]
 
-const terminalLogs = [
-  { level: 'INFO', message: 'Agent-2 connected to Semantic Bus.' },
-  { level: 'WARN', message: 'Latency spike detected in us-east-1.' },
-  { level: 'INFO', message: 'Consensus vote started for Task-421.' },
-  { level: 'INFO', message: 'Guardian Rail policy updated: allowed ops=17.' },
-  { level: 'WARN', message: 'Token burn rate above threshold for 2m.' },
-  { level: 'INFO', message: 'Agent-9 deployed patch v0.9.12.' },
+const logs = [
+  '[INFO] Agent-2 connected to semantic bus.',
+  '[INFO] Consensus vote initiated for task #1421.',
+  '[WARN] High latency detected on shard-us-west-2.',
+  '[INFO] Guardian Rail applied to migration-api-v2.',
+  '[INFO] Agent-7 rebalanced token budget to 18.6M.',
 ]
 
-const channels = ['#migration-api-v2', '#security-audit', '#growth-experiments', '#infra-rollout']
+const channels = ['#migration-api-v2', '#security-audit', '#swarm-alerts', '#routing-sync']
 
 const initialMessages = [
   {
     id: 1,
     author: 'Atlas-Orchestrator',
-    role: 'Coordinator',
-    content: 'Spin up additional validators for Task-421. Target quorum: 3/3.',
-    type: 'text',
+    type: 'standard',
+    content: 'We need consensus on the migration plan. Any objections from safety checks? ',
   },
   {
     id: 2,
-    author: 'Codex-Dev',
-    role: 'Compiler',
-    content:
-      'Deploying patch bundle. ETA 42s.\n\nconst swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: \"weighted-majority\",\n  guardrails: [\"pci\", \"pii\"],\n})',
-    type: 'code',
+    author: 'Sentry-Sec',
+    type: 'alert',
+    content: 'Potential API scope escalation detected in migration-api-v2.',
   },
   {
     id: 3,
-    author: 'Sentry-Sec',
-    role: 'Security',
-    content: 'Alert: token amplification detected. Enforcing throttle policy.',
-    type: 'alert',
+    author: 'Codex-Dev',
+    type: 'code',
+    content: `// patch applied to reduce privilege scope\nupdatePolicy('migration-api-v2', {\n  scopes: ['read:events', 'write:events'],\n})`,
   },
 ]
 
+const simulateMessages = [
+  {
+    author: 'Pulse-Analyst',
+    type: 'standard',
+    content: 'Latency normalized after rerouting through shard-us-east-1.',
+  },
+  {
+    author: 'Atlas-Orchestrator',
+    type: 'standard',
+    content: 'Consensus tracking now at 2/3 votes. Awaiting final signal.',
+  },
+  {
+    author: 'Guardian-Rail',
+    type: 'alert',
+    content: 'Guardian Rail enforced: blocked unsafe deletion sequence.',
+  },
+]
+
+const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+
 const tasks = [
   {
-    id: 'TSK-341',
-    title: 'Rebalance vector shards',
-    status: 'Pending',
+    title: 'Deploy migration-api-v2',
     agent: 'Atlas-Orchestrator',
+    state: 'Needs Consensus',
+    votes: 2,
+    totalVotes: 3,
   },
   {
-    id: 'TSK-352',
-    title: 'Verify policy drift report',
-    status: 'In Progress',
+    title: 'Audit auth scopes',
     agent: 'Sentry-Sec',
+    state: 'In Progress',
   },
   {
-    id: 'TSK-361',
-    title: 'Deploy consensus patch',
-    status: 'Needs Consensus',
+    title: 'Optimize event routing',
+    agent: 'Pulse-Analyst',
+    state: 'Pending',
+  },
+  {
+    title: 'Release swarm patch 2.4.1',
     agent: 'Codex-Dev',
-    votes: '1/3',
-  },
-  {
-    id: 'TSK-378',
-    title: 'Rollout observability update',
-    status: 'Completed',
-    agent: 'Nova-Observer',
+    state: 'Completed',
   },
 ]
 
@@ -171,28 +178,21 @@ const agents = [
     uptime: '12d 04h',
     status: 'error',
   },
+  {
+    name: 'Nimbus-Comms',
+    role: 'Comms Coordinator',
+    specialization: 'Channel orchestration',
+    uptime: '6h 11m',
+    status: 'busy',
+  },
+  {
+    name: 'Nova-Observer',
+    role: 'Consensus Observer',
+    specialization: 'Vote integrity',
+    uptime: '14h 28m',
+    status: 'idle',
+  },
 ]
-
-const statusStyles = {
-  idle: 'bg-emerald-400',
-  busy: 'bg-amber-400',
-  error: 'bg-rose-400',
-}
-
-const messageBadges = {
-  code: {
-    label: 'Code',
-    className: 'bg-emerald-500/20 text-emerald-200',
-  },
-  alert: {
-    label: 'Alert',
-    className: 'bg-amber-500/20 text-amber-200',
-  },
-  action: {
-    label: 'AI Action',
-    className: 'bg-purple-500/20 text-purple-200',
-  },
-}
 
 export default function Consendus() {
   const [view, setView] = useState('landing')
@@ -200,48 +200,33 @@ export default function Consendus() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [messages, setMessages] = useState(initialMessages)
   const [isSimulating, setIsSimulating] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
+  const [showTyping, setShowTyping] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const simulatedMessages = useMemo(
-    () => [
-      {
-        id: Date.now() + 1,
-        author: 'Nova-Observer',
-        role: 'Telemetry',
-        content: 'Tracing shows 18% throughput gain after shard rebalance.',
-        type: 'text',
-      },
-      {
-        id: Date.now() + 2,
-        author: 'Pulse-Mediator',
-        role: 'Consensus',
-        content: 'Votes received: 2/3. Awaiting final validator.',
-        type: 'alert',
-      },
-      {
-        id: Date.now() + 3,
-        author: 'Atlas-Orchestrator',
-        role: 'Coordinator',
-        content: 'Routing new tasks to cold standby cluster. ✅',
-        type: 'text',
-      },
-    ],
-    []
-  )
+  const tasksByState = useMemo(() => {
+    return taskStates.reduce((acc, state) => {
+      acc[state] = tasks.filter((task) => task.state === state)
+      return acc
+    }, {})
+  }, [])
 
   const handleSimulate = () => {
     if (isSimulating) return
     setIsSimulating(true)
-    setIsTyping(true)
+    setShowTyping(true)
 
-    simulatedMessages.forEach((message, index) => {
+    simulateMessages.forEach((message, index) => {
       setTimeout(() => {
-        setMessages((prev) => [...prev, message])
-        if (index === simulatedMessages.length - 1) {
-          setTimeout(() => {
-            setIsTyping(false)
-            setIsSimulating(false)
-          }, 600)
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            ...message,
+          },
+        ])
+        if (index === simulateMessages.length - 1) {
+          setShowTyping(false)
+          setIsSimulating(false)
         }
       }, 700 * (index + 1))
     })
@@ -467,10 +452,10 @@ swarm.deploy({ region: 'us-east-1' })`}
                   <Menu className="h-5 w-5" />
                 </button>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Console</p>
-                  <h2 className="text-lg font-semibold text-white">
-                    {navigation.find((item) => item.id === activeTab)?.label}
-                  </h2>
+                  <p className="text-sm font-semibold text-white">
+                    {navigation.find((nav) => nav.id === activeTab)?.label}
+                  </p>
+                  <p className="text-xs text-slate-400">Autonomous swarm orchestration</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -522,17 +507,20 @@ swarm.deploy({ region: 'us-east-1' })`}
                                 <stop offset="95%" stopColor="#34d399" stopOpacity={0.1} />
                               </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                            <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} />
-                            <YAxis stroke="#94a3b8" fontSize={10} />
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: '#0f172a',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                borderRadius: 12,
-                                color: '#e2e8f0',
-                                fontSize: 12,
-                              }}
+                            <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: '#94a3b8' }} />
+                            <Area
+                              type="monotone"
+                              dataKey="load"
+                              stroke="#6366f1"
+                              strokeWidth={2}
+                              fill="url(#load)"
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="tokens"
+                              stroke="#10b981"
+                              strokeWidth={2}
+                              fill="url(#tokens)"
                             />
                             <Area type="monotone" dataKey="load" stroke="#6366f1" fill="url(#load)" />
                             <Area type="monotone" dataKey="tokens" stroke="#34d399" fill="url(#tokens)" />
@@ -540,24 +528,19 @@ swarm.deploy({ region: 'us-east-1' })`}
                         </ResponsiveContainer>
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                      <div className="flex items-center gap-2 text-sm text-white">
-                        <Terminal className="h-4 w-4 text-emerald-300" />
-                        System Events
+
+                    <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                      <div className="mb-4 flex items-center justify-between">
+                        <p className="text-sm text-slate-200">Terminal Log</p>
+                        <span className="rounded-full bg-amber-400/10 px-2 py-1 text-xs text-amber-300">
+                          live
+                        </span>
                       </div>
-                      <div className="mt-4 max-h-64 space-y-3 overflow-y-auto pr-2 text-xs [font-family:'JetBrains_Mono',monospace]">
-                        {terminalLogs.map((log, index) => (
-                          <div key={`${log.level}-${index}`} className="flex gap-2 text-slate-300">
-                            <span
-                              className={`flex h-5 w-12 items-center justify-center rounded-full text-[10px] font-semibold ${
-                                log.level === 'WARN'
-                                  ? 'bg-amber-500/20 text-amber-200'
-                                  : 'bg-emerald-500/20 text-emerald-200'
-                              }`}
-                            >
-                              {log.level}
-                            </span>
-                            <span>{log.message}</span>
+                      <div className="space-y-3 overflow-y-auto text-xs text-emerald-200">
+                        {logs.map((log) => (
+                          <div key={log} className="flex items-start gap-2 font-mono">
+                            <Terminal className="mt-0.5 h-3 w-3 text-emerald-300" />
+                            <span>{log}</span>
                           </div>
                         ))}
                       </div>
@@ -586,60 +569,58 @@ swarm.deploy({ region: 'us-east-1' })`}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex h-full flex-col rounded-xl border border-white/10 bg-slate-800/70">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                       <div>
-                        <p className="text-sm text-slate-300">
-                          {channels.find((c) => c.id === selectedChannel)?.name}
-                        </p>
-                        <p className="text-xs text-slate-500">Agent-to-agent coordination</p>
+                        <p className="text-sm font-semibold text-white">#migration-api-v2</p>
+                        <p className="text-xs text-slate-400">Agents coordinating rollout</p>
                       </div>
                       <button
-                        className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
                         onClick={handleSimulate}
-                        disabled={isSimulating}
+                        className="rounded-full bg-indigo-500 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-400"
                       >
-                        <Activity className="h-3.5 w-3.5" />
-                        {isSimulating ? 'Simulating…' : 'Simulate Activity'}
+                        {isSimulating ? 'Simulating...' : 'Simulate Activity'}
                       </button>
                     </div>
-
-                    <div className="mt-6 space-y-4">
+                    <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
                       {messages.map((message) => (
-                        <div key={message.id} className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-                          <div className="flex items-center justify-between text-xs text-slate-400">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-slate-200">{message.agent}</span>
-                              {message.type !== 'text' && (
-                                <span
-                                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                                    messageBadges[message.type]?.className ??
-                                    'bg-white/10 text-slate-200'
-                                  }`}
-                                >
-                                  {messageBadges[message.type]?.label ?? 'Update'}
-                                </span>
-                              )}
-                            </div>
-                            <span>{message.time}</span>
+                        <div key={message.id} className="space-y-2">
+                          <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <span className="rounded-full bg-slate-900/80 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                              Agent
+                            </span>
+                            <span className="text-slate-200">{message.author}</span>
                           </div>
-                          {message.type === 'alert' ? (
-                            <div className="mt-3 flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
-                              <AlertTriangle className="h-4 w-4" />
-                              {message.content}
-                            </div>
-                          ) : message.type === 'code' ? (
-                            <pre className="mt-3 whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs text-emerald-200 [font-family:'JetBrains_Mono',monospace]">
-                              {message.content}
+                          {message.type === 'code' ? (
+                            <pre className="rounded-xl border border-white/10 bg-slate-900/80 p-3 text-xs text-emerald-200">
+                              <code className="font-mono">{message.content}</code>
                             </pre>
                           ) : (
-                            <p className="mt-3 text-sm text-slate-200">{message.content}</p>
+                            <div
+                              className={`rounded-xl border p-3 text-sm text-slate-200 ${
+                                message.type === 'alert'
+                                  ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
+                                  : 'border-white/10 bg-slate-900/60'
+                              }`}
+                            >
+                              {message.type === 'alert' && (
+                                <div className="mb-1 flex items-center gap-2 text-xs uppercase tracking-[0.2em]">
+                                  <ShieldAlert className="h-3 w-3" /> System Alert
+                                </div>
+                              )}
+                              {message.content}
+                            </div>
                           )}
                         </div>
                       ))}
-                      {isTyping && (
-                        <div className="rounded-2xl border border-dashed border-white/10 bg-slate-900/40 p-4 text-xs text-slate-400">
-                          <span className="animate-pulse">Agent swarm is typing…</span>
+                      {showTyping && (
+                        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-3 text-xs text-slate-400">
+                          <span className="font-mono">[simulating]</span>
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400" />
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400 delay-150" />
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400 delay-300" />
+                          </div>
                         </div>
                       )}
                     </div>
@@ -663,18 +644,29 @@ swarm.deploy({ region: 'us-east-1' })`}
                       <div key={status} className="rounded-2xl border border-white/10 bg-slate-800/60 p-4">
                         <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{status}</p>
                         <div className="mt-4 space-y-3">
-                          {tasks
-                            .filter((task) => task.status === status)
-                            .map((task) => (
-                              <div
-                                key={task.id}
-                                className={`rounded-xl px-3 py-3 text-xs ${taskStyles[task.status]}`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="font-semibold text-white">{task.title}</span>
-                                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/70">
-                                    {task.id}
-                                  </span>
+                          {tasksByState[state].map((task) => (
+                            <div
+                              key={task.title}
+                              className="rounded-lg border border-white/10 bg-slate-900/70 p-3"
+                            >
+                              <p className="text-sm text-white">{task.title}</p>
+                              <p className="mt-1 text-xs text-slate-400">{task.agent}</p>
+                              {task.state === 'Needs Consensus' && (
+                                <div className="mt-3">
+                                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                                    <span>Consensus</span>
+                                    <span>
+                                      {task.votes}/{task.totalVotes} Votes
+                                    </span>
+                                  </div>
+                                  <div className="mt-2 h-2 rounded-full bg-white/10">
+                                    <div
+                                      className="h-full rounded-full bg-purple-400"
+                                      style={{
+                                        width: `${Math.round((task.votes / task.totalVotes) * 100)}%`,
+                                      }}
+                                    />
+                                  </div>
                                 </div>
                                 <p className="mt-2 text-slate-300">Assigned to {task.agent}</p>
                                 {task.status === 'Needs Consensus' && (
@@ -730,14 +722,29 @@ swarm.deploy({ region: 'us-east-1' })`}
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </section>
               )}
             </main>
           </div>
         </div>
       )}
+      <style jsx global>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.35s ease-out;
+        }
+      `}</style>
     </div>
   )
 }
