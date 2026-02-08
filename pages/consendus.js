@@ -180,6 +180,7 @@ export default function Consendus() {
                 <p className="text-sm font-semibold">Supernormal</p>
                 <p className="text-xs text-white/50">AI Wealth Strategist</p>
               </div>
+              <p className="mt-2">All systems operational. Latency steady at 120ms.</p>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-indigo-500/40 bg-indigo-500/10 px-3 py-1 text-xs">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
