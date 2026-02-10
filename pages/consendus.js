@@ -66,25 +66,48 @@ export default function Consendus() {
   )
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      {view === 'landing' ? (
-        <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#6366f133,transparent_60%)]" />
-          <div className="relative z-10 flex w-full max-w-5xl flex-col items-center text-center">
-            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/60 px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-300">
-              <Sparkles className="h-4 w-4 text-indigo-300" />
-              Consendus.ai
+    <>
+      <Head>
+        <title>Bookmarkr — Your Ultimate Reading Companion</title>
+      </Head>
+      <div
+        className="min-h-screen bg-[#fdfbf7] text-[#2d2a26]"
+        style={{ fontFamily: '"Inter", system-ui, sans-serif' }}
+      >
+        <header className="px-6 pt-8 md:px-12">
+          <nav className="mx-auto flex max-w-6xl items-center justify-between gap-6">
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8c5e3c] text-white">
+                <Book className="h-5 w-5" />
+              </span>
+              <span style={{ fontFamily: '"Libre Baskerville", serif' }}>Bookmarkr</span>
             </div>
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
-              Orchestrate Your Agent Swarm
-            </h1>
-            <p className="mt-4 max-w-2xl text-base text-slate-300 sm:text-lg">
-              Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
-            </p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
-              <button
-                onClick={() => setView('console')}
-                className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
+            <div className="hidden items-center gap-8 text-sm font-medium md:flex">
+              <a className="transition hover:text-[#8c5e3c]" href="#features">
+                Features
+              </a>
+              <a className="transition hover:text-[#8c5e3c]" href="#how-it-works">
+                How it Works
+              </a>
+              <a className="transition hover:text-[#8c5e3c]" href="#pricing">
+                Pricing
+              </a>
+            </div>
+            <button className="rounded-full bg-[#2d2a26] px-5 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1f1d1a]">
+              Pre-Order Now
+            </button>
+          </nav>
+        </header>
+
+        <main className="px-6 pb-16 pt-12 md:px-12">
+          <section className="mx-auto flex max-w-6xl flex-col items-center gap-12 md:flex-row md:items-start">
+            <div className="flex-1">
+              <span className="inline-flex items-center rounded-full bg-[#f3e1cc] px-4 py-1 text-xs font-semibold uppercase tracking-wide text-[#8c5e3c]">
+                New: Advanced AI Integration
+              </span>
+              <h1
+                className="mt-6 text-4xl font-semibold leading-tight md:text-5xl"
+                style={{ fontFamily: '"Libre Baskerville", serif' }}
               >
                 Access Console
                 <ChevronRight className="h-4 w-4" />
@@ -172,17 +195,9 @@ swarm.deploy('migration-api-v2')`}
               {navigation.map((item) => {
                 const Icon = item.icon
                 return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id)
-                      setSidebarOpen(false)
-                    }}
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
-                      activeTab === item.id
-                        ? 'bg-indigo-500/20 text-indigo-200'
-                        : 'text-slate-300 hover:bg-white/5'
-                    }`}
+                  <div
+                    key={feature.title}
+                    className="rounded-2xl border border-[#e6ded3] bg-white p-6 shadow-sm"
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
@@ -417,8 +432,7 @@ swarm.deploy('migration-api-v2')`}
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 animate-fade-in">
                   {agents.map((agent) => (
                     <div
-                      key={agent.name}
-                      className="rounded-xl border border-white/10 bg-slate-800/70 p-4"
+                      className={`flex h-12 w-12 items-center justify-center rounded-full bg-[#fdfbf7] ${feature.color}`}
                     >
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-white">{agent.name}</p>
