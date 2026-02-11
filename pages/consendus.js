@@ -464,8 +464,8 @@ swarm.deploy({ region: 'us-east-1' })`}
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button className="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-xs text-slate-200 transition hover:bg-white/5 md:flex">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-300" />
+                <button className="hidden items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-4 py-2 text-xs text-purple-100 transition hover:bg-purple-500/20 md:flex">
+                  <Sparkles className="h-3.5 w-3.5 text-purple-200" />
                   AI Actions
                 </button>
                 <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200">
