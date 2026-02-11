@@ -232,12 +232,9 @@ swarm.deploy('migration-api-v2')`}
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="rounded-full border border-white/10 bg-slate-800/70 px-3 py-1 text-xs text-slate-300">
-                  <Bot className="mr-2 inline-block h-3 w-3 text-indigo-300" />
-                  Atlas-Orchestrator
-                </span>
-                <button className="rounded-full border border-white/10 bg-slate-800/70 px-3 py-1 text-xs text-slate-300">
-                  Settings
+                <button className="hidden items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-4 py-2 text-xs text-purple-100 transition hover:bg-purple-500/20 md:flex">
+                  <Sparkles className="h-3.5 w-3.5 text-purple-200" />
+                  AI Actions
                 </button>
               </div>
             </header>
