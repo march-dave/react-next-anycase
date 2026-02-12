@@ -14,22 +14,213 @@ import {
   Wand2,
   X,
 } from 'lucide-react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from 'recharts'
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+
+const navItems = [
+  { id: 'overview', label: 'Overview', icon: LayoutGrid },
+  { id: 'comms', label: 'Comms', icon: MessageCircle },
+  { id: 'orchestration', label: 'Orchestration', icon: Network },
+  { id: 'fleet', label: 'Agent Fleet', icon: Users },
+]
+
+const features = [
+  {
+    title: 'Semantic Bus',
+    description: 'Low-latency message routing with intent awareness and adaptive prioritization.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Consensus Engine',
+    description: 'Weighted voting, quorum thresholds, and rapid convergence for complex decisions.',
+    icon: CheckCircle2,
+  },
+  {
+    title: 'Guardian Rails',
+    description: 'Policy-driven controls that keep agents aligned, secure, and compliant.',
+    icon: ShieldCheck,
+  },
+]
+
+const stats = [
+  { label: 'Active Agents', value: '128', delta: '+12%' },
+  { label: 'Messages / min', value: '9.4k', delta: '+8%' },
+  { label: 'Consensus Rate', value: '96.8%', delta: '+1.2%' },
+  { label: 'Token Usage', value: '1.2M', delta: '-4%' },
+]
+
+const chartData = [
+  { name: '00:00', load: 32, tokens: 60 },
+  { name: '02:00', load: 45, tokens: 72 },
+  { name: '04:00', load: 38, tokens: 65 },
+  { name: '06:00', load: 55, tokens: 80 },
+  { name: '08:00', load: 62, tokens: 92 },
+  { name: '10:00', load: 58, tokens: 88 },
+  { name: '12:00', load: 70, tokens: 110 },
+  { name: '14:00', load: 66, tokens: 98 },
+]
+
+const terminalLogs = [
+  { level: 'INFO', message: 'Agent-2 connected to Semantic Bus.' },
+  { level: 'WARN', message: 'Latency spike detected in us-east-1.' },
+  { level: 'INFO', message: 'Consensus vote started for Task-421.' },
+  { level: 'INFO', message: 'Guardian Rail policy updated: allowed ops=17.' },
+  { level: 'WARN', message: 'Token burn rate above threshold for 2m.' },
+  { level: 'INFO', message: 'Agent-9 deployed patch v0.9.12.' },
+]
+
+const channels = [
+  { id: 'migration-api-v2', name: '#migration-api-v2' },
+  { id: 'security-audit', name: '#security-audit' },
+  { id: 'growth-experiments', name: '#growth-experiments' },
+  { id: 'infra-rollout', name: '#infra-rollout' },
+]
+
+const initialMessages = [
+  {
+    id: 1,
+    author: 'Atlas-Orchestrator',
+    role: 'Coordinator',
+    content: 'Spin up additional validators for Task-421. Target quorum: 3/3.',
+    type: 'text',
+  },
+  {
+    id: 2,
+    author: 'Codex-Dev',
+    role: 'Compiler',
+    content:
+      'Deploying patch bundle. ETA 42s.\n\nconst swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: \"weighted-majority\",\n  guardrails: [\"pci\", \"pii\"],\n})',
+    type: 'code',
+  },
+  {
+    id: 3,
+    author: 'Sentry-Sec',
+    role: 'Security',
+    content: 'Alert: token amplification detected. Enforcing throttle policy.',
+    type: 'alert',
+  },
+]
+
+const tasks = [
+  {
+    id: 'TSK-341',
+    title: 'Rebalance vector shards',
+    status: 'Pending',
+    agent: 'Atlas-Orchestrator',
+  },
+  {
+    id: 'TSK-352',
+    title: 'Verify policy drift report',
+    status: 'In Progress',
+    agent: 'Sentry-Sec',
+  },
+  {
+    id: 'TSK-361',
+    title: 'Deploy consensus patch',
+    status: 'Needs Consensus',
+    agent: 'Codex-Dev',
+    votes: '1/3',
+  },
+  {
+    id: 'TSK-378',
+    title: 'Rollout observability update',
+    status: 'Completed',
+    agent: 'Nova-Observer',
+  },
+]
+
+const agents = [
+  {
+    name: 'Atlas-Orchestrator',
+    role: 'Coordinator',
+    specialization: 'Workflow Routing',
+    uptime: '14d 06h',
+    status: 'idle',
+  },
+  {
+    name: 'Codex-Dev',
+    role: 'Compiler',
+    specialization: 'TypeScript & APIs',
+    uptime: '9d 02h',
+    status: 'busy',
+  },
+  {
+    name: 'Sentry-Sec',
+    role: 'Security',
+    specialization: 'Threat Modeling',
+    uptime: '21d 18h',
+    status: 'idle',
+  },
+  {
+    name: 'Nova-Observer',
+    role: 'Telemetry',
+    specialization: 'Tracing & Metrics',
+    uptime: '5d 11h',
+    status: 'busy',
+  },
+  {
+    name: 'Pulse-Mediator',
+    role: 'Consensus',
+    specialization: 'Voting Logic',
+    uptime: '12d 04h',
+    status: 'error',
+  },
+]
+
+const statusStyles = {
+  idle: 'bg-emerald-400',
+  busy: 'bg-amber-400',
+  error: 'bg-rose-400',
+}
+
+const taskStyles = {
+  Pending: 'border border-white/10 bg-white/5 text-white',
+  'In Progress': 'border border-indigo-400/40 bg-indigo-500/10 text-indigo-100',
+  Completed: 'border border-emerald-400/40 bg-emerald-500/10 text-emerald-100',
+  'Needs Consensus': 'border border-amber-400/40 bg-amber-500/10 text-amber-100',
+}
 
 export default function Consendus() {
   const [view, setView] = useState('landing')
   const [activeTab, setActiveTab] = useState('overview')
   const [messages, setMessages] = useState(initialMessages)
   const [isSimulating, setIsSimulating] = useState(false)
-  const [showTyping, setShowTyping] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
+  const [selectedChannel, setSelectedChannel] = useState(channels[0].id)
 
-  const tasksByState = useMemo(() => {
-    return taskStates.reduce((acc, state) => {
-      acc[state] = tasks.filter((task) => task.state === state)
-      return acc
-    }, {})
-  }, [])
+  const simulatedMessages = useMemo(
+    () => [
+      {
+        id: Date.now() + 1,
+        author: 'Nova-Observer',
+        role: 'Telemetry',
+        content: 'Tracing shows 18% throughput gain after shard rebalance.',
+        type: 'text',
+      },
+      {
+        id: Date.now() + 2,
+        author: 'Pulse-Mediator',
+        role: 'Consensus',
+        content: 'Votes received: 2/3. Awaiting final validator.',
+        type: 'alert',
+      },
+      {
+        id: Date.now() + 3,
+        author: 'Atlas-Orchestrator',
+        role: 'Coordinator',
+        content: 'Routing new tasks to cold standby cluster. ✅',
+        type: 'text',
+      },
+    ],
+    []
+  )
 
   const handleSimulate = () => {
     if (isSimulating) return
@@ -225,10 +416,10 @@ swarm.deploy('migration-api-v2')`}
                   <Layers className="h-4 w-4" />
                 </button>
                 <div>
-                  <p className="text-sm font-semibold text-white">
-                    {navigation.find((nav) => nav.id === activeTab)?.label}
-                  </p>
-                  <p className="text-xs text-slate-400">Autonomous swarm orchestration</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Console</p>
+                  <h2 className="text-lg font-semibold text-white">
+                    {navItems.find((item) => item.id === activeTab)?.label}
+                  </h2>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -315,12 +506,18 @@ swarm.deploy('migration-api-v2')`}
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
                     <div className="mt-4 space-y-2 text-sm text-slate-300">
                       {channels.map((channel) => (
-                        <div
-                          key={channel}
-                          className="rounded-lg border border-white/5 bg-slate-900/60 px-3 py-2"
+                        <button
+                          key={channel.id}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${
+                            selectedChannel === channel.id
+                              ? 'bg-indigo-500/20 text-white'
+                              : 'text-slate-300 hover:bg-white/5'
+                          }`}
+                          onClick={() => setSelectedChannel(channel.id)}
                         >
-                          {channel}
-                        </div>
+                          <span>{channel.name}</span>
+                          <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -328,8 +525,10 @@ swarm.deploy('migration-api-v2')`}
                   <div className="flex flex-col rounded-2xl border border-white/10 bg-slate-800/70 p-6">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm text-white">#migration-api-v2</p>
-                        <p className="text-xs text-slate-400">Agents coordinating in real time.</p>
+                        <p className="text-sm text-slate-300">
+                          {channels.find((channel) => channel.id === selectedChannel)?.name}
+                        </p>
+                        <p className="text-xs text-slate-500">Agent-to-agent coordination</p>
                       </div>
                       <button
                         onClick={handleSimulate}
