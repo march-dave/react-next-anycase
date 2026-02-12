@@ -80,7 +80,12 @@ const terminalLogs = [
   { level: 'INFO', message: 'Agent-9 deployed patch v0.9.12.' },
 ]
 
-const channels = ['#migration-api-v2', '#security-audit', '#growth-experiments', '#infra-rollout']
+const channels = [
+  { id: 'migration-api-v2', name: '#migration-api-v2' },
+  { id: 'security-audit', name: '#security-audit' },
+  { id: 'growth-experiments', name: '#growth-experiments' },
+  { id: 'infra-rollout', name: '#infra-rollout' },
+]
 
 const initialMessages = [
   {
@@ -193,6 +198,7 @@ export default function Consendus() {
   const [messages, setMessages] = useState(initialMessages)
   const [isSimulating, setIsSimulating] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
+  const [selectedChannel, setSelectedChannel] = useState(channels[0].id)
 
   const simulatedMessages = useMemo(
     () => [
@@ -461,7 +467,7 @@ swarm.deploy({ region: 'us-east-1' })`}
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Console</p>
                   <h2 className="text-lg font-semibold text-white">
-                    {navigation.find((item) => item.id === activeTab)?.label}
+                    {navItems.find((item) => item.id === activeTab)?.label}
                   </h2>
                 </div>
               </div>
@@ -568,10 +574,15 @@ swarm.deploy({ region: 'us-east-1' })`}
                     <div className="mt-4 space-y-2 text-sm text-slate-300">
                       {channels.map((channel) => (
                         <button
-                          key={channel}
-                          className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition hover:bg-white/5"
+                          key={channel.id}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${
+                            selectedChannel === channel.id
+                              ? 'bg-indigo-500/20 text-white'
+                              : 'text-slate-300 hover:bg-white/5'
+                          }`}
+                          onClick={() => setSelectedChannel(channel.id)}
                         >
-                          <span>{channel}</span>
+                          <span>{channel.name}</span>
                           <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
                         </button>
                       ))}
@@ -582,7 +593,7 @@ swarm.deploy({ region: 'us-east-1' })`}
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="text-sm text-slate-300">
-                          {channels.find((c) => c.id === selectedChannel)?.name}
+                          {channels.find((channel) => channel.id === selectedChannel)?.name}
                         </p>
                         <p className="text-xs text-slate-500">Agent-to-agent coordination</p>
                       </div>
