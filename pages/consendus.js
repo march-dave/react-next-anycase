@@ -1,261 +1,7 @@
-import { useMemo, useState } from 'react'
-import {
-  Activity,
-  Bot,
-  ChevronRight,
-  Command,
-  Layers,
-  LayoutGrid,
-  MessageSquare,
-  ShieldCheck,
-  Sparkles,
-  Terminal,
-  Users,
-  Wand2,
-  X,
-} from 'lucide-react'
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
-
-const navItems = [
-  { id: 'overview', label: 'Overview', icon: LayoutGrid },
-  { id: 'comms', label: 'Comms', icon: MessageCircle },
-  { id: 'orchestration', label: 'Orchestration', icon: Network },
-  { id: 'fleet', label: 'Agent Fleet', icon: Users },
-]
-
-const features = [
-  {
-    title: 'Semantic Bus',
-    description: 'Low-latency message routing with intent awareness and adaptive prioritization.',
-    icon: Sparkles,
-  },
-  {
-    title: 'Consensus Engine',
-    description: 'Weighted voting, quorum thresholds, and rapid convergence for complex decisions.',
-    icon: CheckCircle2,
-  },
-  {
-    title: 'Guardian Rails',
-    description: 'Policy-driven controls that keep agents aligned, secure, and compliant.',
-    icon: ShieldCheck,
-  },
-]
-
-const stats = [
-  { label: 'Active Agents', value: '128', delta: '+12%' },
-  { label: 'Messages / min', value: '9.4k', delta: '+8%' },
-  { label: 'Consensus Rate', value: '96.8%', delta: '+1.2%' },
-  { label: 'Token Usage', value: '1.2M', delta: '-4%' },
-]
-
-const chartData = [
-  { name: '00:00', load: 32, tokens: 60 },
-  { name: '02:00', load: 45, tokens: 72 },
-  { name: '04:00', load: 38, tokens: 65 },
-  { name: '06:00', load: 55, tokens: 80 },
-  { name: '08:00', load: 62, tokens: 92 },
-  { name: '10:00', load: 58, tokens: 88 },
-  { name: '12:00', load: 70, tokens: 110 },
-  { name: '14:00', load: 66, tokens: 98 },
-]
-
-const terminalLogs = [
-  { level: 'INFO', message: 'Agent-2 connected to Semantic Bus.' },
-  { level: 'WARN', message: 'Latency spike detected in us-east-1.' },
-  { level: 'INFO', message: 'Consensus vote started for Task-421.' },
-  { level: 'INFO', message: 'Guardian Rail policy updated: allowed ops=17.' },
-  { level: 'WARN', message: 'Token burn rate above threshold for 2m.' },
-  { level: 'INFO', message: 'Agent-9 deployed patch v0.9.12.' },
-]
-
-const channels = [
-  { id: 'migration-api-v2', name: '#migration-api-v2' },
-  { id: 'security-audit', name: '#security-audit' },
-  { id: 'growth-experiments', name: '#growth-experiments' },
-  { id: 'infra-rollout', name: '#infra-rollout' },
-]
-
-const initialMessages = [
-  {
-    id: 1,
-    author: 'Atlas-Orchestrator',
-    role: 'Coordinator',
-    content: 'Spin up additional validators for Task-421. Target quorum: 3/3.',
-    type: 'text',
-  },
-  {
-    id: 2,
-    author: 'Codex-Dev',
-    role: 'Compiler',
-    content:
-      'Deploying patch bundle. ETA 42s.\n\nconst swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: \"weighted-majority\",\n  guardrails: [\"pci\", \"pii\"],\n})',
-    type: 'code',
-  },
-  {
-    id: 3,
-    author: 'Sentry-Sec',
-    role: 'Security',
-    content: 'Alert: token amplification detected. Enforcing throttle policy.',
-    type: 'alert',
-  },
-]
-
-const tasks = [
-  {
-    id: 'TSK-341',
-    title: 'Rebalance vector shards',
-    status: 'Pending',
-    agent: 'Atlas-Orchestrator',
-  },
-  {
-    id: 'TSK-352',
-    title: 'Verify policy drift report',
-    status: 'In Progress',
-    agent: 'Sentry-Sec',
-  },
-  {
-    id: 'TSK-361',
-    title: 'Deploy consensus patch',
-    status: 'Needs Consensus',
-    agent: 'Codex-Dev',
-    votes: '1/3',
-  },
-  {
-    id: 'TSK-378',
-    title: 'Rollout observability update',
-    status: 'Completed',
-    agent: 'Nova-Observer',
-  },
-]
-
-const agents = [
-  {
-    name: 'Atlas-Orchestrator',
-    role: 'Coordinator',
-    specialization: 'Workflow Routing',
-    uptime: '14d 06h',
-    status: 'idle',
-  },
-  {
-    name: 'Codex-Dev',
-    role: 'Compiler',
-    specialization: 'TypeScript & APIs',
-    uptime: '9d 02h',
-    status: 'busy',
-  },
-  {
-    name: 'Sentry-Sec',
-    role: 'Security',
-    specialization: 'Threat Modeling',
-    uptime: '21d 18h',
-    status: 'idle',
-  },
-  {
-    name: 'Nova-Observer',
-    role: 'Telemetry',
-    specialization: 'Tracing & Metrics',
-    uptime: '5d 11h',
-    status: 'busy',
-  },
-  {
-    name: 'Pulse-Mediator',
-    role: 'Consensus',
-    specialization: 'Voting Logic',
-    uptime: '12d 04h',
-    status: 'error',
-  },
-]
-
-const statusStyles = {
-  idle: 'bg-emerald-400',
-  busy: 'bg-amber-400',
-  error: 'bg-rose-400',
-}
-
-const taskStyles = {
-  Pending: 'border border-white/10 bg-white/5 text-white',
-  'In Progress': 'border border-indigo-400/40 bg-indigo-500/10 text-indigo-100',
-  Completed: 'border border-emerald-400/40 bg-emerald-500/10 text-emerald-100',
-  'Needs Consensus': 'border border-amber-400/40 bg-amber-500/10 text-amber-100',
-}
+import Head from 'next/head'
+import { ArrowRight, Book, Brain, Mic } from 'lucide-react'
 
 export default function Consendus() {
-  const [view, setView] = useState('landing')
-  const [activeTab, setActiveTab] = useState('overview')
-  const [messages, setMessages] = useState(initialMessages)
-  const [isSimulating, setIsSimulating] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
-  const [selectedChannel, setSelectedChannel] = useState(channels[0].id)
-
-  const simulatedMessages = useMemo(
-    () => [
-      {
-        id: Date.now() + 1,
-        author: 'Nova-Observer',
-        role: 'Telemetry',
-        content: 'Tracing shows 18% throughput gain after shard rebalance.',
-        type: 'text',
-      },
-      {
-        id: Date.now() + 2,
-        author: 'Pulse-Mediator',
-        role: 'Consensus',
-        content: 'Votes received: 2/3. Awaiting final validator.',
-        type: 'alert',
-      },
-      {
-        id: Date.now() + 3,
-        author: 'Atlas-Orchestrator',
-        role: 'Coordinator',
-        content: 'Routing new tasks to cold standby cluster. ✅',
-        type: 'text',
-      },
-    ],
-    []
-  )
-
-  const handleSimulate = () => {
-    if (isSimulating) return
-    setIsSimulating(true)
-    setShowTyping(true)
-
-    const nextMessages = simulatedMessages.slice(0, 3)
-    nextMessages.forEach((message, index) => {
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            ...message,
-            id: prev.length + 1,
-          },
-        ])
-      }, 650 * (index + 1))
-    })
-
-    setTimeout(() => {
-      setShowTyping(false)
-      setIsSimulating(false)
-    }, 650 * (nextMessages.length + 1))
-  }
-
-  const chartTooltipStyle = useMemo(
-    () => ({
-      backgroundColor: '#0f172a',
-      border: '1px solid rgba(148, 163, 184, 0.2)',
-      borderRadius: '12px',
-      color: '#e2e8f0',
-    }),
-    []
-  )
-
   return (
     <>
       <Head>
@@ -300,384 +46,124 @@ export default function Consendus() {
                 className="mt-6 text-4xl font-semibold leading-tight md:text-5xl"
                 style={{ fontFamily: '"Libre Baskerville", serif' }}
               >
-                Access Console
-                <ChevronRight className="h-4 w-4" />
-              </button>
-              <button className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200">
-                <span className="flex items-center gap-2">
-                  <Command className="h-3.5 w-3.5 text-indigo-200" />
-                  Live Preview
-                </span>
-              </button>
-              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/80 px-3 py-1 text-xs text-slate-300">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
-                Active
-              </div>
-            </div>
-
-            <div className="mt-10 grid w-full gap-6 lg:grid-cols-[1.3fr,1fr]">
-              <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 text-left shadow-xl shadow-black/30">
-                <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
-                  <Terminal className="h-4 w-4 text-emerald-300" />
-                  swarm.config.ts
-                </div>
-                <pre className="whitespace-pre-wrap text-xs text-emerald-200 sm:text-sm">
-{`import { Consendus } from 'consendus'
-
-const swarm = new Consendus.Swarm({
-  quorum: 3,
-  agents: ['Atlas', 'Codex', 'Sentry'],
-  consensus: 'weighted',
-  guardRails: true,
-})
-
-swarm.deploy('migration-api-v2')`}
-                </pre>
-              </div>
-              <div className="grid gap-4">
-                {features.map((feature) => (
-                  <div
-                    key={feature.title}
-                    className="rounded-xl border border-white/10 bg-slate-800/60 p-4 text-left shadow-xl shadow-black/20"
-                  >
-                    <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                      <feature.icon className="h-4 w-4 text-indigo-300" />
-                      {feature.title}
-                    </div>
-                    <p className="mt-2 text-xs text-slate-300">{feature.copy}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="flex min-h-screen">
-          <div
-            className={`fixed inset-0 z-30 bg-black/60 transition-opacity sm:hidden ${
-              sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-            }`}
-            onClick={() => setSidebarOpen(false)}
-          />
-          <aside
-            className={`fixed left-0 top-0 z-40 h-full w-64 border-r border-white/10 bg-slate-900/95 p-6 transition-transform sm:static sm:translate-x-0 ${
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Consendus</p>
-                  <p className="text-sm font-semibold text-white">Swarm Console</p>
+                Your Ultimate Reading Companion
+              </h1>
+              <p className="mt-4 max-w-xl text-base text-[#3b372f] md:text-lg">
+                Bookmarkr transforms any physical book into a smart, interactive experience. Clip it
+                on, speak your thoughts, and track your reading journey instantly.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <button className="inline-flex items-center gap-3 rounded-full bg-[#8c5e3c] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#7a4f32]">
+                  Pre-order Device ($49)
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                <div className="text-sm text-[#6b6257]">
+                  Ships worldwide • Limited early batch
                 </div>
               </div>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="rounded-lg border border-white/10 p-2 text-slate-300 sm:hidden"
-              >
-                <X className="h-4 w-4" />
-              </button>
             </div>
+            <div className="flex-1 md:flex md:justify-end">
+              <img
+                src="https://i.ibb.co/G4FVbWQG/Gemini-Generated-Image-wa5dm2wa5dm2wa5d.png"
+                alt="Bookmarkr device on a book"
+                className="w-full max-w-md rounded-3xl border border-[#e6ded3] shadow-[0_30px_80px_-50px_rgba(45,42,38,0.6)]"
+              />
+            </div>
+          </section>
 
-            <div className="mt-10 space-y-2">
-              {navigation.map((item) => {
-                const Icon = item.icon
+          <section id="features" className="mx-auto mt-16 max-w-6xl">
+            <div className="grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  title: 'Voice Notes',
+                  copy: 'Speak your thoughts while you read. Bookmarkr listens, transcribes, and tags your notes to the exact page number.',
+                  icon: Mic,
+                  color: 'text-blue-600',
+                },
+                {
+                  title: 'Contextual AI',
+                  copy: 'Forgot a character? Confused by a theme? Just ask. Bookmarkr uses AI to answer questions about your specific book.',
+                  icon: Brain,
+                  color: 'text-purple-600',
+                },
+                {
+                  title: 'Smart Sync',
+                  copy: 'Your physical reading progress is instantly synced to your digital library. Never lose your page again.',
+                  icon: Book,
+                  color: 'text-amber-600',
+                },
+              ].map((feature) => {
+                const Icon = feature.icon
                 return (
                   <div
                     key={feature.title}
                     className="rounded-2xl border border-[#e6ded3] bg-white p-6 shadow-sm"
                   >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="mt-10 rounded-xl border border-white/10 bg-slate-800/70 p-4 text-xs text-slate-300">
-              <p className="text-slate-400">Swarm Health</p>
-              <p className="mt-2 text-sm text-white">98.7% uptime</p>
-              <div className="mt-3 h-2 rounded-full bg-white/10">
-                <div className="h-full w-4/5 rounded-full bg-emerald-400" />
-              </div>
-            </div>
-          </aside>
-
-          <div className="flex flex-1 flex-col">
-            <header className="flex items-center justify-between border-b border-white/10 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="rounded-lg border border-white/10 p-2 text-slate-300 sm:hidden"
-                >
-                  <Layers className="h-4 w-4" />
-                </button>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Console</p>
-                  <h2 className="text-lg font-semibold text-white">
-                    {navItems.find((item) => item.id === activeTab)?.label}
-                  </h2>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button className="hidden items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-4 py-2 text-xs text-purple-100 transition hover:bg-purple-500/20 md:flex">
-                  <Sparkles className="h-3.5 w-3.5 text-purple-200" />
-                  AI Actions
-                </button>
-              </div>
-            </header>
-
-            <main className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
-              {activeTab === 'overview' && (
-                <section className="space-y-6 animate-fade-in">
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    {stats.map((stat) => (
-                      <div
-                        key={stat.label}
-                        className="rounded-xl border border-white/10 bg-slate-800/70 p-4"
-                      >
-                        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{stat.label}</p>
-                        <div className="mt-3 flex items-center justify-between">
-                          <p className="text-2xl font-semibold text-white">{stat.value}</p>
-                          <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-xs text-emerald-300">
-                            {stat.trend}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-                    <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
-                      <div className="mb-4 flex items-center justify-between">
-                        <p className="text-sm text-slate-200">System Load vs Token Consumption</p>
-                        <span className="text-xs text-slate-400">Last 24h</span>
-                      </div>
-                      <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="load" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                              </linearGradient>
-                              <linearGradient id="tokens" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
-                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: '#94a3b8' }} />
-                            <Area type="monotone" dataKey="load" stroke="#6366f1" strokeWidth={2} fill="url(#load)" />
-                            <Area
-                              type="monotone"
-                              dataKey="tokens"
-                              stroke="#10b981"
-                              strokeWidth={2}
-                              fill="url(#tokens)"
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <p className="text-sm text-slate-200">System Events</p>
-                        <span className="text-xs text-slate-400">Live</span>
-                      </div>
-                      <div className="max-h-72 space-y-3 overflow-y-auto rounded-lg border border-white/5 bg-slate-900/70 p-3 text-xs text-emerald-200">
-                        {terminalLogs.map((log) => (
-                          <div key={log} className="font-mono">
-                            {log}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {activeTab === 'comms' && (
-                <section className="grid gap-6 lg:grid-cols-[240px,1fr] animate-fade-in">
-                  <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Channels</p>
-                    <div className="mt-4 space-y-2 text-sm text-slate-300">
-                      {channels.map((channel) => (
-                        <button
-                          key={channel.id}
-                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${
-                            selectedChannel === channel.id
-                              ? 'bg-indigo-500/20 text-white'
-                              : 'text-slate-300 hover:bg-white/5'
-                          }`}
-                          onClick={() => setSelectedChannel(channel.id)}
-                        >
-                          <span>{channel.name}</span>
-                          <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col rounded-2xl border border-white/10 bg-slate-800/70 p-6">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm text-slate-300">
-                          {channels.find((channel) => channel.id === selectedChannel)?.name}
-                        </p>
-                        <p className="text-xs text-slate-500">Agent-to-agent coordination</p>
-                      </div>
-                      <button
-                        onClick={handleSimulate}
-                        disabled={isSimulating}
-                        className="rounded-full bg-indigo-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {isSimulating ? 'Simulating…' : 'Simulate Activity'}
-                      </button>
-                    </div>
-                    <div className="mt-6 flex-1 space-y-4 text-sm">
-                      {messages.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`rounded-xl border border-white/10 p-4 ${
-                            message.type === 'system'
-                              ? 'bg-amber-500/10 text-amber-200'
-                              : message.type === 'action'
-                                ? 'bg-purple-500/10 text-purple-200'
-                                : 'bg-slate-900/70 text-slate-200'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-semibold text-white">{message.author}</span>
-                            <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-slate-400">
-                              {message.time}
-                            </span>
-                          </div>
-                          {message.format === 'code' ? (
-                            <pre className="mt-3 overflow-x-auto rounded-lg border border-white/10 bg-black/40 p-3 text-xs text-emerald-200">
-                              <code>{message.content}</code>
-                            </pre>
-                          ) : (
-                            <p className="mt-3 text-sm text-slate-200">{message.content}</p>
-                          )}
-                        </div>
-                      ))}
-                      {showTyping && (
-                        <div className="rounded-lg border border-white/10 bg-slate-900/80 p-3 text-xs text-slate-300">
-                          <span className="font-mono">[agents typing]</span>
-                          <div className="mt-2 flex items-center gap-2">
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400" />
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400 delay-150" />
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400 delay-300" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {activeTab === 'orchestration' && (
-                <section className="space-y-6 animate-fade-in">
-                  <div className="grid gap-4 lg:grid-cols-4">
-                    {taskStates.map((state) => (
-                      <div
-                        key={state}
-                        className="rounded-xl border border-white/10 bg-slate-800/70 p-4"
-                      >
-                        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{state}</p>
-                        <div className="mt-4 space-y-3">
-                          {tasksByState[state].map((task) => (
-                            <div
-                              key={task.title}
-                              className="rounded-lg border border-white/10 bg-slate-900/70 p-3"
-                            >
-                              <p className="text-sm text-white">{task.title}</p>
-                              <p className="mt-1 text-xs text-slate-400">{task.agent}</p>
-                              {task.state === 'Needs Consensus' && (
-                                <div className="mt-3">
-                                  <div className="flex items-center justify-between text-[10px] text-slate-400">
-                                    <span>Consensus</span>
-                                    <span>
-                                      {task.votes}/{task.totalVotes} Votes
-                                    </span>
-                                  </div>
-                                  <div className="mt-2 h-2 rounded-full bg-white/10">
-                                    <div
-                                      className="h-full rounded-full bg-purple-400"
-                                      style={{
-                                        width: `${Math.round((task.votes / task.totalVotes) * 100)}%`,
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {activeTab === 'fleet' && (
-                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 animate-fade-in">
-                  {agents.map((agent) => (
                     <div
                       className={`flex h-12 w-12 items-center justify-center rounded-full bg-[#fdfbf7] ${feature.color}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-white">{agent.name}</p>
-                        <span
-                          className={`h-2 w-2 rounded-full ${
-                            agent.status === 'idle'
-                              ? 'bg-emerald-400'
-                              : agent.status === 'busy'
-                                ? 'bg-amber-400'
-                                : 'bg-rose-400'
-                          }`}
-                        />
-                      </div>
-                      <p className="mt-2 text-xs text-slate-400">{agent.role}</p>
-                      <div className="mt-4 grid gap-2 text-xs text-slate-300">
-                        <div className="flex items-center justify-between">
-                          <span>Specialization</span>
-                          <span className="text-white">{agent.specialization}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>Uptime</span>
-                          <span className="text-white">{agent.uptime}</span>
-                        </div>
-                      </div>
+                      <Icon className="h-5 w-5" />
                     </div>
-                  ))}
-                </section>
-              )}
-            </main>
-          </div>
-        </div>
-      )}
+                    <h3
+                      className="mt-4 text-lg font-semibold"
+                      style={{ fontFamily: '"Libre Baskerville", serif' }}
+                    >
+                      {feature.title}
+                    </h3>
+                    <p className="mt-3 text-sm text-[#5b544c]">{feature.copy}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
 
-      <style jsx global>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.4s ease-out;
-        }
-      `}</style>
-    </div>
+          <section
+            id="how-it-works"
+            className="mx-auto mt-16 flex max-w-6xl flex-col gap-6 rounded-3xl border border-[#e6ded3] bg-white/60 p-8 md:flex-row md:items-center md:justify-between"
+          >
+            <div>
+              <h2
+                className="text-2xl font-semibold"
+                style={{ fontFamily: '"Libre Baskerville", serif' }}
+              >
+                Designed for every chapter of your journey
+              </h2>
+              <p className="mt-3 max-w-xl text-sm text-[#5b544c]">
+                Attach Bookmarkr to any book, tap to capture notes, and let the companion app sync
+                your progress instantly. The more you read, the smarter it becomes.
+              </p>
+            </div>
+            <button className="inline-flex items-center gap-2 rounded-full border border-[#8c5e3c] px-5 py-2 text-sm font-semibold text-[#8c5e3c] transition hover:-translate-y-0.5 hover:bg-[#f3e1cc]">
+              Explore the Experience
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </section>
+
+          <section id="pricing" className="mx-auto mt-16 max-w-6xl text-center">
+            <h2
+              className="text-3xl font-semibold"
+              style={{ fontFamily: '"Libre Baskerville", serif' }}
+            >
+              Early access pricing
+            </h2>
+            <p className="mt-3 text-sm text-[#5b544c]">
+              Reserve your Bookmarkr today. The first run ships with exclusive leather wrapping.
+            </p>
+            <div className="mt-6 inline-flex flex-col items-center gap-4 rounded-3xl border border-[#e6ded3] bg-white px-8 py-6">
+              <div className="text-4xl font-semibold">$49</div>
+              <button className="inline-flex items-center gap-2 rounded-full bg-[#8c5e3c] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#7a4f32]">
+                Pre-Order Now
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </section>
+        </main>
+
+        <footer className="border-t border-[#e6ded3] py-8 text-center text-xs text-[#6b6257]">
+          © 2024 Bookmarkr Labs. All rights reserved.
+        </footer>
+      </div>
+    </>
   )
 }
 
