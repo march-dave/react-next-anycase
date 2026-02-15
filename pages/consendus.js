@@ -1,17 +1,19 @@
 import { useMemo, useState } from 'react'
+import Head from 'next/head'
 import {
   Activity,
-  Bot,
+  Camera,
+  CalendarDays,
   ChevronRight,
-  Code2,
-  LayoutGrid,
+  HeartPulse,
+  LineChart,
   Menu,
   MessageCircle,
-  Network,
   ShieldCheck,
   Sparkles,
+  Stethoscope,
   Terminal,
-  Users,
+  User,
   X,
 } from 'lucide-react'
 import {
@@ -25,174 +27,166 @@ import {
 } from 'recharts'
 
 const navItems = [
-  { id: 'overview', label: 'Overview', icon: LayoutGrid },
-  { id: 'comms', label: 'Comms', icon: MessageCircle },
-  { id: 'orchestration', label: 'Orchestration', icon: Network },
-  { id: 'fleet', label: 'Agent Fleet', icon: Users },
+  { id: 'overview', label: 'Overview', icon: LineChart },
+  { id: 'scans', label: 'Scan Feed', icon: Camera },
+  { id: 'plan', label: 'Care Plan', icon: Activity },
+  { id: 'specialists', label: 'Specialists', icon: Stethoscope },
 ]
 
 const features = [
   {
-    title: 'Semantic Bus',
-    description: 'Low-latency message routing with intent awareness and adaptive prioritization.',
-    icon: Sparkles,
+    title: 'Weekly Scan Protocol',
+    description:
+      'Guided capture flows standardize lighting and angles for consistent, clinical-grade comparisons.',
+    icon: Camera,
   },
   {
-    title: 'Consensus Engine',
-    description: 'Weighted voting, quorum thresholds, and rapid convergence for complex decisions.',
-    icon: CheckCircle2,
+    title: 'Early Pattern Detection',
+    description:
+      'AI models track density, hairline recession, and crown thinning months before they are visible.',
+    icon: LineChart,
   },
   {
-    title: 'Guardian Rails',
-    description: 'Policy-driven controls that keep agents aligned, secure, and compliant.',
-    icon: ShieldCheck,
+    title: 'Personalized Prevention',
+    description:
+      'Actionable plans blend topical options, nutrition, and lifestyle habits based on your profile.',
+    icon: HeartPulse,
   },
 ]
 
 const stats = [
-  { label: 'Active Agents', value: '128', delta: '+12%' },
-  { label: 'Messages / min', value: '9.4k', delta: '+8%' },
-  { label: 'Consensus Rate', value: '96.8%', delta: '+1.2%' },
-  { label: 'Token Usage', value: '1.2M', delta: '-4%' },
+  { label: 'Weekly scans', value: '6/8', delta: '+12%' },
+  { label: 'Density score', value: '84', delta: '+3' },
+  { label: 'Hairline stability', value: 'Stable', delta: '0.2mm' },
+  { label: 'Intervention readiness', value: '92%', delta: '+5%' },
 ]
 
 const chartData = [
-  { time: '01:00', load: 52, tokens: 38 },
-  { time: '04:00', load: 61, tokens: 45 },
-  { time: '08:00', load: 72, tokens: 54 },
-  { time: '12:00', load: 68, tokens: 62 },
-  { time: '16:00', load: 74, tokens: 58 },
-  { time: '20:00', load: 66, tokens: 70 },
-  { time: '24:00', load: 58, tokens: 64 },
+  { time: 'Week 1', density: 78, coverage: 82 },
+  { time: 'Week 2', density: 80, coverage: 83 },
+  { time: 'Week 3', density: 79, coverage: 82 },
+  { time: 'Week 4', density: 81, coverage: 84 },
+  { time: 'Week 5', density: 83, coverage: 85 },
+  { time: 'Week 6', density: 84, coverage: 86 },
 ]
 
 const logs = [
-  '[INFO] Agent-2 connected to semantic bus.',
-  '[INFO] Consensus vote initiated for task #1421.',
-  '[WARN] High latency detected on shard-us-west-2.',
-  '[INFO] Guardian Rail applied to migration-api-v2.',
-  '[INFO] Agent-7 rebalanced token budget to 18.6M.',
+  '[INSIGHT] Crown density stabilized after week 3 routine update.',
+  '[ALERT] Hairline shift detected: 0.2mm in right temple.',
+  '[INFO] Scalp hydration score improved by 6%.',
+  '[INFO] Lighting consistency now 94% across scans.',
+  '[NEXT] Consider adding rosemary serum to nightly routine.',
 ]
 
-const channels = ['#migration-api-v2', '#security-audit', '#swarm-alerts', '#routing-sync']
+const channels = ['#scan-review', '#care-plan', '#clinic-referrals', '#product-recs']
 
 const initialMessages = [
   {
     id: 1,
-    author: 'Atlas-Orchestrator',
+    author: 'Manetain Analyst',
     type: 'standard',
-    content: 'We need consensus on the migration plan. Any objections from safety checks? ',
+    content: 'Baseline scan locked. Next scan reminder set for Sunday morning.',
   },
   {
     id: 2,
-    author: 'Sentry-Sec',
+    author: 'AI Coach',
     type: 'alert',
-    content: 'Potential API scope escalation detected in migration-api-v2.',
+    content: 'Crown density dipped 1.8%. Consider adding the booster routine this week.',
   },
   {
     id: 3,
-    author: 'Codex-Dev',
+    author: 'Clinic Liaison',
     type: 'code',
-    content: `// patch applied to reduce privilege scope\nupdatePolicy('migration-api-v2', {\n  scopes: ['read:events', 'write:events'],\n})`,
+    content: `// referral packet created for Dr. Patel\nconst referral = createReferral({\n  specialist: 'Dermatology',\n  priority: 'routine',\n  scans: ['week4', 'week6'],\n})`,
   },
 ]
 
 const simulateMessages = [
   {
-    author: 'Pulse-Analyst',
+    author: 'Manetain Analyst',
     type: 'standard',
-    content: 'Latency normalized after rerouting through shard-us-east-1.',
+    content: 'New scan received. Lighting score: 96%. Processing now.',
   },
   {
-    author: 'Atlas-Orchestrator',
+    author: 'AI Coach',
     type: 'standard',
-    content: 'Consensus tracking now at 2/3 votes. Awaiting final signal.',
+    content: 'Density trend normalized. Keep the morning routine consistent this week.',
   },
   {
-    author: 'Guardian-Rail',
+    author: 'Clinic Liaison',
     type: 'alert',
-    content: 'Guardian Rail enforced: blocked unsafe deletion sequence.',
+    content: 'Dermatology consult availability updated: next slot on Thursday.',
   },
 ]
 
-const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+const taskStates = ['Upcoming', 'In Review', 'Active', 'Completed']
 
 const tasks = [
   {
-    title: 'Deploy migration-api-v2',
-    agent: 'Atlas-Orchestrator',
-    state: 'Needs Consensus',
-    votes: 2,
-    totalVotes: 3,
-  },
-  {
-    title: 'Audit auth scopes',
-    agent: 'Sentry-Sec',
-    state: 'In Progress',
-  },
-  {
-    title: 'Optimize event routing',
-    agent: 'Pulse-Analyst',
-    state: 'Pending',
-  },
-  {
-    title: 'Release swarm patch 2.4.1',
-    agent: 'Codex-Dev',
+    title: 'Capture baseline scan',
+    agent: 'Manetain Analyst',
     state: 'Completed',
+  },
+  {
+    title: 'Review crown density report',
+    agent: 'AI Coach',
+    state: 'In Review',
+  },
+  {
+    title: 'Start nightly topical routine',
+    agent: 'Care Plan',
+    state: 'Active',
+  },
+  {
+    title: 'Schedule specialist consult',
+    agent: 'Clinic Liaison',
+    state: 'Upcoming',
   },
 ]
 
-const agents = [
+const specialists = [
   {
-    name: 'Atlas-Orchestrator',
-    role: 'Coordinator',
-    specialization: 'Workflow Routing',
-    uptime: '14d 06h',
-    status: 'idle',
+    name: 'Dr. Maya Patel',
+    role: 'Dermatologist',
+    specialization: 'Hair restoration',
+    availability: 'Thu, 2:30 PM',
+    status: 'available',
   },
   {
-    name: 'Codex-Dev',
-    role: 'Compiler',
-    specialization: 'TypeScript & APIs',
-    uptime: '9d 02h',
-    status: 'busy',
+    name: 'Dr. Ethan Brooks',
+    role: 'Trichologist',
+    specialization: 'Scalp health',
+    availability: 'Fri, 11:00 AM',
+    status: 'booked',
   },
   {
-    name: 'Sentry-Sec',
-    role: 'Security',
-    specialization: 'Threat Modeling',
-    uptime: '21d 18h',
-    status: 'idle',
+    name: 'Dr. Lena Ortiz',
+    role: 'Nutritionist',
+    specialization: 'Hair growth diet',
+    availability: 'Mon, 9:00 AM',
+    status: 'available',
   },
   {
-    name: 'Nova-Observer',
-    role: 'Telemetry',
-    specialization: 'Tracing & Metrics',
-    uptime: '5d 11h',
-    status: 'busy',
-  },
-  {
-    name: 'Pulse-Mediator',
-    role: 'Consensus',
-    specialization: 'Voting Logic',
-    uptime: '12d 04h',
-    status: 'error',
-  },
-  {
-    name: 'Nimbus-Comms',
-    role: 'Comms Coordinator',
-    specialization: 'Channel orchestration',
-    uptime: '6h 11m',
-    status: 'busy',
-  },
-  {
-    name: 'Nova-Observer',
-    role: 'Consensus Observer',
-    specialization: 'Vote integrity',
-    uptime: '14h 28m',
-    status: 'idle',
+    name: 'Dr. Noah Reeves',
+    role: 'Telehealth Advisor',
+    specialization: 'Lifestyle optimization',
+    availability: 'Wed, 4:00 PM',
+    status: 'offline',
   },
 ]
+
+const chartTooltipStyle = {
+  backgroundColor: '#0f172a',
+  borderRadius: '12px',
+  border: '1px solid rgba(148,163,184,0.25)',
+  color: '#e2e8f0',
+}
+
+const statusStyles = {
+  available: 'bg-emerald-400',
+  booked: 'bg-amber-400',
+  offline: 'bg-slate-500',
+}
 
 export default function Consendus() {
   const [view, setView] = useState('landing')
@@ -201,7 +195,6 @@ export default function Consendus() {
   const [messages, setMessages] = useState(initialMessages)
   const [isSimulating, setIsSimulating] = useState(false)
   const [showTyping, setShowTyping] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const tasksByState = useMemo(() => {
     return taskStates.reduce((acc, state) => {
@@ -233,94 +226,91 @@ export default function Consendus() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 [font-family:'Inter',sans-serif]">
+    <div className="min-h-screen bg-slate-950 text-slate-100 [font-family:'Inter',sans-serif]">
       <Head>
-        <title>Consendus.ai — Agent Swarm Orchestration</title>
+        <title>Manetain — Hair Loss Prevention</title>
       </Head>
 
       {view === 'landing' ? (
         <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 pb-16 pt-8">
           <header className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
-                <Bot className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-200">
+                <Sparkles className="h-5 w-5" />
               </div>
-              <span className="text-lg font-semibold tracking-tight">Consendus.ai</span>
+              <span className="text-lg font-semibold tracking-tight">Manetain</span>
             </div>
             <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-300">
               <a className="transition hover:text-white" href="#features">
                 Features
               </a>
-              <a className="transition hover:text-white" href="#architecture">
-                Architecture
+              <a className="transition hover:text-white" href="#workflow">
+                Workflow
               </a>
-              <a className="transition hover:text-white" href="#security">
-                Security
+              <a className="transition hover:text-white" href="#privacy">
+                Privacy
               </a>
             </nav>
             <button
-              className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5"
               onClick={() => setView('console')}
             >
-              Access Console
-              <ArrowRight className="h-4 w-4" />
+              Open Tracker
+              <ChevronRight className="h-4 w-4" />
             </button>
           </header>
 
           <main className="mt-16 grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <section className="flex flex-col gap-6">
-              <p className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.3em] text-indigo-300">
-                Autonomous Orchestration Layer
+              <p className="w-fit rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.3em] text-emerald-300">
+                AI Hair Loss Prevention
               </p>
               <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl lg:text-6xl">
-                Orchestrate Your Agent Swarm
+                Track hair loss before it becomes visible.
               </h1>
               <p className="max-w-xl text-base leading-relaxed text-slate-300 md:text-lg">
-                Infrastructure for autonomous agents to communicate, coordinate, and reach consensus. Build
-                resilient multi-agent systems with observability, compliance, and real-time control.
+                Manetain turns weekly scalp photos into objective progress tracking. Detect thinning months
+                earlier, get prevention plans tailored to your biology, and connect with specialists when it
+                matters.
               </p>
               <div className="flex flex-wrap items-center gap-4">
                 <button
-                  className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5"
                   onClick={() => setView('console')}
                 >
-                  Access Console
-                  <ArrowRight className="h-4 w-4" />
+                  Start Tracking
+                  <ChevronRight className="h-4 w-4" />
                 </button>
                 <button className="rounded-full border border-white/10 px-6 py-3 text-sm font-semibold text-white/80 transition hover:text-white">
-                  View Docs
+                  Request Demo
                 </button>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-white/10 bg-slate-800/60 p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.7)] backdrop-blur">
+            <section className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.7)] backdrop-blur">
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-rose-400" />
                   <span className="h-2 w-2 rounded-full bg-amber-400" />
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
                 </div>
-                <span>consendus.config.ts</span>
+                <span>scan-protocol.json</span>
               </div>
-              <pre className="mt-6 whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-sm text-emerald-200 [font-family:'JetBrains_Mono',monospace]">
-{`import { Consendus } from '@consendus/core'
-
-const swarm = new Consendus.Swarm({
-  quorum: 3,
-  strategy: 'weighted-majority',
-  agents: [
-    'Atlas-Orchestrator',
-    'Codex-Dev',
-    'Sentry-Sec',
+              <pre className="mt-6 whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-emerald-200 [font-family:'JetBrains_Mono',monospace]">
+{`{
+  "schedule": "weekly",
+  "angles": ["front", "temples", "crown"],
+  "lighting": "diffused-daylight",
+  "aiChecks": [
+    "density",
+    "hairline",
+    "crown-thinning"
   ],
-  guardrails: ['pci', 'pii', 'soc2'],
-  telemetry: {
-    traces: true,
-    sampling: 0.2,
-  },
-})
-
-swarm.deploy({ region: 'us-east-1' })`}
+  "alerts": {
+    "densityDrop": "1.5%",
+    "hairlineShift": "0.2mm"
+  }
+}`}
               </pre>
             </section>
           </main>
@@ -332,9 +322,9 @@ swarm.deploy({ region: 'us-east-1' })`}
                 return (
                   <article
                     key={feature.title}
-                    className="rounded-2xl border border-white/10 bg-slate-800/50 p-6 shadow-lg shadow-slate-900/40"
+                    className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg shadow-slate-900/40"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-200">
                       <Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
@@ -346,71 +336,70 @@ swarm.deploy({ region: 'us-east-1' })`}
           </section>
 
           <section
-            id="architecture"
-            className="mt-16 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-8"
+            id="workflow"
+            className="mt-16 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-950/80 p-8"
           >
             <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr]">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Infrastructure stack</p>
-                <h2 className="mt-3 text-2xl font-semibold">Command, coordinate, converge.</h2>
+                <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">How it works</p>
+                <h2 className="mt-3 text-2xl font-semibold">Measure, detect, prevent.</h2>
               </div>
               <div className="space-y-4 text-sm text-slate-300">
                 <p>
-                  Consendus stitches together semantic routing, consensus voting, and observability into one
-                  system. Keep agent swarms aligned with real-time guardrails and priority-based escalation.
+                  Manetain blends standardized scans, AI analysis, and tailored prevention plans into one
+                  continuous loop. Stay ahead of hair loss with clear trends and proactive guidance.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  {['Semantic Bus', 'Consensus SDK', 'Policy Engine', 'Telemetry Streams'].map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs text-slate-200"
-                    >
-                      {item}
-                    </span>
-                  ))}
+                  {['Guided Scans', 'AI Benchmarks', 'Personalized Plans', 'Specialist Referrals'].map(
+                    (item) => (
+                      <span
+                        key={item}
+                        className="rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs text-slate-200"
+                      >
+                        {item}
+                      </span>
+                    ),
+                  )}
                 </div>
               </div>
             </div>
           </section>
 
-          <section id="security" className="mt-16 text-center">
-            <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-slate-800/60 p-8">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300">
+          <section id="privacy" className="mt-16 text-center">
+            <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-slate-900/60 p-8">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-200">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h2 className="mt-4 text-2xl font-semibold">Secure by design</h2>
+              <h2 className="mt-4 text-2xl font-semibold">Privacy built in</h2>
               <p className="mt-2 text-sm text-slate-300">
-                Built-in audit trails, encrypted channels, and policy enforcement keep your agent fleet
-                aligned with enterprise-grade compliance.
+                Scans are encrypted, stored securely, and never shared without your consent. You control
+                referrals, specialist access, and data export at every step.
               </p>
             </div>
           </section>
 
           <footer className="mt-20 text-center text-xs text-slate-500">
-            © 2024 Consendus Labs. All rights reserved.
+            © 2024 Manetain. All rights reserved.
           </footer>
         </div>
       ) : (
-        <div className="flex min-h-screen bg-slate-900">
+        <div className="flex min-h-screen bg-slate-950">
           <aside
-            className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-slate-900/90 p-6 backdrop-blur transition-transform lg:relative lg:translate-x-0 ${
+            className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-slate-950/90 p-6 backdrop-blur transition-transform lg:relative lg:translate-x-0 ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
           >
             <div className="flex items-center justify-between lg:justify-start">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
-                  <Bot className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-200">
+                  <Sparkles className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">Consendus.ai</p>
-                  <p className="text-xs text-slate-400">Swarm Console</p>
+                  <p className="text-sm font-semibold">Manetain</p>
+                  <p className="text-xs text-slate-400">Progress Console</p>
                 </div>
               </div>
-              <button
-                className="text-slate-400 lg:hidden"
-                onClick={() => setSidebarOpen(false)}
-              >
+              <button className="text-slate-400 lg:hidden" onClick={() => setSidebarOpen(false)}>
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -422,7 +411,7 @@ swarm.deploy({ region: 'us-east-1' })`}
                     key={item.id}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
                       activeTab === item.id
-                        ? 'bg-indigo-500/20 text-white'
+                        ? 'bg-emerald-500/20 text-white'
                         : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                     onClick={() => {
@@ -438,34 +427,34 @@ swarm.deploy({ region: 'us-east-1' })`}
             </nav>
             <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-300">
               <div className="flex items-center gap-2 text-slate-200">
-                <Terminal className="h-4 w-4 text-emerald-300" />
-                <span className="font-semibold">Realtime Status</span>
+                <CalendarDays className="h-4 w-4 text-emerald-300" />
+                <span className="font-semibold">Next scan reminder</span>
               </div>
-              <p className="mt-2">All systems operational. Latency steady at 120ms.</p>
+              <p className="mt-2">Sunday, 8:00 AM. Consistency score at 92%.</p>
             </div>
           </aside>
 
           <div className="flex-1 lg:ml-64">
-            <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-slate-900/80 px-6 py-4 backdrop-blur">
+            <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-slate-950/80 px-6 py-4 backdrop-blur">
               <div className="flex items-center gap-3">
                 <button className="text-slate-400 lg:hidden" onClick={() => setSidebarOpen(true)}>
                   <Menu className="h-5 w-5" />
                 </button>
                 <div>
                   <p className="text-sm font-semibold text-white">
-                    {navigation.find((nav) => nav.id === activeTab)?.label}
+                    {navItems.find((nav) => nav.id === activeTab)?.label}
                   </p>
-                  <p className="text-xs text-slate-400">Autonomous swarm orchestration</p>
+                  <p className="text-xs text-slate-400">Hair loss prevention intelligence</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <button className="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-xs text-slate-200 transition hover:bg-white/5 md:flex">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-300" />
-                  AI Actions
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
+                  AI Insights
                 </button>
                 <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  Riley Chen
+                  Jordan Lee
                 </div>
               </div>
             </header>
@@ -477,7 +466,7 @@ swarm.deploy({ region: 'us-east-1' })`}
                     {stats.map((stat) => (
                       <div
                         key={stat.label}
-                        className="rounded-2xl border border-white/10 bg-slate-800/60 p-4"
+                        className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"
                       >
                         <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{stat.label}</p>
                         <div className="mt-3 flex items-end justify-between">
@@ -489,49 +478,50 @@ swarm.deploy({ region: 'us-east-1' })`}
                   </div>
 
                   <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
-                    <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6">
+                    <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-sm font-semibold text-white">System Load vs Token Consumption</h2>
-                        <span className="text-xs text-slate-400">Last 14 hours</span>
+                        <h2 className="text-sm font-semibold text-white">Density vs Coverage Trend</h2>
+                        <span className="text-xs text-slate-400">Last 6 weeks</span>
                       </div>
                       <div className="mt-6 h-64">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                             <defs>
-                              <linearGradient id="load" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
-                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0.1} />
-                              </linearGradient>
-                              <linearGradient id="tokens" x1="0" y1="0" x2="0" y2="1">
+                              <linearGradient id="density" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#34d399" stopOpacity={0.8} />
                                 <stop offset="95%" stopColor="#34d399" stopOpacity={0.1} />
                               </linearGradient>
+                              <linearGradient id="coverage" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.8} />
+                                <stop offset="95%" stopColor="#60a5fa" stopOpacity={0.1} />
+                              </linearGradient>
                             </defs>
                             <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: '#94a3b8' }} />
+                            <XAxis dataKey="time" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                            <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" />
                             <Area
                               type="monotone"
-                              dataKey="load"
-                              stroke="#6366f1"
+                              dataKey="density"
+                              stroke="#34d399"
                               strokeWidth={2}
-                              fill="url(#load)"
+                              fill="url(#density)"
                             />
                             <Area
                               type="monotone"
-                              dataKey="tokens"
-                              stroke="#10b981"
+                              dataKey="coverage"
+                              stroke="#60a5fa"
                               strokeWidth={2}
-                              fill="url(#tokens)"
+                              fill="url(#coverage)"
                             />
-                            <Area type="monotone" dataKey="load" stroke="#6366f1" fill="url(#load)" />
-                            <Area type="monotone" dataKey="tokens" stroke="#34d399" fill="url(#tokens)" />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                    <div className="rounded-xl border border-white/10 bg-slate-900/70 p-4">
                       <div className="mb-4 flex items-center justify-between">
-                        <p className="text-sm text-slate-200">Terminal Log</p>
+                        <p className="text-sm text-slate-200">Insight log</p>
                         <span className="rounded-full bg-amber-400/10 px-2 py-1 text-xs text-amber-300">
                           live
                         </span>
@@ -549,12 +539,12 @@ swarm.deploy({ region: 'us-east-1' })`}
                 </section>
               )}
 
-              {activeTab === 'comms' && (
+              {activeTab === 'scans' && (
                 <section className="grid gap-6 lg:grid-cols-[0.35fr_0.65fr] animate-fade-in">
-                  <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-4">
+                  <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-sm font-semibold text-white">Channels</h2>
-                      <button className="text-xs text-indigo-300">+ New</button>
+                      <button className="text-xs text-emerald-300">+ New</button>
                     </div>
                     <div className="mt-4 space-y-2 text-sm text-slate-300">
                       {channels.map((channel) => (
@@ -569,15 +559,15 @@ swarm.deploy({ region: 'us-east-1' })`}
                     </div>
                   </div>
 
-                  <div className="flex h-full flex-col rounded-xl border border-white/10 bg-slate-800/70">
+                  <div className="flex h-full flex-col rounded-xl border border-white/10 bg-slate-900/70">
                     <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                       <div>
-                        <p className="text-sm font-semibold text-white">#migration-api-v2</p>
-                        <p className="text-xs text-slate-400">Agents coordinating rollout</p>
+                        <p className="text-sm font-semibold text-white">#scan-review</p>
+                        <p className="text-xs text-slate-400">Weekly scan analysis updates</p>
                       </div>
                       <button
                         onClick={handleSimulate}
-                        className="rounded-full bg-indigo-500 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-400"
+                        className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-400"
                       >
                         {isSimulating ? 'Simulating...' : 'Simulate Activity'}
                       </button>
@@ -586,13 +576,13 @@ swarm.deploy({ region: 'us-east-1' })`}
                       {messages.map((message) => (
                         <div key={message.id} className="space-y-2">
                           <div className="flex items-center gap-2 text-xs text-slate-400">
-                            <span className="rounded-full bg-slate-900/80 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">
-                              Agent
+                            <span className="rounded-full bg-slate-950/80 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                              Team
                             </span>
                             <span className="text-slate-200">{message.author}</span>
                           </div>
                           {message.type === 'code' ? (
-                            <pre className="rounded-xl border border-white/10 bg-slate-900/80 p-3 text-xs text-emerald-200">
+                            <pre className="rounded-xl border border-white/10 bg-slate-950/80 p-3 text-xs text-emerald-200">
                               <code className="font-mono">{message.content}</code>
                             </pre>
                           ) : (
@@ -600,12 +590,12 @@ swarm.deploy({ region: 'us-east-1' })`}
                               className={`rounded-xl border p-3 text-sm text-slate-200 ${
                                 message.type === 'alert'
                                   ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
-                                  : 'border-white/10 bg-slate-900/60'
+                                  : 'border-white/10 bg-slate-950/60'
                               }`}
                             >
                               {message.type === 'alert' && (
                                 <div className="mb-1 flex items-center gap-2 text-xs uppercase tracking-[0.2em]">
-                                  <ShieldAlert className="h-3 w-3" /> System Alert
+                                  <MessageCircle className="h-3 w-3" /> Priority alert
                                 </div>
                               )}
                               {message.content}
@@ -614,12 +604,12 @@ swarm.deploy({ region: 'us-east-1' })`}
                         </div>
                       ))}
                       {showTyping && (
-                        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-3 text-xs text-slate-400">
+                        <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 text-xs text-slate-400">
                           <span className="font-mono">[simulating]</span>
                           <div className="mt-2 flex items-center gap-2">
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400" />
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400 delay-150" />
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-indigo-400 delay-300" />
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 delay-150" />
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 delay-300" />
                           </div>
                         </div>
                       )}
@@ -628,60 +618,31 @@ swarm.deploy({ region: 'us-east-1' })`}
                 </section>
               )}
 
-              {activeTab === 'orchestration' && (
+              {activeTab === 'plan' && (
                 <section className="space-y-6 animate-fade-in">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-white">Task Board</h2>
-                      <p className="text-xs text-slate-400">Live workflow status across the swarm.</p>
+                      <h2 className="text-lg font-semibold text-white">Care plan board</h2>
+                      <p className="text-xs text-slate-400">Track prevention tasks and clinical follow-ups.</p>
                     </div>
                     <button className="rounded-full border border-white/10 px-4 py-2 text-xs text-slate-200">
-                      New Task
+                      Add task
                     </button>
                   </div>
                   <div className="grid gap-4 lg:grid-cols-4">
-                    {['Pending', 'In Progress', 'Needs Consensus', 'Completed'].map((status) => (
-                      <div key={status} className="rounded-2xl border border-white/10 bg-slate-800/60 p-4">
+                    {taskStates.map((status) => (
+                      <div key={status} className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
                         <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{status}</p>
                         <div className="mt-4 space-y-3">
-                          {tasksByState[state].map((task) => (
+                          {tasksByState[status]?.map((task) => (
                             <div
                               key={task.title}
-                              className="rounded-lg border border-white/10 bg-slate-900/70 p-3"
+                              className="rounded-lg border border-white/10 bg-slate-950/70 p-3"
                             >
                               <p className="text-sm text-white">{task.title}</p>
                               <p className="mt-1 text-xs text-slate-400">{task.agent}</p>
-                              {task.state === 'Needs Consensus' && (
-                                <div className="mt-3">
-                                  <div className="flex items-center justify-between text-[10px] text-slate-400">
-                                    <span>Consensus</span>
-                                    <span>
-                                      {task.votes}/{task.totalVotes} Votes
-                                    </span>
-                                  </div>
-                                  <div className="mt-2 h-2 rounded-full bg-white/10">
-                                    <div
-                                      className="h-full rounded-full bg-purple-400"
-                                      style={{
-                                        width: `${Math.round((task.votes / task.totalVotes) * 100)}%`,
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                                <p className="mt-2 text-slate-300">Assigned to {task.agent}</p>
-                                {task.status === 'Needs Consensus' && (
-                                  <div className="mt-3">
-                                    <div className="flex items-center justify-between text-[10px] text-amber-200">
-                                      <span>Consensus</span>
-                                      <span>{task.votes}</span>
-                                    </div>
-                                    <div className="mt-1 h-1.5 w-full rounded-full bg-white/10">
-                                      <div className="h-1.5 w-1/3 rounded-full bg-amber-400" />
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
@@ -689,41 +650,44 @@ swarm.deploy({ region: 'us-east-1' })`}
                 </section>
               )}
 
-              {activeTab === 'fleet' && (
+              {activeTab === 'specialists' && (
                 <section className="space-y-6 animate-fade-in">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-white">Agent Fleet</h2>
-                      <p className="text-xs text-slate-400">Directory of active swarm nodes.</p>
+                      <h2 className="text-lg font-semibold text-white">Specialist network</h2>
+                      <p className="text-xs text-slate-400">Connect with vetted hair loss experts.</p>
                     </div>
                     <button className="rounded-full border border-white/10 px-4 py-2 text-xs text-slate-200">
-                      Deploy Agent
+                      Book consult
                     </button>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {agents.map((agent) => (
-                      <div key={agent.name} className="rounded-2xl border border-white/10 bg-slate-800/60 p-4">
+                    {specialists.map((specialist) => (
+                      <div
+                        key={specialist.name}
+                        className="rounded-2xl border border-white/10 bg-slate-900/60 p-4"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className={`h-2 w-2 rounded-full ${statusStyles[agent.status]}`} />
-                            <p className="text-sm font-semibold text-white">{agent.name}</p>
+                            <span className={`h-2 w-2 rounded-full ${statusStyles[specialist.status]}`} />
+                            <p className="text-sm font-semibold text-white">{specialist.name}</p>
                           </div>
-                          <Code2 className="h-4 w-4 text-indigo-300" />
+                          <User className="h-4 w-4 text-emerald-300" />
                         </div>
-                        <p className="mt-2 text-xs text-slate-400">{agent.role}</p>
+                        <p className="mt-2 text-xs text-slate-400">{specialist.role}</p>
                         <div className="mt-4 space-y-2 text-xs text-slate-300">
                           <div className="flex items-center justify-between">
-                            <span>Specialization</span>
-                            <span className="text-white">{agent.specialization}</span>
+                            <span>Focus</span>
+                            <span className="text-white">{specialist.specialization}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span>Uptime</span>
-                            <span className="text-white">{agent.uptime}</span>
+                            <span>Next slot</span>
+                            <span className="text-white">{specialist.availability}</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </section>
               )}
             </main>
