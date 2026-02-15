@@ -101,7 +101,7 @@ const initialMessages = [
   },
 ]
 
-const simulateMessages = [
+const simulatedMessages = [
   {
     author: 'Manetain Analyst',
     type: 'standard',
@@ -122,11 +122,16 @@ const simulateMessages = [
 const taskStates = ['Upcoming', 'In Review', 'Active', 'Completed']
 
 const tasks = [
+  { title: 'Map migration dependencies', agent: 'Atlas-Orchestrator', state: 'Pending' },
+  { title: 'Rehearse blue-green failover', agent: 'Codex-Dev', state: 'In Progress' },
   {
     title: 'Capture baseline scan',
     agent: 'Manetain Analyst',
     state: 'Completed',
   },
+  { title: 'Rotate service tokens', agent: 'Sentry-Sec', state: 'Completed' },
+  { title: 'Update incident playbook', agent: 'Helios-OPS', state: 'Pending' },
+  { title: 'Latency stress test', agent: 'Nova-Perf', state: 'In Progress' },
   {
     title: 'Review crown density report',
     agent: 'AI Coach',
@@ -142,6 +147,7 @@ const tasks = [
     agent: 'Clinic Liaison',
     state: 'Upcoming',
   },
+  { title: 'Deploy guardian rail patch', agent: 'Guardian-Rail', state: 'Completed' },
 ]
 
 const specialists = [
