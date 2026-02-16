@@ -27,6 +27,81 @@ const features = [
   },
 ]
 
+const taskStates = ['Upcoming', 'In Review', 'Active', 'Completed']
+
+const tasks = [
+  { title: 'Map migration dependencies', agent: 'Atlas-Orchestrator', state: 'Pending' },
+  { title: 'Rehearse blue-green failover', agent: 'Codex-Dev', state: 'In Progress' },
+  {
+    title: 'Capture baseline scan',
+    agent: 'Manetain Analyst',
+    state: 'Completed',
+  },
+  { title: 'Rotate service tokens', agent: 'Sentry-Sec', state: 'Completed' },
+  { title: 'Update incident playbook', agent: 'Helios-OPS', state: 'Pending' },
+  { title: 'Latency stress test', agent: 'Nova-Perf', state: 'In Progress' },
+  {
+    title: 'Review crown density report',
+    agent: 'AI Coach',
+    state: 'In Review',
+  },
+  {
+    title: 'Start nightly topical routine',
+    agent: 'Care Plan',
+    state: 'Active',
+  },
+  {
+    title: 'Schedule specialist consult',
+    agent: 'Clinic Liaison',
+    state: 'Upcoming',
+  },
+  { title: 'Deploy guardian rail patch', agent: 'Guardian-Rail', state: 'Completed' },
+]
+
+const specialists = [
+  {
+    name: 'Dr. Maya Patel',
+    role: 'Dermatologist',
+    specialization: 'Hair restoration',
+    availability: 'Thu, 2:30 PM',
+    status: 'available',
+  },
+  {
+    name: 'Dr. Ethan Brooks',
+    role: 'Trichologist',
+    specialization: 'Scalp health',
+    availability: 'Fri, 11:00 AM',
+    status: 'booked',
+  },
+  {
+    name: 'Dr. Lena Ortiz',
+    role: 'Nutritionist',
+    specialization: 'Hair growth diet',
+    availability: 'Mon, 9:00 AM',
+    status: 'available',
+  },
+  {
+    name: 'Dr. Noah Reeves',
+    role: 'Telehealth Advisor',
+    specialization: 'Lifestyle optimization',
+    availability: 'Wed, 4:00 PM',
+    status: 'offline',
+  },
+]
+
+const chartTooltipStyle = {
+  backgroundColor: '#0f172a',
+  borderRadius: '12px',
+  border: '1px solid rgba(148,163,184,0.25)',
+  color: '#e2e8f0',
+}
+
+const statusStyles = {
+  available: 'bg-emerald-400',
+  booked: 'bg-amber-400',
+  offline: 'bg-slate-500',
+}
+
 export default function Consendus() {
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#2d2a26]">
