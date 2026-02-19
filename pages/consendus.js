@@ -21,24 +21,16 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
-const navItems = [
+const navigation = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
   { id: 'comms', label: 'Comms', icon: MessageSquare },
   { id: 'orchestration', label: 'Orchestration', icon: Network },
   { id: 'fleet', label: 'Agent Fleet', icon: Users },
 ]
 
-const features = [
+const landingFeatures = [
   {
     title: 'Semantic Bus',
     description:
@@ -120,6 +112,13 @@ const tasks = [
     state: 'In Progress',
     agent: 'Sentry-Sec',
   },
+]
+
+const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+
+const tasks = [
+  { title: 'Map migration dependencies', agent: 'Atlas-Orchestrator', state: 'Pending' },
+  { title: 'Rehearse blue-green failover', agent: 'Codex-Dev', state: 'In Progress' },
   {
     id: 'TSK-361',
     title: 'Deploy consensus patch',
@@ -128,6 +127,8 @@ const tasks = [
     votes: 1,
     totalVotes: 3,
   },
+  { title: 'Rotate service tokens', agent: 'Sentry-Sec', state: 'Completed' },
+  { title: 'Stress test edge latency', agent: 'Nova-Perf', state: 'In Progress' },
   {
     id: 'TSK-378',
     title: 'Rollout observability update',
@@ -153,7 +154,7 @@ const agents = [
   },
   {
     name: 'Sentry-Sec',
-    role: 'Security',
+    role: 'Security & Policy',
     specialization: 'Threat Modeling',
     uptime: '21d 18h',
     status: 'Idle',
@@ -172,6 +173,13 @@ const agents = [
     uptime: '12d 04h',
     status: 'Error',
   },
+  {
+    name: 'Guardian-Rail',
+    role: 'Safety Agent',
+    specialization: 'Policy Enforcement',
+    uptime: '26d 2h',
+    status: 'idle',
+  },
 ]
 
 const statusColors = {
@@ -182,7 +190,7 @@ const statusColors = {
 
 const panelAnim = { animation: 'fadeIn 280ms ease' }
 
-export default function Consendus() {
+export default function ConsendusPage() {
   const [view, setView] = useState('landing')
   const [activeTab, setActiveTab] = useState('overview')
   const [selectedChannel, setSelectedChannel] = useState(channels[0])
@@ -311,6 +319,8 @@ export default function Consendus() {
 {`import { Consendus } from 'consendus'
 
 const swarm = new Consendus.Swarm({
+  agents: ['Atlas-Orchestrator', 'Codex-Dev', 'Sentry-Sec'],
+  bus: 'semantic',
   quorum: 3,
   agents: ['Atlas', 'Codex', 'Sentry'],
   consensus: 'weighted-majority',
@@ -551,6 +561,13 @@ await swarm.deploy('migration-api-v2')`}
                             <Activity className="h-3.5 w-3.5 text-purple-300" />
                             agents typing...
                           </div>
+                          <button
+                            onClick={simulateActivity}
+                            disabled={isSimulating}
+                            className="rounded-xl bg-indigo-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-70"
+                          >
+                            {isSimulating ? 'Simulating…' : 'Simulate Activity'}
+                          </button>
                         </div>
                       )}
                     </div>
@@ -620,8 +637,8 @@ await swarm.deploy('migration-api-v2')`}
                     </article>
                   ))}
                 </section>
-              )}
-            </main>
+              </main>
+            </div>
           </div>
         )}
       </div>
