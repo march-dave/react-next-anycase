@@ -4,7 +4,9 @@ import {
   CalendarDays,
   Camera,
   CheckCircle2,
+  ClipboardCheck,
   Dna,
+  ShieldAlert,
   Sparkles,
   Stethoscope,
 } from 'lucide-react'
@@ -82,6 +84,38 @@ const businessModel = [
   'Freemium core with premium analytics and advanced recommendations.',
   'Revenue share with partner clinics when users book consultations.',
   'Affiliate commissions on recommended topical treatments and devices.',
+]
+
+const pricingTiers = [
+  {
+    name: 'Free',
+    price: '$0',
+    details: 'Weekly scans, baseline trendline, and educational prevention tips.',
+  },
+  {
+    name: 'Pro',
+    price: '$19/mo',
+    details: 'Advanced progression analytics, AI alerts, and personalized routines.',
+  },
+  {
+    name: 'Clinic+',
+    price: 'Referral rev-share',
+    details: 'Integrated specialist booking and treatment follow-up tracking.',
+  },
+]
+
+const trustPillars = [
+  {
+    title: 'Clinical scoring rubric',
+    description: 'Every analysis uses the same hairline and crown scoring standards over time.',
+    icon: ClipboardCheck,
+  },
+  {
+    title: 'Early warning safeguards',
+    description:
+      'Smart thresholds reduce noise and only trigger alerts when changes are meaningful.',
+    icon: ShieldAlert,
+  },
 ]
 
 export default function HairLoss() {
@@ -230,6 +264,45 @@ export default function HairLoss() {
             <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-slate-950/70 p-5">
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Available domain</p>
               <p className="mt-2 text-xl font-semibold">Manetain.co</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="grid gap-8 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Go-to-market</p>
+              <h3 className="mt-2 text-2xl font-semibold">Freemium funnel built for early action</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                The free plan is designed to capture routine check-ins early, then convert motivated
+                users when risk patterns emerge and interventions are most effective.
+              </p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                {pricingTiers.map((tier) => (
+                  <div key={tier.name} className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+                    <p className="text-sm uppercase tracking-[0.2em] text-emerald-300">{tier.name}</p>
+                    <p className="mt-2 text-lg font-semibold">{tier.price}</p>
+                    <p className="mt-2 text-xs text-slate-300">{tier.details}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Trust layer</p>
+              {trustPillars.map((pillar) => (
+                <div key={pillar.title} className="flex gap-4 rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <pillar.icon className="h-6 w-6 text-emerald-300" />
+                  <div>
+                    <h4 className="text-base font-semibold">{pillar.title}</h4>
+                    <p className="text-sm text-slate-300">{pillar.description}</p>
+                  </div>
+                </div>
+              ))}
+              <p className="rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4 text-xs text-amber-100">
+                Manetain provides tracking and prevention guidance, not a medical diagnosis. Users
+                with rapid or severe changes should consult a licensed clinician.
+              </p>
             </div>
           </div>
         </section>
