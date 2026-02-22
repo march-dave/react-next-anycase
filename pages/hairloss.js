@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Camera,
   CheckCircle2,
+  ClipboardCheck,
   Dna,
   Pill,
   ShieldAlert,
