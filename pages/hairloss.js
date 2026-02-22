@@ -1,10 +1,13 @@
 import Head from 'next/head'
 import {
   Activity,
+  ArrowRight,
   CalendarDays,
   Camera,
   CheckCircle2,
   Dna,
+  Pill,
+  ShieldAlert,
   Sparkles,
   Stethoscope,
 } from 'lucide-react'
@@ -82,6 +85,24 @@ const businessModel = [
   'Freemium core with premium analytics and advanced recommendations.',
   'Revenue share with partner clinics when users book consultations.',
   'Affiliate commissions on recommended topical treatments and devices.',
+]
+
+const recommendationTracks = [
+  {
+    title: 'Medical track',
+    description: 'Evidence-based options like topical and oral protocols reviewed with a clinician.',
+    icon: Pill,
+  },
+  {
+    title: 'Lifestyle track',
+    description: 'Sleep, stress, nutrition, and routine adjustments that support scalp and follicle health.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Escalation track',
+    description: 'Fast alerts plus specialist handoff when progression crosses your risk threshold.',
+    icon: ShieldAlert,
+  },
 ]
 
 export default function HairLoss() {
@@ -230,6 +251,37 @@ export default function HairLoss() {
             <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-slate-950/70 p-5">
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Available domain</p>
               <p className="mt-2 text-xl font-semibold">Manetain.co</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-12">
+          <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 md:grid-cols-3">
+            {recommendationTracks.map((track) => (
+              <article key={track.title} className="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
+                <track.icon className="h-6 w-6 text-emerald-300" />
+                <h3 className="mt-4 text-lg font-semibold">{track.title}</h3>
+                <p className="mt-2 text-sm text-slate-300">{track.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-emerald-300/30 bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">Launch waitlist</p>
+                <h2 className="mt-2 text-3xl font-semibold">Know when your hair risk changes — not after.</h2>
+                <p className="mt-2 max-w-2xl text-sm text-slate-200">
+                  Join early access to get weekly AI scalp scans, progress alerts, and a personalized
+                  prevention plan before visible thinning sets in.
+                </p>
+              </div>
+              <button className="inline-flex items-center gap-2 self-start rounded-full bg-emerald-300 px-6 py-3 text-sm font-semibold text-slate-950 md:self-auto">
+                Reserve your spot
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </section>
