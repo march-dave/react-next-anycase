@@ -1,1 +1,1 @@
-export { default } from './mealcycle';
+export { default } from './mealcycle'
