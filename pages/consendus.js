@@ -133,6 +133,7 @@ export default function Consendus() {
   const [inConsole, setInConsole] = useState(false)
   const [activeView, setActiveView] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
 
@@ -187,7 +188,7 @@ export default function Consendus() {
   const view = () => {
     if (activeView === 'overview') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeView}>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {statCards.map((card) => {
               const Icon = card.icon
@@ -260,15 +261,16 @@ export default function Consendus() {
 
     if (activeView === 'comms') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeView}>
           <section className="grid gap-5 lg:grid-cols-[260px_1fr]">
             <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
               <h2 className="text-sm font-medium text-slate-200">Channels</h2>
               <div className="mt-3 space-y-2 text-sm text-slate-300">
-                {channels.map((channel, idx) => (
+                {channels.map((channel) => (
                   <button
                     key={channel}
-                    className={`w-full rounded-lg px-3 py-2 text-left transition ${idx === 0 ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'}`}
+                    onClick={() => setActiveChannel(channel)}
+                    className={`w-full rounded-lg px-3 py-2 text-left transition ${activeChannel === channel ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'}`}
                   >
                     {channel}
                   </button>
@@ -277,7 +279,7 @@ export default function Consendus() {
             </div>
             <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-200">#migration-api-v2</h2>
+                <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
                 <button
                   onClick={appendSimulatedMessages}
                   disabled={simulating}
@@ -287,6 +289,12 @@ export default function Consendus() {
                   {simulating ? 'Simulating...' : 'Simulate Activity'}
                 </button>
               </div>
+              {simulating && (
+                <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
+                  Agents are drafting responses...
+                </div>
+              )}
               <div className="mt-4 h-[360px] space-y-3 overflow-auto pr-1 no-scrollbar">
                 {messages.map((message) => (
                   <article
@@ -311,7 +319,7 @@ export default function Consendus() {
     if (activeView === 'orchestration') {
       const columns = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
       return (
-        <ViewContainer>
+        <ViewContainer key={activeView}>
           <section className="grid gap-4 xl:grid-cols-4">
             {columns.map((column) => (
               <div key={column} className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
@@ -347,7 +355,7 @@ export default function Consendus() {
     }
 
     return (
-      <ViewContainer>
+      <ViewContainer key={activeView}>
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {fleet.map((agent) => (
             <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/80 p-4">
