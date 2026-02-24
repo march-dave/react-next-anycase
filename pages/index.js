@@ -1,2 +1,1 @@
-// Default to the Manetain experience on the home page
-export { default } from './hairloss'
+export { default } from './mealcycle'

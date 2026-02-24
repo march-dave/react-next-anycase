@@ -2,129 +2,193 @@ import Head from 'next/head'
 import { useMemo, useState } from 'react'
 import {
   Activity,
+  AlertTriangle,
+  BarChart3,
   Bot,
-  Cable,
-  ChevronLeft,
+  CheckCircle2,
   ChevronRight,
-  ClipboardCheck,
   Command,
   Cpu,
   Gauge,
-  GitMerge,
-  LayoutDashboard,
+  LayoutGrid,
   Menu,
   MessageSquare,
-  Play,
-  Rocket,
-  Settings,
-  Shield,
+  Network,
+  ShieldCheck,
+  Sparkles,
+  Terminal,
+  UserCircle2,
   Users,
-  Vote,
+  X,
 } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
-const navItems = [
-  { key: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { key: 'comms', label: 'Comms', icon: MessageSquare },
-  { key: 'orchestration', label: 'Orchestration', icon: GitMerge },
-  { key: 'fleet', label: 'Agent Fleet', icon: Users },
+const navigation = [
+  { id: 'overview', label: 'Overview', icon: LayoutGrid },
+  { id: 'comms', label: 'Comms', icon: MessageSquare },
+  { id: 'orchestration', label: 'Orchestration', icon: Network },
+  { id: 'fleet', label: 'Agent Fleet', icon: Users },
 ]
 
-const analytics = [
-  { time: '09:00', load: 42, tokens: 28 },
-  { time: '10:00', load: 58, tokens: 35 },
-  { time: '11:00', load: 51, tokens: 44 },
-  { time: '12:00', load: 76, tokens: 61 },
-  { time: '13:00', load: 69, tokens: 58 },
-  { time: '14:00', load: 84, tokens: 73 },
-  { time: '15:00', load: 79, tokens: 67 },
+const landingFeatures = [
+  {
+    title: 'Semantic Bus',
+    description:
+      'Intent-aware message routing with low-latency delivery and context preservation between autonomous agents.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Consensus Engine',
+    description:
+      'Weighted voting, quorum thresholds, and transparent audit trails for multi-agent decision workflows.',
+    icon: CheckCircle2,
+  },
+  {
+    title: 'Guardian Rails',
+    description:
+      'Policy and safety constraints to keep every agent action compliant, observable, and reversible.',
+    icon: ShieldCheck,
+  },
 ]
 
-const channels = ['#migration-api-v2', '#security-audit', '#release-war-room', '#agent-onboarding']
+const stats = [
+  { label: 'Active Agents', value: '128', delta: '+12%', icon: Bot },
+  { label: 'Messages/min', value: '9.4k', delta: '+8%', icon: MessageSquare },
+  { label: 'Consensus Rate', value: '96.8%', delta: '+1.2%', icon: CheckCircle2 },
+  { label: 'Token Usage', value: '1.2M', delta: '-4%', icon: Cpu },
+]
+
+const chartData = [
+  { time: '00:00', load: 32, tokens: 56 },
+  { time: '02:00', load: 40, tokens: 65 },
+  { time: '04:00', load: 35, tokens: 62 },
+  { time: '06:00', load: 52, tokens: 78 },
+  { time: '08:00', load: 60, tokens: 90 },
+  { time: '10:00', load: 58, tokens: 88 },
+  { time: '12:00', load: 71, tokens: 108 },
+  { time: '14:00', load: 66, tokens: 97 },
+]
+
+const terminalLogs = [
+  '[INFO] Agent-2 connected to Semantic Bus',
+  '[WARN] High latency detected in us-east-1',
+  '[INFO] Consensus vote started for TSK-361',
+  '[INFO] Guardian policy set updated (pci, pii, s2s-auth)',
+  '[WARN] Token burn rate above threshold for 2m',
+  '[INFO] Agent atlas-orchestrator issued workload rebalance',
+]
+
+const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '#compliance-vote']
 
 const initialMessages = [
   {
     id: 1,
     author: 'Atlas-Orchestrator',
-    kind: 'agent',
-    time: '14:02',
-    text: 'Routing task graph for service split. Codex-Dev and Sentry-Sec, please confirm dependencies.',
+    type: 'text',
+    content: 'Starting migration rollout. Requesting validators for canary stage.',
+    time: '09:41',
   },
   {
     id: 2,
-    author: 'Sentry-Sec',
-    kind: 'agent',
-    time: '14:03',
-    text: '```ts\nconst policy = guardian.verify("migration-api-v2", {\n  secrets: "vault://prod/main",\n  riskBudget: "low"\n})\n```',
+    author: 'Codex-Dev',
+    type: 'code',
+    content: `const swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: 'weighted-majority',\n  channels: ['migration-api-v2'],\n  guardRails: ['pci', 'pii'],\n})`,
+    time: '09:42',
   },
   {
     id: 3,
-    author: 'System Alert',
-    kind: 'system',
-    time: '14:03',
-    text: 'Consensus drift detected in #migration-api-v2. Triggering tie-break protocol.',
+    author: 'System',
+    type: 'alert',
+    content: 'Throttle policy enabled after anomaly score exceeded 0.81.',
+    time: '09:43',
   },
 ]
 
-const mockQueue = [
+const tasks = [
+  { id: 'TSK-341', title: 'Rebalance vector shards', state: 'Pending', agent: 'Atlas-Orchestrator' },
   {
-    id: 'task-1',
-    title: 'Refactor token metering middleware',
-    agent: 'Codex-Dev',
+    id: 'TSK-352',
+    title: 'Verify policy drift report',
     state: 'In Progress',
-  },
-  {
-    id: 'task-2',
-    title: 'Validate schema migration rollbacks',
-    agent: 'Atlas-Orchestrator',
-    state: 'Pending',
-  },
-  {
-    id: 'task-3',
-    title: 'Approve cross-agent write access policy',
     agent: 'Sentry-Sec',
+  },
+]
+
+const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+
+const tasks = [
+  { title: 'Map migration dependencies', agent: 'Atlas-Orchestrator', state: 'Pending' },
+  { title: 'Rehearse blue-green failover', agent: 'Codex-Dev', state: 'In Progress' },
+  {
+    id: 'TSK-361',
+    title: 'Deploy consensus patch',
     state: 'Needs Consensus',
+    agent: 'Codex-Dev',
     votes: 1,
     totalVotes: 3,
   },
+  { title: 'Rotate service tokens', agent: 'Sentry-Sec', state: 'Completed' },
+  { title: 'Stress test edge latency', agent: 'Nova-Perf', state: 'In Progress' },
   {
-    id: 'task-4',
-    title: 'Deploy semantic bus shard to eu-west-1',
-    agent: 'Nova-Deploy',
+    id: 'TSK-378',
+    title: 'Rollout observability update',
     state: 'Completed',
+    agent: 'Nova-Observer',
   },
 ]
 
-const fleet = [
-  { name: 'Atlas-Orchestrator', role: 'Coordinator', specialization: 'Task routing', uptime: '99.99%', status: 'Idle' },
-  { name: 'Codex-Dev', role: 'Builder', specialization: 'Code generation', uptime: '99.80%', status: 'Busy' },
-  { name: 'Sentry-Sec', role: 'Guardian', specialization: 'Security policy', uptime: '99.95%', status: 'Error' },
-  { name: 'Nova-Deploy', role: 'Operator', specialization: 'Rollouts', uptime: '99.91%', status: 'Idle' },
+const agents = [
+  {
+    name: 'Atlas-Orchestrator',
+    role: 'Coordinator',
+    specialization: 'Workflow Routing',
+    uptime: '14d 06h',
+    status: 'Idle',
+  },
+  {
+    name: 'Codex-Dev',
+    role: 'Builder',
+    specialization: 'TypeScript & APIs',
+    uptime: '9d 02h',
+    status: 'Busy',
+  },
+  {
+    name: 'Sentry-Sec',
+    role: 'Security & Policy',
+    specialization: 'Threat Modeling',
+    uptime: '21d 18h',
+    status: 'Idle',
+  },
+  {
+    name: 'Nova-Observer',
+    role: 'Telemetry',
+    specialization: 'Tracing & Metrics',
+    uptime: '5d 11h',
+    status: 'Busy',
+  },
+  {
+    name: 'Pulse-Mediator',
+    role: 'Consensus',
+    specialization: 'Voting Logic',
+    uptime: '12d 04h',
+    status: 'Error',
+  },
+  {
+    name: 'Guardian-Rail',
+    role: 'Safety Agent',
+    specialization: 'Policy Enforcement',
+    uptime: '26d 2h',
+    status: 'idle',
+  },
 ]
 
-const statusStyles = {
+const statusColors = {
   Idle: 'bg-emerald-400',
   Busy: 'bg-amber-400',
-  Error: 'bg-red-500',
+  Error: 'bg-rose-500',
 }
 
-function ViewContainer({ children }) {
-  return (
-    <div key={typeof children?.type === 'string' ? children.type : 'view'} style={{ animation: 'fadeIn 260ms ease-out' }}>
-      {children}
-    </div>
-  )
-}
-
-function renderMessageText(text) {
-  const codeMatch = text.match(/```([\s\S]*?)```/)
-  if (codeMatch) {
-    return (
-      <pre className="mt-2 overflow-x-auto rounded-lg border border-emerald-500/30 bg-slate-950 p-3 text-xs text-emerald-300">
-        <code style={{ fontFamily: '"JetBrains Mono", monospace' }}>{codeMatch[1].trim()}</code>
-      </pre>
-    )
-  }
+const panelAnim = { animation: 'fadeIn 280ms ease' }
 
   return <p className="text-sm text-slate-200">{text}</p>
 }
@@ -135,55 +199,56 @@ export default function Consendus() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
-  const [simulating, setSimulating] = useState(false)
+  const [isSimulating, setIsSimulating] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const statCards = useMemo(
-    () => [
-      { label: 'Active Agents', value: '24', icon: Bot, tone: 'text-indigo-300' },
-      { label: 'Messages/min', value: '186', icon: Cable, tone: 'text-purple-300' },
-      { label: 'Consensus Rate', value: '96.8%', icon: Vote, tone: 'text-emerald-300' },
-      { label: 'Token Usage', value: '1.24M', icon: Cpu, tone: 'text-amber-300' },
-    ],
+  const tasksByState = useMemo(
+    () => ({
+      Pending: tasks.filter((task) => task.state === 'Pending'),
+      'In Progress': tasks.filter((task) => task.state === 'In Progress'),
+      'Needs Consensus': tasks.filter((task) => task.state === 'Needs Consensus'),
+      Completed: tasks.filter((task) => task.state === 'Completed'),
+    }),
     []
   )
 
-  const appendSimulatedMessages = () => {
-    if (simulating) return
-    setSimulating(true)
+  const runSimulation = () => {
+    if (isSimulating) return
 
-    const queued = [
+    const generated = [
       {
-        id: Date.now() + 1,
-        author: 'Codex-Dev',
-        kind: 'agent',
-        time: '14:06',
-        text: 'Patch complete. Running verification hooks before merging migration-api-v2.',
+        author: 'Nova-Observer',
+        type: 'text',
+        content: 'Trace confirms latency dropped 18% after validator rebalance.',
       },
       {
-        id: Date.now() + 2,
+        author: 'Pulse-Mediator',
+        type: 'alert',
+        content: 'Consensus progress update: 2/3 votes collected.',
+      },
+      {
         author: 'Atlas-Orchestrator',
-        kind: 'agent',
-        time: '14:06',
-        text: 'Received. Rebalancing workload to reduce token spikes on shard-c.',
-      },
-      {
-        id: Date.now() + 3,
-        author: 'System Alert',
-        kind: 'system',
-        time: '14:07',
-        text: 'Consensus threshold reached (3/3). Promotion gate unlocked.',
+        type: 'text',
+        content: 'Routing pending tasks to backup cluster and finalizing rollout.',
       },
     ]
 
-    queued.forEach((entry, index) => {
+    setIsSimulating(true)
+    setIsTyping(true)
+
+    generated.forEach((msg, index) => {
       setTimeout(() => {
-        setMessages((previous) => [...previous, entry])
-        if (index === queued.length - 1) {
-          setSimulating(false)
-        }
-      }, 450 * (index + 1))
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...msg,
+            id: prev.length + 1,
+            time: `09:${50 + index}`,
+          },
+        ])
+      }, (index + 1) * 650)
     })
-  }
 
   const view = () => {
     if (activeView === 'overview') {
@@ -379,137 +444,389 @@ export default function Consendus() {
   return (
     <>
       <Head>
-        <title>Consendus.ai | Autonomous Agent Infrastructure</title>
+        <title>Consendus.ai — Agent Swarm Infrastructure</title>
       </Head>
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
 
-      <div className="min-h-screen bg-slate-900 text-slate-100" style={{ fontFamily: '"Inter", system-ui, sans-serif' }}>
-        {!inConsole ? (
-          <main className="mx-auto max-w-6xl px-6 py-10 md:px-10 md:py-14">
-            <header className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-800/50 px-4 py-3 backdrop-blur">
-              <div className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200">
-                <Command className="h-4 w-4" /> Consendus.ai
+      <div className="min-h-screen bg-slate-900 text-slate-100" style={{ fontFamily: 'Inter, sans-serif' }}>
+        {view === 'landing' ? (
+          <main className="mx-auto max-w-7xl px-6 py-10 md:px-10 md:py-14">
+            <header className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-slate-800">
+                  <Sparkles className="h-5 w-5 text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Consendus.ai</p>
+                  <p className="text-sm text-slate-200">Autonomous Infrastructure</p>
+                </div>
               </div>
-              <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300">Infra for agent swarms</div>
+              <button
+                onClick={() => setView('console')}
+                className="rounded-xl border border-indigo-400/40 bg-indigo-500/20 px-4 py-2 text-sm font-semibold text-indigo-100 transition hover:bg-indigo-500/30"
+              >
+                Access Console
+              </button>
             </header>
 
-            <section className="mt-10 grid items-center gap-8 lg:grid-cols-2">
+            <section className="mt-14 grid items-start gap-8 lg:grid-cols-[1.1fr,1fr]">
               <div>
-                <p className="inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-3 py-1 text-xs text-purple-200">
-                  <Rocket className="h-3.5 w-3.5" /> Distributed Agent Runtime
-                </p>
-                <h1 className="mt-4 text-4xl font-semibold leading-tight md:text-6xl">Orchestrate Your Agent Swarm</h1>
-                <p className="mt-4 max-w-xl text-slate-300 md:text-lg">
-                  Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
+                <h1 className="text-4xl font-bold leading-tight md:text-6xl">Orchestrate Your Agent Swarm</h1>
+                <p className="mt-5 max-w-xl text-slate-300">
+                  Infrastructure for autonomous agents to communicate, coordinate, and reach
+                  consensus.
                 </p>
                 <button
-                  onClick={() => setInConsole(true)}
-                  className="mt-7 inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
+                  onClick={() => setView('console')}
+                  className="mt-8 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
                 >
                   Access Console
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-slate-800/80 p-4 shadow-2xl shadow-indigo-900/20 backdrop-blur">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              <div className="rounded-2xl border border-white/10 bg-slate-800/75 p-5 shadow-2xl shadow-black/25 backdrop-blur">
+                <div className="mb-4 flex items-center justify-between text-xs text-slate-400">
+                  <span className="flex items-center gap-2 uppercase tracking-[0.25em]">
+                    <Terminal className="h-4 w-4 text-emerald-300" />
+                    swarm.config.ts
+                  </span>
+                  <span className="rounded-full border border-white/10 px-2 py-1">Readonly</span>
                 </div>
-                <pre className="overflow-x-auto rounded-lg border border-white/10 bg-slate-950 p-4 text-xs text-emerald-300" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-{`const swarm = new Consendus.Swarm({
-  name: "migration-api-v2",
-  consensus: { algorithm: "raft", quorum: 3 },
-  agents: [
-    { id: "atlas", role: "orchestrator" },
-    { id: "codex", role: "developer" },
-    { id: "sentry", role: "security" },
-  ],
-  rails: ["policy-guard", "latency-failover"]
-})`}
+                <pre className="overflow-x-auto rounded-xl bg-slate-950/80 p-4 text-xs text-emerald-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+{`import { Consendus } from 'consendus'
+
+const swarm = new Consendus.Swarm({
+  agents: ['Atlas-Orchestrator', 'Codex-Dev', 'Sentry-Sec'],
+  bus: 'semantic',
+  quorum: 3,
+  agents: ['Atlas', 'Codex', 'Sentry'],
+  consensus: 'weighted-majority',
+  guardRails: ['pci', 'pii'],
+})
+
+await swarm.deploy('migration-api-v2')`}
                 </pre>
               </div>
             </section>
 
-            <section className="mt-12 grid gap-4 md:grid-cols-3">
-              {[
-                {
-                  title: 'Semantic Bus',
-                  desc: 'Pub/sub transport for intent-aware inter-agent messaging.',
-                  icon: Cable,
-                  tone: 'text-indigo-200',
-                },
-                {
-                  title: 'Consensus Engine',
-                  desc: 'Deterministic voting to finalize plans and unblock execution.',
-                  icon: ClipboardCheck,
-                  tone: 'text-emerald-200',
-                },
-                {
-                  title: 'Guardian Rails',
-                  desc: 'Safety constraints, policy hooks, and rollback controls.',
-                  icon: Shield,
-                  tone: 'text-amber-200',
-                },
-              ].map((item) => {
-                const Icon = item.icon
-                return (
-                  <article key={item.title} className="rounded-xl border border-white/10 bg-slate-800/70 p-5">
-                    <div className={`inline-flex rounded-lg bg-slate-900 p-2 ${item.tone}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h2 className="mt-4 text-lg font-semibold">{item.title}</h2>
-                    <p className="mt-2 text-sm text-slate-300">{item.desc}</p>
-                  </article>
-                )
-              })}
+            <section className="mt-10 grid gap-4 md:grid-cols-3" id="features">
+              {features.map((feature) => (
+                <article
+                  key={feature.title}
+                  className="rounded-xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-black/20 backdrop-blur"
+                >
+                  <div className="flex items-center gap-2 text-white">
+                    <feature.icon className="h-4 w-4 text-indigo-300" />
+                    <h2 className="font-semibold">{feature.title}</h2>
+                  </div>
+                  <p className="mt-3 text-sm text-slate-300">{feature.description}</p>
+                </article>
+              ))}
             </section>
           </main>
         ) : (
           <div className="flex min-h-screen">
+            <div
+              className={`fixed inset-0 z-30 bg-black/55 transition-opacity md:hidden ${
+                sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+              onClick={() => setSidebarOpen(false)}
+            />
+
             <aside
-              className={`fixed inset-y-0 left-0 z-30 w-64 border-r border-white/10 bg-slate-900/95 p-4 backdrop-blur transition-transform md:static md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:static md:translate-x-0 ${
+                sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              }`}
             >
-              <div className="mb-6 flex items-center justify-between">
-                <div className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200">
-                  <Command className="h-4 w-4" /> Consendus
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-200">
+                    <Command className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Consendus</p>
+                    <p className="text-sm font-semibold text-white">Swarm Console</p>
+                  </div>
                 </div>
-                <button className="rounded-md border border-white/10 p-1.5 md:hidden" onClick={() => setSidebarOpen(false)}>
-                  <ChevronLeft className="h-4 w-4" />
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="rounded-lg border border-white/10 p-2 md:hidden"
+                >
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 
-              <nav className="space-y-2">
+              <nav className="mt-8 space-y-1">
                 {navItems.map((item) => {
                   const Icon = item.icon
                   return (
                     <button
-                      key={item.key}
+                      key={item.id}
                       onClick={() => {
-                        setActiveView(item.key)
+                        setActiveTab(item.id)
                         setSidebarOpen(false)
                       }}
-                      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${activeView === item.key ? 'bg-indigo-500/20 text-indigo-200' : 'text-slate-300 hover:bg-slate-800'}`}
+                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-sm transition ${
+                        activeTab === item.id
+                          ? 'border-indigo-400/40 bg-indigo-500/20 text-white'
+                          : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5'
+                      }`}
                     >
-                      <Icon className="h-4 w-4" /> {item.label}
+                      <span className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {item.label}
+                      </span>
+                      <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
                     </button>
                   )
                 })}
               </nav>
             </aside>
 
-            <div className="flex-1 px-4 py-4 md:px-8">
-              <header className="mb-5 flex items-center justify-between rounded-xl border border-white/10 bg-slate-800/70 px-4 py-3">
-                <button className="rounded-md border border-white/10 p-2 md:hidden" onClick={() => setSidebarOpen(true)}>
+            <main className="w-full p-4 md:p-8">
+              <header className="mb-6 flex items-center justify-between">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="rounded-xl border border-white/10 bg-slate-800 p-2 md:hidden"
+                >
                   <Menu className="h-4 w-4" />
                 </button>
-                <div className="hidden text-sm text-slate-300 md:block">Environment: Production Swarm</div>
-                <div className="ml-auto inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-slate-300">
-                  <Settings className="h-3.5 w-3.5" /> ops@consendus.ai
-                </div>
+                <div className="hidden text-sm text-slate-400 md:block">Control plane · dark mode</div>
+                <button className="ml-auto flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
+                  <UserCircle2 className="h-4 w-4 text-indigo-300" />
+                  Settings
+                </button>
               </header>
 
-              {view()}
+              {activeTab === 'overview' && (
+                <section style={panelAnim} className="space-y-6">
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    {stats.map((stat) => {
+                      const Icon = stat.icon
+                      return (
+                        <article key={stat.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                          <div className="flex items-start justify-between">
+                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{stat.label}</p>
+                            <Icon className="h-4 w-4 text-indigo-300" />
+                          </div>
+                          <p className="mt-4 text-2xl font-semibold text-white">{stat.value}</p>
+                          <p className="text-xs text-emerald-300">{stat.delta}</p>
+                        </article>
+                      )
+                    })}
+                  </div>
+
+                  <div className="grid gap-4 xl:grid-cols-[2fr,1fr]">
+                    <article className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                      <div className="mb-4 flex items-center justify-between">
+                        <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
+                          <BarChart3 className="h-4 w-4 text-indigo-300" />
+                          System Load vs Token Consumption
+                        </h2>
+                      </div>
+                      <div className="h-72">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={chartData}>
+                            <defs>
+                              <linearGradient id="loadFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.5} />
+                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                              </linearGradient>
+                              <linearGradient id="tokenFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
+                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                            <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
+                            <YAxis stroke="#94a3b8" fontSize={12} />
+                            <Tooltip
+                              contentStyle={{
+                                background: '#0f172a',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: 12,
+                              }}
+                            />
+                            <Area type="monotone" dataKey="load" stroke="#6366f1" fill="url(#loadFill)" />
+                            <Area type="monotone" dataKey="tokens" stroke="#10b981" fill="url(#tokenFill)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </article>
+
+                    <article className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                      <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
+                        <Terminal className="h-4 w-4 text-emerald-300" />
+                        Terminal Log
+                      </h2>
+                      <div className="mt-4 h-72 space-y-2 overflow-y-auto rounded-lg bg-slate-950/70 p-3 text-xs" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                        {terminalLogs.map((line) => (
+                          <p key={line} className={line.includes('[WARN]') ? 'text-amber-300' : 'text-emerald-300'}>
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                    </article>
+                  </div>
+                </section>
+              )}
+
+              {activeTab === 'comms' && (
+                <section style={panelAnim} className="grid gap-4 lg:grid-cols-[280px,1fr]">
+                  <aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                    <h2 className="text-xs uppercase tracking-[0.2em] text-slate-400">Channels</h2>
+                    <div className="mt-3 space-y-1">
+                      {channels.map((channel) => (
+                        <button
+                          key={channel}
+                          onClick={() => setSelectedChannel(channel)}
+                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm ${
+                            selectedChannel === channel
+                              ? 'bg-indigo-500/20 text-white'
+                              : 'text-slate-300 hover:bg-white/5'
+                          }`}
+                        >
+                          {channel}
+                          <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
+                        </button>
+                      ))}
+                    </div>
+                  </aside>
+
+                  <article className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{selectedChannel}</p>
+                        <p className="text-xs text-slate-400">Agent-to-agent communication feed</p>
+                      </div>
+                      <button
+                        onClick={runSimulation}
+                        disabled={isSimulating}
+                        className="rounded-lg bg-purple-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-purple-400 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isSimulating ? 'Simulating…' : 'Simulate Activity'}
+                      </button>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      {messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`rounded-xl border border-white/10 p-3 ${
+                            message.type === 'alert'
+                              ? 'bg-amber-500/10 text-amber-100'
+                              : 'bg-slate-900/70 text-slate-100'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between text-xs">
+                            <p className="font-semibold text-white">{message.author}</p>
+                            <p className="text-slate-400">{message.time}</p>
+                          </div>
+                          {message.type === 'code' ? (
+                            <pre className="mt-3 overflow-x-auto rounded-lg border border-white/10 bg-black/40 p-3 text-xs text-emerald-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                              <code>{message.content}</code>
+                            </pre>
+                          ) : (
+                            <p className="mt-2 text-sm leading-relaxed">{message.content}</p>
+                          )}
+                        </div>
+                      ))}
+
+                      {isTyping && (
+                        <div className="rounded-lg border border-white/10 bg-slate-900/70 p-3 text-xs text-slate-300">
+                          <div className="flex items-center gap-2" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                            <Activity className="h-3.5 w-3.5 text-purple-300" />
+                            agents typing...
+                          </div>
+                          <button
+                            onClick={simulateActivity}
+                            disabled={isSimulating}
+                            className="rounded-xl bg-indigo-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-70"
+                          >
+                            {isSimulating ? 'Simulating…' : 'Simulate Activity'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                </section>
+              )}
+
+              {activeTab === 'orchestration' && (
+                <section style={panelAnim} className="grid gap-4 lg:grid-cols-4">
+                  {Object.entries(tasksByState).map(([state, list]) => (
+                    <article key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                      <h2 className="text-xs uppercase tracking-[0.2em] text-slate-400">{state}</h2>
+                      <div className="mt-3 space-y-3">
+                        {list.map((task) => (
+                          <div key={task.id} className="rounded-lg border border-white/10 bg-slate-900/70 p-3">
+                            <p className="text-sm text-white">{task.title}</p>
+                            <p className="mt-1 text-xs text-slate-400">{task.agent}</p>
+                            {task.state === 'Needs Consensus' && (
+                              <div className="mt-3">
+                                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                                  <span>Votes</span>
+                                  <span>
+                                    {task.votes}/{task.totalVotes} Votes
+                                  </span>
+                                </div>
+                                <div className="mt-1 h-2 rounded-full bg-white/10">
+                                  <div
+                                    className="h-full rounded-full bg-purple-400"
+                                    style={{ width: `${(task.votes / task.totalVotes) * 100}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </article>
+                  ))}
+                </section>
+              )}
+
+              {activeTab === 'fleet' && (
+                <section style={panelAnim} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {agents.map((agent) => (
+                    <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-sm font-semibold text-white">{agent.name}</h2>
+                        <span className="flex items-center gap-2 text-xs text-slate-300">
+                          <span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} />
+                          {agent.status}
+                        </span>
+                      </div>
+                      <div className="mt-4 space-y-2 text-sm text-slate-300">
+                        <p className="flex items-center gap-2">
+                          <Gauge className="h-4 w-4 text-indigo-300" />
+                          Role: {agent.role}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-300" />
+                          Specialization: {agent.specialization}
+                        </p>
+                        <p className="flex items-center gap-2" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                          Uptime: {agent.uptime}
+                        </p>
+                      </div>
+                    </article>
+                  ))}
+                </section>
+              </main>
             </div>
           </div>
         )}
