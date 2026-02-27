@@ -118,6 +118,24 @@ const trustPillars = [
   },
 ]
 
+const interventions = [
+  {
+    stage: 'Early prevention',
+    focus: 'Protect existing density',
+    actions: 'Scalp care routine, nutrition prompts, and sleep/stress optimization plans.',
+  },
+  {
+    stage: 'Active thinning',
+    focus: 'Slow progression',
+    actions: 'Topical treatment guidance, adherence tracking, and monthly response scoring.',
+  },
+  {
+    stage: 'Accelerated loss',
+    focus: 'Escalate with specialist care',
+    actions: 'Priority consult booking, treatment discussion prep, and progress handoff reports.',
+  },
+]
+
 export default function HairLoss() {
   return (
     <div className="bg-slate-950 text-white">
@@ -303,6 +321,34 @@ export default function HairLoss() {
                 Manetain provides tracking and prevention guidance, not a medical diagnosis. Users
                 with rapid or severe changes should consult a licensed clinician.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-500/10 p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Intervention engine</p>
+                <h3 className="mt-2 text-2xl font-semibold">Know what to do at every stage</h3>
+                <p className="mt-3 max-w-2xl text-sm text-slate-300">
+                  Manetain converts weekly scan data into a clear action plan so users can respond
+                  early with confidence instead of waiting until loss is obvious.
+                </p>
+              </div>
+              <button className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white">
+                Book specialist intro
+              </button>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {interventions.map((item) => (
+                <div key={item.stage} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.stage}</p>
+                  <p className="mt-2 text-base font-semibold">{item.focus}</p>
+                  <p className="mt-2 text-sm text-slate-300">{item.actions}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
