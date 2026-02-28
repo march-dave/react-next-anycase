@@ -124,6 +124,24 @@ const interventions = [
   },
 ]
 
+const faqs = [
+  {
+    question: 'How often should I scan my scalp?',
+    answer:
+      'Weekly scans are enough for trend accuracy while keeping the routine lightweight and sustainable.',
+  },
+  {
+    question: 'Do I need to share DNA data?',
+    answer:
+      'No. DNA upload is optional. The core tracking and recommendations work with photos and questionnaire data alone.',
+  },
+  {
+    question: 'Is this a medical diagnosis tool?',
+    answer:
+      'No. Manetain is a prevention and tracking product that helps users decide when to consult a licensed specialist.',
+  },
+]
+
 export default function HairLoss() {
   return (
     <div className="bg-slate-950 text-white">
@@ -158,6 +176,14 @@ export default function HairLoss() {
                 <button className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white">
                   See how it works
                 </button>
+                <a
+                  href="https://www.godaddy.com/en/domainsearch/find?domainToCheck=Manetain.co"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-emerald-300/40 bg-emerald-400/10 px-6 py-3 text-sm font-semibold text-emerald-100"
+                >
+                  View domain
+                </a>
               </div>
               <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 sm:grid-cols-3">
                 {stats.map((stat) => (
@@ -327,6 +353,30 @@ export default function HairLoss() {
                   <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.stage}</p>
                   <p className="mt-2 text-base font-semibold">{item.focus}</p>
                   <p className="mt-2 text-sm text-slate-300">{item.actions}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="grid gap-8 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-8 lg:grid-cols-[1fr_1fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">FAQ</p>
+              <h3 className="mt-2 text-2xl font-semibold">Built for prevention, not panic</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                Hair loss is emotional. The product experience focuses on objective measurements,
+                clear next steps, and supportive guidance.
+              </p>
+              <button className="mt-6 rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-slate-950">
+                Book specialist consult
+              </button>
+            </div>
+            <div className="space-y-4">
+              {faqs.map((faq) => (
+                <div key={faq.question} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <h4 className="text-base font-semibold">{faq.question}</h4>
+                  <p className="mt-2 text-sm text-slate-300">{faq.answer}</p>
                 </div>
               ))}
             </div>
