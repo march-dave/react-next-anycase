@@ -74,10 +74,9 @@ export default function MealcyclePage() {
   );
 
   useEffect(() => {
-    if (!analyzing) return;
+    if (!analyzing || onboardingStep !== 3) return;
     const timer = setTimeout(() => {
       setAnalyzing(false);
-      setOnboardingStep(3);
       setProfile((prev) => ({
         ...prev,
         proteinTarget: generateProteinTarget(prev.dosageStage),
@@ -85,7 +84,7 @@ export default function MealcyclePage() {
     }, 1700);
 
     return () => clearTimeout(timer);
-  }, [analyzing]);
+  }, [analyzing, onboardingStep]);
 
   const handleChatSubmit = async (event) => {
     event.preventDefault();
@@ -174,6 +173,8 @@ export default function MealcyclePage() {
           onLogout={() => {
             setStage(APP_STAGES.LANDING);
             setOnboardingStep(1);
+            setView('weekly');
+            setAnalyzing(false);
           }}
         />
       )}
@@ -281,7 +282,15 @@ function Onboarding({ onboardingStep, setOnboardingStep, profile, setProfile, an
                 </button>
               ))}
             </div>
-            <button onClick={() => setAnalyzing(true)} className="mt-8 rounded-xl bg-slate-900 px-5 py-3 text-white">Run Analysis</button>
+            <button
+              onClick={() => {
+                setOnboardingStep(3);
+                setAnalyzing(true);
+              }}
+              className="mt-8 rounded-xl bg-slate-900 px-5 py-3 text-white"
+            >
+              Run Analysis
+            </button>
           </div>
         )}
 
