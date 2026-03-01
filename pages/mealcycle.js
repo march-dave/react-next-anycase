@@ -153,46 +153,18 @@ const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
     }, 1800)
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-12">
-      <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl shadow-slate-300/50">
-        <p className="text-sm font-medium uppercase tracking-wide text-teal-700">Onboarding</p>
-        <h2 className="mt-2 text-3xl font-semibold">Build your GLP-1 protocol</h2>
-        <div className="mt-6 h-2 rounded-full bg-slate-200">
-          <div
-            style={{ width: `${(step / 3) * 100}%` }}
-            className="h-full rounded-full bg-gradient-to-r from-teal-300 to-teal-700 transition-all"
-          />
-        </div>
+  useEffect(() => {
+    if (!analyzing || onboardingStep !== 3) return;
+    const timer = setTimeout(() => {
+      setAnalyzing(false);
+      setProfile((prev) => ({
+        ...prev,
+        proteinTarget: generateProteinTarget(prev.dosageStage),
+      }));
+    }, 1700);
 
-        {step === 1 && (
-          <div className="mt-8">
-            <p className="text-sm text-slate-500">Step 1</p>
-            <h3 className="mt-1 text-xl font-semibold">Which medication are you taking?</h3>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {MEDICATIONS.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setProfile((prev) => ({ ...prev, medication: item }))}
-                  className={`rounded-2xl border p-4 text-left ${
-                    profile.medication === item
-                      ? 'border-teal-600 bg-teal-50 text-teal-900'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!profile.medication}
-              className="mt-6 rounded-xl bg-slate-900 px-5 py-2 text-white disabled:opacity-40"
-            >
-              Continue
-            </button>
-          </div>
-        )}
+    return () => clearTimeout(timer);
+  }, [analyzing, onboardingStep]);
 
         {step === 2 && (
           <div className="mt-8">
@@ -327,19 +299,71 @@ const AIChat = () => {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h4 className="mb-3 text-sm font-semibold text-slate-700">Nutrition Assistant</h4>
-      <div className="max-h-64 space-y-3 overflow-auto pr-1">
-        {messages.map((message, index) => (
-          <div
-            key={`${message.role}-${index}`}
-            className={`rounded-xl p-3 text-sm ${
-              message.role === 'assistant'
-                ? 'bg-slate-100 text-slate-700'
-                : 'bg-teal-600 text-white'
-            }`}
-          >
-            {message.text}
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      {stage === APP_STAGES.LANDING && (
+        <Landing
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          onBuildPlan={() => setStage(APP_STAGES.ONBOARDING)}
+        />
+      )}
+
+      {stage === APP_STAGES.ONBOARDING && (
+        <Onboarding
+          onboardingStep={onboardingStep}
+          setOnboardingStep={setOnboardingStep}
+          profile={profile}
+          setProfile={setProfile}
+          analyzing={analyzing}
+          setAnalyzing={setAnalyzing}
+          onRevealPlan={() => setStage(APP_STAGES.DASHBOARD)}
+        />
+      )}
+
+      {stage === APP_STAGES.DASHBOARD && (
+        <Dashboard
+          profile={profile}
+          view={view}
+          setView={setView}
+          proteinAverage={proteinAverage}
+          symptomFreeDays={symptomFreeDays}
+          chatInput={chatInput}
+          setChatInput={setChatInput}
+          chatMessages={chatMessages}
+          chatLoading={chatLoading}
+          onChatSubmit={handleChatSubmit}
+          onLogout={() => {
+            setStage(APP_STAGES.LANDING);
+            setOnboardingStep(1);
+            setView('weekly');
+            setAnalyzing(false);
+          }}
+        />
+      )}
+    </main>
+  );
+}
+
+function Landing({ onBuildPlan, mobileMenuOpen, setMobileMenuOpen }) {
+  return (
+    <div className="mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-12">
+      <header className="sticky top-4 z-20 mb-12 rounded-2xl border border-white/50 bg-white/80 p-4 shadow-lg shadow-teal-900/5 backdrop-blur">
+        <div className="flex items-center justify-between">
+          <p className="text-lg font-semibold">Mealcycle.co</p>
+          <nav className="hidden items-center gap-8 md:flex">
+            <a href="#features" className="text-sm text-slate-600">Features</a>
+            <a href="#how" className="text-sm text-slate-600">How it works</a>
+            <button onClick={onBuildPlan} className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">Get Started</button>
+          </nav>
+          <button className="md:hidden" onClick={() => setMobileMenuOpen((prev) => !prev)}>
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+        {mobileMenuOpen && (
+          <div className="mt-4 space-y-3 border-t border-slate-200 pt-4 md:hidden">
+            <a href="#features" className="block text-sm text-slate-600">Features</a>
+            <a href="#how" className="block text-sm text-slate-600">How it works</a>
+            <button onClick={onBuildPlan} className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">Build My Plan</button>
           </div>
         ))}
         {loading && <p className="text-xs text-slate-500">Assistant is thinking...</p>}
@@ -378,21 +402,28 @@ const Dashboard = ({ profile, onLogout }) => {
             <p className="mt-3 text-sm">Target Protein: {profile.proteinTarget}g/day</p>
           </div>
 
-          <nav className="mt-5 space-y-2">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveView(item.id)}
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm ${
-                  activeView === item.id
-                    ? 'bg-teal-50 font-medium text-teal-800'
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                <item.icon className="h-4 w-4" /> {item.label}
-              </button>
-            ))}
-          </nav>
+        {onboardingStep === 2 && (
+          <div>
+            <h2 className="text-3xl font-semibold">Where are you in your dosage journey?</h2>
+            <p className="mt-2 text-slate-600">Targets shift as your dosage and appetite adapt.</p>
+            <div className="mt-6 grid gap-3 md:grid-cols-3">
+              {DOSAGE_STAGES.map((stage) => (
+                <button key={stage} onClick={() => setProfile((prev) => ({ ...prev, dosageStage: stage }))} className={`rounded-2xl border p-4 ${profile.dosageStage === stage ? 'border-teal-600 bg-teal-50' : 'border-slate-200'}`}>
+                  {stage}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                setOnboardingStep(3);
+                setAnalyzing(true);
+              }}
+              className="mt-8 rounded-xl bg-slate-900 px-5 py-3 text-white"
+            >
+              Run Analysis
+            </button>
+          </div>
+        )}
 
           <button
             onClick={onLogout}
