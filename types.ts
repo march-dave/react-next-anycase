@@ -1,13 +1,10 @@
-export type Medication = 'Ozempic' | 'Mounjaro' | 'Wegovy' | 'Zepbound' | 'Saxenda';
-
-export type DosageStage = 'Initiation' | 'Titration' | 'Maintenance';
+export type Medication = 'Ozempic' | 'Mounjaro' | 'Wegovy' | 'Zepbound' | 'Other';
 
 export interface UserProfile {
   name: string;
   medication: Medication;
-  dosageStage: DosageStage;
+  dosageStage: 'Initiation' | 'Titration' | 'Maintenance';
   proteinTarget: number;
-  currentWeight: number;
 }
 
 export interface DailyLog {
@@ -15,14 +12,4 @@ export interface DailyLog {
   protein: number;
   weight: number;
   symptomFree: boolean;
-}
-
-export interface Meal {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  tags: string[];
-  protein: number;
-  calories: number;
 }

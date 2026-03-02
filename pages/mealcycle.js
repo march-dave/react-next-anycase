@@ -1,37 +1,36 @@
-import { useEffect, useMemo, useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { useMemo, useState } from 'react'
+import { GoogleGenAI } from '@google/genai'
 import {
   Activity,
-  ArrowRight,
-  ChefHat,
+  ChevronRight,
+  Dumbbell,
   HeartPulse,
   LogOut,
   Menu,
-  Scale,
-  ShieldCheck,
   Sparkles,
-  Target,
+  Utensils,
   X,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   Area,
+  CartesianGrid,
   ComposedChart,
+  Legend,
   Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
-import { MOCK_LOGS, MOCK_MEALS } from '../constants';
+} from 'recharts'
+import { DOSAGE_STAGES, MEDICATIONS, MOCK_LOGS, MOCK_MEALS } from '../mealcycle/constants'
 
-const APP_STAGES = {
-  LANDING: 'landing',
-  ONBOARDING: 'onboarding',
-  DASHBOARD: 'dashboard',
-};
+const navItems = [
+  { id: 'weekly', label: 'Weekly Plan', icon: Utensils },
+  { id: 'progress', label: 'Progress & Vitals', icon: Activity },
+]
 
-const MEDICATIONS = ['Ozempic', 'Mounjaro', 'Wegovy', 'Zepbound', 'Saxenda'];
-const DOSAGE_STAGES = ['Initiation', 'Titration', 'Maintenance'];
+const LandingPage = ({ onStart }) => {
+  const [mobileOpen, setMobileOpen] = useState(false)
 
 const BASE_CHAT = [
   {
@@ -46,27 +45,81 @@ const generateProteinTarget = (dosageStage) => {
   return 155;
 };
 
-export default function MealcyclePage() {
-  const [stage, setStage] = useState(APP_STAGES.LANDING);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [onboardingStep, setOnboardingStep] = useState(1);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [view, setView] = useState('weekly');
-  const [chatInput, setChatInput] = useState('');
-  const [chatLoading, setChatLoading] = useState(false);
-  const [chatMessages, setChatMessages] = useState(BASE_CHAT);
-  const [profile, setProfile] = useState({
-    name: 'Avery',
-    medication: 'Ozempic',
-    dosageStage: 'Titration',
-    proteinTarget: 140,
-    currentWeight: 191.2,
-  });
+      <main>
+        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-2 md:items-center">
+          <div>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-4 py-1 text-sm text-teal-800">
+              <Sparkles className="h-4 w-4" /> Trusted by 14,000+ GLP-1 members
+            </div>
+            <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
+              Nutrition designed for your biological breakthrough
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-slate-600">
+              Precision meal prep for appetite-suppressed weeks—protect lean muscle, calm nausea,
+              and keep progress moving.
+            </p>
+            <button
+              onClick={onStart}
+              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-teal-300 to-teal-700 px-6 py-3 font-medium text-white shadow-xl shadow-teal-700/30"
+            >
+              Build My Plan <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=800&q=80',
+            ].map((image) => (
+              <img
+                key={image}
+                src={image}
+                alt="Healthy meal"
+                className="h-40 w-full rounded-2xl object-cover shadow-lg md:h-52"
+              />
+            ))}
+          </div>
+        </section>
 
-  const proteinAverage = useMemo(
-    () => Math.round(MOCK_LOGS.reduce((sum, day) => sum + day.protein, 0) / MOCK_LOGS.length),
-    []
-  );
+        <section id="features" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              {
+                title: 'Prevent Muscle Loss',
+                desc: 'Protein-forward meal architecture timed to low-appetite windows.',
+                icon: Dumbbell,
+              },
+              {
+                title: 'Stop the Nausea',
+                desc: 'Gentle textures and anti-nausea pairings for post-injection days.',
+                icon: HeartPulse,
+              },
+              {
+                title: 'Nutrient Density',
+                desc: 'Every bite engineered with micronutrient richness and balanced energy.',
+                icon: Sparkles,
+              },
+            ].map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60"
+              >
+                <feature.icon className="h-7 w-7 text-teal-700" />
+                <h3 className="mt-4 text-xl font-semibold">{feature.title}</h3>
+                <p className="mt-2 text-slate-600">{feature.desc}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  )
+}
+
+const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
+  const [step, setStep] = useState(1)
+  const [isCalculating, setIsCalculating] = useState(false)
 
   const symptomFreeDays = useMemo(() => MOCK_LOGS.filter((day) => day.symptomFree).length, []);
 
@@ -109,31 +162,48 @@ export default function MealcyclePage() {
     setChatInput('');
     setChatLoading(true);
 
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const AIChat = () => {
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      text: 'Hi! I can help with GLP-1 nutrition and symptom management. Ask me anything.',
+    },
+  ])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const sendMessage = async (event) => {
+    event.preventDefault()
+    if (!input.trim()) return
+    const question = input.trim()
+    setInput('')
+    setMessages((prev) => [...prev, { role: 'user', text: question }])
+
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
     if (!apiKey) {
-      setChatMessages((prev) => [
+      setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
           text: 'Gemini API key missing. Fallback: prioritize small meals every 2-3 hours, choose soft high-protein foods (Greek yogurt, eggs, tofu), and sip fluids steadily to reduce nausea.',
         },
-      ]);
-      setChatLoading(false);
-      return;
+      ])
+      return
     }
 
+    setLoading(true)
     try {
       const ai = new GoogleGenAI({ apiKey });
       const transcript = nextMessages.map((message) => `${message.role}: ${message.text}`).join('\n');
 
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
+        contents: question,
         config: {
           systemInstruction:
             'You are an expert nutritionist for GLP-1 patients. Keep answers under 100 words. Focus on protein and symptom management.',
         },
-        contents: transcript,
-      });
+      })
 
       const text =
         response?.text ||
@@ -141,17 +211,17 @@ export default function MealcyclePage() {
 
       setChatMessages((prev) => [...prev, { role: 'assistant', text }]);
     } catch (error) {
-      setChatMessages((prev) => [
+      setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
           text: 'I could not reach Gemini right now. Fallback tip: include at least 20g protein in each mini-meal and pair it with hydration to protect lean mass.',
         },
-      ]);
+      ])
     } finally {
-      setChatLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -313,7 +383,7 @@ function Landing({ onBuildPlan, mobileMenuOpen, setMobileMenuOpen }) {
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 function FeatureCard({ icon: Icon, title, text }) {
@@ -373,7 +443,6 @@ function Onboarding({
               Continue
             </button>
           </div>
-        )}
 
         {onboardingStep === 2 && (
           <div>
@@ -561,12 +630,12 @@ function WeeklyPlan() {
                 <span className="font-semibold text-slate-900">Protein {meal.protein}g</span>
                 <span>{meal.calories} kcal</span>
               </div>
-            </div>
-          </article>
-        ))}
+            </section>
+          )}
+        </main>
       </div>
     </div>
-  );
+  )
 }
 
 function ProgressView({ currentWeight, proteinAverage, symptomFreeDays }) {
