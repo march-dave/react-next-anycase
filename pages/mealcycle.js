@@ -5,9 +5,12 @@ import {
   ChevronRight,
   Dumbbell,
   HeartPulse,
+  Loader2,
   LogOut,
   Menu,
+  Salad,
   Sparkles,
+  Stethoscope,
   Utensils,
   X,
 } from 'lucide-react'
@@ -29,28 +32,58 @@ const navItems = [
   { id: 'progress', label: 'Progress & Vitals', icon: Activity },
 ]
 
+const landingFeatures = [
+  {
+    title: 'Prevent Muscle Loss',
+    desc: 'Protein-forward meal architecture tuned for low-appetite windows after injections.',
+    icon: Dumbbell,
+  },
+  {
+    title: 'Stop the Nausea',
+    desc: 'Comfort-first textures, anti-nausea pairings, and digestion-aware seasoning.',
+    icon: HeartPulse,
+  },
+  {
+    title: 'Nutrient Density',
+    desc: 'Low-volume meals engineered for micronutrient richness and sustained energy.',
+    icon: Sparkles,
+  },
+]
+
+const heroImages = [
+  'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=80',
+]
+
 const LandingPage = ({ onStart }) => {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/70 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
+      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/75 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
           <p className="text-xl font-semibold tracking-tight">Mealcycle.co</p>
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
             <a href="#features">Features</a>
             <a href="#science">Science</a>
             <button
               onClick={onStart}
-              className="rounded-full bg-gradient-to-r from-teal-100 to-teal-700 px-5 py-2 font-medium text-white shadow-lg shadow-teal-900/20"
+              className="rounded-full bg-gradient-to-r from-teal-300 to-teal-700 px-5 py-2 font-medium text-white shadow-lg shadow-teal-900/25"
             >
               Build My Plan
             </button>
           </nav>
-          <button className="md:hidden" onClick={() => setMobileOpen((prev) => !prev)}>
+          <button
+            className="rounded-lg p-1 text-slate-700 md:hidden"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label="Toggle navigation"
+          >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
+
         {mobileOpen && (
           <div className="space-y-2 border-t border-slate-200 bg-white px-6 py-4 md:hidden">
             <a href="#features" className="block text-slate-600">
@@ -70,17 +103,17 @@ const LandingPage = ({ onStart }) => {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-2 md:items-center">
+        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-center lg:py-20">
           <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-4 py-1 text-sm text-teal-800">
-              <Sparkles className="h-4 w-4" /> Trusted by 14,000+ GLP-1 members
+              <Stethoscope className="h-4 w-4" /> Trusted by 14,000+ GLP-1 members
             </div>
             <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
               Nutrition designed for your biological breakthrough
             </h1>
             <p className="mt-5 max-w-xl text-lg text-slate-600">
-              Precision meal prep for appetite-suppressed weeks—protect lean muscle, calm nausea,
-              and keep progress moving.
+              A specialized meal prep protocol for Ozempic, Mounjaro, and Wegovy patients to
+              support muscle retention, appetite shifts, and symptom relief.
             </p>
             <button
               onClick={onStart}
@@ -89,42 +122,22 @@ const LandingPage = ({ onStart }) => {
               Build My Plan <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+
           <div className="grid grid-cols-2 gap-4">
-            {[
-              'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=800&q=80',
-            ].map((image) => (
+            {heroImages.map((image) => (
               <img
                 key={image}
                 src={image}
                 alt="Healthy meal"
-                className="h-40 w-full rounded-2xl object-cover shadow-lg md:h-52"
+                className="h-40 w-full rounded-2xl object-cover shadow-xl shadow-slate-400/20 md:h-52"
               />
             ))}
           </div>
         </section>
 
-        <section id="features" className="mx-auto max-w-7xl px-6 py-16">
+        <section id="features" className="mx-auto max-w-7xl px-6 py-14">
           <div className="grid gap-5 md:grid-cols-3">
-            {[
-              {
-                title: 'Prevent Muscle Loss',
-                desc: 'Protein-forward meal architecture timed to low-appetite windows.',
-                icon: Dumbbell,
-              },
-              {
-                title: 'Stop the Nausea',
-                desc: 'Gentle textures and anti-nausea pairings for post-injection days.',
-                icon: HeartPulse,
-              },
-              {
-                title: 'Nutrient Density',
-                desc: 'Every bite engineered with micronutrient richness and balanced energy.',
-                icon: Sparkles,
-              },
-            ].map((feature) => (
+            {landingFeatures.map((feature) => (
               <article
                 key={feature.title}
                 className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60"
@@ -134,6 +147,19 @@ const LandingPage = ({ onStart }) => {
                 <p className="mt-2 text-slate-600">{feature.desc}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section id="science" className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-200/70">
+            <p className="text-sm font-semibold uppercase tracking-wide text-teal-700">Clinical focus</p>
+            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">
+              Built for the realities of GLP-1 appetite suppression
+            </h2>
+            <p className="mt-3 max-w-3xl text-slate-600">
+              We help you reach therapeutic goals without sacrificing muscle, hydration, or recovery
+              by sequencing high-protein meals around your lowest tolerance windows.
+            </p>
           </div>
         </section>
       </main>
@@ -150,7 +176,7 @@ const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
     setTimeout(() => {
       setProfile((prev) => ({ ...prev, proteinTarget: 140 }))
       setIsCalculating(false)
-    }, 1800)
+    }, 1600)
   }
 
   return (
@@ -158,6 +184,7 @@ const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
       <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl shadow-slate-300/50">
         <p className="text-sm font-medium uppercase tracking-wide text-teal-700">Onboarding</p>
         <h2 className="mt-2 text-3xl font-semibold">Build your GLP-1 protocol</h2>
+
         <div className="mt-6 h-2 rounded-full bg-slate-200">
           <div
             style={{ width: `${(step / 3) * 100}%` }}
@@ -236,8 +263,9 @@ const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
             <p className="text-sm text-slate-500">Step 3</p>
             <h3 className="mt-1 text-xl font-semibold">Biometric analysis</h3>
             {isCalculating ? (
-              <div className="mt-6 rounded-2xl border border-teal-100 bg-teal-50 p-6 text-teal-800">
-                Calculating optimal macros, symptom strategy, and portion cadence...
+              <div className="mt-6 flex items-center gap-2 rounded-2xl border border-teal-100 bg-teal-50 p-6 text-teal-800">
+                <Loader2 className="h-4 w-4 animate-spin" /> Calculating optimal macros, symptom
+                strategy, and portion cadence...
               </div>
             ) : (
               <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
@@ -278,6 +306,7 @@ const AIChat = () => {
   const sendMessage = async (event) => {
     event.preventDefault()
     if (!input.trim()) return
+
     const question = input.trim()
     setInput('')
     setMessages((prev) => [...prev, { role: 'user', text: question }])
@@ -288,7 +317,7 @@ const AIChat = () => {
         ...prev,
         {
           role: 'assistant',
-          text: 'Gemini API key is missing. Add NEXT_PUBLIC_GEMINI_API_KEY in .env.local to enable AI guidance.',
+          text: 'Gemini key missing. Add NEXT_PUBLIC_GEMINI_API_KEY to enable the nutrition assistant.',
         },
       ])
       return
@@ -327,16 +356,14 @@ const AIChat = () => {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h4 className="mb-3 text-sm font-semibold text-slate-700">Nutrition Assistant</h4>
-      <div className="max-h-64 space-y-3 overflow-auto pr-1">
+    <aside className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-300/30">
+      <h4 className="mb-3 text-sm font-semibold text-slate-700">AI Nutrition Assistant</h4>
+      <div className="max-h-72 space-y-3 overflow-auto pr-1">
         {messages.map((message, index) => (
           <div
             key={`${message.role}-${index}`}
             className={`rounded-xl p-3 text-sm ${
-              message.role === 'assistant'
-                ? 'bg-slate-100 text-slate-700'
-                : 'bg-teal-600 text-white'
+              message.role === 'assistant' ? 'bg-slate-100 text-slate-700' : 'bg-teal-600 text-white'
             }`}
           >
             {message.text}
@@ -353,6 +380,17 @@ const AIChat = () => {
         />
         <button className="rounded-xl bg-slate-900 px-4 text-sm text-white">Send</button>
       </form>
+    </aside>
+  )
+}
+
+const ProgressTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-xl bg-slate-900/95 px-3 py-2 text-xs text-slate-50 shadow-xl">
+      <p className="font-semibold">{label}</p>
+      <p>Protein: {payload[0]?.value}g</p>
+      <p>Weight: {payload[1]?.value} lb</p>
     </div>
   )
 }
@@ -364,12 +402,13 @@ const Dashboard = ({ profile, onLogout }) => {
     () => Math.round(MOCK_LOGS.reduce((sum, day) => sum + day.protein, 0) / MOCK_LOGS.length),
     []
   )
+  const symptomFreeDays = useMemo(() => MOCK_LOGS.filter((day) => day.nausea === 0).length, [])
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-      <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-[260px_1fr]">
-        <aside className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-300/30">
-          <div className="rounded-2xl bg-gradient-to-r from-teal-100 to-teal-700 p-4 text-white">
+      <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[280px_1fr]">
+        <aside className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-300/30 lg:sticky lg:top-6 lg:h-fit">
+          <div className="rounded-2xl bg-gradient-to-r from-teal-300 to-teal-700 p-4 text-white">
             <p className="text-xs uppercase tracking-wider text-teal-50">Profile</p>
             <h3 className="mt-1 text-xl font-semibold">Jordan Lee</h3>
             <p className="text-sm text-teal-50">
@@ -404,9 +443,14 @@ const Dashboard = ({ profile, onLogout }) => {
 
         <main className="space-y-4">
           {activeView === 'weekly' && (
-            <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+            <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
               <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-300/30">
-                <h2 className="text-2xl font-semibold">Weekly Plan</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-semibold">Weekly Plan</h2>
+                  <span className="hidden items-center gap-2 rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 sm:inline-flex">
+                    <Salad className="h-3.5 w-3.5" /> GLP-1 Optimized Meals
+                  </span>
+                </div>
                 <p className="mt-1 text-slate-600">High-protein meals tuned for GLP-1 tolerance.</p>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -415,7 +459,7 @@ const Dashboard = ({ profile, onLogout }) => {
                       key={meal.id}
                       className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
                     >
-                      <img src={meal.image} alt={meal.title} className="h-32 w-full object-cover" />
+                      <img src={meal.image} alt={meal.title} className="h-36 w-full object-cover" />
                       <div className="p-4">
                         <h3 className="font-semibold">{meal.title}</h3>
                         <p className="mt-1 text-sm text-slate-600">{meal.description}</p>
@@ -456,7 +500,7 @@ const Dashboard = ({ profile, onLogout }) => {
                 </div>
                 <div className="rounded-2xl border border-slate-200 p-4">
                   <p className="text-sm text-slate-500">Symptom-Free Days</p>
-                  <p className="mt-1 text-2xl font-semibold">5 / 7</p>
+                  <p className="mt-1 text-2xl font-semibold">{symptomFreeDays} / 7</p>
                 </div>
               </div>
 
@@ -467,14 +511,7 @@ const Dashboard = ({ profile, onLogout }) => {
                     <XAxis dataKey="day" stroke="#64748b" />
                     <YAxis yAxisId="left" stroke="#0f766e" />
                     <YAxis yAxisId="right" orientation="right" stroke="#0f172a" domain={[194, 202]} />
-                    <Tooltip
-                      contentStyle={{
-                        background: '#0f172a',
-                        borderRadius: '12px',
-                        border: 'none',
-                        color: '#f8fafc',
-                      }}
-                    />
+                    <Tooltip content={<ProgressTooltip />} />
                     <Legend />
                     <Area
                       yAxisId="left"
@@ -514,7 +551,9 @@ export default function MealcyclePage() {
 
   if (view === 'landing') return <LandingPage onStart={() => setView('onboarding')} />
   if (view === 'onboarding') {
-    return <OnboardingFlow profile={profile} setProfile={setProfile} onFinish={() => setView('dashboard')} />
+    return (
+      <OnboardingFlow profile={profile} setProfile={setProfile} onFinish={() => setView('dashboard')} />
+    )
   }
   return <Dashboard profile={profile} onLogout={() => setView('landing')} />
 }
