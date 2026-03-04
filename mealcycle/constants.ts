@@ -1,6 +1,6 @@
-import type { DailyLog } from './types'
+import type { DailyLog, DosageStage, Meal, Medication } from './types'
 
-export const MOCK_MEALS = [
+export const MOCK_MEALS: Meal[] = [
   {
     id: 1,
     title: 'Lemon Herb Salmon Bowl',
@@ -53,5 +53,5 @@ export const MOCK_LOGS: DailyLog[] = [
   { day: 'Sun', protein: 139, weight: 196.9, nausea: 1 },
 ]
 
-export const MEDICATIONS = ['Ozempic', 'Mounjaro', 'Wegovy', 'Zepbound', 'Other'] as const
-export const DOSAGE_STAGES = ['Initiation', 'Titration', 'Maintenance'] as const
+export const MEDICATIONS: Medication[] = ['Ozempic', 'Mounjaro', 'Wegovy', 'Zepbound', 'Other']
+export const DOSAGE_STAGES: DosageStage[] = ['Initiation', 'Titration', 'Maintenance']
