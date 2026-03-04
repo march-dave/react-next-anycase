@@ -192,71 +192,16 @@ const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
           />
         </div>
 
-        {step === 1 && (
-          <div className="mt-8">
-            <p className="text-sm text-slate-500">Step 1</p>
-            <h3 className="mt-1 text-xl font-semibold">Which medication are you taking?</h3>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {MEDICATIONS.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setProfile((prev) => ({ ...prev, medication: item }))}
-                  className={`rounded-2xl border p-4 text-left ${
-                    profile.medication === item
-                      ? 'border-teal-600 bg-teal-50 text-teal-900'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!profile.medication}
-              className="mt-6 rounded-xl bg-slate-900 px-5 py-2 text-white disabled:opacity-40"
-            >
-              Continue
-            </button>
-          </div>
-        )}
+    const timer = setTimeout(() => {
+      setAnalyzing(false);
+      setProfile((prev) => ({
+        ...prev,
+        proteinTarget: generateProteinTarget(prev.dosageStage),
+      }));
+    }, 1700);
 
-        {step === 2 && (
-          <div className="mt-8">
-            <p className="text-sm text-slate-500">Step 2</p>
-            <h3 className="mt-1 text-xl font-semibold">Select your dosage stage</h3>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {DOSAGE_STAGES.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setProfile((prev) => ({ ...prev, dosageStage: item }))}
-                  className={`rounded-2xl border p-4 text-left ${
-                    profile.dosageStage === item
-                      ? 'border-teal-600 bg-teal-50 text-teal-900'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-            <div className="mt-6 flex gap-2">
-              <button onClick={() => setStep(1)} className="rounded-xl border px-5 py-2">
-                Back
-              </button>
-              <button
-                onClick={() => {
-                  setStep(3)
-                  startAnalysis()
-                }}
-                disabled={!profile.dosageStage}
-                className="rounded-xl bg-slate-900 px-5 py-2 text-white disabled:opacity-40"
-              >
-                Analyze
-              </button>
-            </div>
-          </div>
-        )}
+    return () => clearTimeout(timer);
+  }, [analyzing]);
 
         {step === 3 && (
           <div className="mt-8">
@@ -325,7 +270,9 @@ const AIChat = () => {
 
     setLoading(true)
     try {
-      const ai = new GoogleGenAI({ apiKey })
+      const ai = new GoogleGenAI({ apiKey });
+      const transcript = nextMessages.map((message) => `${message.role}: ${message.text}`).join('\n');
+
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: question,
@@ -335,19 +282,17 @@ const AIChat = () => {
         },
       })
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          text: response?.text || 'I could not generate a response right now. Please try again.',
-        },
-      ])
+      const text =
+        response?.text ||
+        'Try 25-35g protein at each meal, keep portions small, and choose lower-fat foods when nausea is active.';
+
+      setChatMessages((prev) => [...prev, { role: 'assistant', text }]);
     } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: 'Unable to reach Gemini right now. Please retry in a moment.',
+          text: 'I could not reach Gemini right now. Fallback tip: include at least 20g protein in each mini-meal and pair it with hydration to protect lean mass.',
         },
       ])
     } finally {
@@ -366,17 +311,83 @@ const AIChat = () => {
               message.role === 'assistant' ? 'bg-slate-100 text-slate-700' : 'bg-teal-600 text-white'
             }`}
           >
-            {message.text}
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+
+        {mobileMenuOpen && (
+          <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 md:hidden">
+            <a href="#features" className="block text-sm text-slate-700">Features</a>
+            <a href="#how" className="block text-sm text-slate-700">How it works</a>
+            <button
+              onClick={onBuildPlan}
+              className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Build My Plan
+            </button>
           </div>
-        ))}
-        {loading && <p className="text-xs text-slate-500">Assistant is thinking...</p>}
-      </div>
-      <form onSubmit={sendMessage} className="mt-4 flex gap-2">
-        <input
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder="I feel nauseous, what should I eat?"
-          className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-teal-500"
+        )}
+      </header>
+
+      <section className="grid items-center gap-10 lg:grid-cols-2">
+        <div>
+          <p className="inline-flex items-center gap-2 rounded-full bg-teal-100 px-3 py-1 text-xs font-semibold text-teal-800">
+            <ShieldCheck className="h-4 w-4" /> Trusted by 10,000+ GLP-1 members
+          </p>
+          <h1 className="mt-5 text-5xl font-semibold tracking-tight text-slate-900 md:text-6xl">
+            Nutrition designed for your biological breakthrough
+          </h1>
+          <p className="mt-6 max-w-xl text-lg text-slate-600">
+            High-protein, symptom-aware meal prep and daily tracking built specifically for Ozempic,
+            Mounjaro, Wegovy, and related GLP-1 protocols.
+          </p>
+          <button
+            onClick={onBuildPlan}
+            className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-teal-200 to-teal-700 px-6 py-3 font-semibold text-slate-900 shadow-lg shadow-teal-900/20"
+          >
+            Build My Plan <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="relative">
+          <img
+            src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80"
+            alt="High protein meal"
+            className="h-[450px] w-full rounded-3xl object-cover shadow-2xl shadow-slate-900/20"
+          />
+          <div className="absolute bottom-4 left-4 rounded-2xl border border-white/40 bg-white/80 p-4 backdrop-blur">
+            <p className="text-sm font-medium text-slate-700">Avg daily protein adherence</p>
+            <p className="mt-1 text-2xl font-bold text-teal-700">92%</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" className="mt-20">
+        <h2 className="text-3xl font-semibold">Why Mealcycle works</h2>
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          <FeatureCard
+            icon={Activity}
+            title="Prevent Muscle Loss"
+            text="Protein-forward meal structures and auto-adjusted targets preserve lean mass during rapid appetite changes."
+          />
+          <FeatureCard
+            icon={HeartPulse}
+            title="Stop the Nausea"
+            text="Low-fat, easy-digesting options with hydration prompts and anti-nausea ingredient logic."
+          />
+          <FeatureCard
+            icon={Sparkles}
+            title="Nutrient Density"
+            text="Micronutrient-rich meals maximize intake in smaller portions without sacrificing satiety."
+          />
+        </div>
+      </section>
+
+      <section id="how" className="mt-20 grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5 lg:grid-cols-2">
+        <img
+          src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80"
+          alt="Prepared healthy meals"
+          className="h-full min-h-[260px] w-full rounded-2xl object-cover"
         />
         <button className="rounded-xl bg-slate-900 px-4 text-sm text-white">Send</button>
       </form>
@@ -395,8 +406,15 @@ const ProgressTooltip = ({ active, payload, label }) => {
   )
 }
 
-const Dashboard = ({ profile, onLogout }) => {
-  const [activeView, setActiveView] = useState('weekly')
+function FeatureCard({ icon: Icon, title, text }) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-900/5">
+      <Icon className="h-6 w-6 text-teal-700" />
+      <h3 className="mt-4 text-xl font-semibold text-slate-900">{title}</h3>
+      <p className="mt-2 text-slate-600">{text}</p>
+    </article>
+  );
+}
 
   const proteinAverage = useMemo(
     () => Math.round(MOCK_LOGS.reduce((sum, day) => sum + day.protein, 0) / MOCK_LOGS.length),
@@ -416,26 +434,117 @@ const Dashboard = ({ profile, onLogout }) => {
             </p>
             <p className="mt-3 text-sm">Target Protein: {profile.proteinTarget}g/day</p>
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-          <nav className="mt-5 space-y-2">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveView(item.id)}
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm ${
-                  activeView === item.id
-                    ? 'bg-teal-50 font-medium text-teal-800'
-                    : 'text-slate-600 hover:bg-slate-100'
+function Dashboard({
+  profile,
+  view,
+  setView,
+  proteinAverage,
+  symptomFreeDays,
+  chatInput,
+  setChatInput,
+  chatMessages,
+  chatLoading,
+  onChatSubmit,
+  onLogout,
+}) {
+  return (
+    <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
+      <aside className="border-b border-slate-200 bg-white p-6 lg:border-b-0 lg:border-r">
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-sm text-slate-500">Welcome back,</p>
+          <p className="text-xl font-semibold">{profile.name}</p>
+          <p className="mt-2 text-sm text-slate-600">
+            {profile.medication} • {profile.dosageStage}
+          </p>
+          <p className="text-sm text-teal-700">Protein target: {profile.proteinTarget}g</p>
+        </div>
+
+        <nav className="mt-8 space-y-2">
+          <button
+            onClick={() => setView('weekly')}
+            className={`w-full rounded-xl px-4 py-3 text-left ${
+              view === 'weekly' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
+            }`}
+          >
+            Weekly Plan
+          </button>
+          <button
+            onClick={() => setView('progress')}
+            className={`w-full rounded-xl px-4 py-3 text-left ${
+              view === 'progress' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
+            }`}
+          >
+            Progress & Vitals
+          </button>
+        </nav>
+
+        <button
+          onClick={onLogout}
+          className="mt-10 inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-600"
+        >
+          <LogOut className="h-4 w-4" /> Logout
+        </button>
+      </aside>
+
+      <section className="grid gap-6 p-6 xl:grid-cols-[1fr_340px]">
+        <div>{view === 'weekly' ? <WeeklyPlan /> : <ProgressView proteinAverage={proteinAverage} symptomFreeDays={symptomFreeDays} currentWeight={profile.currentWeight} />}</div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-900/5">
+          <h3 className="text-lg font-semibold">AI Nutrition Assistant</h3>
+          <p className="text-sm text-slate-500">Ask about nausea, protein timing, and meal swaps.</p>
+
+          <div className="mt-4 h-[380px] space-y-3 overflow-y-auto rounded-xl bg-slate-50 p-3">
+            {chatMessages.map((message, index) => (
+              <div
+                key={`${message.role}-${index}`}
+                className={`rounded-xl px-3 py-2 text-sm ${
+                  message.role === 'assistant'
+                    ? 'max-w-[95%] bg-white text-slate-700'
+                    : 'ml-auto max-w-[85%] bg-teal-600 text-white'
                 }`}
               >
-                <item.icon className="h-4 w-4" /> {item.label}
-              </button>
+                {message.text}
+              </div>
             ))}
-          </nav>
+            {chatLoading && <p className="text-sm text-slate-500">Thinking...</p>}
+          </div>
 
-          <button
-            onClick={onLogout}
-            className="mt-6 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm text-slate-600"
+          <form onSubmit={onChatSubmit} className="mt-3 flex gap-2">
+            <input
+              value={chatInput}
+              onChange={(event) => setChatInput(event.target.value)}
+              placeholder="I feel nauseous, what should I eat?"
+              className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+            />
+            <button className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+              Send
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function WeeklyPlan() {
+  return (
+    <div>
+      <h2 className="text-3xl font-semibold">Your Weekly Plan</h2>
+      <p className="mt-2 text-slate-600">
+        Protein-first meals curated for appetite suppression and symptom control.
+      </p>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        {MOCK_MEALS.map((meal) => (
+          <article
+            key={meal.id}
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/5"
           >
             <LogOut className="h-4 w-4" /> Logout
           </button>

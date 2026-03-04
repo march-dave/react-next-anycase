@@ -5,8 +5,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@600;700&display=swap');
 
 :root {
-  background-color: #fdfbf7;
-  color: #2d2a26;
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 ::selection {
@@ -16,8 +16,8 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #fdfbf7;
-  color: #2d2a26;
+  background-color: #f8fafc;
+  color: #0f172a;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
