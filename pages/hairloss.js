@@ -67,6 +67,27 @@ const features = [
   },
 ]
 
+const productPillars = [
+  {
+    title: 'Weekly standardized scalp photos',
+    description:
+      'Guided angles and lighting checks keep every image clinically comparable so progress is objective.',
+    icon: Camera,
+  },
+  {
+    title: 'Pattern detection before visible loss',
+    description:
+      'AI tracks density shifts, hairline recession, and crown thinning months before most people notice.',
+    icon: ClipboardCheck,
+  },
+  {
+    title: 'Personalized interventions',
+    description:
+      'Recommendations adapt using your pattern, lifestyle data, and optional DNA upload for higher precision.',
+    icon: Dna,
+  },
+]
+
 const timeline = [
   {
     title: 'Week 1',
@@ -239,6 +260,35 @@ export default function HairLoss() {
                   <p className="text-sm uppercase tracking-[0.2em] text-emerald-300">{item.title}</p>
                   <p className="text-sm text-slate-200">{item.detail}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">In a line</p>
+              <h2 className="mt-3 text-3xl font-semibold">
+                AI-powered hair loss tracking with prevention recommendations before it&apos;s too late.
+              </h2>
+              <p className="mt-4 text-sm text-slate-300">
+                The app turns slow, hard-to-see changes into clear weekly signals so treatment can start when it
+                works best.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              {productPillars.map((pillar) => (
+                <article key={pillar.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <div className="flex items-start gap-3">
+                    <pillar.icon className="mt-0.5 h-5 w-5 text-emerald-300" />
+                    <div>
+                      <h3 className="text-base font-semibold">{pillar.title}</h3>
+                      <p className="mt-1 text-sm text-slate-300">{pillar.description}</p>
+                    </div>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
