@@ -1,2 +1,2 @@
-// Default to the Consendus prototype on the home page
-export { default } from './consendus'
+// Default to the Hair Loss prototype on the home page
+export { default } from './hairloss'

@@ -8,6 +8,7 @@ import {
   Loader2,
   LogOut,
   Menu,
+  Salad,
   Sparkles,
   Stethoscope,
   User,
@@ -67,10 +68,15 @@ function LandingPage({ onStart }) {
               Build My Plan
             </button>
           </nav>
-          <button className="md:hidden" onClick={() => setMobileOpen((prev) => !prev)}>
+          <button
+            className="rounded-lg p-1 text-slate-700 md:hidden"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label="Toggle navigation"
+          >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
+
         {mobileOpen && (
           <div className="space-y-2 border-t border-slate-200 bg-white px-6 py-4 md:hidden">
             <a href="#features" className="block text-slate-600">Features</a>
@@ -86,17 +92,17 @@ function LandingPage({ onStart }) {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-2 md:items-center">
+        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-center lg:py-20">
           <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-4 py-1 text-sm text-teal-800">
-              <Sparkles className="h-4 w-4" /> Trusted by 14,000+ GLP-1 members
+              <Stethoscope className="h-4 w-4" /> Trusted by 14,000+ GLP-1 members
             </div>
             <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
               Nutrition designed for your biological breakthrough
             </h1>
             <p className="mt-5 max-w-xl text-lg text-slate-600">
-              Precision meal prep for appetite-suppressed weeks—protect lean muscle, calm nausea,
-              and keep progress moving.
+              A specialized meal prep protocol for Ozempic, Mounjaro, and Wegovy patients to
+              support muscle retention, appetite shifts, and symptom relief.
             </p>
             <button
               onClick={onStart}
@@ -105,42 +111,22 @@ function LandingPage({ onStart }) {
               Build My Plan <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+
           <div className="grid grid-cols-2 gap-4">
-            {[
-              'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=800&q=80',
-            ].map((image) => (
+            {heroImages.map((image) => (
               <img
                 key={image}
                 src={image}
                 alt="Healthy meal"
-                className="h-40 w-full rounded-2xl object-cover shadow-lg md:h-52"
+                className="h-40 w-full rounded-2xl object-cover shadow-xl shadow-slate-400/20 md:h-52"
               />
             ))}
           </div>
         </section>
 
-        <section id="features" className="mx-auto max-w-7xl px-6 py-16">
+        <section id="features" className="mx-auto max-w-7xl px-6 py-14">
           <div className="grid gap-5 md:grid-cols-3">
-            {[
-              {
-                title: 'Prevent Muscle Loss',
-                desc: 'Protein-forward meal architecture timed to low-appetite windows.',
-                icon: Dumbbell,
-              },
-              {
-                title: 'Stop the Nausea',
-                desc: 'Gentle textures and anti-nausea pairings for post-injection days.',
-                icon: HeartPulse,
-              },
-              {
-                title: 'Nutrient Density',
-                desc: 'Every bite engineered with micronutrient richness and balanced energy.',
-                icon: Sparkles,
-              },
-            ].map((feature) => (
+            {landingFeatures.map((feature) => (
               <article
                 key={feature.title}
                 className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60"
@@ -379,6 +365,17 @@ function ChatWidget() {
           Send
         </button>
       </form>
+    </aside>
+  )
+}
+
+const ProgressTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-xl bg-slate-900/95 px-3 py-2 text-xs text-slate-50 shadow-xl">
+      <p className="font-semibold">{label}</p>
+      <p>Protein: {payload[0]?.value}g</p>
+      <p>Weight: {payload[1]?.value} lb</p>
     </div>
   )
 }
@@ -521,6 +518,7 @@ function Dashboard({ profile, onLogout }) {
             ))}
           </nav>
 
+        <nav className="mt-8 space-y-2">
           <button
             onClick={onLogout}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
