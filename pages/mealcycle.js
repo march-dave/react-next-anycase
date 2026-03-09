@@ -5,9 +5,13 @@ import {
   ChevronRight,
   Dumbbell,
   HeartPulse,
+  Loader2,
   LogOut,
   Menu,
+  Salad,
   Sparkles,
+  Stethoscope,
+  User,
   Utensils,
   User,
   X,
@@ -45,7 +49,13 @@ const DashboardNavButton = ({ item, active, onClick }) => (
   </button>
 )
 
-const LandingPage = ({ onStart }) => {
+const stepMeta = [
+  'Medication',
+  'Dosage Stage',
+  'Analysis',
+]
+
+function LandingPage({ onStart }) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -67,6 +77,7 @@ const LandingPage = ({ onStart }) => {
             {mobileOpen ? <X className='h-6 w-6' /> : <Menu className='h-6 w-6' />}
           </button>
         </div>
+
         {mobileOpen && (
           <div className='space-y-2 border-t border-slate-200 bg-white px-6 py-4 md:hidden'>
             <a href='#features' className='block text-slate-600'>
@@ -155,7 +166,7 @@ const LandingPage = ({ onStart }) => {
   )
 }
 
-const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
+function OnboardingFlow({ profile, setProfile, onFinish }) {
   const [step, setStep] = useState(1)
   const [isCalculating, setIsCalculating] = useState(false)
 
@@ -225,9 +236,9 @@ const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
                 <button
                   key={item}
                   onClick={() => setProfile((prev) => ({ ...prev, dosageStage: item }))}
-                  className={`rounded-2xl border p-4 text-left ${
+                  className={`rounded-2xl border p-4 text-left transition ${
                     profile.dosageStage === item
-                      ? 'border-teal-600 bg-teal-50 text-teal-900'
+                      ? 'border-teal-300 bg-teal-50 text-teal-900'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
@@ -271,6 +282,12 @@ const OnboardingFlow = ({ profile, setProfile, onFinish }) => {
                   Your plan prioritizes easy-digest proteins, hydration timing, and low-volume,
                   high-nutrient meals.
                 </p>
+                <button
+                  onClick={onFinish}
+                  className="mt-5 rounded-xl bg-gradient-to-r from-teal-300 to-teal-700 px-5 py-2 text-white"
+                >
+                  Reveal My Plan
+                </button>
               </div>
             )}
             <button
@@ -291,17 +308,19 @@ const AIChatWidget = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: 'Hi! I can help with GLP-1 nutrition and symptom management. Ask me anything.',
+      text: 'Hi! I am your GLP-1 nutrition assistant. Ask me about nausea, protein, or meal timing.',
     },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const sendMessage = async (event) => {
+  const submit = async (event) => {
     event.preventDefault()
     if (!input.trim()) return
 
     const question = input.trim()
+    if (!question || loading) return
+
     setInput('')
     setMessages((prev) => [...prev, { role: 'user', text: question }])
 
@@ -477,8 +496,9 @@ const Dashboard = ({ profile, onLogout }) => {
     { id: 'progress', label: 'Progress & Vitals', icon: Activity },
   ]
 
-  const proteinAverage = useMemo(
-    () => Math.round(MOCK_LOGS.reduce((sum, day) => sum + day.protein, 0) / MOCK_LOGS.length),
+function ProgressView() {
+  const proteinAvg = useMemo(
+    () => Math.round(MOCK_LOGS.reduce((sum, item) => sum + item.protein, 0) / MOCK_LOGS.length),
     []
   )
   const symptomFreeDays = useMemo(() => MOCK_LOGS.filter((day) => day.nausea === 0).length, [])
@@ -505,6 +525,24 @@ const Dashboard = ({ profile, onLogout }) => {
             ))}
           </div>
 
+          <nav className="mt-4 space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setView(item.id)}
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${
+                  view === item.id
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+        <nav className="mt-8 space-y-2">
           <button
             onClick={onLogout}
             className='mt-6 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm text-slate-600'
