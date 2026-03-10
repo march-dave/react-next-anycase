@@ -8,9 +8,11 @@ import {
   Loader2,
   LogOut,
   Menu,
+  Salad,
   Sparkles,
   User,
   Utensils,
+  User,
   X,
 } from 'lucide-react'
 import {
@@ -438,6 +440,7 @@ function Dashboard({ profile, onLogout }) {
             <p className="text-sm text-slate-600">{profile.medication} • {profile.dosageStage}</p>
             <p className="mt-2 text-sm text-teal-700">Target: {profile.proteinTarget}g protein/day</p>
           </div>
+        )}
 
           <nav className="mt-4 space-y-2">
             {navItems.map((item) => (
@@ -474,8 +477,54 @@ function Dashboard({ profile, onLogout }) {
         </section>
       </div>
     </div>
+
+    <div className='mt-8 h-80 rounded-2xl bg-slate-50 p-4'>
+      <ResponsiveContainer width='100%' height='100%'>
+        <ComposedChart data={MOCK_LOGS}>
+          <CartesianGrid strokeDasharray='3 3' stroke='#cbd5e1' />
+          <XAxis dataKey='day' stroke='#64748b' />
+          <YAxis yAxisId='left' stroke='#0f766e' />
+          <YAxis yAxisId='right' orientation='right' stroke='#0f172a' domain={['dataMin - 1', 'dataMax + 1']} />
+          <Tooltip
+            contentStyle={{ borderRadius: '14px', border: '1px solid #cbd5e1', background: '#ffffff' }}
+          />
+          <Legend />
+          <Area
+            yAxisId='left'
+            type='monotone'
+            dataKey='protein'
+            fill='#99f6e4'
+            stroke='#0f766e'
+            name='Protein (g)'
+          />
+          <Line
+            yAxisId='right'
+            type='monotone'
+            dataKey='weight'
+            stroke='#0f172a'
+            strokeWidth={2.4}
+            dot={{ r: 3 }}
+            name='Weight (lb)'
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  </section>
+)
+
+const Dashboard = ({ profile, onLogout }) => {
+  const [view, setView] = useState('weekly')
+  const navItems = [
+    { id: 'weekly', label: 'Weekly Plan', icon: Utensils },
+    { id: 'progress', label: 'Progress & Vitals', icon: Activity },
+  ]
+
+function ProgressView() {
+  const proteinAvg = useMemo(
+    () => Math.round(MOCK_LOGS.reduce((sum, item) => sum + item.protein, 0) / MOCK_LOGS.length),
+    []
   )
-}
+  const symptomFreeDays = useMemo(() => MOCK_LOGS.filter((day) => day.nausea === 0).length, [])
 
 export default function MealcyclePage() {
   const [stage, setStage] = useState(APP_STAGE.LANDING)
