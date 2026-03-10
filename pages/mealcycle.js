@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { GoogleGenAI } from '@google/genai'
 import {
   Activity,
@@ -10,7 +10,6 @@ import {
   Menu,
   Salad,
   Sparkles,
-  Stethoscope,
   User,
   Utensils,
   User,
@@ -20,208 +19,197 @@ import {
   Area,
   CartesianGrid,
   ComposedChart,
-  Legend,
   Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
-import { DOSAGE_STAGES, MEDICATIONS, MOCK_LOGS, MOCK_MEALS } from '../mealcycle/constants'
+import { MOCK_LOGS, MOCK_MEALS } from '../constants'
 
-const APP_STAGES = {
+const APP_STAGE = {
   LANDING: 'landing',
   ONBOARDING: 'onboarding',
   DASHBOARD: 'dashboard',
 }
 
-const DashboardNavButton = ({ item, active, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-left text-sm font-medium transition ${
-      active
-        ? 'bg-gradient-to-r from-teal-50 to-emerald-50 text-teal-900 ring-1 ring-teal-200'
-        : 'text-slate-600 hover:bg-slate-100'
-    }`}
-  >
-    <item.icon className='h-4 w-4' />
-    {item.label}
-  </button>
-)
+const MEDICATIONS = ['Ozempic', 'Mounjaro', 'Wegovy', 'Zepbound', 'Other']
+const DOSAGE_STAGES = ['Initiation', 'Titration', 'Maintenance']
 
-const stepMeta = [
-  'Medication',
-  'Dosage Stage',
-  'Analysis',
+const STARTING_PROFILE = {
+  name: 'Taylor M.',
+  medication: 'Ozempic',
+  dosageStage: 'Initiation',
+  proteinTarget: 120,
+}
+
+const BASE_CHAT = [
+  {
+    role: 'assistant',
+    text: 'Hi, I am your GLP-1 nutrition assistant. Ask about nausea-safe foods, protein goals, or meal timing.',
+  },
 ]
+
+const gradientButton =
+  'bg-gradient-to-r from-teal-200 via-emerald-300 to-teal-700 text-white shadow-lg shadow-teal-800/25'
+
+function proteinTargetFromStage(stage) {
+  if (stage === 'Initiation') return 120
+  if (stage === 'Titration') return 140
+  return 155
+}
 
 function LandingPage({ onStart }) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className='min-h-screen bg-slate-50 text-slate-900'>
-      <header className='sticky top-0 z-20 border-b border-slate-200/70 bg-white/70 backdrop-blur-xl'>
-        <div className='mx-auto flex max-w-7xl items-center justify-between px-6 py-4'>
-          <p className='text-xl font-semibold tracking-tight'>Mealcycle.co</p>
-          <nav className='hidden items-center gap-8 text-sm text-slate-600 md:flex'>
-            <a href='#features'>Features</a>
-            <a href='#science'>Science</a>
-            <button
-              onClick={onStart}
-              className='rounded-full bg-gradient-to-r from-teal-300 to-teal-700 px-5 py-2 font-medium text-white shadow-lg shadow-teal-900/20'
-            >
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/70 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div className="text-xl font-semibold tracking-tight">Mealcycle.co</div>
+          <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <button onClick={onStart} className={`rounded-2xl px-5 py-2 font-medium ${gradientButton}`}>
               Build My Plan
             </button>
           </nav>
-          <button className='md:hidden' onClick={() => setMobileOpen((prev) => !prev)}>
-            {mobileOpen ? <X className='h-6 w-6' /> : <Menu className='h-6 w-6' />}
+          <button className="md:hidden" onClick={() => setMobileOpen((prev) => !prev)}>
+            {mobileOpen ? <X /> : <Menu />}
           </button>
         </div>
-
         {mobileOpen && (
-          <div className='space-y-2 border-t border-slate-200 bg-white px-6 py-4 md:hidden'>
-            <a href='#features' className='block text-slate-600'>
+          <div className="space-y-3 border-t border-slate-200 bg-white px-6 py-4 md:hidden">
+            <a href="#features" className="block text-slate-700">
               Features
             </a>
-            <a href='#science' className='block text-slate-600'>
-              Science
+            <a href="#how" className="block text-slate-700">
+              How it works
             </a>
-            <button
-              onClick={onStart}
-              className='w-full rounded-xl bg-gradient-to-r from-teal-300 to-teal-700 px-4 py-2 text-white'
-            >
-              Build My Plan
+            <button onClick={onStart} className={`w-full rounded-2xl px-5 py-2 font-medium ${gradientButton}`}>
+              Get Started
             </button>
           </div>
         )}
       </header>
 
-      <section className='mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-2 md:items-center'>
-        <div>
-          <div className='mb-6 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-4 py-1 text-sm text-teal-800'>
-            <Sparkles className='h-4 w-4' /> Trusted by 14,000+ GLP-1 members
-          </div>
-          <h1 className='text-4xl font-semibold leading-tight md:text-6xl'>
-            Nutrition designed for your biological breakthrough
-          </h1>
-          <p className='mt-5 max-w-xl text-lg text-slate-600'>
-            Precision meal prep for appetite-suppressed weeks—protect lean muscle, calm nausea,
-            and keep progress moving.
-          </p>
-          <button
-            onClick={onStart}
-            className='mt-8 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-teal-300 to-teal-700 px-6 py-3 font-medium text-white shadow-xl shadow-teal-700/30'
-          >
-            Build My Plan <ChevronRight className='h-4 w-4' />
-          </button>
-        </div>
-        <div className='grid grid-cols-2 gap-4'>
-          {[
-            'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=800&q=80',
-          ].map((image) => (
-            <img
-              key={image}
-              src={image}
-              alt='Healthy meal'
-              className='h-40 w-full rounded-2xl object-cover shadow-lg md:h-52'
-            />
-          ))}
-        </div>
-      </section>
-
-      <section id='features' className='mx-auto max-w-7xl px-6 py-16'>
-        <div className='grid gap-5 md:grid-cols-3'>
-          {[
-            {
-              title: 'Prevent Muscle Loss',
-              desc: 'Protein-forward meal architecture timed to low-appetite windows.',
-              icon: Dumbbell,
-            },
-            {
-              title: 'Stop the Nausea',
-              desc: 'Gentle textures and anti-nausea pairings for post-injection days.',
-              icon: HeartPulse,
-            },
-            {
-              title: 'Nutrient Density',
-              desc: 'Every bite engineered with micronutrient richness and balanced energy.',
-              icon: Sparkles,
-            },
-          ].map((feature) => (
-            <article
-              key={feature.title}
-              className='rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60'
+      <main>
+        <section className="mx-auto grid max-w-7xl gap-8 px-6 py-14 md:grid-cols-2 md:items-center">
+          <div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-3 py-1 text-sm text-teal-800">
+              <Sparkles className="h-4 w-4" /> Trusted by 14,000+ GLP-1 users
+            </div>
+            <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
+              Nutrition designed for your biological breakthrough
+            </h1>
+            <p className="mt-4 max-w-xl text-lg text-slate-600">
+              Precision meal prep and tracking to preserve lean muscle, support appetite changes,
+              and reduce nausea on Ozempic, Mounjaro, and Wegovy.
+            </p>
+            <button
+              onClick={onStart}
+              className={`mt-8 inline-flex items-center gap-2 rounded-2xl px-6 py-3 font-medium ${gradientButton}`}
             >
-              <feature.icon className='h-7 w-7 text-teal-700' />
-              <h3 className='mt-4 text-xl font-semibold'>{feature.title}</h3>
-              <p className='mt-2 text-slate-600'>{feature.desc}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+              Build My Plan <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
+            ].map((image) => (
+              <img key={image} src={image} alt="Healthy meal" className="h-40 w-full rounded-2xl object-cover shadow-lg md:h-56" />
+            ))}
+          </div>
+        </section>
+
+        <section id="features" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              {
+                title: 'Prevent Muscle Loss',
+                desc: 'Protein-forward planning anchored to low appetite windows to protect lean mass.',
+                icon: Dumbbell,
+              },
+              {
+                title: 'Stop the Nausea',
+                desc: 'Gentle textures and lower-fat pairings for injection-day symptom management.',
+                icon: HeartPulse,
+              },
+              {
+                title: 'Nutrient Density',
+                desc: 'Micronutrient-rich meals with hydration cues and smart portion design.',
+                icon: Sparkles,
+              },
+            ].map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md shadow-slate-200/70"
+              >
+                <feature.icon className="h-7 w-7 text-teal-700" />
+                <h3 className="mt-4 text-xl font-semibold text-slate-900">{feature.title}</h3>
+                <p className="mt-2 text-slate-600">{feature.desc}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   )
 }
 
-function OnboardingFlow({ profile, setProfile, onFinish }) {
+function Onboarding({ profile, setProfile, onFinish }) {
   const [step, setStep] = useState(1)
-  const [isCalculating, setIsCalculating] = useState(false)
+  const [calculating, setCalculating] = useState(false)
 
-  const runAnalysis = () => {
-    setIsCalculating(true)
-    setTimeout(() => {
-      const stageToProtein = {
-        Initiation: 130,
-        Titration: 140,
-        Maintenance: 150,
-      }
-      setProfile((prev) => ({ ...prev, proteinTarget: stageToProtein[prev.dosageStage] || 140 }))
-      setIsCalculating(false)
-    }, 1700)
-  }
+  useEffect(() => {
+    if (!calculating) return
+    const timer = setTimeout(() => {
+      setProfile((prev) => ({
+        ...prev,
+        proteinTarget: proteinTargetFromStage(prev.dosageStage),
+      }))
+      setCalculating(false)
+    }, 1600)
+
+    return () => clearTimeout(timer)
+  }, [calculating, setProfile])
+
+  const progressPercent = (step / 3) * 100
 
   return (
-    <div className='min-h-screen bg-slate-50 px-6 py-10 text-slate-900'>
-      <div className='mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/60'>
-        <div className='mb-6 flex items-center justify-between'>
-          <h2 className='text-2xl font-semibold'>Personalize your GLP-1 nutrition plan</h2>
-          <span className='text-sm text-slate-500'>Step {step} of 3</span>
-        </div>
-
-        <div className='mb-8 h-2 rounded-full bg-slate-100'>
-          <div
-            className='h-2 rounded-full bg-gradient-to-r from-teal-300 to-teal-700 transition-all'
-            style={{ width: `${(step / 3) * 100}%` }}
-          />
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-6">
+      <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-300/40">
+        <div className="mb-6">
+          <div className="mb-2 flex justify-between text-sm text-slate-500">
+            <span>Step {step} of 3</span>
+            <span>{Math.round(progressPercent)}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-slate-200">
+            <div className="h-2 rounded-full bg-gradient-to-r from-teal-300 to-teal-700" style={{ width: `${progressPercent}%` }} />
+          </div>
         </div>
 
         {step === 1 && (
           <div>
-            <p className='text-sm text-slate-500'>Step 1</p>
-            <h3 className='mt-1 text-xl font-semibold'>Which medication are you on?</h3>
-            <div className='mt-5 grid gap-3 sm:grid-cols-2'>
+            <h2 className="text-2xl font-semibold">Select your medication</h2>
+            <p className="mt-2 text-slate-600">This personalizes nausea and protein guidance.</p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {MEDICATIONS.map((item) => (
                 <button
                   key={item}
                   onClick={() => setProfile((prev) => ({ ...prev, medication: item }))}
                   className={`rounded-2xl border p-4 text-left ${
-                    profile.medication === item
-                      ? 'border-teal-600 bg-teal-50 text-teal-900'
-                      : 'border-slate-200 hover:border-slate-300'
+                    profile.medication === item ? 'border-teal-500 bg-teal-50' : 'border-slate-200'
                   }`}
                 >
                   {item}
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!profile.medication}
-              className='mt-6 rounded-xl bg-slate-900 px-5 py-2 text-white disabled:opacity-40'
-            >
+            <button onClick={() => setStep(2)} className={`mt-6 rounded-2xl px-5 py-2 font-medium ${gradientButton}`}>
               Continue
             </button>
           </div>
@@ -229,71 +217,48 @@ function OnboardingFlow({ profile, setProfile, onFinish }) {
 
         {step === 2 && (
           <div>
-            <p className='text-sm text-slate-500'>Step 2</p>
-            <h3 className='mt-1 text-xl font-semibold'>Select your dosage stage</h3>
-            <div className='mt-5 grid gap-3 sm:grid-cols-3'>
+            <h2 className="text-2xl font-semibold">Choose dosage stage</h2>
+            <p className="mt-2 text-slate-600">Your stage impacts protein targets and meal size planning.</p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {DOSAGE_STAGES.map((item) => (
                 <button
                   key={item}
                   onClick={() => setProfile((prev) => ({ ...prev, dosageStage: item }))}
-                  className={`rounded-2xl border p-4 text-left transition ${
-                    profile.dosageStage === item
-                      ? 'border-teal-300 bg-teal-50 text-teal-900'
-                      : 'border-slate-200 hover:border-slate-300'
+                  className={`rounded-2xl border p-4 text-left ${
+                    profile.dosageStage === item ? 'border-teal-500 bg-teal-50' : 'border-slate-200'
                   }`}
                 >
                   {item}
                 </button>
               ))}
             </div>
-            <div className='mt-6 flex gap-2'>
-              <button onClick={() => setStep(1)} className='rounded-xl border px-5 py-2'>
-                Back
-              </button>
-              <button
-                onClick={() => {
-                  setStep(3)
-                  runAnalysis()
-                }}
-                disabled={!profile.dosageStage}
-                className='rounded-xl bg-slate-900 px-5 py-2 text-white disabled:opacity-40'
-              >
-                Analyze
-              </button>
-            </div>
+            <button onClick={() => { setStep(3); setCalculating(true) }} className={`mt-6 rounded-2xl px-5 py-2 font-medium ${gradientButton}`}>
+              Analyze
+            </button>
           </div>
         )}
 
         {step === 3 && (
           <div>
-            <p className='text-sm text-slate-500'>Step 3</p>
-            <h3 className='mt-1 text-xl font-semibold'>Biometric analysis</h3>
-            {isCalculating ? (
-              <div className='mt-6 rounded-2xl border border-teal-100 bg-teal-50 p-6 text-teal-800'>
-                Calculating optimal macros, symptom strategy, and portion cadence...
+            <h2 className="text-2xl font-semibold">Building your profile</h2>
+            {calculating ? (
+              <div className="mt-5 inline-flex items-center gap-3 rounded-2xl bg-slate-100 px-4 py-3 text-slate-600">
+                <Loader2 className="h-4 w-4 animate-spin" /> Calculating protein strategy...
               </div>
             ) : (
-              <div className='mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6'>
-                <p className='text-sm text-slate-500'>Summary</p>
-                <p className='mt-2 text-lg font-semibold'>
+              <div className="mt-5 rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5">
+                <p className="text-slate-700">Medication: {profile.medication}</p>
+                <p className="text-slate-700">Stage: {profile.dosageStage}</p>
+                <p className="mt-3 text-lg font-semibold text-slate-900">
                   Calculated daily protein target: {profile.proteinTarget}g
                 </p>
-                <p className='mt-2 text-slate-600'>
-                  Your plan prioritizes easy-digest proteins, hydration timing, and low-volume,
-                  high-nutrient meals.
-                </p>
-                <button
-                  onClick={onFinish}
-                  className="mt-5 rounded-xl bg-gradient-to-r from-teal-300 to-teal-700 px-5 py-2 text-white"
-                >
-                  Reveal My Plan
-                </button>
               </div>
             )}
+
             <button
+              disabled={calculating}
               onClick={onFinish}
-              disabled={isCalculating}
-              className='mt-6 rounded-xl bg-gradient-to-r from-teal-300 to-teal-700 px-6 py-3 font-medium text-white disabled:opacity-50'
+              className={`mt-6 rounded-2xl px-5 py-2 font-medium ${gradientButton} disabled:cursor-not-allowed disabled:opacity-50`}
             >
               Reveal My Plan
             </button>
@@ -304,23 +269,81 @@ function OnboardingFlow({ profile, setProfile, onFinish }) {
   )
 }
 
-const AIChatWidget = () => {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      text: 'Hi! I am your GLP-1 nutrition assistant. Ask me about nausea, protein, or meal timing.',
-    },
-  ])
+function MealCard({ meal }) {
+  return (
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md shadow-slate-200/70">
+      <img src={meal.image} alt={meal.title} className="h-44 w-full object-cover" />
+      <div className="p-5">
+        <h3 className="text-lg font-semibold">{meal.title}</h3>
+        <p className="mt-2 text-sm text-slate-600">{meal.description}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {meal.tags.map((tag) => (
+            <span key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div className="rounded-xl bg-teal-50 p-3 text-teal-900">Protein: {meal.protein}g</div>
+          <div className="rounded-xl bg-slate-100 p-3 text-slate-700">Calories: {meal.calories}</div>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function ProgressView() {
+  const proteinAvg = Math.round(MOCK_LOGS.reduce((sum, day) => sum + day.protein, 0) / MOCK_LOGS.length)
+  const symptomFreeDays = MOCK_LOGS.filter((item) => item.symptomFree).length
+  const currentWeight = MOCK_LOGS[MOCK_LOGS.length - 1].weight
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard title="Current Weight" value={`${currentWeight} lb`} />
+        <StatCard title="Daily Protein Avg" value={`${proteinAvg} g`} />
+        <StatCard title="Symptom-Free Days" value={`${symptomFreeDays}`} />
+      </div>
+
+      <div className="h-[340px] rounded-2xl border border-slate-200 bg-white p-4 shadow-md shadow-slate-200/70">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={MOCK_LOGS}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#dbe4ee" />
+            <XAxis dataKey="day" stroke="#64748b" />
+            <YAxis yAxisId="left" stroke="#0f766e" />
+            <YAxis yAxisId="right" orientation="right" stroke="#0f172a" domain={['dataMin - 1', 'dataMax + 1']} />
+            <Tooltip
+              contentStyle={{ borderRadius: '14px', border: '1px solid #cbd5e1', backgroundColor: '#ffffffee' }}
+              labelStyle={{ color: '#0f172a', fontWeight: 600 }}
+            />
+            <Area yAxisId="left" type="monotone" dataKey="protein" fill="#99f6e4" stroke="#0f766e" strokeWidth={2} />
+            <Line yAxisId="right" type="monotone" dataKey="weight" stroke="#0f172a" strokeWidth={3} dot={{ r: 4 }} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+function StatCard({ title, value }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-md shadow-slate-200/70">
+      <p className="text-sm text-slate-500">{title}</p>
+      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+    </div>
+  )
+}
+
+function AIChatWidget() {
+  const [messages, setMessages] = useState(BASE_CHAT)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const submit = async (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || loading) return
 
     const question = input.trim()
-    if (!question || loading) return
-
     setInput('')
     setMessages((prev) => [...prev, { role: 'user', text: question }])
 
@@ -330,7 +353,7 @@ const AIChatWidget = () => {
         ...prev,
         {
           role: 'assistant',
-          text: 'Gemini API key missing. Add NEXT_PUBLIC_GEMINI_API_KEY to .env.local for AI nutrition guidance.',
+          text: 'Gemini API key is missing. Fallback: try soft, low-fat proteins like Greek yogurt, eggs, tofu, and broth-based soups in small meals every 2-3 hours.',
         },
       ])
       return
@@ -348,19 +371,17 @@ const AIChatWidget = () => {
         },
       })
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          text: response?.text || 'No response available right now. Please try again.',
-        },
-      ])
+      const text =
+        response?.text ||
+        'Prioritize 20-30g protein mini meals, hydrate steadily, and choose low-fat textures when nausea rises.'
+
+      setMessages((prev) => [...prev, { role: 'assistant', text }])
     } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: 'Unable to reach Gemini right now. Please retry in a moment.',
+          text: 'I could not reach Gemini. Fallback: split meals into small portions, add protein first, and use bland options like oats, yogurt, eggs, and bananas on rough days.',
         },
       ])
     } finally {
@@ -369,89 +390,91 @@ const AIChatWidget = () => {
   }
 
   return (
-    <section className='rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-300/30'>
-      <h3 className='text-lg font-semibold'>AI Nutrition Assistant</h3>
-      <p className='mt-1 text-sm text-slate-600'>
-        Ask about nausea, appetite suppression, or protein strategies.
-      </p>
-
-      <div className='mt-4 h-72 space-y-3 overflow-y-auto rounded-2xl bg-slate-50 p-3'>
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-md shadow-slate-200/70">
+      <h3 className="text-base font-semibold">AI Nutrition Assistant</h3>
+      <div className="mt-3 h-72 space-y-3 overflow-y-auto rounded-xl bg-slate-50 p-3">
         {messages.map((message, index) => (
           <div
             key={`${message.role}-${index}`}
             className={`max-w-[90%] rounded-2xl px-3 py-2 text-sm ${
-              message.role === 'assistant'
-                ? 'bg-white text-slate-700 shadow-sm'
-                : 'ml-auto bg-slate-900 text-white'
+              message.role === 'assistant' ? 'bg-white text-slate-700' : 'ml-auto bg-teal-600 text-white'
             }`}
           >
             {message.text}
           </div>
         ))}
-        {loading && <p className='text-xs text-slate-500'>Assistant is thinking...</p>}
       </div>
-
-      <form onSubmit={sendMessage} className='mt-4 flex gap-2'>
+      <form onSubmit={onSubmit} className="mt-3 flex gap-2">
         <input
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder='I feel nauseous, what should I eat?'
-          className='flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-teal-500'
+          placeholder="I feel nauseous, what should I eat?"
+          className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500"
         />
-        <button className='rounded-xl bg-slate-900 px-4 text-sm text-white'>Send</button>
+        <button className={`rounded-xl px-4 py-2 text-sm font-medium ${gradientButton}`}>
+          {loading ? 'Thinking...' : 'Send'}
+        </button>
       </form>
-    </section>
+    </div>
   )
 }
 
-const WeeklyPlanView = () => (
-  <div className='grid gap-4 xl:grid-cols-[1fr_330px]'>
-    <section className='rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-300/30'>
-      <h2 className='text-2xl font-semibold'>Weekly Plan</h2>
-      <p className='mt-1 text-slate-600'>High-protein meals tuned for GLP-1 tolerance.</p>
+function Dashboard({ profile, onLogout }) {
+  const [view, setView] = useState('weekly')
 
-      <div className='mt-6 grid gap-4 md:grid-cols-2'>
-        {MOCK_MEALS.map((meal) => (
-          <article key={meal.id} className='overflow-hidden rounded-2xl border border-slate-200 bg-slate-50'>
-            <img src={meal.image} alt={meal.title} className='h-32 w-full object-cover' />
-            <div className='p-4'>
-              <h3 className='font-semibold'>{meal.title}</h3>
-              <p className='mt-1 text-sm text-slate-600'>{meal.description}</p>
-              <div className='mt-3 flex flex-wrap gap-2'>
-                {meal.tags.map((tag) => (
-                  <span key={tag} className='rounded-full bg-teal-100 px-2 py-1 text-xs font-medium text-teal-800'>
-                    {tag}
-                  </span>
+  const navItems = useMemo(
+    () => [
+      { id: 'weekly', label: 'Weekly Plan', icon: Utensils },
+      { id: 'progress', label: 'Progress & Vitals', icon: Activity },
+    ],
+    [],
+  )
+
+  return (
+    <div className="min-h-screen bg-slate-100 p-4 md:p-6">
+      <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[260px_1fr]">
+        <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-md shadow-slate-200/60">
+          <div className="rounded-2xl bg-slate-100 p-4">
+            <User className="h-6 w-6 text-slate-700" />
+            <p className="mt-2 font-semibold text-slate-900">{profile.name}</p>
+            <p className="text-sm text-slate-600">{profile.medication} • {profile.dosageStage}</p>
+            <p className="mt-2 text-sm text-teal-700">Target: {profile.proteinTarget}g protein/day</p>
+          </div>
+        )}
+
+          <nav className="mt-4 space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setView(item.id)}
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm ${
+                  view === item.id ? 'bg-teal-50 text-teal-800' : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <item.icon className="h-4 w-4" /> {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <button onClick={onLogout} className="mt-6 inline-flex items-center gap-2 text-sm text-slate-500">
+            <LogOut className="h-4 w-4" /> Logout
+          </button>
+        </aside>
+
+        <section className="space-y-4">
+          {view === 'weekly' ? (
+            <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {MOCK_MEALS.map((meal) => (
+                  <MealCard key={meal.id} meal={meal} />
                 ))}
               </div>
-              <div className='mt-4 flex justify-between text-sm font-medium text-slate-700'>
-                <span>Protein {meal.protein}g</span>
-                <span>{meal.calories} kcal</span>
-              </div>
+              <AIChatWidget />
             </div>
-          </article>
-        ))}
-      </div>
-    </section>
-    <AIChatWidget />
-  </div>
-)
-
-const ProgressView = ({ proteinAverage, symptomFreeDays, currentWeight }) => (
-  <section className='rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-300/30'>
-    <h2 className='text-2xl font-semibold'>Progress & Vitals</h2>
-    <div className='mt-5 grid gap-3 md:grid-cols-3'>
-      <div className='rounded-2xl border border-slate-200 p-4'>
-        <p className='text-sm text-slate-500'>Current Weight</p>
-        <p className='mt-1 text-2xl font-semibold'>{currentWeight} lb</p>
-      </div>
-      <div className='rounded-2xl border border-slate-200 p-4'>
-        <p className='text-sm text-slate-500'>Daily Protein Avg</p>
-        <p className='mt-1 text-2xl font-semibold'>{proteinAverage} g</p>
-      </div>
-      <div className='rounded-2xl border border-slate-200 p-4'>
-        <p className='text-sm text-slate-500'>Symptom-Free Days</p>
-        <p className='mt-1 text-2xl font-semibold'>{symptomFreeDays} / 7</p>
+          ) : (
+            <ProgressView />
+          )}
+        </section>
       </div>
     </div>
 
@@ -503,82 +526,20 @@ function ProgressView() {
   )
   const symptomFreeDays = useMemo(() => MOCK_LOGS.filter((day) => day.nausea === 0).length, [])
 
-  return (
-    <div className='min-h-screen bg-slate-100 p-4 md:p-8'>
-      <div className='mx-auto grid max-w-7xl gap-4 md:grid-cols-[260px_1fr]'>
-        <aside className='rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-300/30'>
-          <div className='rounded-2xl bg-gradient-to-r from-[#ccfbf1] to-[#0f766e] p-4 text-white'>
-            <div className='flex items-center gap-2 text-teal-50'>
-              <User className='h-4 w-4' />
-              <p className='text-xs uppercase tracking-wider'>Profile</p>
-            </div>
-            <h3 className='mt-2 text-xl font-semibold'>{profile.name}</h3>
-            <p className='text-sm text-teal-50'>
-              {profile.medication} · {profile.dosageStage}
-            </p>
-            <p className='mt-3 text-sm'>Target Protein: {profile.proteinTarget}g/day</p>
-          </div>
-
-          <div className='mt-4 space-y-2'>
-            {navItems.map((item) => (
-              <DashboardNavButton key={item.id} item={item} active={view === item.id} onClick={() => setView(item.id)} />
-            ))}
-          </div>
-
-          <nav className="mt-4 space-y-2">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setView(item.id)}
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${
-                  view === item.id
-                    ? 'bg-slate-900 text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-        <nav className="mt-8 space-y-2">
-          <button
-            onClick={onLogout}
-            className='mt-6 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm text-slate-600'
-          >
-            <LogOut className='h-4 w-4' /> Logout
-          </button>
-        </aside>
-
-        <main>{view === 'weekly' ? <WeeklyPlanView /> : <ProgressView proteinAverage={proteinAverage} symptomFreeDays={symptomFreeDays} currentWeight={MOCK_LOGS[MOCK_LOGS.length - 1].weight} />}</main>
-      </div>
-    </div>
-  )
-}
-
 export default function MealcyclePage() {
-  const [stage, setStage] = useState(APP_STAGES.LANDING)
-  const [profile, setProfile] = useState({
-    name: 'Jordan Lee',
-    medication: 'Ozempic',
-    dosageStage: 'Initiation',
-    proteinTarget: 130,
-  })
+  const [stage, setStage] = useState(APP_STAGE.LANDING)
+  const [profile, setProfile] = useState(STARTING_PROFILE)
 
-  if (stage === APP_STAGES.LANDING) {
-    return <LandingPage onStart={() => setStage(APP_STAGES.ONBOARDING)} />
+  if (stage === APP_STAGE.LANDING) {
+    return <LandingPage onStart={() => setStage(APP_STAGE.ONBOARDING)} />
   }
 
-  if (stage === APP_STAGES.ONBOARDING) {
-    return (
-      <OnboardingFlow
-        profile={profile}
-        setProfile={setProfile}
-        onFinish={() => setStage(APP_STAGES.DASHBOARD)}
-      />
-    )
+  if (stage === APP_STAGE.ONBOARDING) {
+    return <Onboarding profile={profile} setProfile={setProfile} onFinish={() => setStage(APP_STAGE.DASHBOARD)} />
   }
 
-  return <Dashboard profile={profile} onLogout={() => setStage(APP_STAGES.LANDING)} />
+  return <Dashboard profile={profile} onLogout={() => {
+    setProfile(STARTING_PROFILE)
+    setStage(APP_STAGE.LANDING)
+  }} />
 }
