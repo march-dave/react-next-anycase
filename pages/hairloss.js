@@ -109,6 +109,12 @@ const businessModel = [
   'Affiliate commissions on recommended topical treatments and devices.',
 ]
 
+const moat = [
+  'Longitudinal scalp dataset improves model accuracy every week.',
+  'Standardized photo protocol reduces noisy before-and-after comparisons.',
+  'Clinical referral loop turns high-risk alerts into booked appointments.',
+]
+
 const recommendationTracks = [
   {
     title: 'Medical track',
@@ -160,6 +166,24 @@ const faqs = [
     question: 'Is this a medical diagnosis tool?',
     answer:
       'No. Manetain is a prevention and tracking product that helps users decide when to consult a licensed specialist.',
+  },
+]
+
+const acquisitionFit = [
+  {
+    title: 'Top-of-funnel for telehealth brands',
+    description:
+      'Users are identified before panic-stage loss, creating earlier and higher-intent treatment demand.',
+  },
+  {
+    title: 'Higher conversion through objective tracking',
+    description:
+      'Progress dashboards and risk scores improve confidence in starting and staying on treatment plans.',
+  },
+  {
+    title: 'Referral-quality patient handoff',
+    description:
+      'Specialists receive timeline snapshots and adherence context before consultations start.',
   },
 ]
 
@@ -350,6 +374,20 @@ export default function HairLoss() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-6xl px-6 pb-20">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Defensibility</p>
+            <h3 className="mt-2 text-2xl font-semibold">Why this wins over generic hair apps</h3>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {moat.map((item) => (
+                <div key={item} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 text-sm text-slate-200">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="mx-auto max-w-6xl px-6 pb-12">
           <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 md:grid-cols-3">
             {recommendationTracks.map((track) => (
@@ -428,6 +466,21 @@ export default function HairLoss() {
                   <h4 className="text-base font-semibold">{faq.question}</h4>
                   <p className="mt-2 text-sm text-slate-300">{faq.answer}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-emerald-300/30 bg-gradient-to-br from-emerald-500/15 via-slate-900 to-slate-950 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">Acquisition fit</p>
+            <h3 className="mt-2 text-2xl font-semibold">Built to plug into a Hims-style growth engine</h3>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {acquisitionFit.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                  <h4 className="text-base font-semibold">{item.title}</h4>
+                  <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                </article>
               ))}
             </div>
           </div>
