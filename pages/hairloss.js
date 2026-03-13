@@ -201,6 +201,24 @@ const faqs = [
   },
 ]
 
+const acquisitionFit = [
+  {
+    title: 'Top-of-funnel for telehealth brands',
+    description:
+      'Users are identified before panic-stage loss, creating earlier and higher-intent treatment demand.',
+  },
+  {
+    title: 'Higher conversion through objective tracking',
+    description:
+      'Progress dashboards and risk scores improve confidence in starting and staying on treatment plans.',
+  },
+  {
+    title: 'Referral-quality patient handoff',
+    description:
+      'Specialists receive timeline snapshots and adherence context before consultations start.',
+  },
+]
+
 export default function HairLoss() {
   return (
     <div className="bg-slate-950 text-white">
@@ -505,6 +523,21 @@ export default function HairLoss() {
                   <h4 className="text-base font-semibold">{faq.question}</h4>
                   <p className="mt-2 text-sm text-slate-300">{faq.answer}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-emerald-300/30 bg-gradient-to-br from-emerald-500/15 via-slate-900 to-slate-950 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">Acquisition fit</p>
+            <h3 className="mt-2 text-2xl font-semibold">Built to plug into a Hims-style growth engine</h3>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {acquisitionFit.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                  <h4 className="text-base font-semibold">{item.title}</h4>
+                  <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                </article>
               ))}
             </div>
           </div>
