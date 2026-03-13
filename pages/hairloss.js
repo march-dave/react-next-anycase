@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import {
   Activity,
+  BadgeDollarSign,
   ArrowRight,
   CalendarDays,
   Camera,
@@ -11,6 +12,7 @@ import {
   ShieldAlert,
   Sparkles,
   Stethoscope,
+  TrendingUp,
 } from 'lucide-react'
 
 const stats = [
@@ -107,6 +109,42 @@ const businessModel = [
   'Freemium core with premium analytics and advanced recommendations.',
   'Revenue share with partner clinics when users book consultations.',
   'Affiliate commissions on recommended topical treatments and devices.',
+]
+
+const monetizationFlywheel = [
+  {
+    title: 'Freemium growth loop',
+    description:
+      'Users begin with weekly scans and unlock premium forecasting when they see early risk signals.',
+    icon: TrendingUp,
+  },
+  {
+    title: 'Clinic referral revenue share',
+    description:
+      'When users escalate, Manetain routes high-intent consultations to partner specialists.',
+    icon: Stethoscope,
+  },
+  {
+    title: 'Affiliate treatment marketplace',
+    description:
+      'Evidence-based product recommendations generate commissions while improving adherence outcomes.',
+    icon: BadgeDollarSign,
+  },
+]
+
+const appCapabilities = [
+  {
+    label: 'Detection signals',
+    value: 'Density score, recession index, and crown thinning trendline',
+  },
+  {
+    label: 'Data inputs',
+    value: 'Weekly scalp photos, lifestyle patterns, and optional DNA profile',
+  },
+  {
+    label: 'Escalation triggers',
+    value: 'Automated risk alerts and one-tap booking with hair loss specialists',
+  },
 ]
 
 const recommendationTracks = [
@@ -324,6 +362,27 @@ export default function HairLoss() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[1fr_1fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">What the app measures</p>
+              <h3 className="mt-2 text-2xl font-semibold">Clinical-level tracking made consumer-simple</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                Every weekly check-in follows the same camera guidance, framing, and lighting checks.
+                This turns subjective mirror moments into objective trend data users can trust.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {appCapabilities.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.label}</p>
+                  <p className="mt-2 text-sm text-slate-200">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-20 lg:grid-cols-[1fr_1fr]">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
             <h3 className="text-2xl font-semibold">Business model</h3>
@@ -346,6 +405,24 @@ export default function HairLoss() {
             <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-slate-950/70 p-5">
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Available domain</p>
               <p className="mt-2 text-xl font-semibold">Manetain.co</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-500/10 p-8">
+            <div className="mb-8">
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Revenue engine</p>
+              <h3 className="mt-2 text-2xl font-semibold">Monetization that scales with user outcomes</h3>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {monetizationFlywheel.map((item) => (
+                <div key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                  <item.icon className="h-5 w-5 text-emerald-300" />
+                  <p className="mt-3 text-base font-semibold">{item.title}</p>
+                  <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
