@@ -111,39 +111,21 @@ const businessModel = [
   'Affiliate commissions on recommended topical treatments and devices.',
 ]
 
-const monetizationFlywheel = [
+const goToMarket = [
   {
-    title: 'Freemium growth loop',
-    description:
-      'Users begin with weekly scans and unlock premium forecasting when they see early risk signals.',
-    icon: TrendingUp,
+    title: 'Content-led acquisition',
+    detail:
+      'Educational hair health reports and before/after trend stories attract men researching early thinning.',
   },
   {
-    title: 'Clinic referral revenue share',
-    description:
-      'When users escalate, Manetain routes high-intent consultations to partner specialists.',
-    icon: Stethoscope,
+    title: 'Clinic partnerships',
+    detail:
+      'Dermatology and hair restoration clinics receive qualified referrals with objective progression data.',
   },
   {
-    title: 'Affiliate treatment marketplace',
-    description:
-      'Evidence-based product recommendations generate commissions while improving adherence outcomes.',
-    icon: BadgeDollarSign,
-  },
-]
-
-const appCapabilities = [
-  {
-    label: 'Detection signals',
-    value: 'Density score, recession index, and crown thinning trendline',
-  },
-  {
-    label: 'Data inputs',
-    value: 'Weekly scalp photos, lifestyle patterns, and optional DNA profile',
-  },
-  {
-    label: 'Escalation triggers',
-    value: 'Automated risk alerts and one-tap booking with hair loss specialists',
+    title: 'Retention loops',
+    detail:
+      'Weekly scan streaks, progress snapshots, and intervention reminders keep users active over the long term.',
   },
 ]
 
@@ -201,22 +183,11 @@ const faqs = [
   },
 ]
 
-const acquisitionFit = [
-  {
-    title: 'Top-of-funnel for telehealth brands',
-    description:
-      'Users are identified before panic-stage loss, creating earlier and higher-intent treatment demand.',
-  },
-  {
-    title: 'Higher conversion through objective tracking',
-    description:
-      'Progress dashboards and risk scores improve confidence in starting and staying on treatment plans.',
-  },
-  {
-    title: 'Referral-quality patient handoff',
-    description:
-      'Specialists receive timeline snapshots and adherence context before consultations start.',
-  },
+const riskSignals = [
+  'Hairline recession velocity',
+  'Crown density drop-off',
+  'Shedding acceleration trend',
+  'Treatment adherence quality',
 ]
 
 export default function HairLoss() {
@@ -351,6 +322,35 @@ export default function HairLoss() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Risk intelligence</p>
+              <h2 className="mt-2 text-3xl font-semibold">Detect invisible decline before it compounds.</h2>
+              <p className="mt-3 max-w-2xl text-sm text-slate-300">
+                Most users cannot spot gradual hair changes in real life. Manetain tracks every weekly
+                scan against baseline to identify early warning signs and trigger intervention at the
+                highest-leverage moment.
+              </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {riskSignals.map((signal) => (
+                  <div key={signal} className="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-200">
+                    {signal}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-emerald-300/30 bg-emerald-400/10 p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-emerald-200">Acquisition outcome</p>
+              <h3 className="mt-2 text-xl font-semibold">Built to become Hims&apos; growth engine</h3>
+              <p className="mt-3 text-sm text-slate-200">
+                Manetain can become the earliest-intent hair prevention funnel in the market, sending
+                treatment-ready users to telehealth and clinic partners with rich longitudinal data.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-16">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
@@ -427,19 +427,16 @@ export default function HairLoss() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 pb-16">
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-500/10 p-8">
-            <div className="mb-8">
-              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Revenue engine</p>
-              <h3 className="mt-2 text-2xl font-semibold">Monetization that scales with user outcomes</h3>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {monetizationFlywheel.map((item) => (
-                <div key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
-                  <item.icon className="h-5 w-5 text-emerald-300" />
-                  <p className="mt-3 text-base font-semibold">{item.title}</p>
-                  <p className="mt-2 text-sm text-slate-300">{item.description}</p>
-                </div>
+        <section className="mx-auto max-w-6xl px-6 pb-20">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Go-to-market</p>
+            <h3 className="mt-2 text-3xl font-semibold">How Manetain scales efficiently</h3>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {goToMarket.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <h4 className="text-base font-semibold">{item.title}</h4>
+                  <p className="mt-2 text-sm text-slate-300">{item.detail}</p>
+                </article>
               ))}
             </div>
           </div>
