@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import {
   Activity,
+  BadgeDollarSign,
   ArrowRight,
   CalendarDays,
   Camera,
@@ -11,6 +12,7 @@ import {
   ShieldAlert,
   Sparkles,
   Stethoscope,
+  TrendingUp,
 } from 'lucide-react'
 
 const stats = [
@@ -378,6 +380,27 @@ export default function HairLoss() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[1fr_1fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">What the app measures</p>
+              <h3 className="mt-2 text-2xl font-semibold">Clinical-level tracking made consumer-simple</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                Every weekly check-in follows the same camera guidance, framing, and lighting checks.
+                This turns subjective mirror moments into objective trend data users can trust.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {appCapabilities.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.label}</p>
+                  <p className="mt-2 text-sm text-slate-200">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-20 lg:grid-cols-[1fr_1fr]">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
             <h3 className="text-2xl font-semibold">Business model</h3>
@@ -497,6 +520,21 @@ export default function HairLoss() {
                   <h4 className="text-base font-semibold">{faq.question}</h4>
                   <p className="mt-2 text-sm text-slate-300">{faq.answer}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-emerald-300/30 bg-gradient-to-br from-emerald-500/15 via-slate-900 to-slate-950 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">Acquisition fit</p>
+            <h3 className="mt-2 text-2xl font-semibold">Built to plug into a Hims-style growth engine</h3>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {acquisitionFit.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                  <h4 className="text-base font-semibold">{item.title}</h4>
+                  <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                </article>
               ))}
             </div>
           </div>
