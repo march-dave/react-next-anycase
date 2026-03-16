@@ -73,6 +73,7 @@ const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '
 const initialMessages = [
   {
     id: 1,
+    channel: '#migration-api-v2',
     author: 'Atlas-Orchestrator',
     type: 'text',
     content: 'Starting migration rollout. Requesting validators for canary stage.',
@@ -80,6 +81,7 @@ const initialMessages = [
   },
   {
     id: 2,
+    channel: '#migration-api-v2',
     author: 'Codex-Dev',
     type: 'code',
     content: `const swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: 'weighted-majority',\n  channels: ['migration-api-v2'],\n  guardRails: ['pci', 'pii'],\n})`,
@@ -87,10 +89,19 @@ const initialMessages = [
   },
   {
     id: 3,
+    channel: '#security-audit',
+    author: 'Sentry-Sec',
+    type: 'text',
+    content: '**Audit update:** Policy checks are now passing for payment-service.',
+    time: '09:43',
+  },
+  {
+    id: 4,
+    channel: '#migration-api-v2',
     author: 'System',
     type: 'alert',
     content: 'Throttle policy enabled after anomaly score exceeded 0.81.',
-    time: '09:43',
+    time: '09:44',
   },
 ]
 
@@ -156,7 +167,7 @@ const statusColors = {
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
 
 function ViewContainer({ children }) {
-  return <section className="animate-[fadeIn_.3s_ease]">{children}</section>
+  return <section className="animate-[fadeIn_.28s_ease]">{children}</section>
 }
 
 export default function Consendus() {
@@ -176,22 +187,27 @@ export default function Consendus() {
     []
   )
 
+  const channelMessages = messages.filter((message) => message.channel === activeChannel)
+
   const appendSimulatedMessages = () => {
     if (simulating) return
 
     const generated = [
       {
         author: 'Nova-Observer',
+        channel: activeChannel,
         type: 'text',
         content: 'Trace confirms latency dropped 18% after validator rebalance.',
       },
       {
         author: 'Pulse-Mediator',
+        channel: activeChannel,
         type: 'alert',
         content: 'Consensus progress update: 2/3 votes collected.',
       },
       {
         author: 'Atlas-Orchestrator',
+        channel: activeChannel,
         type: 'code',
         content:
           "await bus.broadcast('migration-api-v2', { stage: 'promote', confidence: 0.97, votes: '3/3' })",
@@ -212,7 +228,7 @@ export default function Consendus() {
         ])
 
         if (index === generated.length - 1) {
-          setTimeout(() => setSimulating(false), 220)
+          setTimeout(() => setSimulating(false), 260)
         }
       }, (index + 1) * 700)
     })
@@ -226,7 +242,7 @@ export default function Consendus() {
             {stats.map((stat) => {
               const Icon = stat.icon
               return (
-                <article key={stat.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+                <article key={stat.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
                   <div className="flex items-start justify-between">
                     <p className="text-sm text-slate-400">{stat.label}</p>
                     <Icon className="h-4 w-4 text-indigo-300" />
@@ -239,7 +255,7 @@ export default function Consendus() {
           </section>
 
           <section className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
-            <div className="h-[340px] rounded-xl border border-white/10 bg-slate-800/70 p-4">
+            <div className="h-[340px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2>
                 <Gauge className="h-4 w-4 text-indigo-300" />
@@ -300,7 +316,7 @@ export default function Consendus() {
       return (
         <ViewContainer>
           <section className="grid gap-5 lg:grid-cols-[260px_1fr]">
-            <aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+            <aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <h2 className="text-sm font-medium text-slate-200">Channels</h2>
               <div className="mt-3 space-y-2 text-sm text-slate-300">
                 {channels.map((channel) => (
@@ -317,7 +333,7 @@ export default function Consendus() {
               </div>
             </aside>
 
-            <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+            <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
                 <button
@@ -338,7 +354,7 @@ export default function Consendus() {
               )}
 
               <div className="mt-4 h-[360px] space-y-3 overflow-auto pr-1">
-                {messages.map((message) => (
+                {channelMessages.map((message) => (
                   <article
                     key={message.id}
                     className={`rounded-xl border p-3 ${
@@ -377,7 +393,7 @@ export default function Consendus() {
         <ViewContainer>
           <section className="grid gap-4 lg:grid-cols-4">
             {taskStates.map((state) => (
-              <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+              <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
                 <h2 className="text-sm font-semibold text-slate-100">{state}</h2>
                 <div className="mt-4 space-y-3">
                   {tasksByState[state].map((task) => (
@@ -417,7 +433,7 @@ export default function Consendus() {
       <ViewContainer>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
-            <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4">
+            <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-white">{agent.name}</h2>
                 <span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} />
