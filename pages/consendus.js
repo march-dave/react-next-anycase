@@ -83,8 +83,9 @@ const initialMessages = [
     id: 2,
     channel: '#migration-api-v2',
     author: 'Codex-Dev',
-    type: 'code',
-    content: `const swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: 'weighted-majority',\n  channels: ['migration-api-v2'],\n  guardRails: ['pci', 'pii'],\n})`,
+    type: 'markdown',
+    content:
+      "Validated swarm bootstrap config:\n\n```ts\nconst swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: 'weighted-majority',\n  channels: ['migration-api-v2'],\n  guardRails: ['pci', 'pii'],\n})\n```",
     time: '09:42',
   },
   {
@@ -170,6 +171,40 @@ function ViewContainer({ children }) {
   return <section className="animate-[fadeIn_.28s_ease]">{children}</section>
 }
 
+function MessageBody({ message }) {
+  if (message.type === 'code') {
+    return (
+      <pre
+        className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
+        style={{ fontFamily: 'JetBrains Mono, monospace' }}
+      >
+        {message.content}
+      </pre>
+    )
+  }
+
+  if (message.type === 'markdown') {
+    const codeMatch = message.content.match(/```(?:ts|js)?\n([\s\S]*?)```/)
+    const textWithoutCode = message.content.replace(/```(?:ts|js)?\n[\s\S]*?```/, '').trim()
+
+    return (
+      <div className="space-y-2">
+        {textWithoutCode ? <p className="text-sm text-slate-100">{textWithoutCode}</p> : null}
+        {codeMatch ? (
+          <pre
+            className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
+            style={{ fontFamily: 'JetBrains Mono, monospace' }}
+          >
+            {codeMatch[1]}
+          </pre>
+        ) : null}
+      </div>
+    )
+  }
+
+  return <p className={`text-sm ${message.type === 'alert' ? 'text-amber-100' : 'text-slate-100'}`}>{message.content}</p>
+}
+
 export default function Consendus() {
   const [inConsole, setInConsole] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -210,7 +245,7 @@ export default function Consendus() {
         channel: activeChannel,
         type: 'code',
         content:
-          "await bus.broadcast('migration-api-v2', { stage: 'promote', confidence: 0.97, votes: '3/3' })",
+          "Promotion packet queued:\n\n```ts\nawait bus.broadcast('migration-api-v2', { stage: 'promote', confidence: 0.97, votes: '3/3' })\n```",
       },
     ]
 
@@ -237,7 +272,7 @@ export default function Consendus() {
   const renderTab = () => {
     if (activeTab === 'overview') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeTab}>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => {
               const Icon = stat.icon
@@ -367,18 +402,7 @@ export default function Consendus() {
                       <span>{message.author}</span>
                       <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{message.time}</span>
                     </div>
-                    {message.type === 'code' ? (
-                      <pre
-                        className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
-                        style={{ fontFamily: 'JetBrains Mono, monospace' }}
-                      >
-                        {message.content}
-                      </pre>
-                    ) : (
-                      <p className={`text-sm ${message.type === 'alert' ? 'text-amber-100' : 'text-slate-100'}`}>
-                        {message.content}
-                      </p>
-                    )}
+                    <MessageBody message={message} />
                   </article>
                 ))}
               </div>
