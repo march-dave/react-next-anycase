@@ -190,6 +190,27 @@ const riskSignals = [
   'Treatment adherence quality',
 ]
 
+const pricing = [
+  {
+    tier: 'Free',
+    price: '$0',
+    summary: 'Build awareness before visible loss starts.',
+    perks: ['Weekly scalp scan reminders', 'Core trend dashboard', 'Early warning alerts'],
+  },
+  {
+    tier: 'Pro Prevention',
+    price: '$19/mo',
+    summary: 'Personalized protocols and deeper analysis.',
+    perks: ['Advanced AI pattern scoring', 'Personalized intervention plan', 'Treatment adherence tracking'],
+  },
+  {
+    tier: 'Clinic Connect',
+    price: 'Referral-based',
+    summary: 'Move from signal to specialist care in minutes.',
+    perks: ['Priority specialist matching', 'Consult-ready progress report', 'Partner clinic referral pathway'],
+  },
+]
+
 export default function HairLoss() {
   return (
     <div className="bg-slate-950 text-white">
@@ -534,6 +555,34 @@ export default function HairLoss() {
                 <article key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
                   <h4 className="text-base font-semibold">{item.title}</h4>
                   <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Business model</p>
+            <h3 className="mt-2 text-2xl font-semibold">Freemium wedge with clinic and affiliate upside</h3>
+            <p className="mt-3 max-w-3xl text-sm text-slate-300">
+              Start with habit-building weekly scans, then monetize on premium prevention tools,
+              specialist referrals, and trusted treatment recommendations.
+            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {pricing.map((plan) => (
+                <article key={plan.tier} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{plan.tier}</p>
+                  <p className="mt-2 text-2xl font-semibold">{plan.price}</p>
+                  <p className="mt-2 text-sm text-slate-300">{plan.summary}</p>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-200">
+                    {plan.perks.map((perk) => (
+                      <li key={perk} className="flex items-start gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                        <span>{perk}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </article>
               ))}
             </div>
