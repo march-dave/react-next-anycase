@@ -165,6 +165,18 @@ const interventions = [
   },
 ]
 
+const dashboardSignals = [
+  { label: 'Hair density score', value: '82/100', delta: '-2 pts vs. last month' },
+  { label: 'Hairline recession index', value: 'Stage 1.4', delta: '+0.1 this quarter' },
+  { label: 'Crown thinning trend', value: 'Mild risk', delta: 'Detected 11 weeks early' },
+]
+
+const weeklyChecklist = [
+  'Use guided lighting and camera distance prompts for consistent scans.',
+  'Complete 60-second lifestyle check-in (sleep, stress, nutrition, routine).',
+  'Review intervention reminders and adherence streak before Sunday.',
+]
+
 const faqs = [
   {
     question: 'How often should I scan my scalp?',
@@ -489,6 +501,45 @@ export default function HairLoss() {
               <button className="inline-flex items-center gap-2 self-start rounded-full bg-emerald-300 px-6 py-3 text-sm font-semibold text-slate-950 md:self-auto">
                 Reserve your spot
                 <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="grid gap-8 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Prototype dashboard</p>
+              <h3 className="mt-2 text-2xl font-semibold">See risk signals before they become visible</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                A single weekly check-in translates scalp scans and lifestyle inputs into objective
+                risk scores. Users can understand if they are stable, drifting, or accelerating — and
+                what to do next.
+              </p>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                {dashboardSignals.map((signal) => (
+                  <div key={signal.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.15em] text-slate-400">{signal.label}</p>
+                    <p className="mt-2 text-xl font-semibold">{signal.value}</p>
+                    <p className="mt-1 text-xs text-emerald-200">{signal.delta}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/5 p-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-emerald-200">Weekly workflow</p>
+              <ul className="mt-4 space-y-3">
+                {weeklyChecklist.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm text-slate-200">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-300" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <button className="mt-6 w-full rounded-full bg-emerald-300 px-4 py-3 text-sm font-semibold text-slate-950">
+                Start weekly check-in
               </button>
             </div>
           </div>
