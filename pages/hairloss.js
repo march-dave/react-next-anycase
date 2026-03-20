@@ -21,6 +21,24 @@ const stats = [
   { label: 'Weekly check-ins', value: '5 min' },
 ]
 
+const pitchHighlights = [
+  {
+    title: 'The problem',
+    description:
+      'Hair loss is sneaky. Most people only notice after substantial thinning, which is often when treatment becomes less effective.',
+  },
+  {
+    title: 'The solution',
+    description:
+      'AI-powered weekly scalp tracking catches subtle shifts early and translates them into practical prevention steps.',
+  },
+  {
+    title: 'The business model',
+    description:
+      'Freemium product with clinic referral revenue share and affiliate commissions on evidence-based products.',
+  },
+]
+
 const steps = [
   {
     title: 'Capture standardized photos',
@@ -322,6 +340,19 @@ export default function HairLoss() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="mb-8 rounded-3xl border border-emerald-300/20 bg-emerald-400/5 p-6">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Investor snapshot</p>
+            <h2 className="mt-3 text-2xl font-semibold">Hair today, gone tomorrow — unless prevention starts early.</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              {pitchHighlights.map((highlight) => (
+                <article key={highlight.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <h3 className="text-sm uppercase tracking-[0.2em] text-emerald-200">{highlight.title}</h3>
+                  <p className="mt-2 text-sm text-slate-300">{highlight.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
           <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">In a line</p>
@@ -539,6 +570,12 @@ export default function HairLoss() {
                   <p className="mt-2 text-sm text-slate-300">{item.description}</p>
                 </article>
               ))}
+            </div>
+            <div className="mt-6 rounded-2xl border border-emerald-300/30 bg-slate-950/70 p-5">
+              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">End goal</p>
+              <p className="mt-2 text-sm text-slate-300">
+                Become the earliest signal layer for men&apos;s hair health and a high-intent acquisition channel for telehealth brands.
+              </p>
             </div>
           </div>
         </section>
