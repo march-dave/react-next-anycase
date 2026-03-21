@@ -183,6 +183,21 @@ const interventions = [
   },
 ]
 
+const carePathway = [
+  {
+    stage: 'Detect',
+    detail: 'AI flags a meaningful density shift and opens a concise change report.',
+  },
+  {
+    stage: 'Recommend',
+    detail: 'Users get a personalized prevention stack based on pattern, habits, and optional DNA.',
+  },
+  {
+    stage: 'Escalate',
+    detail: 'When thresholds are crossed, users can instantly book a specialist consult in-app.',
+  },
+]
+
 const faqs = [
   {
     question: 'How often should I scan my scalp?',
@@ -499,6 +514,26 @@ export default function HairLoss() {
                   <p className="mt-2 text-base font-semibold">{item.focus}</p>
                   <p className="mt-2 text-sm text-slate-300">{item.actions}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Care pathway</p>
+            <h3 className="mt-2 text-2xl font-semibold">From signal to specialist in minutes</h3>
+            <p className="mt-3 max-w-2xl text-sm text-slate-300">
+              Manetain isn&apos;t just a tracker. It bridges early detection to real interventions so users
+              can act before hair loss becomes emotionally or clinically difficult to reverse.
+            </p>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {carePathway.map((item) => (
+                <article key={item.stage} className="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.stage}</p>
+                  <p className="mt-2 text-sm text-slate-300">{item.detail}</p>
+                </article>
               ))}
             </div>
           </div>
