@@ -21,6 +21,24 @@ const stats = [
   { label: 'Weekly check-ins', value: '5 min' },
 ]
 
+const pitchHighlights = [
+  {
+    title: 'The problem',
+    description:
+      'Hair loss is sneaky. Most people only notice after substantial thinning, which is often when treatment becomes less effective.',
+  },
+  {
+    title: 'The solution',
+    description:
+      'AI-powered weekly scalp tracking catches subtle shifts early and translates them into practical prevention steps.',
+  },
+  {
+    title: 'The business model',
+    description:
+      'Freemium product with clinic referral revenue share and affiliate commissions on evidence-based products.',
+  },
+]
+
 const steps = [
   {
     title: 'Capture standardized photos',
@@ -111,39 +129,21 @@ const businessModel = [
   'Affiliate commissions on recommended topical treatments and devices.',
 ]
 
-const monetizationFlywheel = [
+const goToMarket = [
   {
-    title: 'Freemium growth loop',
-    description:
-      'Users begin with weekly scans and unlock premium forecasting when they see early risk signals.',
-    icon: TrendingUp,
+    title: 'Content-led acquisition',
+    detail:
+      'Educational hair health reports and before/after trend stories attract men researching early thinning.',
   },
   {
-    title: 'Clinic referral revenue share',
-    description:
-      'When users escalate, Manetain routes high-intent consultations to partner specialists.',
-    icon: Stethoscope,
+    title: 'Clinic partnerships',
+    detail:
+      'Dermatology and hair restoration clinics receive qualified referrals with objective progression data.',
   },
   {
-    title: 'Affiliate treatment marketplace',
-    description:
-      'Evidence-based product recommendations generate commissions while improving adherence outcomes.',
-    icon: BadgeDollarSign,
-  },
-]
-
-const appCapabilities = [
-  {
-    label: 'Detection signals',
-    value: 'Density score, recession index, and crown thinning trendline',
-  },
-  {
-    label: 'Data inputs',
-    value: 'Weekly scalp photos, lifestyle patterns, and optional DNA profile',
-  },
-  {
-    label: 'Escalation triggers',
-    value: 'Automated risk alerts and one-tap booking with hair loss specialists',
+    title: 'Retention loops',
+    detail:
+      'Weekly scan streaks, progress snapshots, and intervention reminders keep users active over the long term.',
   },
 ]
 
@@ -216,21 +216,31 @@ const faqs = [
   },
 ]
 
-const acquisitionFit = [
+const riskSignals = [
+  'Hairline recession velocity',
+  'Crown density drop-off',
+  'Shedding acceleration trend',
+  'Treatment adherence quality',
+]
+
+const pricing = [
   {
-    title: 'Top-of-funnel for telehealth brands',
-    description:
-      'Users are identified before panic-stage loss, creating earlier and higher-intent treatment demand.',
+    tier: 'Free',
+    price: '$0',
+    summary: 'Build awareness before visible loss starts.',
+    perks: ['Weekly scalp scan reminders', 'Core trend dashboard', 'Early warning alerts'],
   },
   {
-    title: 'Higher conversion through objective tracking',
-    description:
-      'Progress dashboards and risk scores improve confidence in starting and staying on treatment plans.',
+    tier: 'Pro Prevention',
+    price: '$19/mo',
+    summary: 'Personalized protocols and deeper analysis.',
+    perks: ['Advanced AI pattern scoring', 'Personalized intervention plan', 'Treatment adherence tracking'],
   },
   {
-    title: 'Referral-quality patient handoff',
-    description:
-      'Specialists receive timeline snapshots and adherence context before consultations start.',
+    tier: 'Clinic Connect',
+    price: 'Referral-based',
+    summary: 'Move from signal to specialist care in minutes.',
+    perks: ['Priority specialist matching', 'Consult-ready progress report', 'Partner clinic referral pathway'],
   },
 ]
 
@@ -337,6 +347,19 @@ export default function HairLoss() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="mb-8 rounded-3xl border border-emerald-300/20 bg-emerald-400/5 p-6">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Investor snapshot</p>
+            <h2 className="mt-3 text-2xl font-semibold">Hair today, gone tomorrow — unless prevention starts early.</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              {pitchHighlights.map((highlight) => (
+                <article key={highlight.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <h3 className="text-sm uppercase tracking-[0.2em] text-emerald-200">{highlight.title}</h3>
+                  <p className="mt-2 text-sm text-slate-300">{highlight.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
           <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">In a line</p>
@@ -361,6 +384,35 @@ export default function HairLoss() {
                   </div>
                 </article>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Risk intelligence</p>
+              <h2 className="mt-2 text-3xl font-semibold">Detect invisible decline before it compounds.</h2>
+              <p className="mt-3 max-w-2xl text-sm text-slate-300">
+                Most users cannot spot gradual hair changes in real life. Manetain tracks every weekly
+                scan against baseline to identify early warning signs and trigger intervention at the
+                highest-leverage moment.
+              </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {riskSignals.map((signal) => (
+                  <div key={signal} className="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-200">
+                    {signal}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-emerald-300/30 bg-emerald-400/10 p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-emerald-200">Acquisition outcome</p>
+              <h3 className="mt-2 text-xl font-semibold">Built to become Hims&apos; growth engine</h3>
+              <p className="mt-3 text-sm text-slate-200">
+                Manetain can become the earliest-intent hair prevention funnel in the market, sending
+                treatment-ready users to telehealth and clinic partners with rich longitudinal data.
+              </p>
             </div>
           </div>
         </section>
@@ -442,19 +494,16 @@ export default function HairLoss() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 pb-16">
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-500/10 p-8">
-            <div className="mb-8">
-              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Revenue engine</p>
-              <h3 className="mt-2 text-2xl font-semibold">Monetization that scales with user outcomes</h3>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {monetizationFlywheel.map((item) => (
-                <div key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
-                  <item.icon className="h-5 w-5 text-emerald-300" />
-                  <p className="mt-3 text-base font-semibold">{item.title}</p>
-                  <p className="mt-2 text-sm text-slate-300">{item.description}</p>
-                </div>
+        <section className="mx-auto max-w-6xl px-6 pb-20">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Go-to-market</p>
+            <h3 className="mt-2 text-3xl font-semibold">How Manetain scales efficiently</h3>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {goToMarket.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <h4 className="text-base font-semibold">{item.title}</h4>
+                  <p className="mt-2 text-sm text-slate-300">{item.detail}</p>
+                </article>
               ))}
             </div>
           </div>
@@ -486,6 +535,45 @@ export default function HairLoss() {
               <button className="inline-flex items-center gap-2 self-start rounded-full bg-emerald-300 px-6 py-3 text-sm font-semibold text-slate-950 md:self-auto">
                 Reserve your spot
                 <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="grid gap-8 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Prototype dashboard</p>
+              <h3 className="mt-2 text-2xl font-semibold">See risk signals before they become visible</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                A single weekly check-in translates scalp scans and lifestyle inputs into objective
+                risk scores. Users can understand if they are stable, drifting, or accelerating — and
+                what to do next.
+              </p>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                {dashboardSignals.map((signal) => (
+                  <div key={signal.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.15em] text-slate-400">{signal.label}</p>
+                    <p className="mt-2 text-xl font-semibold">{signal.value}</p>
+                    <p className="mt-1 text-xs text-emerald-200">{signal.delta}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/5 p-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-emerald-200">Weekly workflow</p>
+              <ul className="mt-4 space-y-3">
+                {weeklyChecklist.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm text-slate-200">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-300" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <button className="mt-6 w-full rounded-full bg-emerald-300 px-4 py-3 text-sm font-semibold text-slate-950">
+                Start weekly check-in
               </button>
             </div>
           </div>
@@ -572,6 +660,40 @@ export default function HairLoss() {
                 <article key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
                   <h4 className="text-base font-semibold">{item.title}</h4>
                   <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                </article>
+              ))}
+            </div>
+            <div className="mt-6 rounded-2xl border border-emerald-300/30 bg-slate-950/70 p-5">
+              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">End goal</p>
+              <p className="mt-2 text-sm text-slate-300">
+                Become the earliest signal layer for men&apos;s hair health and a high-intent acquisition channel for telehealth brands.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Business model</p>
+            <h3 className="mt-2 text-2xl font-semibold">Freemium wedge with clinic and affiliate upside</h3>
+            <p className="mt-3 max-w-3xl text-sm text-slate-300">
+              Start with habit-building weekly scans, then monetize on premium prevention tools,
+              specialist referrals, and trusted treatment recommendations.
+            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {pricing.map((plan) => (
+                <article key={plan.tier} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{plan.tier}</p>
+                  <p className="mt-2 text-2xl font-semibold">{plan.price}</p>
+                  <p className="mt-2 text-sm text-slate-300">{plan.summary}</p>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-200">
+                    {plan.perks.map((perk) => (
+                      <li key={perk} className="flex items-start gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                        <span>{perk}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </article>
               ))}
             </div>
