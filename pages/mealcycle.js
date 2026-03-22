@@ -8,11 +8,9 @@ import {
   Loader2,
   LogOut,
   Menu,
-  Salad,
   Sparkles,
   User,
   Utensils,
-  User,
   X,
 } from 'lucide-react'
 import {
@@ -46,12 +44,12 @@ const STARTING_PROFILE = {
 const BASE_CHAT = [
   {
     role: 'assistant',
-    text: 'Hi, I am your GLP-1 nutrition assistant. Ask about nausea-safe foods, protein goals, or meal timing.',
+    text: 'Hi! I am your GLP-1 nutrition assistant. Ask me about nausea-safe options, protein timing, or meal sizing.',
   },
 ]
 
 const gradientButton =
-  'bg-gradient-to-r from-teal-200 via-emerald-300 to-teal-700 text-white shadow-lg shadow-teal-800/25'
+  'bg-gradient-to-r from-[#ccfbf1] via-teal-400 to-[#0f766e] text-slate-900 shadow-lg shadow-teal-800/20 hover:opacity-95'
 
 function proteinTargetFromStage(stage) {
   if (stage === 'Initiation') return 120
@@ -64,20 +62,25 @@ function LandingPage({ onStart }) {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="text-xl font-semibold tracking-tight">Mealcycle.co</div>
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
-            <a href="#features">Features</a>
-            <a href="#how">How it works</a>
+            <a href="#features" className="hover:text-slate-900">
+              Features
+            </a>
+            <a href="#how" className="hover:text-slate-900">
+              How it works
+            </a>
             <button onClick={onStart} className={`rounded-2xl px-5 py-2 font-medium ${gradientButton}`}>
               Build My Plan
             </button>
           </nav>
-          <button className="md:hidden" onClick={() => setMobileOpen((prev) => !prev)}>
-            {mobileOpen ? <X /> : <Menu />}
+          <button className="rounded-xl p-2 text-slate-700 md:hidden" onClick={() => setMobileOpen((prev) => !prev)}>
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
+
         {mobileOpen && (
           <div className="space-y-3 border-t border-slate-200 bg-white px-6 py-4 md:hidden">
             <a href="#features" className="block text-slate-700">
@@ -103,8 +106,8 @@ function LandingPage({ onStart }) {
               Nutrition designed for your biological breakthrough
             </h1>
             <p className="mt-4 max-w-xl text-lg text-slate-600">
-              Precision meal prep and tracking to preserve lean muscle, support appetite changes,
-              and reduce nausea on Ozempic, Mounjaro, and Wegovy.
+              Precision meal prep and tracking to preserve lean muscle, support appetite suppression, and ease nausea on
+              Ozempic, Mounjaro, and Wegovy.
             </p>
             <button
               onClick={onStart}
@@ -113,12 +116,13 @@ function LandingPage({ onStart }) {
               Build My Plan <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+
           <div className="grid grid-cols-2 gap-4">
             {[
-              'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
-              'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80',
+              'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=80',
+              'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=900&q=80',
+              'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=80',
+              'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80',
             ].map((image) => (
               <img key={image} src={image} alt="Healthy meal" className="h-40 w-full rounded-2xl object-cover shadow-lg md:h-56" />
             ))}
@@ -155,6 +159,21 @@ function LandingPage({ onStart }) {
             ))}
           </div>
         </section>
+
+        <section id="how" className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-md shadow-slate-200/60">
+            <h2 className="text-2xl font-semibold">How Mealcycle works</h2>
+            <p className="mt-2 text-slate-600">Onboarding takes 60 seconds. Your plan adapts to medication stage and symptoms.</p>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {['Set medication details', 'Get your protein target', 'Track meals + vitals weekly'].map((step, index) => (
+                <div key={step} className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-teal-700">Step {index + 1}</p>
+                  <p className="mt-2 font-medium text-slate-800">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   )
@@ -163,37 +182,41 @@ function LandingPage({ onStart }) {
 function Onboarding({ profile, setProfile, onFinish }) {
   const [step, setStep] = useState(1)
   const [calculating, setCalculating] = useState(false)
+  const progressPercent = (step / 3) * 100
 
   useEffect(() => {
-    if (!calculating) return
+    if (step !== 3) return
+    setCalculating(true)
+
     const timer = setTimeout(() => {
       setProfile((prev) => ({
         ...prev,
         proteinTarget: proteinTargetFromStage(prev.dosageStage),
       }))
       setCalculating(false)
-    }, 1600)
+    }, 1400)
 
     return () => clearTimeout(timer)
-  }, [calculating, setProfile])
-
-  const progressPercent = (step / 3) * 100
+  }, [setProfile, step])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-6">
-      <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-300/40">
-        <div className="mb-6">
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
+      <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-300/40 md:p-8">
+        <h1 className="text-3xl font-semibold">Build your plan</h1>
+        <p className="mt-2 text-slate-600">A quick onboarding to tailor protein and symptom support.</p>
+
+        <div className="mt-6">
           <div className="mb-2 flex justify-between text-sm text-slate-500">
             <span>Step {step} of 3</span>
             <span>{Math.round(progressPercent)}%</span>
           </div>
           <div className="h-2 rounded-full bg-slate-200">
-            <div className="h-2 rounded-full bg-gradient-to-r from-teal-300 to-teal-700" style={{ width: `${progressPercent}%` }} />
+            <div className="h-2 rounded-full bg-gradient-to-r from-[#ccfbf1] to-[#0f766e]" style={{ width: `${progressPercent}%` }} />
           </div>
         </div>
 
         {step === 1 && (
-          <div>
+          <div className="mt-6">
             <h2 className="text-2xl font-semibold">Select your medication</h2>
             <p className="mt-2 text-slate-600">This personalizes nausea and protein guidance.</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -216,7 +239,7 @@ function Onboarding({ profile, setProfile, onFinish }) {
         )}
 
         {step === 2 && (
-          <div>
+          <div className="mt-6">
             <h2 className="text-2xl font-semibold">Choose dosage stage</h2>
             <p className="mt-2 text-slate-600">Your stage impacts protein targets and meal size planning.</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -232,14 +255,14 @@ function Onboarding({ profile, setProfile, onFinish }) {
                 </button>
               ))}
             </div>
-            <button onClick={() => { setStep(3); setCalculating(true) }} className={`mt-6 rounded-2xl px-5 py-2 font-medium ${gradientButton}`}>
+            <button onClick={() => setStep(3)} className={`mt-6 rounded-2xl px-5 py-2 font-medium ${gradientButton}`}>
               Analyze
             </button>
           </div>
         )}
 
         {step === 3 && (
-          <div>
+          <div className="mt-6">
             <h2 className="text-2xl font-semibold">Building your profile</h2>
             {calculating ? (
               <div className="mt-5 inline-flex items-center gap-3 rounded-2xl bg-slate-100 px-4 py-3 text-slate-600">
@@ -249,9 +272,7 @@ function Onboarding({ profile, setProfile, onFinish }) {
               <div className="mt-5 rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5">
                 <p className="text-slate-700">Medication: {profile.medication}</p>
                 <p className="text-slate-700">Stage: {profile.dosageStage}</p>
-                <p className="mt-3 text-lg font-semibold text-slate-900">
-                  Calculated daily protein target: {profile.proteinTarget}g
-                </p>
+                <p className="mt-3 text-lg font-semibold text-slate-900">Calculated daily protein target: {profile.proteinTarget}g</p>
               </div>
             )}
 
@@ -292,6 +313,15 @@ function MealCard({ meal }) {
   )
 }
 
+function StatCard({ title, value }) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+      <p className="text-sm text-slate-500">{title}</p>
+      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+    </article>
+  )
+}
+
 function ProgressView() {
   const proteinAvg = Math.round(MOCK_LOGS.reduce((sum, day) => sum + day.protein, 0) / MOCK_LOGS.length)
   const symptomFreeDays = MOCK_LOGS.filter((item) => item.symptomFree).length
@@ -325,56 +355,46 @@ function ProgressView() {
   )
 }
 
-function StatCard({ title, value }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-md shadow-slate-200/70">
-      <p className="text-sm text-slate-500">{title}</p>
-      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
-    </div>
-  )
-}
-
 function AIChatWidget() {
-  const [messages, setMessages] = useState(BASE_CHAT)
   const [input, setInput] = useState('')
+  const [messages, setMessages] = useState(BASE_CHAT)
   const [loading, setLoading] = useState(false)
+
+  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
 
   const onSubmit = async (event) => {
     event.preventDefault()
-    if (!input.trim() || loading) return
+    const trimmed = input.trim()
+    if (!trimmed || loading) return
 
-    const question = input.trim()
+    setMessages((prev) => [...prev, { role: 'user', text: trimmed }])
     setInput('')
-    setMessages((prev) => [...prev, { role: 'user', text: question }])
+    setLoading(true)
 
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
     if (!apiKey) {
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: 'Gemini API key is missing. Fallback: try soft, low-fat proteins like Greek yogurt, eggs, tofu, and broth-based soups in small meals every 2-3 hours.',
+          text: 'Gemini key not configured. Fallback: choose small frequent meals, prioritize lean protein first, stay hydrated, and try bland foods if nausea rises.',
         },
       ])
+      setLoading(false)
       return
     }
 
-    setLoading(true)
     try {
       const ai = new GoogleGenAI({ apiKey })
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: question,
+        contents: trimmed,
         config: {
           systemInstruction:
             'You are an expert nutritionist for GLP-1 patients. Keep answers under 100 words. Focus on protein and symptom management.',
         },
       })
 
-      const text =
-        response?.text ||
-        'Prioritize 20-30g protein mini meals, hydrate steadily, and choose low-fat textures when nausea rises.'
-
+      const text = response.text?.trim() || 'Try light meals with protein at each feeding window.'
       setMessages((prev) => [...prev, { role: 'assistant', text }])
     } catch (error) {
       setMessages((prev) => [
@@ -437,10 +457,11 @@ function Dashboard({ profile, onLogout }) {
           <div className="rounded-2xl bg-slate-100 p-4">
             <User className="h-6 w-6 text-slate-700" />
             <p className="mt-2 font-semibold text-slate-900">{profile.name}</p>
-            <p className="text-sm text-slate-600">{profile.medication} • {profile.dosageStage}</p>
+            <p className="text-sm text-slate-600">
+              {profile.medication} • {profile.dosageStage}
+            </p>
             <p className="mt-2 text-sm text-teal-700">Target: {profile.proteinTarget}g protein/day</p>
           </div>
-        )}
 
           <nav className="mt-4 space-y-2">
             {navItems.map((item) => (
@@ -477,54 +498,8 @@ function Dashboard({ profile, onLogout }) {
         </section>
       </div>
     </div>
-
-    <div className='mt-8 h-80 rounded-2xl bg-slate-50 p-4'>
-      <ResponsiveContainer width='100%' height='100%'>
-        <ComposedChart data={MOCK_LOGS}>
-          <CartesianGrid strokeDasharray='3 3' stroke='#cbd5e1' />
-          <XAxis dataKey='day' stroke='#64748b' />
-          <YAxis yAxisId='left' stroke='#0f766e' />
-          <YAxis yAxisId='right' orientation='right' stroke='#0f172a' domain={['dataMin - 1', 'dataMax + 1']} />
-          <Tooltip
-            contentStyle={{ borderRadius: '14px', border: '1px solid #cbd5e1', background: '#ffffff' }}
-          />
-          <Legend />
-          <Area
-            yAxisId='left'
-            type='monotone'
-            dataKey='protein'
-            fill='#99f6e4'
-            stroke='#0f766e'
-            name='Protein (g)'
-          />
-          <Line
-            yAxisId='right'
-            type='monotone'
-            dataKey='weight'
-            stroke='#0f172a'
-            strokeWidth={2.4}
-            dot={{ r: 3 }}
-            name='Weight (lb)'
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
-    </div>
-  </section>
-)
-
-const Dashboard = ({ profile, onLogout }) => {
-  const [view, setView] = useState('weekly')
-  const navItems = [
-    { id: 'weekly', label: 'Weekly Plan', icon: Utensils },
-    { id: 'progress', label: 'Progress & Vitals', icon: Activity },
-  ]
-
-function ProgressView() {
-  const proteinAvg = useMemo(
-    () => Math.round(MOCK_LOGS.reduce((sum, item) => sum + item.protein, 0) / MOCK_LOGS.length),
-    []
   )
-  const symptomFreeDays = useMemo(() => MOCK_LOGS.filter((day) => day.nausea === 0).length, [])
+}
 
 export default function MealcyclePage() {
   const [stage, setStage] = useState(APP_STAGE.LANDING)
@@ -538,8 +513,13 @@ export default function MealcyclePage() {
     return <Onboarding profile={profile} setProfile={setProfile} onFinish={() => setStage(APP_STAGE.DASHBOARD)} />
   }
 
-  return <Dashboard profile={profile} onLogout={() => {
-    setProfile(STARTING_PROFILE)
-    setStage(APP_STAGE.LANDING)
-  }} />
+  return (
+    <Dashboard
+      profile={profile}
+      onLogout={() => {
+        setProfile(STARTING_PROFILE)
+        setStage(APP_STAGE.LANDING)
+      }}
+    />
+  )
 }
