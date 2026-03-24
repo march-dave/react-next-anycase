@@ -11,11 +11,14 @@ import {
   Menu,
   MessageSquare,
   Network,
+  Settings,
   Shield,
   Terminal,
   Users,
   X,
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Area,
   AreaChart,
@@ -71,7 +74,7 @@ const initialMessages = [
     id: 2,
     type: 'code',
     author: 'Codex-Dev',
-    body: '```ts\nconst decision = await consensus.vote(taskId, { quorum: 0.66 });\nif (decision.accepted) orchestrator.dispatch(taskId);\n```',
+    body: 'Validated draft rollout:\n\n```ts\nconst decision = await consensus.vote(taskId, { quorum: 0.66 });\nif (decision.accepted) orchestrator.dispatch(taskId);\n```',
   },
   {
     id: 3,
@@ -113,6 +116,21 @@ const statusStyle = {
   Error: 'bg-red-500',
 };
 
+const markdownComponents = {
+  p: (props) => <p className="leading-6 text-slate-200" {...props} />,
+  code: ({ inline, className, children, ...props }) =>
+    inline ? (
+      <code className="rounded bg-slate-950 px-1.5 py-0.5 font-mono text-xs text-indigo-200" {...props}>
+        {children}
+      </code>
+    ) : (
+      <code className={`block rounded-md bg-slate-950 p-3 font-mono text-xs text-emerald-300 ${className || ''}`} {...props}>
+        {children}
+      </code>
+    ),
+  pre: (props) => <pre className="overflow-x-auto" {...props} />,
+};
+
 export default function Home() {
   const [enteredConsole, setEnteredConsole] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -145,7 +163,7 @@ export default function Home() {
         id: Date.now() + 2,
         type: 'code',
         author: 'Codex-Dev',
-        body: '```bash\nconsendus deploy --task TASK-1451 --canary 10 --guardrails strict\n```',
+        body: 'I can execute this once quorum is met:\n\n```bash\nconsendus deploy --task TASK-1451 --canary 10 --guardrails strict\n```',
       },
       {
         id: Date.now() + 3,
@@ -218,6 +236,13 @@ await swarm.orchestrate('deploy-v2', {
         </section>
       ) : (
         <section className="flex min-h-screen">
+          {mobileOpen && (
+            <button
+              className="fixed inset-0 z-10 bg-black/50 md:hidden"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close navigation"
+            />
+          )}
           <aside
             className={`fixed z-20 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur-sm transition-transform duration-300 md:static md:translate-x-0 ${
               mobileOpen ? 'translate-x-0' : '-translate-x-full'
@@ -254,7 +279,10 @@ await swarm.orchestrate('deploy-v2', {
                 <Menu className="h-5 w-5" />
               </button>
               <div className="hidden text-sm text-slate-400 md:block">Environment: Production • {currentDate}</div>
-              <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm">dev@consendus.ai</div>
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm">
+                <Settings className="h-4 w-4 text-slate-300" />
+                dev@consendus.ai
+              </div>
             </div>
 
             <div key={activeTab} className="animate-fade-in">
@@ -353,12 +381,19 @@ await swarm.orchestrate('deploy-v2', {
                               <span>{msg.body}</span>
                             </p>
                           ) : msg.type === 'code' ? (
-                            <pre className="overflow-x-auto rounded-md bg-slate-950 p-3 font-mono text-xs text-emerald-300">{msg.body}</pre>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                              {msg.body}
+                            </ReactMarkdown>
                           ) : (
                             <p className="text-sm text-slate-200">{msg.body}</p>
                           )}
                         </div>
                       ))}
+                      {isSimulating && (
+                        <div className="w-fit rounded-lg border border-purple-400/30 bg-purple-500/10 px-3 py-2 text-xs text-purple-200">
+                          AI agents are typing...
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
