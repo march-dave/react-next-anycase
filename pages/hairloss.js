@@ -223,24 +223,44 @@ const riskSignals = [
   'Treatment adherence quality',
 ]
 
-const pricing = [
+const appCapabilities = [
   {
-    tier: 'Free',
-    price: '$0',
-    summary: 'Build awareness before visible loss starts.',
-    perks: ['Weekly scalp scan reminders', 'Core trend dashboard', 'Early warning alerts'],
+    label: 'Hairline recession map',
+    value:
+      'Guided front-facing photos quantify temple movement and asymmetry so changes are measured, not guessed.',
   },
   {
-    tier: 'Pro Prevention',
-    price: '$19/mo',
-    summary: 'Personalized protocols and deeper analysis.',
-    perks: ['Advanced AI pattern scoring', 'Personalized intervention plan', 'Treatment adherence tracking'],
+    label: 'Crown thinning score',
+    value:
+      'Top-down scans track density loss over time and alert users when the crown begins to weaken.',
   },
   {
-    tier: 'Clinic Connect',
-    price: 'Referral-based',
-    summary: 'Move from signal to specialist care in minutes.',
-    perks: ['Priority specialist matching', 'Consult-ready progress report', 'Partner clinic referral pathway'],
+    label: 'Density trendline',
+    value:
+      'A longitudinal score compares every week against baseline, highlighting momentum before it becomes visually obvious.',
+  },
+  {
+    label: 'Intervention readiness',
+    value:
+      'Treatment recommendations escalate from lifestyle coaching to specialist consults when your risk profile changes.',
+  },
+]
+
+const acquisitionFit = [
+  {
+    title: 'Earlier customer intent',
+    description:
+      'Manetain captures users while they are still researching prevention, well before they actively shop for treatment.',
+  },
+  {
+    title: 'Better referral quality',
+    description:
+      'Clinic and telehealth partners receive users with objective progression data, risk context, and higher purchase intent.',
+  },
+  {
+    title: 'Sticky retention loop',
+    description:
+      'Weekly scans, alerts, and progress snapshots create recurring engagement that compounds into strong lifetime value.',
   },
 ]
 
