@@ -245,7 +245,7 @@ export default function Consendus() {
         channel: activeChannel,
         type: 'code',
         content:
-          "Promotion packet queued:\n\n```ts\nawait bus.broadcast('migration-api-v2', { stage: 'promote', confidence: 0.97, votes: '3/3' })\n```",
+          "await bus.broadcast('migration-api-v2', {\n  stage: 'promote',\n  confidence: 0.97,\n  votes: '3/3',\n})",
       },
     ]
 

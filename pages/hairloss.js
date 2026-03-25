@@ -21,6 +21,24 @@ const stats = [
   { label: 'Weekly check-ins', value: '5 min' },
 ]
 
+const pitchHighlights = [
+  {
+    title: 'The problem',
+    description:
+      'Hair loss is sneaky. Most people only notice after substantial thinning, which is often when treatment becomes less effective.',
+  },
+  {
+    title: 'The solution',
+    description:
+      'AI-powered weekly scalp tracking catches subtle shifts early and translates them into practical prevention steps.',
+  },
+  {
+    title: 'The business model',
+    description:
+      'Freemium product with clinic referral revenue share and affiliate commissions on evidence-based products.',
+  },
+]
+
 const steps = [
   {
     title: 'Capture standardized photos',
@@ -162,6 +180,21 @@ const interventions = [
     stage: 'Accelerated loss',
     focus: 'Escalate with specialist care',
     actions: 'Priority consult booking, treatment discussion prep, and progress handoff reports.',
+  },
+]
+
+const carePathway = [
+  {
+    stage: 'Detect',
+    detail: 'AI flags a meaningful density shift and opens a concise change report.',
+  },
+  {
+    stage: 'Recommend',
+    detail: 'Users get a personalized prevention stack based on pattern, habits, and optional DNA.',
+  },
+  {
+    stage: 'Escalate',
+    detail: 'When thresholds are crossed, users can instantly book a specialist consult in-app.',
   },
 ]
 
@@ -334,6 +367,19 @@ export default function HairLoss() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 pb-16">
+          <div className="mb-8 rounded-3xl border border-emerald-300/20 bg-emerald-400/5 p-6">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Investor snapshot</p>
+            <h2 className="mt-3 text-2xl font-semibold">Hair today, gone tomorrow — unless prevention starts early.</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              {pitchHighlights.map((highlight) => (
+                <article key={highlight.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <h3 className="text-sm uppercase tracking-[0.2em] text-emerald-200">{highlight.title}</h3>
+                  <p className="mt-2 text-sm text-slate-300">{highlight.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
           <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">In a line</p>
@@ -515,6 +561,45 @@ export default function HairLoss() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="grid gap-8 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Prototype dashboard</p>
+              <h3 className="mt-2 text-2xl font-semibold">See risk signals before they become visible</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                A single weekly check-in translates scalp scans and lifestyle inputs into objective
+                risk scores. Users can understand if they are stable, drifting, or accelerating — and
+                what to do next.
+              </p>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                {dashboardSignals.map((signal) => (
+                  <div key={signal.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.15em] text-slate-400">{signal.label}</p>
+                    <p className="mt-2 text-xl font-semibold">{signal.value}</p>
+                    <p className="mt-1 text-xs text-emerald-200">{signal.delta}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/5 p-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-emerald-200">Weekly workflow</p>
+              <ul className="mt-4 space-y-3">
+                {weeklyChecklist.map((item) => (
+                  <li key={item} className="flex gap-3 text-sm text-slate-200">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-300" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <button className="mt-6 w-full rounded-full bg-emerald-300 px-4 py-3 text-sm font-semibold text-slate-950">
+                Start weekly check-in
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
           <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-500/10 p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div>
@@ -537,6 +622,26 @@ export default function HairLoss() {
                   <p className="mt-2 text-base font-semibold">{item.focus}</p>
                   <p className="mt-2 text-sm text-slate-300">{item.actions}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Care pathway</p>
+            <h3 className="mt-2 text-2xl font-semibold">From signal to specialist in minutes</h3>
+            <p className="mt-3 max-w-2xl text-sm text-slate-300">
+              Manetain isn&apos;t just a tracker. It bridges early detection to real interventions so users
+              can act before hair loss becomes emotionally or clinically difficult to reverse.
+            </p>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {carePathway.map((item) => (
+                <article key={item.stage} className="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.stage}</p>
+                  <p className="mt-2 text-sm text-slate-300">{item.detail}</p>
+                </article>
               ))}
             </div>
           </div>
@@ -575,6 +680,40 @@ export default function HairLoss() {
                 <article key={item.title} className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
                   <h4 className="text-base font-semibold">{item.title}</h4>
                   <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                </article>
+              ))}
+            </div>
+            <div className="mt-6 rounded-2xl border border-emerald-300/30 bg-slate-950/70 p-5">
+              <p className="text-xs uppercase tracking-[0.25em] text-emerald-200">End goal</p>
+              <p className="mt-2 text-sm text-slate-300">
+                Become the earliest signal layer for men&apos;s hair health and a high-intent acquisition channel for telehealth brands.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Business model</p>
+            <h3 className="mt-2 text-2xl font-semibold">Freemium wedge with clinic and affiliate upside</h3>
+            <p className="mt-3 max-w-3xl text-sm text-slate-300">
+              Start with habit-building weekly scans, then monetize on premium prevention tools,
+              specialist referrals, and trusted treatment recommendations.
+            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {pricing.map((plan) => (
+                <article key={plan.tier} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{plan.tier}</p>
+                  <p className="mt-2 text-2xl font-semibold">{plan.price}</p>
+                  <p className="mt-2 text-sm text-slate-300">{plan.summary}</p>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-200">
+                    {plan.perks.map((perk) => (
+                      <li key={perk} className="flex items-start gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                        <span>{perk}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </article>
               ))}
             </div>
