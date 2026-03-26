@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import {
   Activity,
-  BadgeDollarSign,
   ArrowRight,
   CalendarDays,
   Camera,
@@ -12,7 +11,6 @@ import {
   ShieldAlert,
   Sparkles,
   Stethoscope,
-  TrendingUp,
 } from 'lucide-react'
 
 const stats = [
@@ -189,6 +187,24 @@ const dashboardSignals = [
   { label: 'Crown thinning trend', value: 'Mild risk', delta: 'Detected 11 weeks early' },
 ]
 
+const appCapabilities = [
+  {
+    label: 'Density scoring',
+    value:
+      'Quantifies visible density shifts across the hairline, mid-scalp, and crown using standardized weekly image capture.',
+  },
+  {
+    label: 'Progression forecasting',
+    value:
+      'Projects whether a user appears stable, gradually thinning, or accelerating based on longitudinal scan history.',
+  },
+  {
+    label: 'Intervention matching',
+    value:
+      'Pairs each risk profile with prevention guidance, product recommendations, and specialist escalation triggers.',
+  },
+]
+
 const weeklyChecklist = [
   'Use guided lighting and camera distance prompts for consistent scans.',
   'Complete 60-second lifestyle check-in (sleep, stress, nutrition, routine).',
@@ -210,6 +226,24 @@ const faqs = [
     question: 'Is this a medical diagnosis tool?',
     answer:
       'No. Manetain is a prevention and tracking product that helps users decide when to consult a licensed specialist.',
+  },
+]
+
+const acquisitionFit = [
+  {
+    title: 'High-intent user acquisition',
+    description:
+      'Users arrive before treatment decisions are made, giving partners earlier and more valuable intent than search ads alone.',
+  },
+  {
+    title: 'Rich longitudinal data',
+    description:
+      'Weekly scalp scans, lifestyle signals, and adherence history create a conversion-ready record for telehealth and clinic partners.',
+  },
+  {
+    title: 'Natural upsell path',
+    description:
+      'The product moves from awareness to prevention to specialist care, creating a seamless funnel for prescription and clinic revenue.',
   },
 ]
 
