@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import {
   Activity,
-  BadgeDollarSign,
   ArrowRight,
   CalendarDays,
   Camera,
@@ -12,7 +11,6 @@ import {
   ShieldAlert,
   Sparkles,
   Stethoscope,
-  TrendingUp,
 } from 'lucide-react'
 
 const stats = [
@@ -171,10 +169,51 @@ const dashboardSignals = [
   { label: 'Crown thinning trend', value: 'Mild risk', delta: 'Detected 11 weeks early' },
 ]
 
+const appCapabilities = [
+  {
+    label: 'Hair density analysis',
+    value:
+      'Pixel-level density scoring compares baseline scans to weekly follow-ups so users can see subtle decline sooner.',
+  },
+  {
+    label: 'Hairline recession mapping',
+    value:
+      'Guided photo angles let the app measure temple movement and front-line drift with consistent framing.',
+  },
+  {
+    label: 'Crown thinning detection',
+    value:
+      'Top-down scalp scans surface widening parts and lower crown coverage before mirror checks catch up.',
+  },
+  {
+    label: 'Lifestyle + adherence context',
+    value:
+      'Sleep, stress, nutrition, and treatment consistency are layered onto scan trends to explain why risk changed.',
+  },
+]
+
 const weeklyChecklist = [
   'Use guided lighting and camera distance prompts for consistent scans.',
   'Complete 60-second lifestyle check-in (sleep, stress, nutrition, routine).',
   'Review intervention reminders and adherence streak before Sunday.',
+]
+
+const acquisitionFit = [
+  {
+    title: 'Earliest intent capture',
+    description:
+      'Manetain identifies users before they are shopping for severe-loss solutions, creating a new top-of-funnel entry point.',
+  },
+  {
+    title: 'Higher-conviction referrals',
+    description:
+      'Clinics and telehealth partners receive objective progression data, making consultations more urgent and conversion-ready.',
+  },
+  {
+    title: 'Retention-rich data moat',
+    description:
+      'Weekly tracking builds longitudinal user history that increases personalization, trust, and downstream monetization value.',
+  },
 ]
 
 const faqs = [
