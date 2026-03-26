@@ -1,4 +1,6 @@
-export const MOCK_MEALS = [
+import type { DailyLog, Meal } from './types';
+
+export const MOCK_MEALS: Meal[] = [
   {
     id: 'meal-1',
     title: 'Lemon Herb Chicken Bowl',
@@ -41,7 +43,7 @@ export const MOCK_MEALS = [
   },
 ];
 
-export const MOCK_LOGS = [
+export const MOCK_LOGS: DailyLog[] = [
   { day: 'Mon', protein: 126, weight: 197, symptomFree: true },
   { day: 'Tue', protein: 134, weight: 196.4, symptomFree: true },
   { day: 'Wed', protein: 119, weight: 196, symptomFree: false },

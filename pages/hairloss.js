@@ -181,34 +181,19 @@ const interventions = [
   },
 ]
 
-const dashboardSignals = [
-  { label: 'Hair density score', value: '82/100', delta: '-2 pts vs. last month' },
-  { label: 'Hairline recession index', value: 'Stage 1.4', delta: '+0.1 this quarter' },
-  { label: 'Crown thinning trend', value: 'Mild risk', delta: 'Detected 11 weeks early' },
-]
-
-const appCapabilities = [
+const carePathway = [
   {
-    label: 'Density scoring',
-    value:
-      'Quantifies visible density shifts across the hairline, mid-scalp, and crown using standardized weekly image capture.',
+    stage: 'Detect',
+    detail: 'AI flags a meaningful density shift and opens a concise change report.',
   },
   {
-    label: 'Progression forecasting',
-    value:
-      'Projects whether a user appears stable, gradually thinning, or accelerating based on longitudinal scan history.',
+    stage: 'Recommend',
+    detail: 'Users get a personalized prevention stack based on pattern, habits, and optional DNA.',
   },
   {
-    label: 'Intervention matching',
-    value:
-      'Pairs each risk profile with prevention guidance, product recommendations, and specialist escalation triggers.',
+    stage: 'Escalate',
+    detail: 'When thresholds are crossed, users can instantly book a specialist consult in-app.',
   },
-]
-
-const weeklyChecklist = [
-  'Use guided lighting and camera distance prompts for consistent scans.',
-  'Complete 60-second lifestyle check-in (sleep, stress, nutrition, routine).',
-  'Review intervention reminders and adherence streak before Sunday.',
 ]
 
 const faqs = [
@@ -254,24 +239,44 @@ const riskSignals = [
   'Treatment adherence quality',
 ]
 
-const pricing = [
+const appCapabilities = [
   {
-    tier: 'Free',
-    price: '$0',
-    summary: 'Build awareness before visible loss starts.',
-    perks: ['Weekly scalp scan reminders', 'Core trend dashboard', 'Early warning alerts'],
+    label: 'Hairline recession map',
+    value:
+      'Guided front-facing photos quantify temple movement and asymmetry so changes are measured, not guessed.',
   },
   {
-    tier: 'Pro Prevention',
-    price: '$19/mo',
-    summary: 'Personalized protocols and deeper analysis.',
-    perks: ['Advanced AI pattern scoring', 'Personalized intervention plan', 'Treatment adherence tracking'],
+    label: 'Crown thinning score',
+    value:
+      'Top-down scans track density loss over time and alert users when the crown begins to weaken.',
   },
   {
-    tier: 'Clinic Connect',
-    price: 'Referral-based',
-    summary: 'Move from signal to specialist care in minutes.',
-    perks: ['Priority specialist matching', 'Consult-ready progress report', 'Partner clinic referral pathway'],
+    label: 'Density trendline',
+    value:
+      'A longitudinal score compares every week against baseline, highlighting momentum before it becomes visually obvious.',
+  },
+  {
+    label: 'Intervention readiness',
+    value:
+      'Treatment recommendations escalate from lifestyle coaching to specialist consults when your risk profile changes.',
+  },
+]
+
+const acquisitionFit = [
+  {
+    title: 'Earlier customer intent',
+    description:
+      'Manetain captures users while they are still researching prevention, well before they actively shop for treatment.',
+  },
+  {
+    title: 'Better referral quality',
+    description:
+      'Clinic and telehealth partners receive users with objective progression data, risk context, and higher purchase intent.',
+  },
+  {
+    title: 'Sticky retention loop',
+    description:
+      'Weekly scans, alerts, and progress snapshots create recurring engagement that compounds into strong lifetime value.',
   },
 ]
 
@@ -633,6 +638,26 @@ export default function HairLoss() {
                   <p className="mt-2 text-base font-semibold">{item.focus}</p>
                   <p className="mt-2 text-sm text-slate-300">{item.actions}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Care pathway</p>
+            <h3 className="mt-2 text-2xl font-semibold">From signal to specialist in minutes</h3>
+            <p className="mt-3 max-w-2xl text-sm text-slate-300">
+              Manetain isn&apos;t just a tracker. It bridges early detection to real interventions so users
+              can act before hair loss becomes emotionally or clinically difficult to reverse.
+            </p>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {carePathway.map((item) => (
+                <article key={item.stage} className="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.stage}</p>
+                  <p className="mt-2 text-sm text-slate-300">{item.detail}</p>
+                </article>
               ))}
             </div>
           </div>
