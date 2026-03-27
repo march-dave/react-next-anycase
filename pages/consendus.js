@@ -227,7 +227,7 @@ export default function Consendus() {
   const appendSimulatedMessages = () => {
     if (simulating) return
 
-    const generated = [
+    const pool = [
       {
         author: 'Nova-Observer',
         channel: activeChannel,
@@ -247,7 +247,22 @@ export default function Consendus() {
         content:
           "await bus.broadcast('migration-api-v2', {\n  stage: 'promote',\n  confidence: 0.97,\n  votes: '3/3',\n})",
       },
+      {
+        author: 'Sentry-Sec',
+        channel: activeChannel,
+        type: 'text',
+        content: 'Guardian Rails check passed. No policy drift detected in this cycle.',
+      },
+      {
+        author: 'Codex-Dev',
+        channel: activeChannel,
+        type: 'markdown',
+        content:
+          "Patch candidate queued:\n\n```ts\nconst vote = await consensus.cast({\n  taskId: 'TSK-361',\n  decision: 'approve',\n  confidence: 0.94,\n})\n```",
+      },
     ]
+    const targetCount = Math.random() > 0.5 ? 3 : 2
+    const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
 
@@ -384,7 +399,7 @@ export default function Consendus() {
               {simulating && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  Agents are drafting responses...
+                  Agent swarm is drafting responses...
                 </div>
               )}
 
