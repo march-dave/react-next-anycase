@@ -1,5 +1,7 @@
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   Activity,
   Bot,
@@ -172,6 +174,32 @@ function ViewContainer({ children }) {
 }
 
 function MessageBody({ message }) {
+  const markdownComponents = {
+    p: ({ children }) => <p className="text-sm text-slate-100">{children}</p>,
+    strong: ({ children }) => <strong className="font-semibold text-indigo-100">{children}</strong>,
+    code: ({ inline, children }) => {
+      if (inline) {
+        return (
+          <code
+            className="rounded bg-slate-950/80 px-1.5 py-0.5 text-[12px] text-emerald-200"
+            style={{ fontFamily: 'JetBrains Mono, monospace' }}
+          >
+            {children}
+          </code>
+        )
+      }
+
+      return (
+        <pre
+          className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
+          style={{ fontFamily: 'JetBrains Mono, monospace' }}
+        >
+          <code>{children}</code>
+        </pre>
+      )
+    },
+  }
+
   if (message.type === 'code') {
     return (
       <pre
@@ -184,20 +212,11 @@ function MessageBody({ message }) {
   }
 
   if (message.type === 'markdown') {
-    const codeMatch = message.content.match(/```(?:ts|js)?\n([\s\S]*?)```/)
-    const textWithoutCode = message.content.replace(/```(?:ts|js)?\n[\s\S]*?```/, '').trim()
-
     return (
-      <div className="space-y-2">
-        {textWithoutCode ? <p className="text-sm text-slate-100">{textWithoutCode}</p> : null}
-        {codeMatch ? (
-          <pre
-            className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
-            {codeMatch[1]}
-          </pre>
-        ) : null}
+      <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {message.content}
+        </ReactMarkdown>
       </div>
     )
   }
@@ -481,6 +500,12 @@ export default function Consendus() {
     <>
       <Head>
         <title>Consendus.ai</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <div
         className="min-h-screen bg-slate-900 text-slate-100"
