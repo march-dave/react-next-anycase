@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import {
   Activity,
-  BadgeDollarSign,
   ArrowRight,
   CalendarDays,
   Camera,
@@ -12,7 +11,6 @@ import {
   ShieldAlert,
   Sparkles,
   Stethoscope,
-  TrendingUp,
 } from 'lucide-react'
 
 const stats = [
@@ -261,6 +259,40 @@ const acquisitionFit = [
     title: 'Sticky retention loop',
     description:
       'Weekly scans, alerts, and progress snapshots create recurring engagement that compounds into strong lifetime value.',
+  },
+]
+
+const dashboardSignals = [
+  { label: 'Hairline score', value: '91 / 100', delta: '+1.2% vs last month' },
+  { label: 'Crown density', value: '88 / 100', delta: '-0.8% vs baseline' },
+  { label: 'Risk level', value: 'Moderate', delta: 'Intervention recommended' },
+]
+
+const weeklyChecklist = [
+  'Capture guided front, top, and crown photos in consistent lighting.',
+  'Review AI trend report for recession velocity and density changes.',
+  'Confirm treatment adherence and lifestyle check-in.',
+  'Get updated prevention actions and specialist escalation prompts.',
+]
+
+const pricing = [
+  {
+    tier: 'Free',
+    price: '$0',
+    summary: 'Weekly scan capture and baseline trend visibility for early awareness.',
+    perks: ['Weekly guided photo scans', 'Basic hairline + crown tracking', 'Early risk alerts'],
+  },
+  {
+    tier: 'Pro',
+    price: '$19/mo',
+    summary: 'Advanced analytics, personalized plans, and deeper intervention guidance.',
+    perks: ['AI progression forecasts', 'Personalized prevention stack', 'Treatment adherence scoring'],
+  },
+  {
+    tier: 'Clinic+',
+    price: 'Revenue share',
+    summary: 'Partner workflow for specialist referrals with richer progression data.',
+    perks: ['Priority specialist booking', 'Referral conversion dashboards', 'Structured visit handoff reports'],
   },
 ]
 
