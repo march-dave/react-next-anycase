@@ -214,24 +214,6 @@ const faqs = [
   },
 ]
 
-const acquisitionFit = [
-  {
-    title: 'High-intent user acquisition',
-    description:
-      'Users arrive before treatment decisions are made, giving partners earlier and more valuable intent than search ads alone.',
-  },
-  {
-    title: 'Rich longitudinal data',
-    description:
-      'Weekly scalp scans, lifestyle signals, and adherence history create a conversion-ready record for telehealth and clinic partners.',
-  },
-  {
-    title: 'Natural upsell path',
-    description:
-      'The product moves from awareness to prevention to specialist care, creating a seamless funnel for prescription and clinic revenue.',
-  },
-]
-
 const riskSignals = [
   'Hairline recession velocity',
   'Crown density drop-off',
