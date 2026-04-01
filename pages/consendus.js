@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import {
   Activity,
   Bot,
@@ -21,6 +22,7 @@ import {
   X,
 } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import remarkGfm from 'remark-gfm'
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -168,7 +170,7 @@ const statusColors = {
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
 
 function ViewContainer({ children }) {
-  return <section className="animate-[fadeIn_.28s_ease]">{children}</section>
+  return <section className="animate-[fadeIn_.32s_ease]">{children}</section>
 }
 
 function MessageBody({ message }) {
@@ -184,20 +186,36 @@ function MessageBody({ message }) {
   }
 
   if (message.type === 'markdown') {
-    const codeMatch = message.content.match(/```(?:ts|js)?\n([\s\S]*?)```/)
-    const textWithoutCode = message.content.replace(/```(?:ts|js)?\n[\s\S]*?```/, '').trim()
-
     return (
-      <div className="space-y-2">
-        {textWithoutCode ? <p className="text-sm text-slate-100">{textWithoutCode}</p> : null}
-        {codeMatch ? (
-          <pre
-            className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
-            {codeMatch[1]}
-          </pre>
-        ) : null}
+      <div className="space-y-2 text-sm leading-6 text-slate-100">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({ children }) => <p className="text-sm text-slate-100">{children}</p>,
+            strong: ({ children }) => <strong className="font-semibold text-indigo-200">{children}</strong>,
+            code: ({ inline, children }) =>
+              inline ? (
+                <code
+                  className="rounded bg-slate-900 px-1 py-0.5 text-xs text-emerald-200"
+                  style={{ fontFamily: 'JetBrains Mono, monospace' }}
+                >
+                  {children}
+                </code>
+              ) : (
+                <code style={{ fontFamily: 'JetBrains Mono, monospace' }}>{children}</code>
+              ),
+            pre: ({ children }) => (
+              <pre
+                className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
+                style={{ fontFamily: 'JetBrains Mono, monospace' }}
+              >
+                {children}
+              </pre>
+            ),
+          }}
+        >
+          {message.content}
+        </ReactMarkdown>
       </div>
     )
   }
@@ -364,7 +382,7 @@ export default function Consendus() {
 
     if (activeTab === 'comms') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeTab}>
           <section className="grid gap-5 lg:grid-cols-[260px_1fr]">
             <aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <h2 className="text-sm font-medium text-slate-200">Channels</h2>
@@ -429,7 +447,7 @@ export default function Consendus() {
 
     if (activeTab === 'orchestration') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeTab}>
           <section className="grid gap-4 lg:grid-cols-4">
             {taskStates.map((state) => (
               <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
@@ -469,7 +487,7 @@ export default function Consendus() {
     }
 
     return (
-      <ViewContainer>
+      <ViewContainer key={activeTab}>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
             <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
@@ -497,10 +515,7 @@ export default function Consendus() {
       <Head>
         <title>Consendus.ai</title>
       </Head>
-      <div
-        className="min-h-screen bg-slate-900 text-slate-100"
-        style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
-      >
+      <div className="min-h-screen bg-slate-900 text-slate-100" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
         {!inConsole ? (
           <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
             <section className="grid items-center gap-10 lg:grid-cols-2">
