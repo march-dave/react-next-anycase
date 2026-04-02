@@ -231,6 +231,7 @@ export default function Consendus() {
   const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
+  const [typingAgents, setTypingAgents] = useState([])
 
   const tasksByState = useMemo(
     () =>
@@ -284,8 +285,13 @@ export default function Consendus() {
     const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
+    setTypingAgents([])
 
     generated.forEach((message, index) => {
+      setTimeout(() => {
+        setTypingAgents((prev) => Array.from(new Set([...prev, message.author])))
+      }, index * 650 + 250)
+
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
@@ -295,6 +301,7 @@ export default function Consendus() {
             time: `09:${50 + index}`,
           },
         ])
+        setTypingAgents((prev) => prev.filter((agent) => agent !== message.author))
 
         if (index === generated.length - 1) {
           setTimeout(() => setSimulating(false), 260)
@@ -437,6 +444,20 @@ export default function Consendus() {
                       <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{message.time}</span>
                     </div>
                     <MessageBody message={message} />
+                  </article>
+                ))}
+
+                {typingAgents.map((agent) => (
+                  <article key={`typing-${agent}`} className="rounded-xl border border-purple-400/30 bg-purple-500/10 p-3">
+                    <div className="mb-2 flex items-center justify-between text-xs text-purple-200">
+                      <span>{agent}</span>
+                      <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>typing…</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:180ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:360ms]" />
+                    </div>
                   </article>
                 ))}
               </div>
