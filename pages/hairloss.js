@@ -214,24 +214,6 @@ const faqs = [
   },
 ]
 
-const acquisitionFit = [
-  {
-    title: 'High-intent user acquisition',
-    description:
-      'Users arrive before treatment decisions are made, giving partners earlier and more valuable intent than search ads alone.',
-  },
-  {
-    title: 'Rich longitudinal data',
-    description:
-      'Weekly scalp scans, lifestyle signals, and adherence history create a conversion-ready record for telehealth and clinic partners.',
-  },
-  {
-    title: 'Natural upsell path',
-    description:
-      'The product moves from awareness to prevention to specialist care, creating a seamless funnel for prescription and clinic revenue.',
-  },
-]
-
 const riskSignals = [
   'Hairline recession velocity',
   'Crown density drop-off',
@@ -263,39 +245,6 @@ const appCapabilities = [
 ]
 
 
-const dashboardSignals = [
-  { label: 'Density score', value: '82 / 100', delta: '+2.4% vs baseline' },
-  { label: 'Hairline drift', value: 'Low', delta: 'No significant temple recession' },
-  { label: 'Crown trend', value: 'Stable', delta: '0.3% week-over-week change' },
-]
-
-const weeklyChecklist = [
-  'Capture front hairline, top-down crown, and left/right temple photos.',
-  'Complete the 60-second lifestyle check-in (sleep, stress, nutrition, adherence).',
-  'Review your updated risk score and recommended prevention actions.',
-  'Book a specialist consult if your progression threshold is crossed.',
-]
-
-const pricing = [
-  {
-    tier: 'Free',
-    price: '$0',
-    summary: 'Core weekly scans and basic trend tracking to build prevention habits early.',
-    perks: ['Weekly scan reminders', 'Baseline + monthly trend snapshots', 'Basic prevention tips'],
-  },
-  {
-    tier: 'Pro',
-    price: '$19/mo',
-    summary: 'Advanced AI analytics, proactive alerts, and personalized intervention planning.',
-    perks: ['Hairline + crown risk scoring', 'Personalized treatment tracks', 'Priority alerting when risk increases'],
-  },
-  {
-    tier: 'Clinic+',
-    price: 'Revenue share',
-    summary: 'Specialist referral channel with structured progression data for higher-intent consults.',
-    perks: ['In-app consult booking', 'Longitudinal handoff reports', 'Partner clinic referral workflow'],
-  },
-]
 const acquisitionFit = [
   {
     title: 'Earlier customer intent',
