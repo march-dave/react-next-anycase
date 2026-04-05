@@ -227,10 +227,12 @@ function MessageBody({ message }) {
 export default function Consendus() {
   const [inConsole, setInConsole] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+  const [tabVisible, setTabVisible] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
+  const [typingAgent, setTypingAgent] = useState('')
 
   const tasksByState = useMemo(
     () =>
@@ -287,6 +289,7 @@ export default function Consendus() {
 
     generated.forEach((message, index) => {
       setTimeout(() => {
+        setTypingAgent(message.author)
         setMessages((prev) => [
           ...prev,
           {
@@ -297,10 +300,22 @@ export default function Consendus() {
         ])
 
         if (index === generated.length - 1) {
-          setTimeout(() => setSimulating(false), 260)
+          setTimeout(() => {
+            setTypingAgent('')
+            setSimulating(false)
+          }, 260)
         }
       }, (index + 1) * 700)
     })
+  }
+
+  const changeTab = (tabId) => {
+    if (tabId === activeTab) return
+    setTabVisible(false)
+    setTimeout(() => {
+      setActiveTab(tabId)
+      setTabVisible(true)
+    }, 140)
   }
 
   const renderTab = () => {
@@ -418,7 +433,7 @@ export default function Consendus() {
               {simulating && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  Agent swarm is drafting responses...
+                  {typingAgent ? `${typingAgent} is typing...` : 'Agent swarm is drafting responses...'}
                 </div>
               )}
 
@@ -624,7 +639,7 @@ await swarm.deploy('migration-api-v2')`}
                     <button
                       key={item.id}
                       onClick={() => {
-                        setActiveTab(item.id)
+                        changeTab(item.id)
                         setSidebarOpen(false)
                       }}
                       className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-sm transition ${
@@ -659,7 +674,9 @@ await swarm.deploy('migration-api-v2')`}
                 </button>
               </header>
 
-              {renderTab()}
+              <div className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}>
+                {renderTab()}
+              </div>
             </main>
           </div>
         )}
