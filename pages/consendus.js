@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import {
   Activity,
   Bot,
@@ -23,6 +22,7 @@ import {
   X,
 } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import remarkGfm from 'remark-gfm'
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -170,7 +170,7 @@ const statusColors = {
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
 
 function ViewContainer({ children }) {
-  return <section className="animate-[fadeIn_.28s_ease]">{children}</section>
+  return <section className="animate-[fadeIn_.32s_ease]">{children}</section>
 }
 
 function MessageBody({ message }) {
@@ -286,6 +286,7 @@ export default function Consendus() {
     const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
+    setTypingAgents([])
 
     generated.forEach((message, index) => {
       setTimeout(() => {
@@ -298,6 +299,7 @@ export default function Consendus() {
             time: `09:${50 + index}`,
           },
         ])
+        setTypingAgents((prev) => prev.filter((agent) => agent !== message.author))
 
         if (index === generated.length - 1) {
           setTimeout(() => {
@@ -398,7 +400,7 @@ export default function Consendus() {
 
     if (activeTab === 'comms') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeTab}>
           <section className="grid gap-5 lg:grid-cols-[260px_1fr]">
             <aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <h2 className="text-sm font-medium text-slate-200">Channels</h2>
@@ -454,6 +456,20 @@ export default function Consendus() {
                     <MessageBody message={message} />
                   </article>
                 ))}
+
+                {typingAgents.map((agent) => (
+                  <article key={`typing-${agent}`} className="rounded-xl border border-purple-400/30 bg-purple-500/10 p-3">
+                    <div className="mb-2 flex items-center justify-between text-xs text-purple-200">
+                      <span>{agent}</span>
+                      <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>typing…</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:180ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:360ms]" />
+                    </div>
+                  </article>
+                ))}
               </div>
             </div>
           </section>
@@ -463,7 +479,7 @@ export default function Consendus() {
 
     if (activeTab === 'orchestration') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeTab}>
           <section className="grid gap-4 lg:grid-cols-4">
             {taskStates.map((state) => (
               <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
@@ -503,7 +519,7 @@ export default function Consendus() {
     }
 
     return (
-      <ViewContainer>
+      <ViewContainer key={activeTab}>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
             <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
@@ -537,10 +553,7 @@ export default function Consendus() {
           rel="stylesheet"
         />
       </Head>
-      <div
-        className="min-h-screen bg-slate-900 text-slate-100"
-        style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
-      >
+      <div className="min-h-screen bg-slate-900 text-slate-100" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
         {!inConsole ? (
           <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
             <section className="grid items-center gap-10 lg:grid-cols-2">
