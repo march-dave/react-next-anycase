@@ -1,8 +1,9 @@
 import Head from 'next/head'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
   Activity,
+  AlertTriangle,
   Bot,
   CheckCircle2,
   ChevronRight,
@@ -226,12 +227,14 @@ function MessageBody({ message }) {
 
 export default function Consendus() {
   const [inConsole, setInConsole] = useState(false)
+  const [isEnteringConsole, setIsEnteringConsole] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
   const [typingAgents, setTypingAgents] = useState([])
+  const chatScrollRef = useRef(null)
 
   const tasksByState = useMemo(
     () =>
@@ -243,6 +246,23 @@ export default function Consendus() {
   )
 
   const channelMessages = messages.filter((message) => message.channel === activeChannel)
+
+  useEffect(() => {
+    if (activeTab !== 'comms') return
+
+    chatScrollRef.current?.scrollTo({
+      top: chatScrollRef.current.scrollHeight,
+      behavior: 'smooth',
+    })
+  }, [messages, typingAgents, activeChannel, activeTab])
+
+  const handleAccessConsole = () => {
+    setIsEnteringConsole(true)
+    setTimeout(() => {
+      setInConsole(true)
+      setIsEnteringConsole(false)
+    }, 240)
+  }
 
   const appendSimulatedMessages = () => {
     if (simulating) return
@@ -429,7 +449,7 @@ export default function Consendus() {
                 </div>
               )}
 
-              <div className="mt-4 h-[360px] space-y-3 overflow-auto pr-1">
+              <div ref={chatScrollRef} className="mt-4 h-[360px] space-y-3 overflow-auto pr-1">
                 {channelMessages.map((message) => (
                   <article
                     key={message.id}
@@ -440,7 +460,10 @@ export default function Consendus() {
                     }`}
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-                      <span>{message.author}</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        {message.type === 'alert' ? <AlertTriangle className="h-3.5 w-3.5 text-amber-300" /> : null}
+                        {message.author}
+                      </span>
                       <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{message.time}</span>
                     </div>
                     <MessageBody message={message} />
@@ -543,9 +566,17 @@ export default function Consendus() {
           rel="stylesheet"
         />
       </Head>
-      <div className="min-h-screen bg-slate-900 text-slate-100" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+      <div
+        className="min-h-screen bg-slate-900 text-slate-100"
+        style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
+      >
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_42%)]" />
         {!inConsole ? (
-          <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+          <main
+            className={`mx-auto max-w-6xl px-4 py-12 transition-all duration-300 sm:px-6 lg:px-8 ${
+              isEnteringConsole ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'
+            }`}
+          >
             <section className="grid items-center gap-10 lg:grid-cols-2">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Consendus.ai</p>
@@ -556,7 +587,7 @@ export default function Consendus() {
                   Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
                 </p>
                 <button
-                  onClick={() => setInConsole(true)}
+                  onClick={handleAccessConsole}
                   className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
                 >
                   Access Console
