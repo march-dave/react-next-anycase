@@ -233,6 +233,7 @@ export default function Consendus() {
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
   const [typingAgent, setTypingAgent] = useState('')
+  const [typingAgents, setTypingAgents] = useState([])
 
   const tasksByState = useMemo(
     () =>
@@ -286,19 +287,22 @@ export default function Consendus() {
     const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
-    setTypingAgents([])
+    setTypingAgent('')
+    setTypingAgents(generated.map((message) => message.author))
 
     generated.forEach((message, index) => {
       setTimeout(() => {
         setTypingAgent(message.author)
-        setMessages((prev) => [
-          ...prev,
-          {
-            ...message,
-            id: prev.length + 1,
-            time: `09:${50 + index}`,
-          },
-        ])
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              ...message,
+              id: prev.length + 1,
+              time: `09:${50 + index}`,
+            },
+          ])
+        }, 260)
         setTypingAgents((prev) => prev.filter((agent) => agent !== message.author))
 
         if (index === generated.length - 1) {
