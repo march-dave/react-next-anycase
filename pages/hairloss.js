@@ -793,6 +793,41 @@ export default function HairLoss() {
             </div>
           </div>
         </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <div className="grid gap-6 rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Launch roadmap</p>
+              <h3 className="mt-2 text-2xl font-semibold">A 90-day path from waitlist to revenue</h3>
+              <p className="mt-3 text-sm text-slate-300">
+                Manetain can start as a focused prevention product and expand into a repeatable
+                clinic referral channel with measurable outcomes.
+              </p>
+              <div className="mt-6 space-y-4">
+                {rolloutPlan.map((item) => (
+                  <article key={item.phase} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.phase}</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{item.timing}</p>
+                    <p className="mt-2 text-sm text-slate-300">{item.deliverables}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-500/10 p-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-emerald-200">Trust + compliance</p>
+              <h4 className="mt-2 text-xl font-semibold">Prevention guidance with clear boundaries</h4>
+              <ul className="mt-4 space-y-3 text-sm text-slate-100">
+                {complianceNotes.map((note) => (
+                  <li key={note} className="flex gap-3">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                    <span>{note}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   )
