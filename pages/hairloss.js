@@ -323,22 +323,24 @@ const whyNowPoints = [
 
 const rolloutPlan = [
   {
-    phase: 'Phase 1',
-    timing: 'Weeks 1-4',
-    deliverables:
-      'Launch guided weekly scans, baseline density score, and simple trend visualizations.',
+    title: 'Problem',
+    detail:
+      'Most men notice hair loss too late. Gradual changes blend into daily life, and treatment efficacy drops as progression advances.',
   },
   {
-    phase: 'Phase 2',
-    timing: 'Weeks 5-8',
-    deliverables:
-      'Add personalized prevention plans using scalp patterns, lifestyle inputs, and adherence tracking.',
+    title: 'Solution',
+    detail:
+      'Weekly AI scalp scans detect density and recession shifts early, then convert insights into prevention recommendations.',
   },
   {
-    phase: 'Phase 3',
-    timing: 'Weeks 9-12',
-    deliverables:
-      'Enable specialist referrals, clinic handoff summaries, and partner monetization workflows.',
+    title: 'Business model',
+    detail:
+      'Freemium access plus clinic referral revenue share and affiliate commissions on trusted treatment recommendations.',
+  },
+  {
+    title: 'End goal',
+    detail:
+      'Become the highest-intent prevention funnel in men’s hair health and a strategic acquisition fit for platforms like Hims.',
   },
 ]
 
@@ -458,6 +460,24 @@ export default function HairLoss() {
                 <article key={highlight.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
                   <h3 className="text-sm uppercase tracking-[0.2em] text-emerald-200">{highlight.title}</h3>
                   <p className="mt-2 text-sm text-slate-300">{highlight.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8 rounded-3xl border border-white/10 bg-slate-900/70 p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Opportunity overview</p>
+                <h2 className="mt-2 text-2xl font-semibold">Hair today, gone tomorrow — unless detection happens early.</h2>
+              </div>
+              <p className="text-xs text-slate-400">Market context: global hair loss treatment market ~ $8.2B</p>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {opportunitySnapshot.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">{item.title}</p>
+                  <p className="mt-2 text-sm text-slate-300">{item.detail}</p>
                 </article>
               ))}
             </div>
