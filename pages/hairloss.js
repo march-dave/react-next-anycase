@@ -297,7 +297,31 @@ const pricing = [
   },
 ]
 
-const opportunitySnapshot = [
+const complianceNotes = [
+  'Not a diagnostic tool. The app is designed for early awareness and prevention support.',
+  'All treatment guidance is educational and should be reviewed with a licensed clinician.',
+  'Users control sharing for DNA uploads, specialist referrals, and partner clinic handoffs.',
+]
+
+const whyNowPoints = [
+  {
+    title: 'Intervention timing matters',
+    detail:
+      'Most men discover loss after large visible changes, but treatment outcomes are generally strongest when started early.',
+  },
+  {
+    title: 'Computer vision is finally consumer-ready',
+    detail:
+      'Smartphone cameras plus guided capture can now produce repeatable, clinically useful trend signals at home.',
+  },
+  {
+    title: 'Telehealth distribution is mature',
+    detail:
+      'Users can move from detection to specialist consultation in days, not months, which makes early alerts actionable.',
+  },
+]
+
+const rolloutPlan = [
   {
     title: 'Problem',
     detail:
@@ -328,6 +352,11 @@ export default function HairLoss() {
         <meta
           name="description"
           content="AI-powered hair loss tracking, prevention recommendations, and specialist booking."
+        />
+        <meta property="og:title" content="Manetain — Hair Loss Prevention App" />
+        <meta
+          property="og:description"
+          content="Track hairline and crown changes early with weekly AI scans and personalized prevention guidance."
         />
       </Head>
 
@@ -507,6 +536,21 @@ export default function HairLoss() {
                 Manetain can become the earliest-intent hair prevention funnel in the market, sending
                 treatment-ready users to telehealth and clinic partners with rich longitudinal data.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-20">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-8">
+            <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Why now</p>
+            <h3 className="mt-2 text-2xl font-semibold">The market is ready for prevention-first hair health</h3>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {whyNowPoints.map((point) => (
+                <article key={point.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <h4 className="text-base font-semibold">{point.title}</h4>
+                  <p className="mt-2 text-sm text-slate-300">{point.detail}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
