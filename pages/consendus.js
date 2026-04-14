@@ -311,22 +311,20 @@ export default function Consendus() {
 
     generated.forEach((message, index) => {
       setTimeout(() => {
-        setTypingAgent(message.author)
-        setTimeout(() => {
-          setMessages((prev) => [
-            ...prev,
-            {
-              ...message,
-              id: prev.length + 1,
-              time: `09:${50 + index}`,
-            },
-          ])
-        }, 260)
+        setTypingAgents((prev) => (prev.includes(message.author) ? prev : [...prev, message.author]))
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...message,
+            id: prev.length + 1,
+            time: `09:${50 + index}`,
+          },
+        ])
         setTypingAgents((prev) => prev.filter((agent) => agent !== message.author))
 
         if (index === generated.length - 1) {
           setTimeout(() => {
-            setTypingAgent('')
+            setTypingAgents([])
             setSimulating(false)
           }, 260)
         }
@@ -458,7 +456,7 @@ export default function Consendus() {
               {simulating && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  {typingAgent ? `${typingAgent} is typing...` : 'Agent swarm is drafting responses...'}
+                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : 'Agent swarm is drafting responses...'}
                 </div>
               )}
 
