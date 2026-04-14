@@ -234,8 +234,8 @@ export default function Consendus() {
   const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
+  const [typingAgent, setTypingAgent] = useState('')
   const [typingAgents, setTypingAgents] = useState([])
-  const chatScrollRef = useRef(null)
 
   const tasksByState = useMemo(
     () =>
@@ -306,7 +306,8 @@ export default function Consendus() {
     const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
-    setTypingAgents([])
+    setTypingAgent('')
+    setTypingAgents(generated.map((message) => message.author))
 
     generated.forEach((message, index) => {
       setTimeout(() => {
