@@ -234,8 +234,8 @@ export default function Consendus() {
   const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
+  const [typingAgent, setTypingAgent] = useState('')
   const [typingAgents, setTypingAgents] = useState([])
-  const chatScrollRef = useRef(null)
 
   const tasksByState = useMemo(
     () =>
@@ -306,7 +306,8 @@ export default function Consendus() {
     const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
-    setTypingAgents([])
+    setTypingAgent('')
+    setTypingAgents(generated.map((message) => message.author))
 
     generated.forEach((message, index) => {
       setTimeout(() => {
@@ -457,7 +458,7 @@ export default function Consendus() {
               {simulating && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  {typingAgent ? `${typingAgent} is typing...` : 'Agent swarm is drafting responses...'}
+                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : 'Agent swarm is drafting responses...'}
                 </div>
               )}
 
