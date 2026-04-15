@@ -165,7 +165,7 @@ const agents = [
 const statusColors = {
   Idle: 'bg-emerald-400',
   Busy: 'bg-amber-400',
-  Error: 'bg-rose-500',
+  Error: 'bg-red-500',
 }
 
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
@@ -312,6 +312,9 @@ export default function Consendus() {
     generated.forEach((message, index) => {
       setTimeout(() => {
         setTypingAgents((prev) => (prev.includes(message.author) ? prev : [...prev, message.author]))
+      }, index * 700 + 260)
+
+      setTimeout(() => {
         setMessages((prev) => [
           ...prev,
           {
@@ -324,7 +327,6 @@ export default function Consendus() {
 
         if (index === generated.length - 1) {
           setTimeout(() => {
-            setTypingAgents([])
             setSimulating(false)
           }, 260)
         }
