@@ -297,31 +297,35 @@ const pricing = [
   },
 ]
 
-const complianceNotes = [
-  'Not a diagnostic tool. The app is designed for early awareness and prevention support.',
-  'All treatment guidance is educational and should be reviewed with a licensed clinician.',
-  'Users control sharing for DNA uploads, specialist referrals, and partner clinic handoffs.',
-]
-
-const whyNowPoints = [
-  {
-    title: 'Intervention timing matters',
-    detail:
-      'Most men discover loss after large visible changes, but treatment outcomes are generally strongest when started early.',
-  },
-  {
-    title: 'Computer vision is finally consumer-ready',
-    detail:
-      'Smartphone cameras plus guided capture can now produce repeatable, clinically useful trend signals at home.',
-  },
-  {
-    title: 'Telehealth distribution is mature',
-    detail:
-      'Users can move from detection to specialist consultation in days, not months, which makes early alerts actionable.',
-  },
-]
 
 const rolloutPlan = [
+  {
+    phase: 'Phase 1',
+    timing: 'Days 0-30',
+    deliverables:
+      'Launch waitlist, onboarding flow, and baseline weekly scalp capture with trend scoring.',
+  },
+  {
+    phase: 'Phase 2',
+    timing: 'Days 31-60',
+    deliverables:
+      'Ship personalized prevention recommendations, adherence reminders, and risk alerts.',
+  },
+  {
+    phase: 'Phase 3',
+    timing: 'Days 61-90',
+    deliverables:
+      'Enable specialist booking, referral analytics, and clinic partner revenue workflows.',
+  },
+]
+
+const complianceNotes = [
+  'The app provides prevention guidance and trend tracking, not medical diagnosis.',
+  'Users can escalate to licensed specialists when risk thresholds are crossed.',
+  'Optional DNA data stays user-controlled and is not required for core product value.',
+]
+
+const opportunitySnapshot = [
   {
     title: 'Problem',
     detail:
