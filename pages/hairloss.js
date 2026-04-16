@@ -297,6 +297,34 @@ const pricing = [
   },
 ]
 
+
+const rolloutPlan = [
+  {
+    phase: 'Phase 1',
+    timing: 'Days 0-30',
+    deliverables:
+      'Launch waitlist, onboarding flow, and baseline weekly scalp capture with trend scoring.',
+  },
+  {
+    phase: 'Phase 2',
+    timing: 'Days 31-60',
+    deliverables:
+      'Ship personalized prevention recommendations, adherence reminders, and risk alerts.',
+  },
+  {
+    phase: 'Phase 3',
+    timing: 'Days 61-90',
+    deliverables:
+      'Enable specialist booking, referral analytics, and clinic partner revenue workflows.',
+  },
+]
+
+const complianceNotes = [
+  'The app provides prevention guidance and trend tracking, not medical diagnosis.',
+  'Users can escalate to licensed specialists when risk thresholds are crossed.',
+  'Optional DNA data stays user-controlled and is not required for core product value.',
+]
+
 const opportunitySnapshot = [
   {
     title: 'Problem',
