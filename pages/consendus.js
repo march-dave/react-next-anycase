@@ -236,6 +236,7 @@ export default function Consendus() {
   const [simulating, setSimulating] = useState(false)
   const [typingAgent, setTypingAgent] = useState('')
   const [typingAgents, setTypingAgents] = useState([])
+  const chatScrollRef = useRef(null)
 
   const tasksByState = useMemo(
     () =>
