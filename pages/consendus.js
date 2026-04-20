@@ -234,9 +234,9 @@ export default function Consendus() {
   const [activeChannel, setActiveChannel] = useState(channels[0])
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
-  const [typingAgent, setTypingAgent] = useState('')
   const [typingAgents, setTypingAgents] = useState([])
   const chatScrollRef = useRef(null)
+  const simulationTimersRef = useRef([])
 
   const tasksByState = useMemo(
     () =>
@@ -257,6 +257,25 @@ export default function Consendus() {
       behavior: 'smooth',
     })
   }, [messages, typingAgents, activeChannel, activeTab])
+
+  useEffect(
+    () => () => {
+      simulationTimersRef.current.forEach((timerId) => clearTimeout(timerId))
+      simulationTimersRef.current = []
+    },
+    []
+  )
+
+  const scheduleSimulation = (callback, delay) => {
+    const timerId = setTimeout(callback, delay)
+    simulationTimersRef.current.push(timerId)
+  }
+
+  const formatSimulationTime = (offset = 0) => {
+    const now = new Date()
+    now.setSeconds(now.getSeconds() + offset)
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  }
 
   const handleAccessConsole = () => {
     setIsEnteringConsole(true)
@@ -307,28 +326,28 @@ export default function Consendus() {
     const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
-    setTypingAgent('')
     setTypingAgents(generated.map((message) => message.author))
 
     generated.forEach((message, index) => {
-      setTimeout(() => {
+      scheduleSimulation(() => {
         setTypingAgents((prev) => (prev.includes(message.author) ? prev : [...prev, message.author]))
       }, index * 700 + 260)
 
-      setTimeout(() => {
+      scheduleSimulation(() => {
         setMessages((prev) => [
           ...prev,
           {
             ...message,
             id: prev.length + 1,
-            time: `09:${50 + index}`,
+            time: formatSimulationTime(index * 60),
           },
         ])
         setTypingAgents((prev) => prev.filter((agent) => agent !== message.author))
 
         if (index === generated.length - 1) {
-          setTimeout(() => {
+          scheduleSimulation(() => {
             setSimulating(false)
+            simulationTimersRef.current = []
           }, 260)
         }
       }, (index + 1) * 700)
