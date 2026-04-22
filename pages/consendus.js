@@ -71,6 +71,16 @@ const analytics = [
   { time: '14:00', load: 65, tokens: 96 },
 ]
 
+const terminalEvents = [
+  { level: 'INFO', message: 'Agent-2 connected to semantic bus (latency 18ms)' },
+  { level: 'INFO', message: 'Consensus quorum initialized for task-3' },
+  { level: 'WARN', message: 'High latency detected on shard eu-west-1' },
+  { level: 'INFO', message: 'Guardian Rails policy patch applied by Sentry-Sec' },
+  { level: 'INFO', message: 'Token limiter adjusted (window=10s burst=128)' },
+  { level: 'SUCCESS', message: 'Deployment approved after 3/3 votes' },
+  { level: 'INFO', message: 'Heartbeat stream stable (24 active agents)' },
+]
+
 const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '#compliance-vote']
 
 const initialMessages = [
@@ -387,7 +397,15 @@ export default function Consendus() {
             <div className="h-[340px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2>
-                <Gauge className="h-4 w-4 text-indigo-300" />
+                <div className="flex items-center gap-3">
+                  <div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex">
+                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
+                    Load
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    Tokens
+                  </div>
+                  <Gauge className="h-4 w-4 text-indigo-300" />
+                </div>
               </div>
               <ResponsiveContainer width="100%" height="92%">
                 <AreaChart data={analytics}>
@@ -427,13 +445,20 @@ export default function Consendus() {
                 className="h-[280px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 text-xs leading-6 text-slate-300"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
               >
-                <p>[INFO] Agent-2 connected to semantic bus (latency 18ms)</p>
-                <p>[INFO] Consensus quorum initialized for task-3</p>
-                <p>[WARN] High latency detected on shard eu-west-1</p>
-                <p>[INFO] Guardian Rails policy patch applied by Sentry-Sec</p>
-                <p>[INFO] Token limiter adjusted (window=10s burst=128)</p>
-                <p>[SUCCESS] Deployment approved after 3/3 votes</p>
-                <p>[INFO] Heartbeat stream stable (24 active agents)</p>
+                {terminalEvents.map((event, index) => {
+                  const levelColor =
+                    event.level === 'WARN'
+                      ? 'text-amber-300'
+                      : event.level === 'SUCCESS'
+                        ? 'text-emerald-300'
+                        : 'text-indigo-200'
+
+                  return (
+                    <p key={`${event.level}-${index}`}>
+                      <span className={levelColor}>[{event.level}]</span> {event.message}
+                    </p>
+                  )
+                })}
               </div>
             </div>
           </section>
@@ -748,7 +773,12 @@ await swarm.deploy('migration-api-v2')`}
                 >
                   <Menu className="h-4 w-4" />
                 </button>
-                <div className="hidden text-sm text-slate-400 md:block">Control plane · dark mode</div>
+                <div className="hidden items-center gap-3 text-sm text-slate-400 md:flex">
+                  <span>Control plane · dark mode</span>
+                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-200">
+                    All systems nominal
+                  </span>
+                </div>
                 <button className="ml-auto flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
                   <UserCircle2 className="h-4 w-4 text-indigo-300" />
                   Settings
