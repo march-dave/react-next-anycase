@@ -2,8 +2,9 @@ import { GoogleGenAI, Type } from '@google/genai';
 import type { PersonaResponses } from './types';
 
 const apiKey =
-  (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) ||
-  (import.meta as { env?: { GEMINI_API_KEY?: string } }).env?.GEMINI_API_KEY;
+  (globalThis as { process?: { env?: { GEMINI_API_KEY?: string } } }).process?.env?.GEMINI_API_KEY ||
+  (import.meta as { env?: { GEMINI_API_KEY?: string; VITE_GEMINI_API_KEY?: string } }).env?.GEMINI_API_KEY ||
+  (import.meta as { env?: { GEMINI_API_KEY?: string; VITE_GEMINI_API_KEY?: string } }).env?.VITE_GEMINI_API_KEY;
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
