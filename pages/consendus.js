@@ -107,6 +107,14 @@ const initialMessages = [
     content: 'Throttle policy enabled after anomaly score exceeded 0.81.',
     time: '09:44',
   },
+  {
+    id: 5,
+    channel: '#migration-api-v2',
+    author: 'Pulse-Mediator',
+    type: 'action',
+    content: 'Executed AI action: proposed rollback guard with confidence 0.92.',
+    time: '09:45',
+  },
 ]
 
 const tasks = [
@@ -210,6 +218,10 @@ function MessageBody({ message }) {
         {message.content}
       </pre>
     )
+  }
+
+  if (message.type === 'action') {
+    return <p className="text-sm text-purple-100">{message.content}</p>
   }
 
   if (message.type === 'markdown') {
@@ -320,6 +332,12 @@ export default function Consendus() {
         type: 'markdown',
         content:
           "Patch candidate queued:\n\n```ts\nconst vote = await consensus.cast({\n  taskId: 'TSK-361',\n  decision: 'approve',\n  confidence: 0.94,\n})\n```",
+      },
+      {
+        author: 'Pulse-Mediator',
+        channel: activeChannel,
+        type: 'action',
+        content: 'Executed AI action: quorum lock engaged while waiting for final validator vote.',
       },
     ]
     const targetCount = Math.random() > 0.5 ? 3 : 2
@@ -489,12 +507,15 @@ export default function Consendus() {
                     className={`rounded-xl border p-3 ${
                       message.type === 'alert'
                         ? 'border-amber-400/30 bg-amber-500/10'
-                        : 'border-white/10 bg-slate-900/70'
+                        : message.type === 'action'
+                          ? 'border-purple-400/40 bg-purple-500/10'
+                          : 'border-white/10 bg-slate-900/70'
                     }`}
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
                       <span className="inline-flex items-center gap-1.5">
                         {message.type === 'alert' ? <AlertTriangle className="h-3.5 w-3.5 text-amber-300" /> : null}
+                        {message.type === 'action' ? <Sparkles className="h-3.5 w-3.5 text-purple-300" /> : null}
                         {message.author}
                       </span>
                       <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{message.time}</span>
@@ -748,14 +769,23 @@ await swarm.deploy('migration-api-v2')`}
                 >
                   <Menu className="h-4 w-4" />
                 </button>
-                <div className="hidden text-sm text-slate-400 md:block">Control plane · dark mode</div>
+                <div className="hidden items-center gap-2 text-sm md:flex">
+                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">
+                    Cluster healthy
+                  </span>
+                  <span className="text-slate-400">Control plane · dark mode</span>
+                </div>
                 <button className="ml-auto flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
                   <UserCircle2 className="h-4 w-4 text-indigo-300" />
                   Settings
                 </button>
               </header>
 
-              <div className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}>
+              <div
+                className={`transition-all ${
+                  tabVisible ? 'translate-y-0 opacity-100 duration-200' : 'translate-y-1 opacity-0 duration-150'
+                }`}
+              >
                 {renderTab()}
               </div>
             </main>
