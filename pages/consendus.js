@@ -83,6 +83,16 @@ const terminalEvents = [
 
 const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '#compliance-vote']
 
+const systemEvents = [
+  { level: 'INFO', text: 'Agent-2 connected to semantic bus (latency 18ms)' },
+  { level: 'INFO', text: 'Consensus quorum initialized for task-3' },
+  { level: 'WARN', text: 'High latency detected on shard eu-west-1' },
+  { level: 'INFO', text: 'Guardian Rails policy patch applied by Sentry-Sec' },
+  { level: 'INFO', text: 'Token limiter adjusted (window=10s burst=128)' },
+  { level: 'SUCCESS', text: 'Deployment approved after 3/3 votes' },
+  { level: 'INFO', text: 'Heartbeat stream stable (24 active agents)' },
+]
+
 const initialMessages = [
   {
     id: 1,
@@ -357,7 +367,6 @@ export default function Consendus() {
         if (index === generated.length - 1) {
           scheduleSimulation(() => {
             setSimulating(false)
-            simulationTimersRef.current = []
           }, 260)
         }
       }, (index + 1) * 700)
@@ -445,20 +454,22 @@ export default function Consendus() {
                 className="h-[280px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 text-xs leading-6 text-slate-300"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
               >
-                {terminalEvents.map((event, index) => {
-                  const levelColor =
-                    event.level === 'WARN'
-                      ? 'text-amber-300'
-                      : event.level === 'SUCCESS'
-                        ? 'text-emerald-300'
-                        : 'text-indigo-200'
-
-                  return (
-                    <p key={`${event.level}-${index}`}>
-                      <span className={levelColor}>[{event.level}]</span> {event.message}
-                    </p>
-                  )
-                })}
+                {systemEvents.map((event, idx) => (
+                  <p key={`${event.level}-${idx}`} className={event.level === 'WARN' ? 'text-amber-200' : ''}>
+                    <span
+                      className={
+                        event.level === 'SUCCESS'
+                          ? 'text-emerald-300'
+                          : event.level === 'WARN'
+                            ? 'text-amber-300'
+                            : 'text-indigo-200'
+                      }
+                    >
+                      [{event.level}]
+                    </span>{' '}
+                    {event.text}
+                  </p>
+                ))}
               </div>
             </div>
           </section>
@@ -511,7 +522,7 @@ export default function Consendus() {
                 {channelMessages.map((message) => (
                   <article
                     key={message.id}
-                    className={`rounded-xl border p-3 ${
+                    className={`animate-[fadeIn_0.22s_ease] rounded-xl border p-3 ${
                       message.type === 'alert'
                         ? 'border-amber-400/30 bg-amber-500/10'
                         : 'border-white/10 bg-slate-900/70'
@@ -792,6 +803,18 @@ await swarm.deploy('migration-api-v2')`}
           </div>
         )}
       </div>
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </>
   )
 }
