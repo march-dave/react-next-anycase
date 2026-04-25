@@ -106,7 +106,7 @@ export default function DemoApp({ onBack }: Props) {
   };
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="h-screen overflow-hidden">
       <header className="flex items-center justify-between border-b border-white/10 px-6 py-4">
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="rounded-md border border-white/20 p-2 hover:bg-white/10">
@@ -133,7 +133,7 @@ export default function DemoApp({ onBack }: Props) {
         </button>
       </header>
 
-      <main className="flex min-h-0 flex-1">
+      <main className="flex h-[calc(100vh-73px)] min-h-0 pb-[80px]">
         <section className="relative flex min-h-0 flex-1 flex-col border-r border-white/10">
           <div className="border-b border-white/10 px-5 py-4 text-sm text-[var(--color-text-dim)]">Current Episode: Live Transcript</div>
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-4 pb-24">
@@ -211,7 +211,7 @@ export default function DemoApp({ onBack }: Props) {
         </aside>
       </main>
 
-      <footer className="flex h-[80px] items-center gap-3 border-t border-white/10 px-6">
+      <footer className="fixed bottom-0 left-0 right-0 flex h-[80px] items-center gap-3 border-t border-white/10 bg-[var(--color-bg-dark)] px-6">
         <button className="rounded-full border border-white/20 px-4 py-2 text-sm">
           {isRecording ? <MicOff className="inline" size={14} /> : <Mic className="inline" size={14} />} Mute Host
         </button>
