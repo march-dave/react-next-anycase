@@ -181,7 +181,7 @@ const statusColors = {
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
 
 function ViewContainer({ children }) {
-  return <section className="animate-[fadeIn_.32s_ease]">{children}</section>
+  return <section className="animate-[fadeIn_.32s_ease] motion-reduce:animate-none">{children}</section>
 }
 
 function MessageBody({ message }) {
@@ -381,7 +381,10 @@ export default function Consendus() {
             {stats.map((stat) => {
               const Icon = stat.icon
               return (
-                <article key={stat.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
+                <article
+                  key={stat.label}
+                  className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur transition duration-200 hover:border-indigo-400/30 hover:bg-slate-800/85"
+                >
                   <div className="flex items-start justify-between">
                     <p className="text-sm text-slate-400">{stat.label}</p>
                     <Icon className="h-4 w-4 text-indigo-300" />
@@ -511,10 +514,10 @@ export default function Consendus() {
                 {channelMessages.map((message) => (
                   <article
                     key={message.id}
-                    className={`rounded-xl border p-3 ${
+                    className={`rounded-xl border p-3 transition ${
                       message.type === 'alert'
                         ? 'border-amber-400/30 bg-amber-500/10'
-                        : 'border-white/10 bg-slate-900/70'
+                        : 'border-white/10 bg-slate-900/70 hover:border-indigo-400/20'
                     }`}
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
@@ -557,7 +560,10 @@ export default function Consendus() {
                 <h2 className="text-sm font-semibold text-slate-100">{state}</h2>
                 <div className="mt-4 space-y-3">
                   {tasksByState[state].map((task) => (
-                    <article key={task.id} className="rounded-lg border border-white/10 bg-slate-900/80 p-3">
+                    <article
+                      key={task.id}
+                      className="rounded-lg border border-white/10 bg-slate-900/80 p-3 transition hover:border-indigo-400/25"
+                    >
                       <p className="text-xs text-slate-400" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                         {task.id}
                       </p>
@@ -651,7 +657,10 @@ export default function Consendus() {
           >
             <section className="grid items-center gap-10 lg:grid-cols-2">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Consendus.ai</p>
+                <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-indigo-300">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
+                  Consendus.ai
+                </p>
                 <h1 className="mt-3 text-4xl font-semibold leading-tight text-white md:text-5xl">
                   Orchestrate Your Agent Swarm
                 </h1>
@@ -698,7 +707,7 @@ await swarm.deploy('migration-api-v2')`}
               {features.map((feature) => (
                 <article
                   key={feature.title}
-                  className="rounded-xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-black/20 backdrop-blur"
+                  className="rounded-xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"
                 >
                   <div className="flex items-center gap-2 text-white">
                     <feature.icon className="h-4 w-4 text-indigo-300" />
