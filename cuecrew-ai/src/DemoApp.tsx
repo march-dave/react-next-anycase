@@ -40,6 +40,7 @@ export default function DemoApp({ onBack }: Props) {
   const [segments, setSegments] = useState<TranscriptSegment[]>([]);
   const [interimText, setInterimText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [fallbackText, setFallbackText] = useState('');
   const [supportsSpeech, setSupportsSpeech] = useState(true);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -87,9 +88,14 @@ export default function DemoApp({ onBack }: Props) {
     const id = crypto.randomUUID();
     setSegments((prev) => [...prev, { id, text }]);
     setInterimText('');
+    setIsAnalyzing(true);
 
-    const personaResponses = await getPersonaResponses(text);
-    setSegments((prev) => prev.map((seg) => (seg.id === id ? { ...seg, personaResponses } : seg)));
+    try {
+      const personaResponses = await getPersonaResponses(text);
+      setSegments((prev) => prev.map((seg) => (seg.id === id ? { ...seg, personaResponses } : seg)));
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const toggleRecording = () => {
@@ -175,15 +181,21 @@ export default function DemoApp({ onBack }: Props) {
         </section>
 
         <aside className="w-[340px] border-l border-white/10 bg-[var(--color-card-bg)]">
-          <div className="border-b border-white/10 px-5 py-4 text-sm text-[var(--color-text-dim)]">Live Crew Intelligence</div>
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 text-sm text-[var(--color-text-dim)]">
+            <span>Live Crew Intelligence</span>
+            {isAnalyzing && <span className="text-xs text-[var(--color-accent-blue)]">Analyzing…</span>}
+          </div>
           <div className="space-y-3 p-4">
             {personaMeta.map((persona) => {
               const response = latestSegment?.personaResponses?.[persona.key];
               const active = Boolean(response);
+              const pending = isAnalyzing && latestSegment && !response;
               return (
                 <div
                   key={persona.key}
-                  className={`rounded-xl border p-3 transition ${active ? 'border-white/30 bg-white/10' : 'border-white/10 opacity-45 grayscale'}`}
+                  className={`rounded-xl border p-3 transition ${
+                    active ? 'border-white/30 bg-white/10' : pending ? 'border-blue-300/40 bg-blue-300/5' : 'border-white/10 opacity-45 grayscale'
+                  }`}
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm">
@@ -203,7 +215,7 @@ export default function DemoApp({ onBack }: Props) {
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-[var(--color-text-dim)]">{response || 'Standing by.'}</p>
+                  <p className="text-sm text-[var(--color-text-dim)]">{response || (pending ? 'Listening for a strong cue…' : 'Standing by.')}</p>
                 </div>
               );
             })}
