@@ -1,10 +1,11 @@
 import { motion } from 'motion/react';
+import { Sparkles } from 'lucide-react';
 
 const personas = [
-  { name: 'Fact-checker', color: 'var(--color-tag-fact)' },
-  { name: 'Context Provider', color: 'var(--color-tag-context)' },
-  { name: 'Comedy Writer', color: 'var(--color-tag-joke)' },
-  { name: 'News Anchor', color: 'var(--color-tag-news)' },
+  { name: 'Fact-checker', color: 'var(--color-tag-fact)', sample: 'Claim check ready' },
+  { name: 'Context Provider', color: 'var(--color-tag-context)', sample: 'Timeline surfaced' },
+  { name: 'Comedy Writer', color: 'var(--color-tag-joke)', sample: 'Punchline queued' },
+  { name: 'News Anchor', color: 'var(--color-tag-news)', sample: 'Breaking update found' },
 ];
 
 function SineBars() {
@@ -36,14 +37,16 @@ export default function LandingPage({ onLaunch }: { onLaunch: () => void }) {
 
       <div className="grid items-center gap-10 md:grid-cols-2">
         <section>
-          <span className="inline-block rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm text-[var(--color-text-dim)]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm text-[var(--color-text-dim)]">
+            <Sparkles size={14} />
             Your real-time AI production crew
           </span>
           <h2 className="mt-6 text-5xl leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>
             Never record <span style={{ color: 'var(--color-accent-gold)' }}>alone again</span>.
           </h2>
           <p className="mt-5 max-w-lg text-lg text-[var(--color-text-dim)]">
-            Cuecrew.ai listens to your live show and sends instant facts, context, punch-ups, and breaking updates.
+            Cuecrew.ai listens to your live show and sends instant facts, context, punch-ups, and breaking updates while
+            you stay focused on hosting.
           </p>
           <button
             onClick={onLaunch}
@@ -53,7 +56,7 @@ export default function LandingPage({ onLaunch }: { onLaunch: () => void }) {
           </button>
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-[var(--color-card-bg)] p-6">
+        <section className="rounded-3xl border border-white/10 bg-[var(--color-card-bg)] p-6 shadow-2xl shadow-black/30">
           <p className="mb-5 text-sm text-[var(--color-text-dim)]">Crew activity</p>
           <div className="space-y-4">
             {personas.map((persona) => (
@@ -64,8 +67,13 @@ export default function LandingPage({ onLaunch }: { onLaunch: () => void }) {
                 transition={{ duration: 2.2, repeat: Infinity }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: persona.color }} />
-                  <p>{persona.name}</p>
+                  <span className="rounded-full px-2 py-0.5 text-xs font-medium text-black" style={{ backgroundColor: persona.color }}>
+                    LIVE
+                  </span>
+                  <div>
+                    <p>{persona.name}</p>
+                    <p className="text-xs text-[var(--color-text-dim)]">{persona.sample}</p>
+                  </div>
                 </div>
                 <SineBars />
               </motion.div>
