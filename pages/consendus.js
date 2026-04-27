@@ -181,7 +181,7 @@ const statusColors = {
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
 
 function ViewContainer({ children }) {
-  return <section className="animate-[fadeIn_.32s_ease]">{children}</section>
+  return <section style={{ animation: 'fadeIn 0.32s ease' }}>{children}</section>
 }
 
 function MessageBody({ message }) {
@@ -223,6 +223,16 @@ function MessageBody({ message }) {
   }
 
   if (message.type === 'markdown') {
+    return (
+      <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {message.content}
+        </ReactMarkdown>
+      </div>
+    )
+  }
+
+  if (message.type === 'text') {
     return (
       <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2">
         <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
@@ -785,13 +795,37 @@ await swarm.deploy('migration-api-v2')`}
                 </button>
               </header>
 
-              <div className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}>
-                {renderTab()}
-              </div>
+                  <div
+                    className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}
+                    style={tabVisible ? { animation: 'fadeUp 0.24s ease' } : undefined}
+                  >
+                    {renderTab()}
+                  </div>
             </main>
           </div>
         )}
       </div>
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </>
   )
 }
