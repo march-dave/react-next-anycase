@@ -2,10 +2,10 @@ import { motion } from 'motion/react';
 import { Sparkles } from 'lucide-react';
 
 const personas = [
-  { name: 'Fact-checker', color: 'var(--color-tag-fact)' },
-  { name: 'Context Provider', color: 'var(--color-tag-context)' },
-  { name: 'Comedy Writer', color: 'var(--color-tag-joke)' },
-  { name: 'News Anchor', color: 'var(--color-tag-news)' },
+  { name: 'Fact-checker', color: 'var(--color-tag-fact)', sample: 'Claim check ready' },
+  { name: 'Context Provider', color: 'var(--color-tag-context)', sample: 'Timeline surfaced' },
+  { name: 'Comedy Writer', color: 'var(--color-tag-joke)', sample: 'Punchline queued' },
+  { name: 'News Anchor', color: 'var(--color-tag-news)', sample: 'Breaking update found' },
 ];
 
 function SineBars() {
@@ -67,8 +67,13 @@ export default function LandingPage({ onLaunch }: { onLaunch: () => void }) {
                 transition={{ duration: 2.2, repeat: Infinity }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: persona.color }} />
-                  <p>{persona.name}</p>
+                  <span className="rounded-full px-2 py-0.5 text-xs font-medium text-black" style={{ backgroundColor: persona.color }}>
+                    LIVE
+                  </span>
+                  <div>
+                    <p>{persona.name}</p>
+                    <p className="text-xs text-[var(--color-text-dim)]">{persona.sample}</p>
+                  </div>
                 </div>
                 <SineBars />
               </motion.div>

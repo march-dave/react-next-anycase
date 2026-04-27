@@ -40,6 +40,7 @@ export default function DemoApp({ onBack }: Props) {
   const [segments, setSegments] = useState<TranscriptSegment[]>([]);
   const [interimText, setInterimText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [fallbackText, setFallbackText] = useState('');
   const [supportsSpeech, setSupportsSpeech] = useState(true);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -87,9 +88,14 @@ export default function DemoApp({ onBack }: Props) {
     const id = crypto.randomUUID();
     setSegments((prev) => [...prev, { id, text }]);
     setInterimText('');
+    setIsAnalyzing(true);
 
-    const personaResponses = await getPersonaResponses(text);
-    setSegments((prev) => prev.map((seg) => (seg.id === id ? { ...seg, personaResponses } : seg)));
+    try {
+      const personaResponses = await getPersonaResponses(text);
+      setSegments((prev) => prev.map((seg) => (seg.id === id ? { ...seg, personaResponses } : seg)));
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const toggleRecording = () => {
@@ -106,7 +112,7 @@ export default function DemoApp({ onBack }: Props) {
   };
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="h-screen overflow-hidden">
       <header className="flex items-center justify-between border-b border-white/10 px-6 py-4">
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="rounded-md border border-white/20 p-2 hover:bg-white/10">
@@ -133,7 +139,7 @@ export default function DemoApp({ onBack }: Props) {
         </button>
       </header>
 
-      <main className="flex min-h-0 flex-1">
+      <main className="flex h-[calc(100vh-73px)] min-h-0 pb-[80px]">
         <section className="relative flex min-h-0 flex-1 flex-col border-r border-white/10">
           <div className="border-b border-white/10 px-5 py-4 text-sm text-[var(--color-text-dim)]">Current Episode: Live Transcript</div>
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-4 pb-24">
@@ -175,15 +181,21 @@ export default function DemoApp({ onBack }: Props) {
         </section>
 
         <aside className="w-[340px] border-l border-white/10 bg-[var(--color-card-bg)]">
-          <div className="border-b border-white/10 px-5 py-4 text-sm text-[var(--color-text-dim)]">Live Crew Intelligence</div>
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 text-sm text-[var(--color-text-dim)]">
+            <span>Live Crew Intelligence</span>
+            {isAnalyzing && <span className="text-xs text-[var(--color-accent-blue)]">Analyzing…</span>}
+          </div>
           <div className="space-y-3 p-4">
             {personaMeta.map((persona) => {
               const response = latestSegment?.personaResponses?.[persona.key];
               const active = Boolean(response);
+              const pending = isAnalyzing && latestSegment && !response;
               return (
                 <div
                   key={persona.key}
-                  className={`rounded-xl border p-3 transition ${active ? 'border-white/30 bg-white/10' : 'border-white/10 opacity-45 grayscale'}`}
+                  className={`rounded-xl border p-3 transition ${
+                    active ? 'border-white/30 bg-white/10' : pending ? 'border-blue-300/40 bg-blue-300/5' : 'border-white/10 opacity-45 grayscale'
+                  }`}
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm">
@@ -203,7 +215,7 @@ export default function DemoApp({ onBack }: Props) {
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-[var(--color-text-dim)]">{response || 'Standing by.'}</p>
+                  <p className="text-sm text-[var(--color-text-dim)]">{response || (pending ? 'Listening for a strong cue…' : 'Standing by.')}</p>
                 </div>
               );
             })}
@@ -211,7 +223,7 @@ export default function DemoApp({ onBack }: Props) {
         </aside>
       </main>
 
-      <footer className="flex h-[80px] items-center gap-3 border-t border-white/10 px-6">
+      <footer className="fixed bottom-0 left-0 right-0 flex h-[80px] items-center gap-3 border-t border-white/10 bg-[var(--color-bg-dark)] px-6">
         <button className="rounded-full border border-white/20 px-4 py-2 text-sm">
           {isRecording ? <MicOff className="inline" size={14} /> : <Mic className="inline" size={14} />} Mute Host
         </button>

@@ -83,6 +83,16 @@ const terminalEvents = [
 
 const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '#compliance-vote']
 
+const systemEvents = [
+  { level: 'INFO', text: 'Agent-2 connected to semantic bus (latency 18ms)' },
+  { level: 'INFO', text: 'Consensus quorum initialized for task-3' },
+  { level: 'WARN', text: 'High latency detected on shard eu-west-1' },
+  { level: 'INFO', text: 'Guardian Rails policy patch applied by Sentry-Sec' },
+  { level: 'INFO', text: 'Token limiter adjusted (window=10s burst=128)' },
+  { level: 'SUCCESS', text: 'Deployment approved after 3/3 votes' },
+  { level: 'INFO', text: 'Heartbeat stream stable (24 active agents)' },
+]
+
 const initialMessages = [
   {
     id: 1,
@@ -116,6 +126,14 @@ const initialMessages = [
     type: 'alert',
     content: 'Throttle policy enabled after anomaly score exceeded 0.81.',
     time: '09:44',
+  },
+  {
+    id: 5,
+    channel: '#migration-api-v2',
+    author: 'Pulse-Mediator',
+    type: 'action',
+    content: 'Executed AI action: proposed rollback guard with confidence 0.92.',
+    time: '09:45',
   },
 ]
 
@@ -220,6 +238,10 @@ function MessageBody({ message }) {
         {message.content}
       </pre>
     )
+  }
+
+  if (message.type === 'action') {
+    return <p className="text-sm text-purple-100">{message.content}</p>
   }
 
   if (message.type === 'markdown') {
@@ -341,6 +363,12 @@ export default function Consendus() {
         content:
           "Patch candidate queued:\n\n```ts\nconst vote = await consensus.cast({\n  taskId: 'TSK-361',\n  decision: 'approve',\n  confidence: 0.94,\n})\n```",
       },
+      {
+        author: 'Pulse-Mediator',
+        channel: activeChannel,
+        type: 'action',
+        content: 'Executed AI action: quorum lock engaged while waiting for final validator vote.',
+      },
     ]
     const targetCount = Math.random() > 0.5 ? 3 : 2
     const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
@@ -367,7 +395,6 @@ export default function Consendus() {
         if (index === generated.length - 1) {
           scheduleSimulation(() => {
             setSimulating(false)
-            simulationTimersRef.current = []
           }, 260)
         }
       }, (index + 1) * 700)
@@ -391,7 +418,10 @@ export default function Consendus() {
             {stats.map((stat) => {
               const Icon = stat.icon
               return (
-                <article key={stat.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
+                <article
+                  key={stat.label}
+                  className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur transition duration-200 hover:border-indigo-400/30 hover:bg-slate-800/85"
+                >
                   <div className="flex items-start justify-between">
                     <p className="text-sm text-slate-400">{stat.label}</p>
                     <Icon className="h-4 w-4 text-indigo-300" />
@@ -455,20 +485,22 @@ export default function Consendus() {
                 className="h-[280px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 text-xs leading-6 text-slate-300"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
               >
-                {terminalEvents.map((event, index) => {
-                  const levelColor =
-                    event.level === 'WARN'
-                      ? 'text-amber-300'
-                      : event.level === 'SUCCESS'
-                        ? 'text-emerald-300'
-                        : 'text-indigo-200'
-
-                  return (
-                    <p key={`${event.level}-${index}`}>
-                      <span className={levelColor}>[{event.level}]</span> {event.message}
-                    </p>
-                  )
-                })}
+                {systemEvents.map((event, idx) => (
+                  <p key={`${event.level}-${idx}`} className={event.level === 'WARN' ? 'text-amber-200' : ''}>
+                    <span
+                      className={
+                        event.level === 'SUCCESS'
+                          ? 'text-emerald-300'
+                          : event.level === 'WARN'
+                            ? 'text-amber-300'
+                            : 'text-indigo-200'
+                      }
+                    >
+                      [{event.level}]
+                    </span>{' '}
+                    {event.text}
+                  </p>
+                ))}
               </div>
             </div>
           </section>
@@ -521,15 +553,16 @@ export default function Consendus() {
                 {channelMessages.map((message) => (
                   <article
                     key={message.id}
-                    className={`rounded-xl border p-3 ${
+                    className={`rounded-xl border p-3 transition ${
                       message.type === 'alert'
                         ? 'border-amber-400/30 bg-amber-500/10'
-                        : 'border-white/10 bg-slate-900/70'
+                        : 'border-white/10 bg-slate-900/70 hover:border-indigo-400/20'
                     }`}
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
                       <span className="inline-flex items-center gap-1.5">
                         {message.type === 'alert' ? <AlertTriangle className="h-3.5 w-3.5 text-amber-300" /> : null}
+                        {message.type === 'action' ? <Sparkles className="h-3.5 w-3.5 text-purple-300" /> : null}
                         {message.author}
                       </span>
                       <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{message.time}</span>
@@ -567,7 +600,10 @@ export default function Consendus() {
                 <h2 className="text-sm font-semibold text-slate-100">{state}</h2>
                 <div className="mt-4 space-y-3">
                   {tasksByState[state].map((task) => (
-                    <article key={task.id} className="rounded-lg border border-white/10 bg-slate-900/80 p-3">
+                    <article
+                      key={task.id}
+                      className="rounded-lg border border-white/10 bg-slate-900/80 p-3 transition hover:border-indigo-400/25"
+                    >
                       <p className="text-xs text-slate-400" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                         {task.id}
                       </p>
@@ -661,7 +697,10 @@ export default function Consendus() {
           >
             <section className="grid items-center gap-10 lg:grid-cols-2">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Consendus.ai</p>
+                <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-indigo-300">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
+                  Consendus.ai
+                </p>
                 <h1 className="mt-3 text-4xl font-semibold leading-tight text-white md:text-5xl">
                   Orchestrate Your Agent Swarm
                 </h1>
@@ -708,7 +747,7 @@ await swarm.deploy('migration-api-v2')`}
               {features.map((feature) => (
                 <article
                   key={feature.title}
-                  className="rounded-xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-black/20 backdrop-blur"
+                  className="rounded-xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"
                 >
                   <div className="flex items-center gap-2 text-white">
                     <feature.icon className="h-4 w-4 text-indigo-300" />
@@ -783,11 +822,11 @@ await swarm.deploy('migration-api-v2')`}
                 >
                   <Menu className="h-4 w-4" />
                 </button>
-                <div className="hidden items-center gap-3 text-sm text-slate-400 md:flex">
-                  <span>Control plane · dark mode</span>
-                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-200">
-                    All systems nominal
+                <div className="hidden items-center gap-2 text-sm md:flex">
+                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">
+                    Cluster healthy
                   </span>
+                  <span className="text-slate-400">Control plane · dark mode</span>
                 </div>
                 <button className="ml-auto flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
                   <UserCircle2 className="h-4 w-4 text-indigo-300" />
