@@ -83,16 +83,6 @@ const terminalEvents = [
 
 const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '#compliance-vote']
 
-const systemEvents = [
-  { level: 'INFO', text: 'Agent-2 connected to semantic bus (latency 18ms)' },
-  { level: 'INFO', text: 'Consensus quorum initialized for task-3' },
-  { level: 'WARN', text: 'High latency detected on shard eu-west-1' },
-  { level: 'INFO', text: 'Guardian Rails policy patch applied by Sentry-Sec' },
-  { level: 'INFO', text: 'Token limiter adjusted (window=10s burst=128)' },
-  { level: 'SUCCESS', text: 'Deployment approved after 3/3 votes' },
-  { level: 'INFO', text: 'Heartbeat stream stable (24 active agents)' },
-]
-
 const initialMessages = [
   {
     id: 1,
@@ -197,6 +187,11 @@ const statusColors = {
 }
 
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+const levelTextColor = {
+  SUCCESS: 'text-emerald-300',
+  WARN: 'text-amber-300',
+  INFO: 'text-indigo-200',
+}
 
 function ViewContainer({ children }) {
   return <section style={{ animation: 'fadeIn 0.32s ease' }}>{children}</section>
@@ -485,20 +480,12 @@ export default function Consendus() {
                 className="h-[280px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 text-xs leading-6 text-slate-300"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
               >
-                {systemEvents.map((event, idx) => (
+                {terminalEvents.map((event, idx) => (
                   <p key={`${event.level}-${idx}`} className={event.level === 'WARN' ? 'text-amber-200' : ''}>
-                    <span
-                      className={
-                        event.level === 'SUCCESS'
-                          ? 'text-emerald-300'
-                          : event.level === 'WARN'
-                            ? 'text-amber-300'
-                            : 'text-indigo-200'
-                      }
-                    >
+                    <span className={levelTextColor[event.level] ?? 'text-indigo-200'}>
                       [{event.level}]
                     </span>{' '}
-                    {event.text}
+                    {event.message}
                   </p>
                 ))}
               </div>
