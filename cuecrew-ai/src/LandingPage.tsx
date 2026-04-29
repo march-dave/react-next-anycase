@@ -58,24 +58,22 @@ export default function LandingPage({ onLaunch }: { onLaunch: () => void }) {
 
         <section className="rounded-3xl border border-white/10 bg-[var(--color-card-bg)] p-6 shadow-2xl shadow-black/30">
           <p className="mb-5 text-sm text-[var(--color-text-dim)]">Crew activity</p>
-          <div className="space-y-4">
-            {personas.map((persona) => (
+          <div className="grid grid-cols-2 gap-4">
+            {personas.map((persona, index) => (
               <motion.div
                 key={persona.name}
-                className="flex items-center justify-between rounded-2xl border border-white/10 px-4 py-3"
-                animate={{ y: [0, -2, 0] }}
-                transition={{ duration: 2.2, repeat: Infinity }}
+                className="flex min-h-[130px] flex-col justify-between rounded-3xl border border-white/10 bg-white/[0.03] p-4"
+                animate={{ y: [0, -3, 0], scale: [1, 1.01, 1] }}
+                transition={{ duration: 2.4, repeat: Infinity, delay: index * 0.12 }}
               >
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full px-2 py-0.5 text-xs font-medium text-black" style={{ backgroundColor: persona.color }}>
-                    LIVE
-                  </span>
+                <div className="mb-2 h-11 w-11 rounded-full" style={{ background: `radial-gradient(circle at 30% 30%, ${persona.color}, #0a0a0c)` }} />
+                <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p>{persona.name}</p>
+                    <p className="text-sm">{persona.name}</p>
                     <p className="text-xs text-[var(--color-text-dim)]">{persona.sample}</p>
                   </div>
+                  <SineBars />
                 </div>
-                <SineBars />
               </motion.div>
             ))}
           </div>
