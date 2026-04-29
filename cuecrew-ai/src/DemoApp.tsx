@@ -189,13 +189,10 @@ export default function DemoApp({ onBack }: Props) {
             {personaMeta.map((persona) => {
               const response = latestSegment?.personaResponses?.[persona.key];
               const active = Boolean(response);
-              const pending = isAnalyzing && latestSegment && !response;
               return (
                 <div
                   key={persona.key}
-                  className={`rounded-xl border p-3 transition ${
-                    active ? 'border-white/30 bg-white/10' : pending ? 'border-blue-300/40 bg-blue-300/5' : 'border-white/10 opacity-45 grayscale'
-                  }`}
+                  className={`rounded-xl border p-3 transition ${active ? 'border-white/30 bg-white/10' : 'border-white/10 opacity-45 grayscale'}`}
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm">
@@ -215,7 +212,7 @@ export default function DemoApp({ onBack }: Props) {
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-[var(--color-text-dim)]">{response || (pending ? 'Listening for a strong cue…' : 'Standing by.')}</p>
+                  <p className="text-sm text-[var(--color-text-dim)]">{response || 'Standing by.'}</p>
                 </div>
               );
             })}
