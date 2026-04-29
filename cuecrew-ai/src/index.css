@@ -1,29 +1,35 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+@import 'tailwindcss';
 
-@theme {
-  --color-bg-dark: #0a0a0c;
-  --color-card-bg: #141418;
-  --color-accent-blue: #40a9ff;
-  --color-accent-gold: #c9a063;
-  --color-text-main: #e1e1e6;
-  --color-text-dim: #8e8e93;
-  --color-border-color: rgba(255, 255, 255, 0.1);
-
-  --color-tag-fact: #ffd166;
-  --color-tag-news: #06d6a0;
-  --color-tag-joke: #ef476f;
-  --color-tag-context: #118ab2;
-
-  --font-serif: 'Georgia', serif;
-  --font-sans: 'Helvetica Neue', Arial, sans-serif;
+:root {
+  color-scheme: dark;
 }
 
 body {
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-main);
-  font-family: var(--font-sans);
+  margin: 0;
+  min-height: 100vh;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-* {
-  box-sizing: border-box;
+code,
+pre,
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.view-fade {
+  animation: view-fade 220ms ease-out;
+}
+
+@keyframes view-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
