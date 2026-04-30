@@ -304,7 +304,10 @@ export default function Consendus() {
   )
 
   const scheduleSimulation = (callback, delay) => {
-    const timerId = setTimeout(callback, delay)
+    const timerId = setTimeout(() => {
+      callback()
+      simulationTimersRef.current = simulationTimersRef.current.filter((id) => id !== timerId)
+    }, delay)
     simulationTimersRef.current.push(timerId)
   }
 
@@ -365,8 +368,9 @@ export default function Consendus() {
         content: 'Executed AI action: quorum lock engaged while waiting for final validator vote.',
       },
     ]
+    const uniquePool = pool.filter((message, index, source) => source.findIndex((item) => item.author === message.author) === index)
     const targetCount = Math.random() > 0.5 ? 3 : 2
-    const generated = pool.sort(() => Math.random() - 0.5).slice(0, targetCount)
+    const generated = uniquePool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
     setTypingAgents([])
