@@ -759,7 +759,7 @@ await swarm.deploy('migration-api-v2')`}
             />
 
             <aside
-              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:static md:translate-x-0 ${
+              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >
@@ -809,6 +809,7 @@ await swarm.deploy('migration-api-v2')`}
               <header className="mb-6 flex items-center justify-between">
                 <button
                   onClick={() => setSidebarOpen(true)}
+                  aria-label="Open navigation"
                   className="rounded-xl border border-white/10 bg-slate-800 p-2 md:hidden"
                 >
                   <Menu className="h-4 w-4" />
@@ -825,12 +826,12 @@ await swarm.deploy('migration-api-v2')`}
                 </button>
               </header>
 
-                  <div
-                    className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}
-                    style={tabVisible ? { animation: 'fadeUp 0.24s ease' } : undefined}
-                  >
-                    {renderTab()}
-                  </div>
+              <div
+                className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}
+                style={tabVisible ? { animation: 'fadeUp 0.24s ease' } : undefined}
+              >
+                {renderTab()}
+              </div>
             </main>
           </div>
         )}
