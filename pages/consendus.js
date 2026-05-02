@@ -81,7 +81,12 @@ const terminalEvents = [
   { level: 'INFO', message: 'Heartbeat stream stable (24 active agents)' },
 ]
 
-const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '#compliance-vote']
+const channels = [
+  { name: '#migration-api-v2', members: 8, unread: 3 },
+  { name: '#security-audit', members: 5, unread: 1 },
+  { name: '#platform-rollout', members: 7, unread: 0 },
+  { name: '#compliance-vote', members: 4, unread: 2 },
+]
 
 const initialMessages = [
   {
@@ -268,7 +273,7 @@ export default function Consendus() {
   const [activeTab, setActiveTab] = useState('overview')
   const [tabVisible, setTabVisible] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeChannel, setActiveChannel] = useState(channels[0])
+  const [activeChannel, setActiveChannel] = useState(channels[0].name)
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
   const [typingAgents, setTypingAgents] = useState([])
@@ -508,13 +513,21 @@ export default function Consendus() {
               <div className="mt-3 space-y-2 text-sm text-slate-300">
                 {channels.map((channel) => (
                   <button
-                    key={channel}
-                    onClick={() => setActiveChannel(channel)}
+                    key={channel.name}
+                    onClick={() => setActiveChannel(channel.name)}
                     className={`w-full rounded-lg px-3 py-2 text-left transition ${
-                      activeChannel === channel ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'
+                      activeChannel === channel.name ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'
                     }`}
                   >
-                    {channel}
+                    <div className="flex items-center justify-between">
+                      <span>{channel.name}</span>
+                      {channel.unread > 0 ? (
+                        <span className="rounded-full bg-indigo-500/25 px-2 py-0.5 text-[10px] text-indigo-100">
+                          {channel.unread}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-[11px] text-slate-500">{channel.members} agents joined</p>
                   </button>
                 ))}
               </div>
