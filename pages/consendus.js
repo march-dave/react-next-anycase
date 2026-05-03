@@ -88,6 +88,13 @@ const channels = [
   { name: '#compliance-vote', members: 4, unread: 2 },
 ]
 
+const channelHints = {
+  '#migration-api-v2': 'Release coordination and canary promotion updates.',
+  '#security-audit': 'Policy checks, signatures, and threat findings.',
+  '#platform-rollout': 'Regional rollout status across control-plane clusters.',
+  '#compliance-vote': 'Consensus ballots for high-risk orchestration decisions.',
+}
+
 const initialMessages = [
   {
     id: 1,
@@ -531,6 +538,9 @@ export default function Consendus() {
                   </button>
                 ))}
               </div>
+              <p className="mt-4 rounded-lg border border-white/10 bg-slate-900/70 p-2.5 text-xs text-slate-400">
+                {channelHints[activeChannel]}
+              </p>
             </aside>
 
             <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
@@ -693,6 +703,7 @@ export default function Consendus() {
         style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
       >
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_42%)]" />
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_36%)]" />
         {!inConsole ? (
           <main
             className={`mx-auto max-w-6xl px-4 py-12 transition-all duration-300 sm:px-6 lg:px-8 ${
