@@ -297,6 +297,7 @@ export default function Consendus() {
   )
 
   const channelMessages = messages.filter((message) => message.channel === activeChannel)
+  const selectedChannelMeta = channels.find((channel) => channel.name === activeChannel)
 
   useEffect(() => {
     if (activeTab !== 'comms') return
@@ -545,7 +546,10 @@ export default function Consendus() {
 
             <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
+                <div>
+                  <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
+                  <p className="text-xs text-slate-500">{selectedChannelMeta?.members ?? 0} active agents</p>
+                </div>
                 <button
                   onClick={appendSimulatedMessages}
                   disabled={simulating}
@@ -844,10 +848,18 @@ await swarm.deploy('migration-api-v2')`}
                   </span>
                   <span className="text-slate-400">Control plane · dark mode</span>
                 </div>
-                <button className="ml-auto flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => setInConsole(false)}
+                    className="hidden rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm text-slate-200 transition hover:border-indigo-300/40 hover:text-white md:block"
+                  >
+                    Back to landing
+                  </button>
+                  <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
                   <UserCircle2 className="h-4 w-4 text-indigo-300" />
                   Settings
                 </button>
+                </div>
               </header>
 
               <div
