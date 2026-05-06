@@ -70,6 +70,12 @@ export default function LandingPage({ onLaunch }: { onLaunch: () => void }) {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm">{persona.name}</p>
+                    <span
+                      className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium text-black"
+                      style={{ backgroundColor: persona.color }}
+                    >
+                      Live persona
+                    </span>
                     <p className="text-xs text-[var(--color-text-dim)]">{persona.sample}</p>
                   </div>
                   <SineBars />
