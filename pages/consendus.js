@@ -57,7 +57,7 @@ const stats = [
   { label: 'Active Agents', value: '128', delta: '+12%', icon: Bot },
   { label: 'Messages/min', value: '9.4k', delta: '+8%', icon: MessageSquare },
   { label: 'Consensus Rate', value: '96.8%', delta: '+1.2%', icon: CheckCircle2 },
-  { label: 'Token Usage', value: '1.2M', delta: '-4%', icon: Cpu },
+  { label: 'Token Usage', value: '1.2M', delta: '+4%', icon: Cpu },
 ]
 
 const analytics = [
@@ -574,6 +574,8 @@ export default function Consendus() {
                     className={`rounded-xl border p-3 transition ${
                       message.type === 'alert'
                         ? 'border-amber-400/30 bg-amber-500/10'
+                        : message.type === 'action'
+                        ? 'border-purple-400/25 bg-purple-500/10'
                         : 'border-white/10 bg-slate-900/70 hover:border-indigo-400/20'
                     }`}
                   >
@@ -787,7 +789,7 @@ await swarm.deploy('migration-api-v2')`}
             />
 
             <aside
-              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+            className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >
@@ -856,9 +858,9 @@ await swarm.deploy('migration-api-v2')`}
                     Back to landing
                   </button>
                   <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
-                  <UserCircle2 className="h-4 w-4 text-indigo-300" />
-                  Settings
-                </button>
+                    <UserCircle2 className="h-4 w-4 text-indigo-300" />
+                    Settings
+                  </button>
                 </div>
               </header>
 
