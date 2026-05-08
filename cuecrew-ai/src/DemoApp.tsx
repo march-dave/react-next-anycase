@@ -44,8 +44,13 @@ export default function DemoApp({ onBack }: Props) {
   const [fallbackText, setFallbackText] = useState('');
   const [supportsSpeech, setSupportsSpeech] = useState(true);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const isRecordingRef = useRef(false);
 
   const latestSegment = useMemo(() => segments[segments.length - 1], [segments]);
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -75,12 +80,12 @@ export default function DemoApp({ onBack }: Props) {
 
     recognition.onerror = () => setIsRecording(false);
     recognition.onend = () => {
-      if (isRecording) recognition.start();
+      if (isRecordingRef.current) recognition.start();
     };
 
     recognitionRef.current = recognition;
     return () => recognition.stop();
-  }, [isRecording]);
+  }, []);
 
   const pushFinalSegment = async (text: string) => {
     if (!text.trim()) return;
