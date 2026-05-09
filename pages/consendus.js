@@ -705,7 +705,7 @@ export default function Consendus() {
         />
       </Head>
       <div
-        className="min-h-screen bg-slate-900 text-slate-100"
+        className="min-h-screen bg-[#0f172a] text-slate-100"
         style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
       >
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_42%)]" />
@@ -737,7 +737,7 @@ export default function Consendus() {
                 </button>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-800/75 p-5 shadow-2xl shadow-black/25 backdrop-blur">
+              <div className="rounded-2xl border border-white/10 bg-[#1e293b]/80 p-5 shadow-2xl shadow-black/25 backdrop-blur">
                 <div className="mb-4 flex items-center justify-between text-xs text-slate-400">
                   <span className="flex items-center gap-2 uppercase tracking-[0.25em]">
                     <Terminal className="h-4 w-4 text-emerald-300" />
@@ -768,7 +768,7 @@ await swarm.deploy('migration-api-v2')`}
               {features.map((feature) => (
                 <article
                   key={feature.title}
-                  className="rounded-xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"
+                  className="rounded-xl border border-white/10 bg-[#1e293b]/75 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"
                 >
                   <div className="flex items-center gap-2 text-white">
                     <feature.icon className="h-4 w-4 text-indigo-300" />
@@ -789,7 +789,7 @@ await swarm.deploy('migration-api-v2')`}
             />
 
             <aside
-            className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >
