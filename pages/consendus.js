@@ -1,7 +1,9 @@
 import Head from 'next/head'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import {
   Activity,
+  AlertTriangle,
   Bot,
   CheckCircle2,
   ChevronRight,
@@ -21,6 +23,7 @@ import {
   X,
 } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import remarkGfm from 'remark-gfm'
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -54,7 +57,7 @@ const stats = [
   { label: 'Active Agents', value: '128', delta: '+12%', icon: Bot },
   { label: 'Messages/min', value: '9.4k', delta: '+8%', icon: MessageSquare },
   { label: 'Consensus Rate', value: '96.8%', delta: '+1.2%', icon: CheckCircle2 },
-  { label: 'Token Usage', value: '1.2M', delta: '-4%', icon: Cpu },
+  { label: 'Token Usage', value: '1.2M', delta: '+4%', icon: Cpu },
 ]
 
 const analytics = [
@@ -68,7 +71,29 @@ const analytics = [
   { time: '14:00', load: 65, tokens: 96 },
 ]
 
-const channels = ['#migration-api-v2', '#security-audit', '#platform-rollout', '#compliance-vote']
+const terminalEvents = [
+  { level: 'INFO', message: 'Agent-2 connected to semantic bus (latency 18ms)' },
+  { level: 'INFO', message: 'Consensus quorum initialized for task-3' },
+  { level: 'WARN', message: 'High latency detected on shard eu-west-1' },
+  { level: 'INFO', message: 'Guardian Rails policy patch applied by Sentry-Sec' },
+  { level: 'INFO', message: 'Token limiter adjusted (window=10s burst=128)' },
+  { level: 'SUCCESS', message: 'Deployment approved after 3/3 votes' },
+  { level: 'INFO', message: 'Heartbeat stream stable (24 active agents)' },
+]
+
+const channels = [
+  { name: '#migration-api-v2', members: 8, unread: 3 },
+  { name: '#security-audit', members: 5, unread: 1 },
+  { name: '#platform-rollout', members: 7, unread: 0 },
+  { name: '#compliance-vote', members: 4, unread: 2 },
+]
+
+const channelHints = {
+  '#migration-api-v2': 'Release coordination and canary promotion updates.',
+  '#security-audit': 'Policy checks, signatures, and threat findings.',
+  '#platform-rollout': 'Regional rollout status across control-plane clusters.',
+  '#compliance-vote': 'Consensus ballots for high-risk orchestration decisions.',
+}
 
 const initialMessages = [
   {
@@ -103,6 +128,14 @@ const initialMessages = [
     type: 'alert',
     content: 'Throttle policy enabled after anomaly score exceeded 0.81.',
     time: '09:44',
+  },
+  {
+    id: 5,
+    channel: '#migration-api-v2',
+    author: 'Pulse-Mediator',
+    type: 'action',
+    content: 'Executed AI action: proposed rollback guard with confidence 0.92.',
+    time: '09:45',
   },
 ]
 
@@ -162,16 +195,47 @@ const agents = [
 const statusColors = {
   Idle: 'bg-emerald-400',
   Busy: 'bg-amber-400',
-  Error: 'bg-rose-500',
+  Error: 'bg-red-500',
 }
 
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+const levelTextColor = {
+  SUCCESS: 'text-emerald-300',
+  WARN: 'text-amber-300',
+  INFO: 'text-indigo-200',
+}
 
 function ViewContainer({ children }) {
-  return <section className="animate-[fadeIn_.28s_ease]">{children}</section>
+  return <section style={{ animation: 'fadeIn 0.32s ease' }}>{children}</section>
 }
 
 function MessageBody({ message }) {
+  const markdownComponents = {
+    p: ({ children }) => <p className="text-sm text-slate-100">{children}</p>,
+    strong: ({ children }) => <strong className="font-semibold text-indigo-100">{children}</strong>,
+    code: ({ inline, children }) => {
+      if (inline) {
+        return (
+          <code
+            className="rounded bg-slate-950/80 px-1.5 py-0.5 text-[12px] text-emerald-200"
+            style={{ fontFamily: 'JetBrains Mono, monospace' }}
+          >
+            {children}
+          </code>
+        )
+      }
+
+      return (
+        <pre
+          className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
+          style={{ fontFamily: 'JetBrains Mono, monospace' }}
+        >
+          <code>{children}</code>
+        </pre>
+      )
+    },
+  }
+
   if (message.type === 'code') {
     return (
       <pre
@@ -183,21 +247,26 @@ function MessageBody({ message }) {
     )
   }
 
-  if (message.type === 'markdown') {
-    const codeMatch = message.content.match(/```(?:ts|js)?\n([\s\S]*?)```/)
-    const textWithoutCode = message.content.replace(/```(?:ts|js)?\n[\s\S]*?```/, '').trim()
+  if (message.type === 'action') {
+    return <p className="text-sm text-purple-100">{message.content}</p>
+  }
 
+  if (message.type === 'markdown') {
     return (
-      <div className="space-y-2">
-        {textWithoutCode ? <p className="text-sm text-slate-100">{textWithoutCode}</p> : null}
-        {codeMatch ? (
-          <pre
-            className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
-            {codeMatch[1]}
-          </pre>
-        ) : null}
+      <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {message.content}
+        </ReactMarkdown>
+      </div>
+    )
+  }
+
+  if (message.type === 'text') {
+    return (
+      <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {message.content}
+        </ReactMarkdown>
       </div>
     )
   }
@@ -221,11 +290,16 @@ function MessageBody({ message }) {
 
 export default function Consendus() {
   const [inConsole, setInConsole] = useState(false)
+  const [isEnteringConsole, setIsEnteringConsole] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+  const [tabVisible, setTabVisible] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeChannel, setActiveChannel] = useState(channels[0])
+  const [activeChannel, setActiveChannel] = useState(channels[0].name)
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
+  const [typingAgents, setTypingAgents] = useState([])
+  const chatScrollRef = useRef(null)
+  const simulationTimersRef = useRef([])
 
   const tasksByState = useMemo(
     () =>
@@ -237,11 +311,51 @@ export default function Consendus() {
   )
 
   const channelMessages = messages.filter((message) => message.channel === activeChannel)
+  const selectedChannelMeta = channels.find((channel) => channel.name === activeChannel)
+
+  useEffect(() => {
+    if (activeTab !== 'comms') return
+
+    chatScrollRef.current?.scrollTo({
+      top: chatScrollRef.current.scrollHeight,
+      behavior: 'smooth',
+    })
+  }, [messages, typingAgents, activeChannel, activeTab])
+
+  useEffect(
+    () => () => {
+      simulationTimersRef.current.forEach((timerId) => clearTimeout(timerId))
+      simulationTimersRef.current = []
+    },
+    []
+  )
+
+  const scheduleSimulation = (callback, delay) => {
+    const timerId = setTimeout(() => {
+      callback()
+      simulationTimersRef.current = simulationTimersRef.current.filter((id) => id !== timerId)
+    }, delay)
+    simulationTimersRef.current.push(timerId)
+  }
+
+  const formatSimulationTime = (offset = 0) => {
+    const now = new Date()
+    now.setSeconds(now.getSeconds() + offset)
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  }
+
+  const handleAccessConsole = () => {
+    setIsEnteringConsole(true)
+    setTimeout(() => {
+      setInConsole(true)
+      setIsEnteringConsole(false)
+    }, 240)
+  }
 
   const appendSimulatedMessages = () => {
     if (simulating) return
 
-    const generated = [
+    const pool = [
       {
         author: 'Nova-Observer',
         channel: activeChannel,
@@ -261,26 +375,65 @@ export default function Consendus() {
         content:
           "await bus.broadcast('migration-api-v2', {\n  stage: 'promote',\n  confidence: 0.97,\n  votes: '3/3',\n})",
       },
+      {
+        author: 'Sentry-Sec',
+        channel: activeChannel,
+        type: 'text',
+        content: 'Guardian Rails check passed. No policy drift detected in this cycle.',
+      },
+      {
+        author: 'Codex-Dev',
+        channel: activeChannel,
+        type: 'markdown',
+        content:
+          "Patch candidate queued:\n\n```ts\nconst vote = await consensus.cast({\n  taskId: 'TSK-361',\n  decision: 'approve',\n  confidence: 0.94,\n})\n```",
+      },
+      {
+        author: 'Pulse-Mediator',
+        channel: activeChannel,
+        type: 'action',
+        content: 'Executed AI action: quorum lock engaged while waiting for final validator vote.',
+      },
     ]
+    const uniquePool = pool.filter((message, index, source) => source.findIndex((item) => item.author === message.author) === index)
+    const targetCount = Math.random() > 0.5 ? 3 : 2
+    const generated = uniquePool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
+    setTypingAgents([])
 
     generated.forEach((message, index) => {
-      setTimeout(() => {
+      scheduleSimulation(() => {
+        setTypingAgents((prev) => (prev.includes(message.author) ? prev : [...prev, message.author]))
+      }, index * 700 + 260)
+
+      scheduleSimulation(() => {
         setMessages((prev) => [
           ...prev,
           {
             ...message,
             id: prev.length + 1,
-            time: `09:${50 + index}`,
+            time: formatSimulationTime(index * 60),
           },
         ])
+        setTypingAgents((prev) => prev.filter((agent) => agent !== message.author))
 
         if (index === generated.length - 1) {
-          setTimeout(() => setSimulating(false), 260)
+          scheduleSimulation(() => {
+            setSimulating(false)
+          }, 260)
         }
       }, (index + 1) * 700)
     })
+  }
+
+  const changeTab = (tabId) => {
+    if (tabId === activeTab) return
+    setTabVisible(false)
+    setTimeout(() => {
+      setActiveTab(tabId)
+      setTabVisible(true)
+    }, 140)
   }
 
   const renderTab = () => {
@@ -291,7 +444,10 @@ export default function Consendus() {
             {stats.map((stat) => {
               const Icon = stat.icon
               return (
-                <article key={stat.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
+                <article
+                  key={stat.label}
+                  className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur transition duration-200 hover:border-indigo-400/30 hover:bg-slate-800/85"
+                >
                   <div className="flex items-start justify-between">
                     <p className="text-sm text-slate-400">{stat.label}</p>
                     <Icon className="h-4 w-4 text-indigo-300" />
@@ -307,7 +463,15 @@ export default function Consendus() {
             <div className="h-[340px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2>
-                <Gauge className="h-4 w-4 text-indigo-300" />
+                <div className="flex items-center gap-3">
+                  <div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex">
+                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
+                    Load
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    Tokens
+                  </div>
+                  <Gauge className="h-4 w-4 text-indigo-300" />
+                </div>
               </div>
               <ResponsiveContainer width="100%" height="92%">
                 <AreaChart data={analytics}>
@@ -347,13 +511,14 @@ export default function Consendus() {
                 className="h-[280px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 text-xs leading-6 text-slate-300"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
               >
-                <p>[INFO] Agent-2 connected to semantic bus (latency 18ms)</p>
-                <p>[INFO] Consensus quorum initialized for task-3</p>
-                <p>[WARN] High latency detected on shard eu-west-1</p>
-                <p>[INFO] Guardian Rails policy patch applied by Sentry-Sec</p>
-                <p>[INFO] Token limiter adjusted (window=10s burst=128)</p>
-                <p>[SUCCESS] Deployment approved after 3/3 votes</p>
-                <p>[INFO] Heartbeat stream stable (24 active agents)</p>
+                {terminalEvents.map((event, idx) => (
+                  <p key={`${event.level}-${idx}`} className={event.level === 'WARN' ? 'text-amber-200' : ''}>
+                    <span className={levelTextColor[event.level] ?? 'text-indigo-200'}>
+                      [{event.level}]
+                    </span>{' '}
+                    {event.message}
+                  </p>
+                ))}
               </div>
             </div>
           </section>
@@ -370,21 +535,35 @@ export default function Consendus() {
               <div className="mt-3 space-y-2 text-sm text-slate-300">
                 {channels.map((channel) => (
                   <button
-                    key={channel}
-                    onClick={() => setActiveChannel(channel)}
+                    key={channel.name}
+                    onClick={() => setActiveChannel(channel.name)}
                     className={`w-full rounded-lg px-3 py-2 text-left transition ${
-                      activeChannel === channel ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'
+                      activeChannel === channel.name ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'
                     }`}
                   >
-                    {channel}
+                    <div className="flex items-center justify-between">
+                      <span>{channel.name}</span>
+                      {channel.unread > 0 ? (
+                        <span className="rounded-full bg-indigo-500/25 px-2 py-0.5 text-[10px] text-indigo-100">
+                          {channel.unread}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-[11px] text-slate-500">{channel.members} agents joined</p>
                   </button>
                 ))}
               </div>
+              <p className="mt-4 rounded-lg border border-white/10 bg-slate-900/70 p-2.5 text-xs text-slate-400">
+                {channelHints[activeChannel]}
+              </p>
             </aside>
 
             <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
+                <div>
+                  <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
+                  <p className="text-xs text-slate-500">{selectedChannelMeta?.members ?? 0} active agents</p>
+                </div>
                 <button
                   onClick={appendSimulatedMessages}
                   disabled={simulating}
@@ -398,25 +577,45 @@ export default function Consendus() {
               {simulating && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  Agents are drafting responses...
+                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : 'Agent swarm is drafting responses...'}
                 </div>
               )}
 
-              <div className="mt-4 h-[360px] space-y-3 overflow-auto pr-1">
+              <div ref={chatScrollRef} className="mt-4 h-[360px] space-y-3 overflow-auto pr-1">
                 {channelMessages.map((message) => (
                   <article
                     key={message.id}
-                    className={`rounded-xl border p-3 ${
+                    className={`rounded-xl border p-3 transition ${
                       message.type === 'alert'
                         ? 'border-amber-400/30 bg-amber-500/10'
-                        : 'border-white/10 bg-slate-900/70'
+                        : message.type === 'action'
+                        ? 'border-purple-400/25 bg-purple-500/10'
+                        : 'border-white/10 bg-slate-900/70 hover:border-indigo-400/20'
                     }`}
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-                      <span>{message.author}</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        {message.type === 'alert' ? <AlertTriangle className="h-3.5 w-3.5 text-amber-300" /> : null}
+                        {message.type === 'action' ? <Sparkles className="h-3.5 w-3.5 text-purple-300" /> : null}
+                        {message.author}
+                      </span>
                       <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{message.time}</span>
                     </div>
                     <MessageBody message={message} />
+                  </article>
+                ))}
+
+                {typingAgents.map((agent) => (
+                  <article key={`typing-${agent}`} className="rounded-xl border border-purple-400/30 bg-purple-500/10 p-3">
+                    <div className="mb-2 flex items-center justify-between text-xs text-purple-200">
+                      <span>{agent}</span>
+                      <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>typing…</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:180ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:360ms]" />
+                    </div>
                   </article>
                 ))}
               </div>
@@ -435,7 +634,10 @@ export default function Consendus() {
                 <h2 className="text-sm font-semibold text-slate-100">{state}</h2>
                 <div className="mt-4 space-y-3">
                   {tasksByState[state].map((task) => (
-                    <article key={task.id} className="rounded-lg border border-white/10 bg-slate-900/80 p-3">
+                    <article
+                      key={task.id}
+                      className="rounded-lg border border-white/10 bg-slate-900/80 p-3 transition hover:border-indigo-400/25"
+                    >
                       <p className="text-xs text-slate-400" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                         {task.id}
                       </p>
@@ -495,16 +697,31 @@ export default function Consendus() {
     <>
       <Head>
         <title>Consendus.ai</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <div
-        className="min-h-screen bg-slate-900 text-slate-100"
+        className="min-h-screen bg-[#0f172a] text-slate-100"
         style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
       >
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_42%)]" />
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_36%)]" />
         {!inConsole ? (
-          <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+          <main
+            className={`mx-auto max-w-6xl px-4 py-12 transition-all duration-300 sm:px-6 lg:px-8 ${
+              isEnteringConsole ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'
+            }`}
+          >
             <section className="grid items-center gap-10 lg:grid-cols-2">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Consendus.ai</p>
+                <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-indigo-300">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
+                  Consendus.ai
+                </p>
                 <h1 className="mt-3 text-4xl font-semibold leading-tight text-white md:text-5xl">
                   Orchestrate Your Agent Swarm
                 </h1>
@@ -512,7 +729,7 @@ export default function Consendus() {
                   Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
                 </p>
                 <button
-                  onClick={() => setInConsole(true)}
+                  onClick={handleAccessConsole}
                   className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
                 >
                   Access Console
@@ -520,7 +737,7 @@ export default function Consendus() {
                 </button>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-800/75 p-5 shadow-2xl shadow-black/25 backdrop-blur">
+              <div className="rounded-2xl border border-white/10 bg-[#1e293b]/80 p-5 shadow-2xl shadow-black/25 backdrop-blur">
                 <div className="mb-4 flex items-center justify-between text-xs text-slate-400">
                   <span className="flex items-center gap-2 uppercase tracking-[0.25em]">
                     <Terminal className="h-4 w-4 text-emerald-300" />
@@ -551,7 +768,7 @@ await swarm.deploy('migration-api-v2')`}
               {features.map((feature) => (
                 <article
                   key={feature.title}
-                  className="rounded-xl border border-white/10 bg-slate-800/70 p-5 shadow-lg shadow-black/20 backdrop-blur"
+                  className="rounded-xl border border-white/10 bg-[#1e293b]/75 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"
                 >
                   <div className="flex items-center gap-2 text-white">
                     <feature.icon className="h-4 w-4 text-indigo-300" />
@@ -572,7 +789,7 @@ await swarm.deploy('migration-api-v2')`}
             />
 
             <aside
-              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:static md:translate-x-0 ${
+              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >
@@ -598,7 +815,7 @@ await swarm.deploy('migration-api-v2')`}
                     <button
                       key={item.id}
                       onClick={() => {
-                        setActiveTab(item.id)
+                        changeTab(item.id)
                         setSidebarOpen(false)
                       }}
                       className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-sm transition ${
@@ -622,22 +839,62 @@ await swarm.deploy('migration-api-v2')`}
               <header className="mb-6 flex items-center justify-between">
                 <button
                   onClick={() => setSidebarOpen(true)}
+                  aria-label="Open navigation"
                   className="rounded-xl border border-white/10 bg-slate-800 p-2 md:hidden"
                 >
                   <Menu className="h-4 w-4" />
                 </button>
-                <div className="hidden text-sm text-slate-400 md:block">Control plane · dark mode</div>
-                <button className="ml-auto flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
-                  <UserCircle2 className="h-4 w-4 text-indigo-300" />
-                  Settings
-                </button>
+                <div className="hidden items-center gap-2 text-sm md:flex">
+                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">
+                    Cluster healthy
+                  </span>
+                  <span className="text-slate-400">Control plane · dark mode</span>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => setInConsole(false)}
+                    className="hidden rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm text-slate-200 transition hover:border-indigo-300/40 hover:text-white md:block"
+                  >
+                    Back to landing
+                  </button>
+                  <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
+                    <UserCircle2 className="h-4 w-4 text-indigo-300" />
+                    Settings
+                  </button>
+                </div>
               </header>
 
-              {renderTab()}
+              <div
+                className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}
+                style={tabVisible ? { animation: 'fadeUp 0.24s ease' } : undefined}
+              >
+                {renderTab()}
+              </div>
             </main>
           </div>
         )}
       </div>
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </>
   )
 }
