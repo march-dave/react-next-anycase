@@ -271,7 +271,21 @@ function MessageBody({ message }) {
     )
   }
 
-  return <p className={`text-sm ${message.type === 'alert' ? 'text-amber-100' : 'text-slate-100'}`}>{message.content}</p>
+  const segments = message.content.split(/(\*\*.*?\*\*)/g)
+
+  return (
+    <p className={`text-sm ${message.type === 'alert' ? 'text-amber-100' : 'text-slate-100'}`}>
+      {segments.map((segment, index) =>
+        segment.startsWith('**') && segment.endsWith('**') ? (
+          <strong key={`${segment}-${index}`} className="font-semibold text-slate-50">
+            {segment.slice(2, -2)}
+          </strong>
+        ) : (
+          <span key={`${segment}-${index}`}>{segment}</span>
+        )
+      )}
+    </p>
+  )
 }
 
 export default function Consendus() {
@@ -657,20 +671,6 @@ export default function Consendus() {
 
     return (
       <ViewContainer key={activeTab}>
-        <section className="mb-4 flex flex-wrap items-center gap-3 text-xs text-slate-300">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/70 px-3 py-1">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            Idle
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/70 px-3 py-1">
-            <span className="h-2 w-2 rounded-full bg-amber-400" />
-            Busy
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-800/70 px-3 py-1">
-            <span className="h-2 w-2 rounded-full bg-red-500" />
-            Error
-          </span>
-        </section>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
             <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
