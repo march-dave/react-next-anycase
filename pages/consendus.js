@@ -202,7 +202,21 @@ function MessageBody({ message }) {
     )
   }
 
-  return <p className={`text-sm ${message.type === 'alert' ? 'text-amber-100' : 'text-slate-100'}`}>{message.content}</p>
+  const segments = message.content.split(/(\*\*.*?\*\*)/g)
+
+  return (
+    <p className={`text-sm ${message.type === 'alert' ? 'text-amber-100' : 'text-slate-100'}`}>
+      {segments.map((segment, index) =>
+        segment.startsWith('**') && segment.endsWith('**') ? (
+          <strong key={`${segment}-${index}`} className="font-semibold text-slate-50">
+            {segment.slice(2, -2)}
+          </strong>
+        ) : (
+          <span key={`${segment}-${index}`}>{segment}</span>
+        )
+      )}
+    </p>
+  )
 }
 
 export default function Consendus() {
@@ -349,7 +363,7 @@ export default function Consendus() {
 
     if (activeTab === 'comms') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeTab}>
           <section className="grid gap-5 lg:grid-cols-[260px_1fr]">
             <aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <h2 className="text-sm font-medium text-slate-200">Channels</h2>
@@ -414,7 +428,7 @@ export default function Consendus() {
 
     if (activeTab === 'orchestration') {
       return (
-        <ViewContainer>
+        <ViewContainer key={activeTab}>
           <section className="grid gap-4 lg:grid-cols-4">
             {taskStates.map((state) => (
               <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
@@ -454,7 +468,7 @@ export default function Consendus() {
     }
 
     return (
-      <ViewContainer>
+      <ViewContainer key={activeTab}>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
             <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
