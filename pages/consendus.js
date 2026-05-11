@@ -857,7 +857,7 @@ await swarm.deploy('migration-api-v2')`}
                   >
                     Back to landing
                   </button>
-                  <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm">
+                  <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800/90 px-3 py-2 text-sm backdrop-blur">
                     <UserCircle2 className="h-4 w-4 text-indigo-300" />
                     Settings
                   </button>
@@ -875,6 +875,10 @@ await swarm.deploy('migration-api-v2')`}
         )}
       </div>
       <style jsx global>{`
+        html {
+          color-scheme: dark;
+        }
+
         @keyframes fadeIn {
           from {
             opacity: 0;
