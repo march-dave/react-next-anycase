@@ -199,6 +199,12 @@ const statusColors = {
 }
 
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+
+const statusLegend = [
+  { label: 'Idle', color: 'bg-emerald-400' },
+  { label: 'Busy', color: 'bg-amber-400' },
+  { label: 'Error', color: 'bg-red-500' },
+]
 const levelTextColor = {
   SUCCESS: 'text-emerald-300',
   WARN: 'text-amber-300',
@@ -671,6 +677,15 @@ export default function Consendus() {
 
     return (
       <ViewContainer key={activeTab}>
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-4 py-2 text-xs text-slate-300">
+          <span className="text-slate-400">Status legend:</span>
+          {statusLegend.map((item) => (
+            <span key={item.label} className="inline-flex items-center gap-1.5">
+              <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
+              {item.label}
+            </span>
+          ))}
+        </div>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
             <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
