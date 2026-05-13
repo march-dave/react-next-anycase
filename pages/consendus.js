@@ -60,6 +60,12 @@ const stats = [
   { label: 'Token Usage', value: '1.2M', delta: '+4%', icon: Cpu },
 ]
 
+const quickSignals = [
+  { label: 'Consensus Queue', value: '07', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
+  { label: 'Guard Rails', value: 'Stable', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
+  { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
+]
+
 const analytics = [
   { time: '00:00', load: 32, tokens: 56 },
   { time: '02:00', load: 41, tokens: 64 },
@@ -878,6 +884,18 @@ await swarm.deploy('migration-api-v2')`}
                   </button>
                 </div>
               </header>
+
+              <section className="mb-5 grid gap-2 sm:grid-cols-3">
+                {quickSignals.map((signal) => (
+                  <article
+                    key={signal.label}
+                    className={`rounded-xl border px-3 py-2 backdrop-blur ${signal.tone}`}
+                  >
+                    <p className="text-[11px] uppercase tracking-wide opacity-80">{signal.label}</p>
+                    <p className="mt-0.5 text-sm font-semibold">{signal.value}</p>
+                  </article>
+                ))}
+              </section>
 
               <div
                 className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}
