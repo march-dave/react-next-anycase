@@ -592,6 +592,7 @@ export default function Consendus() {
                         ? 'border-purple-400/25 bg-purple-500/10'
                         : 'border-white/10 bg-slate-900/70 hover:border-indigo-400/20'
                     }`}
+                    style={{ animation: 'fadeUp 0.24s ease' }}
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
                       <span className="inline-flex items-center gap-1.5">
@@ -769,6 +770,7 @@ await swarm.deploy('migration-api-v2')`}
                 <article
                   key={feature.title}
                   className="rounded-xl border border-white/10 bg-[#1e293b]/75 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"
+                  style={{ animation: 'fadeUp 0.36s ease' }}
                 >
                   <div className="flex items-center gap-2 text-white">
                     <feature.icon className="h-4 w-4 text-indigo-300" />
