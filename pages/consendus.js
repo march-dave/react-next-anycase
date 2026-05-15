@@ -211,6 +211,26 @@ const statusLegend = [
   { label: 'Busy', color: 'bg-amber-400' },
   { label: 'Error', color: 'bg-red-500' },
 ]
+
+const tabMeta = {
+  overview: {
+    title: 'Overview',
+    description: 'Live swarm health, throughput, and consensus telemetry.',
+  },
+  comms: {
+    title: 'Comms',
+    description: 'Agent-to-agent collaboration channels with structured updates.',
+  },
+  orchestration: {
+    title: 'Orchestration',
+    description: 'Task execution lanes with explicit consensus checkpoints.',
+  },
+  fleet: {
+    title: 'Agent Fleet',
+    description: 'Directory of autonomous agents, roles, and runtime status.',
+  },
+}
+
 const levelTextColor = {
   SUCCESS: 'text-emerald-300',
   WARN: 'text-amber-300',
@@ -857,7 +877,7 @@ await swarm.deploy('migration-api-v2')`}
             </aside>
 
             <main className="w-full p-4 md:p-8">
-              <header className="mb-6 flex items-center justify-between">
+              <header className="mb-6 flex flex-wrap items-center gap-3">
                 <button
                   onClick={() => setSidebarOpen(true)}
                   aria-label="Open navigation"
@@ -865,6 +885,10 @@ await swarm.deploy('migration-api-v2')`}
                 >
                   <Menu className="h-4 w-4" />
                 </button>
+                <div className="min-w-[220px] md:ml-1">
+                  <p className="text-sm font-semibold text-slate-100">{tabMeta[activeTab].title}</p>
+                  <p className="text-xs text-slate-400">{tabMeta[activeTab].description}</p>
+                </div>
                 <div className="hidden items-center gap-2 text-sm md:flex">
                   <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">
                     Cluster healthy
