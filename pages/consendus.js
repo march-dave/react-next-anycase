@@ -60,6 +60,12 @@ const stats = [
   { label: 'Token Usage', value: '1.2M', delta: '+4%', icon: Cpu },
 ]
 
+const landingPills = [
+  { label: 'Semantic Routing', tone: 'text-indigo-200 border-indigo-400/30 bg-indigo-500/10' },
+  { label: 'Deterministic Consensus', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
+  { label: 'Policy Guard Rails', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
+]
+
 const quickSignals = [
   { label: 'Consensus Queue', value: '07', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
   { label: 'Guard Rails', value: 'Stable', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
@@ -764,6 +770,13 @@ export default function Consendus() {
                   <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
                   Consendus.ai
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {landingPills.map((pill) => (
+                    <span key={pill.label} className={`rounded-full border px-2.5 py-1 text-[11px] ${pill.tone}`}>
+                      {pill.label}
+                    </span>
+                  ))}
+                </div>
                 <h1 className="mt-3 text-4xl font-semibold leading-tight text-white md:text-5xl">
                   Orchestrate Your Agent Swarm
                 </h1>
@@ -921,6 +934,14 @@ await swarm.deploy('migration-api-v2')`}
                     <p className="mt-0.5 text-sm font-semibold">{signal.value}</p>
                   </article>
                 ))}
+              </section>
+
+              <section className="mb-5 rounded-xl border border-white/10 bg-slate-800/60 p-3 text-xs text-slate-300 backdrop-blur">
+                <p className="inline-flex items-center gap-2">
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
+                  <span className="text-slate-200">Guardian Notice:</span>
+                  Elevated write traffic on migration cluster. Fallback routes are armed.
+                </p>
               </section>
 
               <div
