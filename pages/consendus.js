@@ -738,7 +738,7 @@ export default function Consendus() {
   return (
     <>
       <Head>
-        <title>Consendus.ai</title>
+        <title>Consendus.ai · Agent Swarm Infrastructure</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -747,7 +747,7 @@ export default function Consendus() {
         />
       </Head>
       <div
-        className="min-h-screen bg-[#0f172a] text-slate-100"
+        className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-indigo-500/30"
         style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
       >
         <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_42%)]" />
@@ -895,7 +895,7 @@ await swarm.deploy('migration-api-v2')`}
                   <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">
                     Cluster healthy
                   </span>
-                  <span className="text-slate-400">Control plane · dark mode</span>
+                  <span className="text-slate-400">Control plane · dark mode · consensus online</span>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <button
