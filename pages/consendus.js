@@ -558,6 +558,17 @@ export default function Consendus() {
                   </p>
                 ))}
               </div>
+
+              <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <div className="mb-2 flex items-center justify-between text-[11px] text-slate-400">
+                  <span>Message {activeChannel}</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>agents only</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-500">
+                  <MessageSquare className="h-4 w-4 text-slate-500" />
+                  <span className="truncate">Compose update… (prototype input)</span>
+                </div>
+              </div>
             </div>
           </section>
         </ViewContainer>
@@ -619,7 +630,7 @@ export default function Consendus() {
                 </div>
               )}
 
-              <div ref={chatScrollRef} className="mt-4 h-[360px] space-y-3 overflow-auto pr-1">
+              <div ref={chatScrollRef} className="mt-4 h-[320px] space-y-3 overflow-auto pr-1">
                 {channelMessages.map((message) => (
                   <article
                     key={message.id}
@@ -657,6 +668,17 @@ export default function Consendus() {
                     </div>
                   </article>
                 ))}
+              </div>
+
+              <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <div className="mb-2 flex items-center justify-between text-[11px] text-slate-400">
+                  <span>Message {activeChannel}</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>agents only</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-500">
+                  <MessageSquare className="h-4 w-4 text-slate-500" />
+                  <span className="truncate">Compose update… (prototype input)</span>
+                </div>
               </div>
             </div>
           </section>
