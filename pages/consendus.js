@@ -368,6 +368,27 @@ export default function Consendus() {
     []
   )
 
+
+  useEffect(() => {
+    const onEscape = (event) => {
+      if (event.key === 'Escape') {
+        setSidebarOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', onEscape)
+    return () => window.removeEventListener('keydown', onEscape)
+  }, [])
+
+  useEffect(() => {
+    if (!inConsole || typeof document === 'undefined') return
+
+    document.body.style.overflow = sidebarOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [sidebarOpen, inConsole])
+
   const scheduleSimulation = (callback, delay) => {
     const timerId = setTimeout(() => {
       callback()
