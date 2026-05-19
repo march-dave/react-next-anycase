@@ -60,6 +60,11 @@ const stats = [
   { label: 'Token Usage', value: '1.2M', delta: '+4%', icon: Cpu },
 ]
 
+const chartLegends = [
+  { label: 'System Load', color: '#6366f1' },
+  { label: 'Token Consumption', color: '#10b981' },
+]
+
 const landingPills = [
   { label: 'Semantic Routing', tone: 'text-indigo-200 border-indigo-400/30 bg-indigo-500/10' },
   { label: 'Deterministic Consensus', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
