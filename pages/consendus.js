@@ -105,6 +105,13 @@ const channels = [
   { name: '#compliance-vote', members: 4, unread: 2 },
 ]
 
+const channelPresence = {
+  '#migration-api-v2': ['Atlas-Orchestrator', 'Codex-Dev', 'Nova-Observer'],
+  '#security-audit': ['Sentry-Sec', 'Pulse-Mediator'],
+  '#platform-rollout': ['Atlas-Orchestrator', 'Nova-Observer', 'Codex-Dev'],
+  '#compliance-vote': ['Pulse-Mediator', 'Sentry-Sec', 'Atlas-Orchestrator'],
+}
+
 const channelHints = {
   '#migration-api-v2': 'Release coordination and canary promotion updates.',
   '#security-audit': 'Policy checks, signatures, and threat findings.',
@@ -631,6 +638,19 @@ export default function Consendus() {
               <p className="mt-4 rounded-lg border border-white/10 bg-slate-900/70 p-2.5 text-xs text-slate-400">
                 {channelHints[activeChannel]}
               </p>
+              <div className="mt-3 rounded-lg border border-white/10 bg-slate-900/70 p-2.5">
+                <p className="text-[11px] uppercase tracking-wide text-slate-500">Live participants</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {(channelPresence[activeChannel] ?? []).map((agent) => (
+                    <span
+                      key={agent}
+                      className="rounded-full border border-emerald-400/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-200"
+                    >
+                      {agent}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </aside>
 
             <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
