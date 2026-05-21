@@ -535,11 +535,13 @@ export default function Consendus() {
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2>
                 <div className="flex items-center gap-3">
-                  <div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex">
-                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
-                    Load
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    Tokens
+                  <div className="hidden items-center gap-3 text-xs text-slate-400 sm:flex">
+                    {chartLegends.map((legend) => (
+                      <span key={legend.label} className="inline-flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: legend.color }} />
+                        {legend.label}
+                      </span>
+                    ))}
                   </div>
                   <Gauge className="h-4 w-4 text-indigo-300" />
                 </div>
