@@ -796,7 +796,9 @@ export default function Consendus() {
                 <h2 className="text-sm font-semibold text-white">{agent.name}</h2>
                 <span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} />
               </div>
-              <p className="mt-3 text-xs text-slate-400">Role</p>
+              <p className="mt-3 text-xs text-slate-400">Status</p>
+              <p className="text-sm text-slate-200">{agent.status}</p>
+              <p className="mt-2 text-xs text-slate-400">Role</p>
               <p className="text-sm text-slate-200">{agent.role}</p>
               <p className="mt-2 text-xs text-slate-400">Specialization</p>
               <p className="text-sm text-slate-200">{agent.specialization}</p>
