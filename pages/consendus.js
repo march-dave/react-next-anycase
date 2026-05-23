@@ -77,6 +77,8 @@ const quickSignals = [
   { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
+const codeWindowDots = ['bg-red-400', 'bg-amber-300', 'bg-emerald-400']
+
 const analytics = [
   { time: '00:00', load: 32, tokens: 56 },
   { time: '02:00', load: 41, tokens: 64 },
@@ -864,16 +866,24 @@ export default function Consendus() {
 
               <div className="rounded-2xl border border-white/10 bg-[#1e293b]/80 p-5 shadow-2xl shadow-black/25 backdrop-blur">
                 <div className="mb-4 flex items-center justify-between text-xs text-slate-400">
-                  <span className="flex items-center gap-2 uppercase tracking-[0.25em]">
-                    <Terminal className="h-4 w-4 text-emerald-300" />
-                    swarm.config.ts
+                  <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5">
+                      {codeWindowDots.map((dot) => (
+                        <span key={dot} className={`h-2.5 w-2.5 rounded-full ${dot}`} />
+                      ))}
+                    </span>
+                    <span className="uppercase tracking-[0.25em]">
+                      <Terminal className="mr-1 inline h-4 w-4 text-emerald-300" />
+                      swarm.config.ts
+                    </span>
                   </span>
-                  <span className="rounded-full border border-white/10 px-2 py-1">Readonly</span>
+                  <span className="rounded-full border border-white/10 bg-slate-900/60 px-2 py-1">Readonly</span>
                 </div>
-                <pre
-                  className="overflow-x-auto rounded-xl border border-emerald-400/20 bg-slate-950/80 p-4 text-xs text-emerald-200"
-                  style={{ fontFamily: 'JetBrains Mono, monospace' }}
-                >
+                <div className="rounded-xl border border-white/10 bg-slate-900/50 p-1">
+                  <pre
+                    className="overflow-x-auto rounded-lg border border-emerald-400/20 bg-slate-950/80 p-4 text-xs text-emerald-200"
+                    style={{ fontFamily: 'JetBrains Mono, monospace' }}
+                  >
 {`import { Consendus } from 'consendus'
 
 const swarm = new Consendus.Swarm({
@@ -885,7 +895,8 @@ const swarm = new Consendus.Swarm({
 })
 
 await swarm.deploy('migration-api-v2')`}
-                </pre>
+                  </pre>
+                </div>
               </div>
             </section>
 
