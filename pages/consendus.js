@@ -282,18 +282,9 @@ function MessageBody({ message }) {
       }
 
       return (
-        <SyntaxHighlighter
-          language={match?.[1] || 'typescript'}
-          style={oneDark}
-          PreTag="div"
-          customStyle={{
-            margin: 0,
-            borderRadius: '0.375rem',
-            border: '1px solid rgba(52, 211, 153, 0.2)',
-            background: '#020617',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '12px',
-          }}
+        <pre
+          className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
+          style={{ fontFamily: 'JetBrains Mono, monospace' }}
         >
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
@@ -304,7 +295,7 @@ function MessageBody({ message }) {
   if (message.type === 'code') {
     return (
       <pre
-        className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200"
+        className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
         style={{ fontFamily: 'JetBrains Mono, monospace' }}
       >
         {message.content}
@@ -362,6 +353,7 @@ export default function Consendus() {
   const [activeChannel, setActiveChannel] = useState(channels[0].name)
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
+  const [simulationStep, setSimulationStep] = useState('idle')
   const [typingAgents, setTypingAgents] = useState([])
   const chatScrollRef = useRef(null)
   const simulationTimersRef = useRef([])
@@ -486,6 +478,7 @@ export default function Consendus() {
     const generated = uniquePool.sort(() => Math.random() - 0.5).slice(0, targetCount)
 
     setSimulating(true)
+    setSimulationStep('typing')
     setTypingAgents([])
 
     generated.forEach((message, index) => {
@@ -507,6 +500,7 @@ export default function Consendus() {
         if (index === generated.length - 1) {
           scheduleSimulation(() => {
             setSimulating(false)
+            setSimulationStep('idle')
           }, 260)
         }
       }, (index + 1) * 700)
@@ -686,10 +680,14 @@ export default function Consendus() {
                 </button>
               </div>
 
+              <p className="mt-2 text-xs text-slate-500">
+                Simulated runs enqueue 2-3 mock responses with staggered typing delays.
+              </p>
+
               {simulating && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : 'Agent swarm is drafting responses...'}
+                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : simulationStep === 'typing' ? 'Agent swarm is drafting responses...' : 'Simulation complete.'}
                 </div>
               )}
 
@@ -872,7 +870,7 @@ export default function Consendus() {
                 </p>
                 <button
                   onClick={handleAccessConsole}
-                  className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"
+                  className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                 >
                   Access Console
                   <ChevronRight className="h-4 w-4" />
