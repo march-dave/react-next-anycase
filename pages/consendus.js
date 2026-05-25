@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import {
   Activity,
   AlertTriangle,
@@ -265,7 +267,9 @@ function MessageBody({ message }) {
   const markdownComponents = {
     p: ({ children }) => <p className="text-sm text-slate-100">{children}</p>,
     strong: ({ children }) => <strong className="font-semibold text-indigo-100">{children}</strong>,
-    code: ({ inline, children }) => {
+    code: ({ inline, className, children }) => {
+      const match = /language-(\w+)/.exec(className || '')
+
       if (inline) {
         return (
           <code
@@ -282,8 +286,8 @@ function MessageBody({ message }) {
           className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
           style={{ fontFamily: 'JetBrains Mono, monospace' }}
         >
-          <code>{children}</code>
-        </pre>
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
       )
     },
   }
