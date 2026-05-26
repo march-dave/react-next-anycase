@@ -228,6 +228,13 @@ const statusColors = {
 
 const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
 
+const taskStateBadgeTone = {
+  Pending: 'border-slate-500/40 bg-slate-700/50 text-slate-200',
+  'In Progress': 'border-amber-400/40 bg-amber-500/10 text-amber-200',
+  'Needs Consensus': 'border-purple-400/40 bg-purple-500/10 text-purple-200',
+  Completed: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
+}
+
 const statusLegend = [
   { label: 'Idle', color: 'bg-emerald-400' },
   { label: 'Busy', color: 'bg-amber-400' },
@@ -764,7 +771,12 @@ export default function Consendus() {
                         {task.id}
                       </p>
                       <p className="mt-1 text-sm text-slate-100">{task.title}</p>
-                      <p className="mt-2 text-xs text-slate-400">Assigned: {task.agent}</p>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <p className="text-xs text-slate-400">Assigned: {task.agent}</p>
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${taskStateBadgeTone[task.state]}`}>
+                          {task.state}
+                        </span>
+                      </div>
                       {task.state === 'Needs Consensus' && (
                         <div className="mt-3">
                           <div className="mb-1 flex items-center justify-between text-xs text-purple-200">
