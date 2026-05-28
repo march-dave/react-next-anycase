@@ -1,8 +1,6 @@
 import Head from 'next/head'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import {
   Activity,
   AlertTriangle,
@@ -294,7 +292,7 @@ function MessageBody({ message }) {
           style={{ fontFamily: 'JetBrains Mono, monospace' }}
         >
           {String(children).replace(/\n$/, '')}
-        </SyntaxHighlighter>
+        </pre>
       )
     },
   }
