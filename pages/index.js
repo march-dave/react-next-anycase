@@ -53,7 +53,7 @@ export default function Home() {
         />
       </Head>
 
-      <main className="min-h-screen bg-[#fdfbf7] text-[#2d2a26]">
+      <main className="min-h-screen bg-[#fdfbf7] font-['Inter'] text-[#2d2a26]">
         <div className="mx-auto max-w-7xl px-6 py-6 md:px-10">
           <nav className="flex items-center justify-between gap-6">
             <div className="flex items-center gap-2 text-lg font-semibold">
@@ -71,7 +71,7 @@ export default function Home() {
               <a href="#pricing" className="hover:text-[#8c5e3c]">Pricing</a>
             </div>
 
-            <button className="rounded-full bg-[#2d2a26] px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black/85">
+            <button className="rounded-full bg-[#2d2a26] px-5 py-2.5 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-black/85">
               Pre-Order Now
             </button>
           </nav>
@@ -87,7 +87,7 @@ export default function Home() {
               <p className="mt-6 max-w-xl text-base leading-relaxed text-[#4d4944] md:text-lg">
                 Bookmarkr transforms any physical book into a smart, interactive experience. Clip it on, speak your thoughts, and track your reading journey instantly.
               </p>
-              <button className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#8c5e3c] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#774f33]">
+              <button className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#8c5e3c] px-6 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#774f33] hover:shadow-md">
                 Pre-order Device ($49)
                 <span aria-hidden="true">→</span>
               </button>
@@ -114,6 +114,16 @@ export default function Home() {
                 </article>
               ))}
             </div>
+          </section>
+
+          <section id="how" className="pb-14 text-center">
+            <h2 className="font-['Libre_Baskerville'] text-3xl">How it Works</h2>
+            <p className="mx-auto mt-4 max-w-3xl text-[#5a544d]">Clip Bookmarkr onto your page, speak naturally as you read, and instantly revisit every note and insight in your companion app.</p>
+          </section>
+
+          <section id="pricing" className="pb-20 text-center">
+            <h2 className="font-['Libre_Baskerville'] text-3xl">Pricing</h2>
+            <p className="mt-4 text-lg text-[#5a544d]">One-time pre-order price: <span className="font-semibold text-[#8c5e3c]">$49</span></p>
           </section>
         </div>
 
