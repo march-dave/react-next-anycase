@@ -287,20 +287,12 @@ function MessageBody({ message }) {
       }
 
       return (
-        <SyntaxHighlighter
-          language={match?.[1] ?? 'typescript'}
-          style={oneDark}
-          customStyle={{
-            margin: 0,
-            borderRadius: '0.375rem',
-            border: '1px solid rgba(16,185,129,0.2)',
-            background: '#020617',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '12px',
-            padding: '0.75rem',
-          }}
+        <pre
+          className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-xs text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
+          data-language={match?.[1] ?? 'typescript'}
+          style={{ fontFamily: 'JetBrains Mono, monospace' }}
         >
-          {String(children).replace(/\n$/, '')}
+          <code>{String(children).replace(/\n$/, '')}</code>
         </pre>
       )
     },
