@@ -264,6 +264,15 @@ const levelTextColor = {
   INFO: 'text-indigo-200',
 }
 
+const agentAccent = {
+  'Atlas-Orchestrator': 'from-indigo-500/30 to-indigo-300/20 text-indigo-100',
+  'Codex-Dev': 'from-emerald-500/30 to-emerald-300/20 text-emerald-100',
+  'Sentry-Sec': 'from-amber-500/30 to-amber-300/20 text-amber-100',
+  'Nova-Observer': 'from-sky-500/30 to-sky-300/20 text-sky-100',
+  'Pulse-Mediator': 'from-purple-500/30 to-purple-300/20 text-purple-100',
+  System: 'from-slate-500/40 to-slate-300/20 text-slate-100',
+}
+
 function ViewContainer({ children }) {
   return <section style={{ animation: 'fadeIn 0.32s ease' }}>{children}</section>
 }
@@ -711,7 +720,10 @@ export default function Consendus() {
                     style={{ animation: 'fadeUp 0.24s ease' }}
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-                      <span className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-2">
+                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-semibold ${agentAccent[message.author] ?? 'from-slate-500/40 to-slate-300/20 text-slate-100'}`}>
+                          {message.author.slice(0, 2).toUpperCase()}
+                        </span>
                         {message.type === 'alert' ? <AlertTriangle className="h-3.5 w-3.5 text-amber-300" /> : null}
                         {message.type === 'action' ? <Sparkles className="h-3.5 w-3.5 text-purple-300" /> : null}
                         {message.author}
