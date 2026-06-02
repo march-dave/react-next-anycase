@@ -2,22 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@600;700&display=swap');
-
 :root {
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #fdfbf7;
+  color: #2d2a26;
 }
 
 ::selection {
-  background-color: rgba(99, 102, 241, 0.35);
-  color: #e2e8f0;
+  background-color: rgba(140, 94, 60, 0.24);
+  color: #2d2a26;
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #fdfbf7;
+  color: #2d2a26;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
