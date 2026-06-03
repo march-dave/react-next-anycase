@@ -296,17 +296,13 @@ function MessageBody({ message }) {
       }
 
       return (
-        <div className="overflow-hidden rounded-md border border-emerald-400/20 bg-slate-950 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]">
-          <div className="border-b border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-emerald-200">
-            {match?.[1] || 'code'}
-          </div>
-          <pre
-            className="overflow-x-auto p-3 text-emerald-200"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
-            {String(children).replace(/\n$/, '')}
-          </pre>
-        </div>
+        <pre
+          className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-xs text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
+          data-language={match?.[1] ?? 'typescript'}
+          style={{ fontFamily: 'JetBrains Mono, monospace' }}
+        >
+          <code>{String(children).replace(/\n$/, '')}</code>
+        </pre>
       )
     },
   }
