@@ -38,12 +38,12 @@ export default function Home() {
       </Head>
 
       <main className="min-h-screen overflow-hidden bg-[#fdfbf7] font-sans text-[#2d2a26]">
-        <div className="pointer-events-none fixed inset-0 opacity-[0.18] [background-image:radial-gradient(#8c5e3c_0.7px,transparent_0.7px)] [background-size:18px_18px]" />
-        <div className="pointer-events-none fixed -right-28 top-20 h-72 w-72 rounded-full bg-[#8c5e3c]/10 blur-3xl" />
-        <div className="pointer-events-none fixed -left-28 bottom-20 h-72 w-72 rounded-full bg-orange-200/30 blur-3xl" />
+        <div className="pointer-events-none fixed inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(140,94,60,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(140,94,60,0.12)_1px,transparent_1px)] [background-size:42px_42px]" />
+        <div className="pointer-events-none fixed -right-32 top-20 h-80 w-80 rounded-full bg-[#8c5e3c]/10 blur-3xl" />
+        <div className="pointer-events-none fixed -left-32 bottom-16 h-80 w-80 rounded-full bg-orange-200/35 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-5 py-5 sm:px-6 md:px-10">
-          <nav className="flex items-center justify-between gap-4 rounded-full border border-[#e7dfd4]/80 bg-[#fdfbf7]/85 px-4 py-3 shadow-sm backdrop-blur md:px-5">
+          <nav className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] border border-[#e7dfd4]/90 bg-[#fdfbf7]/90 px-4 py-3 shadow-sm backdrop-blur md:flex-nowrap md:rounded-full md:px-5">
             <a href="#" className="flex items-center gap-2.5 text-base font-semibold md:text-lg" aria-label="Bookmarkr home">
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#8c5e3c]/15 text-[#8c5e3c] ring-1 ring-[#8c5e3c]/15">
                 <BookOpen className="h-5 w-5" aria-hidden="true" />
@@ -51,15 +51,15 @@ export default function Home() {
               <span className="font-serif">Bookmarkr</span>
             </a>
 
-            <div className="hidden items-center gap-8 text-sm font-medium text-[#4d4944] md:flex">
-              <a href="#features" className="hover:text-[#8c5e3c]">Features</a>
-              <a href="#how" className="hover:text-[#8c5e3c]">How it Works</a>
-              <a href="#pricing" className="hover:text-[#8c5e3c]">Pricing</a>
+            <div className="order-3 flex w-full items-center justify-center gap-5 text-sm font-medium text-[#4d4944] sm:gap-8 md:order-2 md:w-auto">
+              <a href="#features" className="transition hover:text-[#8c5e3c]">Features</a>
+              <a href="#how" className="transition hover:text-[#8c5e3c]">How it Works</a>
+              <a href="#pricing" className="transition hover:text-[#8c5e3c]">Pricing</a>
             </div>
 
             <a
               href="#pricing"
-              className="rounded-full bg-[#2d2a26] px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-black hover:shadow-md sm:px-5 sm:text-sm"
+              className="order-2 rounded-full bg-[#2d2a26] px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-black hover:shadow-md sm:px-5 sm:text-sm md:order-3"
             >
               Pre-Order Now
             </a>
@@ -107,7 +107,7 @@ export default function Home() {
               {features.map((feature) => {
                 const Icon = feature.icon
                 return (
-                  <article key={feature.title} className="rounded-3xl border border-[#e7dfd4] bg-white/88 p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(45,42,38,0.08)]">
+                  <article key={feature.title} className="rounded-3xl border border-[#e7dfd4] bg-white/90 p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(45,42,38,0.08)]">
                     <div className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ring-1 ${feature.accent}`}>
                       <Icon className="h-6 w-6" aria-hidden="true" />
                     </div>
