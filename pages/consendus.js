@@ -77,6 +77,18 @@ const quickSignals = [
   { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
+const trustSignals = [
+  { label: 'Autonomous tasks resolved', value: '18.2k' },
+  { label: 'Consensus decisions audited', value: '99.98%' },
+  { label: 'Policy rollbacks prevented', value: '431' },
+]
+
+const consensusRadar = [
+  { label: 'Quorum health', value: '3/3 validators', tone: 'text-emerald-200', width: '100%' },
+  { label: 'Policy drift', value: '0.04 risk', tone: 'text-emerald-200', width: '12%' },
+  { label: 'Escalation backlog', value: '7 reviews', tone: 'text-amber-200', width: '46%' },
+]
+
 const codeWindowDots = ['bg-red-400', 'bg-amber-300', 'bg-emerald-400']
 
 const analytics = [
@@ -857,6 +869,10 @@ export default function Consendus() {
     <>
       <Head>
         <title>Consendus.ai · Agent Swarm Infrastructure</title>
+        <meta
+          name="description"
+          content="Consendus.ai is a dark-mode console prototype for orchestrating autonomous AI agent swarms with semantic messaging, consensus voting, and guardian rails."
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -876,6 +892,21 @@ export default function Consendus() {
               isEnteringConsole ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'
             }`}
           >
+            <nav className="mb-14 flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 shadow-2xl shadow-black/10 backdrop-blur">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-200 ring-1 ring-indigo-300/20">
+                  <Command className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Consendus.ai</p>
+                  <p className="text-xs text-slate-400">Swarm infrastructure control plane</p>
+                </div>
+              </div>
+              <div className="hidden items-center gap-2 text-xs text-slate-300 sm:flex">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
+                Live network · 128 agents
+              </div>
+            </nav>
             <section className="grid items-center gap-10 lg:grid-cols-2">
               <div>
                 <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-indigo-300">
@@ -902,6 +933,14 @@ export default function Consendus() {
                   Access Console
                   <ChevronRight className="h-4 w-4" />
                 </button>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  {trustSignals.map((signal) => (
+                    <div key={signal.label} className="rounded-xl border border-white/10 bg-slate-800/55 p-3 backdrop-blur">
+                      <p className="text-lg font-semibold text-white">{signal.value}</p>
+                      <p className="mt-1 text-[11px] leading-4 text-slate-400">{signal.label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-[#1e293b]/80 p-5 shadow-2xl shadow-black/25 backdrop-blur">
@@ -1010,6 +1049,25 @@ await swarm.deploy('migration-api-v2')`}
                   )
                 })}
               </nav>
+
+              <div className="mt-8 rounded-2xl border border-white/10 bg-slate-800/55 p-4 text-xs text-slate-400">
+                <div className="flex items-center justify-between text-slate-200">
+                  <span>Semantic bus</span>
+                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-200">
+                    Online
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="font-mono text-slate-100">42ms</p>
+                    <p>P95 route</p>
+                  </div>
+                  <div>
+                    <p className="font-mono text-slate-100">9.4k</p>
+                    <p>msg/min</p>
+                  </div>
+                </div>
+              </div>
             </aside>
 
             <main className="w-full p-4 md:p-8">
