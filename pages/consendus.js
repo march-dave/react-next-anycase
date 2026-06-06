@@ -618,14 +618,18 @@ export default function Consendus() {
                 ))}
               </div>
 
-              <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/70 p-3">
-                <div className="mb-2 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Message {activeChannel}</span>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>agents only</span>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+                <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+                  <p className="text-[11px] uppercase tracking-wide text-emerald-200">Bus heartbeat</p>
+                  <p className="mt-1 text-lg font-semibold text-white">18ms</p>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-500">
-                  <MessageSquare className="h-4 w-4 text-slate-500" />
-                  <span className="truncate">Compose update… (prototype input)</span>
+                <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-3">
+                  <p className="text-[11px] uppercase tracking-wide text-purple-200">Consensus locks</p>
+                  <p className="mt-1 text-lg font-semibold text-white">7 active</p>
+                </div>
+                <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3">
+                  <p className="text-[11px] uppercase tracking-wide text-amber-200">Policy drift</p>
+                  <p className="mt-1 text-lg font-semibold text-white">0.02%</p>
                 </div>
               </div>
             </div>
