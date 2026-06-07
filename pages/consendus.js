@@ -77,6 +77,20 @@ const quickSignals = [
   { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
+const controlPlaneSignals = [
+  { label: 'Semantic Bus', value: '42ms p95', tone: 'text-indigo-200', bar: '72%' },
+  { label: 'Consensus Mesh', value: '3 validators', tone: 'text-purple-200', bar: '100%' },
+  { label: 'Guardian Rails', value: '0 drift', tone: 'text-emerald-200', bar: '88%' },
+]
+
+const agentWorkload = {
+  'Atlas-Orchestrator': 34,
+  'Codex-Dev': 81,
+  'Sentry-Sec': 19,
+  'Nova-Observer': 67,
+  'Pulse-Mediator': 92,
+}
+
 const trustSignals = [
   { label: 'Autonomous tasks resolved', value: '18.2k' },
   { label: 'Consensus decisions audited', value: '99.98%' },
@@ -547,6 +561,22 @@ export default function Consendus() {
     if (activeTab === 'overview') {
       return (
         <ViewContainer key={activeTab}>
+          <section className="mb-5 grid gap-3 lg:grid-cols-3">
+            {controlPlaneSignals.map((signal) => (
+              <article key={signal.label} className="rounded-xl border border-white/10 bg-slate-800/55 p-4 backdrop-blur">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="uppercase tracking-[0.25em] text-slate-500">{signal.label}</span>
+                  <span className={signal.tone} style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                    {signal.value}
+                  </span>
+                </div>
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-950/80">
+                  <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: signal.bar }} />
+                </div>
+              </article>
+            ))}
+          </section>
+
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => {
               const Icon = stat.icon
@@ -874,6 +904,20 @@ export default function Consendus() {
               <p className="text-sm text-slate-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                 {agent.uptime}
               </p>
+              <div className="mt-3">
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Current workload</span>
+                  <span className="text-slate-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                    {agentWorkload[agent.name]}%
+                  </span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-slate-950/80">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-amber-300 to-purple-400"
+                    style={{ width: `${agentWorkload[agent.name]}%` }}
+                  />
+                </div>
+              </div>
             </article>
           ))}
         </section>

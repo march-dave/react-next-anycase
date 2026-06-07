@@ -145,6 +145,21 @@ const goToMarket = [
   },
 ]
 
+const whyNowPoints = [
+  {
+    title: 'Consumer AI trust',
+    detail: 'Users now expect camera-based coaching and personalized recommendations in everyday health workflows.',
+  },
+  {
+    title: 'Telehealth distribution',
+    detail: 'Remote consults make it easier to convert early detection signals into treatment-ready action.',
+  },
+  {
+    title: 'Prevention demand',
+    detail: 'Younger customers are looking for objective tracking before visible thinning becomes emotionally costly.',
+  },
+]
+
 const recommendationTracks = [
   {
     title: 'Medical track',

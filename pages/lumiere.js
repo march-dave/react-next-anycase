@@ -291,28 +291,26 @@ export default function Supernormal() {
                   <Activity className="h-4 w-4" />
                   live
                 </span>
-              </div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg">
-              <div className="flex items-center gap-2 text-sm text-slate-300">
-                <TerminalSquare className="h-4 w-4" />
-                Terminal Log
-              </div>
-              <div className="no-scrollbar mt-4 max-h-56 space-y-3 overflow-y-auto pr-2 text-xs text-emerald-200">
-                {terminalEvents.map((event) => (
-                  <p key={event} className="font-mono">
-                    {event}
-                  </p>
-                ))}
-              </div>
-              <button
-                onClick={handleSimulate}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400"
-              >
-                <Sparkles className="h-4 w-4" />
-                Simulate Activity
-              </button>
-            </div>
+                <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 shadow-lg">
+                  <div className="flex items-center gap-2 text-sm text-slate-300">
+                    <TerminalSquare className="h-4 w-4" />
+                    Terminal Log
+                  </div>
+                  <div className="no-scrollbar mt-4 max-h-56 space-y-3 overflow-y-auto pr-2 text-xs text-emerald-200">
+                    {terminalEvents.map((event) => (
+                      <p key={event} className="font-mono">
+                        {event}
+                      </p>
+                    ))}
+                  </div>
+                  <button
+                    onClick={handleSimulate}
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Simulate Activity
+                  </button>
+                </div>
 
                 <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4 text-sm">
                   <p className="text-sm font-semibold">Insight</p>
