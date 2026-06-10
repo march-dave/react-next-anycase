@@ -97,6 +97,20 @@ const trustSignals = [
   { label: 'Policy rollbacks prevented', value: '431' },
 ]
 
+const swarmTopology = [
+  { agent: 'Atlas', role: 'orchestrator', position: 'left-[12%] top-[18%]', tone: 'border-indigo-300/40 bg-indigo-500/20 text-indigo-100' },
+  { agent: 'Codex', role: 'builder', position: 'right-[14%] top-[22%]', tone: 'border-emerald-300/40 bg-emerald-500/20 text-emerald-100' },
+  { agent: 'Sentry', role: 'guardian', position: 'left-[18%] bottom-[18%]', tone: 'border-amber-300/40 bg-amber-500/20 text-amber-100' },
+  { agent: 'Pulse', role: 'mediator', position: 'right-[18%] bottom-[16%]', tone: 'border-purple-300/40 bg-purple-500/20 text-purple-100' },
+]
+
+const missionSteps = [
+  { label: 'Discover', status: 'complete', tone: 'bg-emerald-400' },
+  { label: 'Debate', status: 'active', tone: 'bg-purple-400' },
+  { label: 'Vote', status: 'pending', tone: 'bg-slate-500' },
+  { label: 'Execute', status: 'guarded', tone: 'bg-amber-400' },
+]
+
 const consensusRadar = [
   { label: 'Quorum health', value: '3/3 validators', tone: 'text-emerald-200', width: '100%' },
   { label: 'Policy drift', value: '0.04 risk', tone: 'text-emerald-200', width: '12%' },
@@ -561,20 +575,27 @@ export default function Consendus() {
     if (activeTab === 'overview') {
       return (
         <ViewContainer key={activeTab}>
-          <section className="mb-5 grid gap-3 lg:grid-cols-3">
-            {controlPlaneSignals.map((signal) => (
-              <article key={signal.label} className="rounded-xl border border-white/10 bg-slate-800/55 p-4 backdrop-blur">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="uppercase tracking-[0.25em] text-slate-500">{signal.label}</span>
-                  <span className={signal.tone} style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                    {signal.value}
-                  </span>
+          <section className="mb-5 rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-100">Mission lifecycle</p>
+                <p className="text-xs text-slate-400">A guarded migration run moving from discovery to consensus execution.</p>
+              </div>
+              <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-200">
+                MIGRATION-API-V2 · live
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+              {missionSteps.map((step, index) => (
+                <div key={step.label} className="rounded-lg border border-white/10 bg-slate-900/70 p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-200">{step.label}</span>
+                    <span className={`h-2.5 w-2.5 rounded-full ${step.tone} ${step.status === 'active' ? 'animate-pulse' : ''}`} />
+                  </div>
+                  <p className="mt-2 font-mono text-[11px] uppercase text-slate-500">0{index + 1} · {step.status}</p>
                 </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-950/80">
-                  <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: signal.bar }} />
-                </div>
-              </article>
-            ))}
+              ))}
+            </div>
           </section>
 
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -1019,6 +1040,33 @@ const swarm = new Consendus.Swarm({
 
 await swarm.deploy('migration-api-v2')`}
                   </pre>
+                </div>
+
+                <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/35 p-4">
+                  <div className="mb-3 flex items-center justify-between text-xs">
+                    <span className="font-medium text-slate-200">Live swarm topology</span>
+                    <span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-2 py-0.5 text-purple-200">
+                      quorum forming
+                    </span>
+                  </div>
+                  <div className="relative h-44 overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.18),transparent_52%)]">
+                    <div className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-indigo-300/30 bg-indigo-500/20 shadow-[0_0_45px_rgba(99,102,241,0.35)]" />
+                    <div className="absolute left-1/2 top-1/2 h-px w-[70%] -translate-x-1/2 bg-gradient-to-r from-transparent via-indigo-300/40 to-transparent" />
+                    <div className="absolute left-1/2 top-1/2 h-[70%] w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-purple-300/40 to-transparent" />
+                    {swarmTopology.map((node) => (
+                      <div
+                        key={node.agent}
+                        className={`absolute ${node.position} rounded-xl border px-3 py-2 text-xs shadow-lg shadow-black/20 backdrop-blur ${node.tone}`}
+                      >
+                        <p className="font-semibold">{node.agent}</p>
+                        <p className="text-[10px] opacity-75">{node.role}</p>
+                      </div>
+                    ))}
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+                      <p className="text-xs font-semibold text-white">Semantic Bus</p>
+                      <p className="font-mono text-[10px] text-indigo-200">42ms p95</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
