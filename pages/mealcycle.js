@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { GoogleGenAI } from '@google/genai'
 import {
   Activity,
   ChevronRight,
@@ -22,9 +21,6 @@ const APP_STAGE = {
   DASHBOARD: 'dashboard',
 }
 
-const MEDICATIONS = ['Ozempic', 'Mounjaro', 'Wegovy', 'Zepbound', 'Other']
-const DOSAGE_STAGES = ['Initiation', 'Titration', 'Maintenance']
-
 const STARTING_PROFILE = {
   name: 'Taylor M.',
   medication: 'Ozempic',
@@ -32,12 +28,6 @@ const STARTING_PROFILE = {
   proteinTarget: 120,
 }
 
-const BASE_CHAT = [
-  {
-    role: 'assistant',
-    text: 'Hi! I am your GLP-1 nutrition assistant. Ask me about nausea-safe options, protein timing, or meal sizing.',
-  },
-]
 
 const gradientButton =
   'bg-gradient-to-r from-[#ccfbf1] via-teal-400 to-[#0f766e] text-slate-900 shadow-lg shadow-teal-800/20 hover:opacity-95'
@@ -323,132 +313,6 @@ function MealCard({ meal }) {
   )
 }
 
-function StatCard({ title, value }) {
-  return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-      <p className="text-sm text-slate-500">{title}</p>
-      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
-    </article>
-  )
-}
-
-function ProgressView() {
-  const proteinAvg = Math.round(MOCK_LOGS.reduce((sum, day) => sum + day.protein, 0) / MOCK_LOGS.length)
-  const symptomFreeDays = MOCK_LOGS.filter((item) => item.symptomFree).length
-  const currentWeight = MOCK_LOGS[MOCK_LOGS.length - 1].weight
-
-  return (
-    <div className="space-y-5">
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard title="Current Weight" value={`${currentWeight} lb`} />
-        <StatCard title="Daily Protein Avg" value={`${proteinAvg} g`} />
-        <StatCard title="Symptom-Free Days" value={`${symptomFreeDays}`} />
-      </div>
-
-      <div className="h-[340px] rounded-2xl border border-slate-200 bg-white p-4 shadow-md shadow-slate-200/70">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={MOCK_LOGS}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#dbe4ee" />
-            <XAxis dataKey="day" stroke="#64748b" />
-            <YAxis yAxisId="left" stroke="#0f766e" />
-            <YAxis yAxisId="right" orientation="right" stroke="#0f172a" domain={['dataMin - 1', 'dataMax + 1']} />
-            <Tooltip
-              contentStyle={{ borderRadius: '14px', border: '1px solid #cbd5e1', backgroundColor: '#ffffffee' }}
-              labelStyle={{ color: '#0f172a', fontWeight: 600 }}
-            />
-            <Area yAxisId="left" type="monotone" dataKey="protein" fill="#99f6e4" stroke="#0f766e" strokeWidth={2} />
-            <Line yAxisId="right" type="monotone" dataKey="weight" stroke="#0f172a" strokeWidth={3} dot={{ r: 4 }} />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  )
-}
-
-function AIChatWidget() {
-  const [input, setInput] = useState('')
-  const [messages, setMessages] = useState(BASE_CHAT)
-  const [loading, setLoading] = useState(false)
-
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
-
-  const onSubmit = async (event) => {
-    event.preventDefault()
-    const trimmed = input.trim()
-    if (!trimmed || loading) return
-
-    setMessages((prev) => [...prev, { role: 'user', text: trimmed }])
-    setInput('')
-    setLoading(true)
-
-    if (!apiKey) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          text: 'Gemini key not configured. Fallback: choose small frequent meals, prioritize lean protein first, stay hydrated, and try bland foods if nausea rises.',
-        },
-      ])
-      setLoading(false)
-      return
-    }
-
-    try {
-      const ai = new GoogleGenAI({ apiKey })
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: trimmed,
-        config: {
-          systemInstruction:
-            'You are an expert nutritionist for GLP-1 patients. Keep answers under 100 words. Focus on protein and symptom management.',
-        },
-      })
-
-      const text = response.text?.trim() || 'Try light meals with protein at each feeding window.'
-      setMessages((prev) => [...prev, { role: 'assistant', text }])
-    } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          text: 'I could not reach Gemini. Fallback: split meals into small portions, add protein first, and use bland options like oats, yogurt, eggs, and bananas on rough days.',
-        },
-      ])
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-md shadow-slate-200/70">
-      <h3 className="text-base font-semibold">AI Nutrition Assistant</h3>
-      <div className="mt-3 h-72 space-y-3 overflow-y-auto rounded-xl bg-slate-50 p-3">
-        {messages.map((message, index) => (
-          <div
-            key={`${message.role}-${index}`}
-            className={`max-w-[90%] rounded-2xl px-3 py-2 text-sm ${
-              message.role === 'assistant' ? 'bg-white text-slate-700' : 'ml-auto bg-teal-600 text-white'
-            }`}
-          >
-            {message.text}
-          </div>
-        ))}
-      </div>
-      <form onSubmit={onSubmit} className="mt-3 flex gap-2">
-        <input
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder="I feel nauseous, what should I eat?"
-          className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500"
-        />
-        <button type="submit" className="rounded-xl bg-slate-900 px-3 py-2 text-sm text-white" disabled={loading}>
-          Send
-        </button>
-      </form>
-    </div>
-  )
-}
-
 const ProgressTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
@@ -589,14 +453,14 @@ function Dashboard({ profile, onLogout }) {
           <header className="mb-5 flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 className="text-2xl font-semibold text-slate-900">
-                {view === DASHBOARD_VIEWS.WEEKLY ? 'Weekly Plan' : 'Progress & Vitals'}
+                {view === 'weekly' ? 'Weekly Plan' : 'Progress & Vitals'}
               </h2>
               <p className="text-sm text-slate-600">Personalized for your GLP-1 journey.</p>
             </div>
-          ) : (
-            <ProgressView />
-          )}
-        </section>
+          </header>
+
+          {view === 'weekly' ? <WeeklyPlanView /> : <ProgressView />}
+        </main>
       </div>
     </div>
   )
@@ -610,8 +474,8 @@ export default function MealcyclePage() {
     return <LandingPage onStart={() => setStage(APP_STAGE.ONBOARDING)} />
   }
 
-  if (stage === APP_STAGES.ONBOARDING) {
-    return <OnboardingFlow profile={profile} setProfile={setProfile} onFinish={() => setStage(APP_STAGES.DASHBOARD)} />
+  if (stage === APP_STAGE.ONBOARDING) {
+    return <OnboardingFlow profile={profile} setProfile={setProfile} onFinish={() => setStage(APP_STAGE.DASHBOARD)} />
   }
 
   return (
