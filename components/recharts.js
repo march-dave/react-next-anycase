@@ -26,9 +26,9 @@ const buildPoints = ({ data, dataKey, minValue, maxValue, resolvedWidth, resolve
   return data.map((entry, index) => {
     const x = padding + (index / Math.max(data.length - 1, 1)) * (resolvedWidth - padding * 2)
     const y =
-      resolvedHeight -
-      padding -
-      ((Number(entry[dataKey]) - minValue) / range) * (resolvedHeight - padding * 2)
+      height -
+      padding.bottom -
+      ((Number(entry[dataKey]) - minValue) / range) * (height - padding.top - padding.bottom)
     return [x, y]
   })
 }
@@ -195,6 +195,7 @@ Cell.displayName = 'Cell'
 export default {
   ResponsiveContainer,
   AreaChart,
+  ComposedChart,
   Area,
   CartesianGrid,
   XAxis,
