@@ -3,145 +3,81 @@ import React from 'react'
 const normalizeChildren = (children) => React.Children.toArray(children).filter(Boolean)
 
 const getChartSize = (width, height) => {
-  const resolvedWidth = typeof width === 'number' ? width : 320
-  const resolvedHeight = typeof height === 'number' ? height : 180
+  const resolvedWidth = typeof width === 'number' ? width : 640
+  const resolvedHeight = typeof height === 'number' ? height : 320
   return { resolvedWidth, resolvedHeight }
 }
 
-const getDisplayName = (child) => child?.type?.displayName || child?.type?.name || child?.type
+const getDisplayName = (child) => child.type?.displayName || child.type?.name || child.type
 
-const getNumericSeries = (data, series) => {
-  const values = series.flatMap((item) => data.map((entry) => Number(entry[item.props.dataKey])).filter(Number.isFinite))
-  return values.length ? values : [0, 1]
+const getSeriesChildren = (children, displayNames) =>
+  normalizeChildren(children).filter((child) => displayNames.includes(getDisplayName(child)))
+
+const getAllValues = (data, seriesChildren) => {
+  const values = data.flatMap((entry) =>
+    seriesChildren.map((child) => Number(entry[child.props.dataKey])).filter((value) => Number.isFinite(value))
+  )
+  return values.length ? values : [0]
 }
 
-const createScale = (data, series, width, height, padding) => {
-  const values = getNumericSeries(data, series)
-  const minValue = Math.min(...values)
-  const maxValue = Math.max(...values)
+const buildPoints = ({ data, dataKey, minValue, maxValue, resolvedWidth, resolvedHeight, padding }) => {
   const range = maxValue - minValue || 1
 
-  return (entry, index, dataKey) => {
-    const x = padding.left + (index / Math.max(data.length - 1, 1)) * (width - padding.left - padding.right)
+  return data.map((entry, index) => {
+    const x = padding + (index / Math.max(data.length - 1, 1)) * (resolvedWidth - padding * 2)
     const y =
       height -
       padding.bottom -
       ((Number(entry[dataKey]) - minValue) / range) * (height - padding.top - padding.bottom)
     return [x, y]
-  }
+  })
 }
 
-const renderPath = (data, dataKey, scale, mode = 'line') => {
-  const points = data.map((entry, index) => scale(entry, index, dataKey))
-  const linePath = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point[0]} ${point[1]}`).join(' ')
-
-  if (mode === 'area') {
-    const bottomY = 180 - 24
-    return [
-      `M ${points[0]?.[0] ?? 36} ${bottomY}`,
-      ...points.map((point) => `L ${point[0]} ${point[1]}`),
-      `L ${points[points.length - 1]?.[0] ?? 296} ${bottomY}`,
-      'Z',
-    ].join(' ')
-  }
-
-  return linePath
-}
-
-function ChartBase({ data = [], children, width, height, margin = {}, chartType = 'area' }) {
+const renderChart = ({ children, data, width, height, defaultHeight = 320 }) => {
   const chartChildren = normalizeChildren(children)
-  const defs = chartChildren.filter((child) => getDisplayName(child) === 'defs' || getDisplayName(child) === 'Defs')
-  const grid = chartChildren.find((child) => getDisplayName(child) === 'CartesianGrid')
-  const xAxis = chartChildren.find((child) => getDisplayName(child) === 'XAxis')
-  const yAxis = chartChildren.find((child) => getDisplayName(child) === 'YAxis')
-  const series = chartChildren.filter((child) => ['Area', 'Line'].includes(getDisplayName(child)))
-  const { resolvedWidth, resolvedHeight } = getChartSize(width, height)
-  const padding = {
-    top: 14 + (margin.top || 0),
-    right: 18 + (margin.right || 0),
-    bottom: xAxis ? 24 + (margin.bottom || 0) : 14 + (margin.bottom || 0),
-    left: yAxis ? 36 + Math.max(margin.left || 0, 0) : 14 + Math.max(margin.left || 0, 0),
-  }
-  const scale = createScale(data, series, resolvedWidth, resolvedHeight, padding)
-  const xKey = xAxis?.props?.dataKey
-  const gridStroke = grid?.props?.stroke || 'rgba(148,163,184,0.18)'
-  const axisStroke = xAxis?.props?.stroke || yAxis?.props?.stroke || '#94a3b8'
-  const axisFontSize = xAxis?.props?.fontSize || yAxis?.props?.fontSize || 10
-  const firstSeriesKey = series[0]?.props?.dataKey
-  const values = firstSeriesKey ? data.map((entry) => Number(entry[firstSeriesKey])).filter(Number.isFinite) : []
-  const minValue = values.length ? Math.min(...values) : 0
-  const maxValue = values.length ? Math.max(...values) : 1
-  const yTicks = [maxValue, (maxValue + minValue) / 2, minValue]
-  const tickFormatter = yAxis?.props?.tickFormatter
+  const defs = chartChildren.filter((child) => getDisplayName(child) === 'defs')
+  const seriesChildren = getSeriesChildren(chartChildren, ['Area', 'Line'])
+  const values = getAllValues(data, seriesChildren)
+  const minValue = Math.min(...values)
+  const maxValue = Math.max(...values)
+  const { resolvedWidth, resolvedHeight } = getChartSize(width, height ?? defaultHeight)
+  const padding = 28
 
   return (
-    <svg viewBox={`0 0 ${resolvedWidth} ${resolvedHeight}`} className="h-full w-full" role="img" aria-label={`${chartType} chart`}>
+    <svg viewBox={`0 0 ${resolvedWidth} ${resolvedHeight}`} className="h-full w-full" role="img">
       {defs}
-      {grid ? (
-        <g opacity="0.9">
-          {[0, 1, 2, 3].map((index) => {
-            const y = padding.top + (index / 3) * (resolvedHeight - padding.top - padding.bottom)
-            return <line key={`h-${index}`} x1={padding.left} x2={resolvedWidth - padding.right} y1={y} y2={y} stroke={gridStroke} strokeDasharray={grid.props.strokeDasharray} />
-          })}
-          {data.map((entry, index) => {
-            const [x] = scale(entry, index, series[0]?.props?.dataKey)
-            return <line key={`v-${index}`} x1={x} x2={x} y1={padding.top} y2={resolvedHeight - padding.bottom} stroke={gridStroke} strokeDasharray={grid.props.strokeDasharray} />
-          })}
-        </g>
-      ) : null}
-      {series.map((item) => {
-        const name = getDisplayName(item)
-        const dataKey = item.props.dataKey
-        const stroke = item.props.stroke || '#6366f1'
-        const fill = item.props.fill || 'rgba(99,102,241,0.25)'
-        const strokeWidth = item.props.strokeWidth || 2
-        const linePath = renderPath(data, dataKey, scale, 'line')
-        const points = data.map((entry, index) => scale(entry, index, dataKey))
+      <g opacity="0.45">
+        {[0.25, 0.5, 0.75].map((ratio) => (
+          <line
+            key={ratio}
+            x1={padding}
+            x2={resolvedWidth - padding}
+            y1={padding + (resolvedHeight - padding * 2) * ratio}
+            y2={padding + (resolvedHeight - padding * 2) * ratio}
+            stroke="rgba(148, 163, 184, 0.24)"
+            strokeDasharray="4 4"
+          />
+        ))}
+      </g>
+      {seriesChildren.map((child, index) => {
+        const { dataKey, stroke = '#6366f1', fill = 'rgba(99,102,241,0.25)', strokeWidth = 2 } = child.props
+        const points = buildPoints({ data, dataKey, minValue, maxValue, resolvedWidth, resolvedHeight, padding })
+        const linePath = points.map((point, pointIndex) => `${pointIndex === 0 ? 'M' : 'L'} ${point[0]} ${point[1]}`)
+        const isArea = getDisplayName(child) === 'Area'
         const areaPath = [
-          `M ${points[0]?.[0] ?? padding.left} ${resolvedHeight - padding.bottom}`,
+          `M ${points[0]?.[0] ?? padding} ${resolvedHeight - padding}`,
           ...points.map((point) => `L ${point[0]} ${point[1]}`),
-          `L ${points[points.length - 1]?.[0] ?? resolvedWidth - padding.right} ${resolvedHeight - padding.bottom}`,
+          `L ${points[points.length - 1]?.[0] ?? resolvedWidth - padding} ${resolvedHeight - padding}`,
           'Z',
-        ].join(' ')
+        ]
 
         return (
-          <g key={`${name}-${dataKey}`}>
-            {name === 'Area' ? <path d={areaPath} fill={fill} stroke="none" /> : null}
-            <path d={linePath} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
-            {name === 'Line' && item.props.dot
-              ? points.map(([x, y], index) => <circle key={`${dataKey}-${index}`} cx={x} cy={y} r={item.props.dot.r || 3} fill={stroke} />)
-              : null}
+          <g key={`${dataKey}-${index}`}>
+            {isArea ? <path d={areaPath.join(' ')} fill={fill} stroke="none" /> : null}
+            <path d={linePath.join(' ')} fill="none" stroke={stroke} strokeWidth={strokeWidth} />
           </g>
         )
       })}
-      {xAxis ? (
-        <g>
-          <line x1={padding.left} x2={resolvedWidth - padding.right} y1={resolvedHeight - padding.bottom} y2={resolvedHeight - padding.bottom} stroke={axisStroke} opacity="0.35" />
-          {data.map((entry, index) => {
-            if (data.length > 8 && index % 2 !== 0) return null
-            const [x] = scale(entry, index, series[0]?.props?.dataKey)
-            return (
-              <text key={`x-${index}`} x={x} y={resolvedHeight - 6} textAnchor="middle" fill={xAxis.props.stroke || axisStroke} fontSize={axisFontSize}>
-                {xKey ? entry[xKey] : index + 1}
-              </text>
-            )
-          })}
-        </g>
-      ) : null}
-      {yAxis ? (
-        <g>
-          <line x1={padding.left} x2={padding.left} y1={padding.top} y2={resolvedHeight - padding.bottom} stroke={axisStroke} opacity="0.35" />
-          {yTicks.map((value, index) => {
-            const y = padding.top + (index / 2) * (resolvedHeight - padding.top - padding.bottom)
-            const label = tickFormatter ? tickFormatter(Math.round(value)) : Math.round(value)
-            return (
-              <text key={`y-${index}`} x={padding.left - 8} y={y + 3} textAnchor="end" fill={yAxis.props.stroke || axisStroke} fontSize={axisFontSize}>
-                {label}
-              </text>
-            )
-          })}
-        </g>
-      ) : null}
     </svg>
   )
 }
@@ -154,12 +90,12 @@ export function ResponsiveContainer({ width = '100%', height = '100%', children 
   )
 }
 
-export function AreaChart(props) {
-  return <ChartBase {...props} chartType="area" />
+export function AreaChart({ data = [], children, width, height }) {
+  return renderChart({ children, data, width, height })
 }
 
-export function ComposedChart(props) {
-  return <ChartBase {...props} chartType="composed" />
+export function ComposedChart({ data = [], children, width, height }) {
+  return renderChart({ children, data, width, height })
 }
 
 export function Area() {
@@ -178,19 +114,13 @@ export function CartesianGrid() {
   return null
 }
 
-CartesianGrid.displayName = 'CartesianGrid'
-
 export function XAxis() {
   return null
 }
 
-XAxis.displayName = 'XAxis'
-
 export function YAxis() {
   return null
 }
-
-YAxis.displayName = 'YAxis'
 
 export function Tooltip() {
   return null
@@ -267,11 +197,12 @@ export default {
   AreaChart,
   ComposedChart,
   Area,
-  Line,
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
+  ComposedChart,
+  Line,
   PieChart,
   Pie,
   Cell,
