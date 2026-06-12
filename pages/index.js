@@ -27,6 +27,12 @@ export default function BookmarkrLanding() {
     <>
       <Head>
         <title>Bookmarkr | Your Ultimate Reading Companion</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Libre+Baskerville:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <meta
           name="description"
           content="Bookmarkr transforms any physical book into a smart, interactive reading experience with voice notes, contextual AI, and reading progress sync."
@@ -36,7 +42,7 @@ export default function BookmarkrLanding() {
       <main className="relative min-h-screen overflow-hidden bg-[#fdfbf7] font-sans text-[#2d2a26]">
         <div className="pointer-events-none absolute inset-0 z-0 opacity-60 [background-image:radial-gradient(#8c5e3c_0.55px,transparent_0.55px)] [background-size:22px_22px]" />
         <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 sm:px-6 lg:px-8">
-          <header className="flex items-center justify-between py-6">
+          <header className="flex items-center justify-between gap-4 py-6">
             <a href="#" className="group flex items-center gap-3" aria-label="Bookmarkr home">
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#2d2a26] text-[#fdfbf7] shadow-lg shadow-[#2d2a26]/10 transition-transform duration-300 group-hover:-translate-y-0.5">
                 <BookMarked className="h-5 w-5" strokeWidth={1.8} />
@@ -52,7 +58,7 @@ export default function BookmarkrLanding() {
 
             <a
               href="#pricing"
-              className="rounded-full bg-[#2d2a26] px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-[#2d2a26]/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#171512] hover:shadow-2xl hover:shadow-[#2d2a26]/15"
+              className="shrink-0 rounded-full bg-[#2d2a26] px-4 py-3 text-sm font-semibold text-white shadow-xl shadow-[#2d2a26]/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#171512] hover:shadow-2xl hover:shadow-[#2d2a26]/15 sm:px-5"
             >
               Pre-Order Now
             </a>
@@ -87,11 +93,11 @@ export default function BookmarkrLanding() {
             <div className="relative mx-auto w-full max-w-2xl lg:max-w-none">
               <div className="absolute -left-8 top-12 h-44 w-44 rounded-full bg-[#8c5e3c]/15 blur-3xl" />
               <div className="absolute -bottom-10 right-6 h-56 w-56 rounded-full bg-amber-300/20 blur-3xl" />
-              <div className="relative rounded-[2rem] border border-[#2d2a26]/10 bg-white/50 p-3 shadow-[0_36px_90px_rgba(45,42,38,0.20)] backdrop-blur">
+              <div className="relative rounded-2xl border border-[#2d2a26]/10 bg-white/50 p-3 shadow-[0_36px_90px_rgba(45,42,38,0.20)] backdrop-blur">
                 <img
                   src="https://i.ibb.co/G4FVbWQG/Gemini-Generated-Image-wa5dm2wa5dm2wa5d.png"
                   alt="Bookmarkr smart reading companion clipped to a physical book"
-                  className="aspect-[4/3] w-full rounded-3xl border border-[#2d2a26]/10 object-cover shadow-2xl shadow-[#2d2a26]/20"
+                  className="aspect-[4/3] w-full rounded-xl border border-[#2d2a26]/10 object-cover shadow-2xl shadow-[#2d2a26]/20"
                 />
               </div>
             </div>
