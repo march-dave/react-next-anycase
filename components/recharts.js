@@ -3,9 +3,83 @@ import React from 'react'
 const normalizeChildren = (children) => React.Children.toArray(children).filter(Boolean)
 
 const getChartSize = (width, height) => {
-  const resolvedWidth = typeof width === 'number' ? width : 320
-  const resolvedHeight = typeof height === 'number' ? height : 180
+  const resolvedWidth = typeof width === 'number' ? width : 640
+  const resolvedHeight = typeof height === 'number' ? height : 320
   return { resolvedWidth, resolvedHeight }
+}
+
+const getDisplayName = (child) => child.type?.displayName || child.type?.name || child.type
+
+const getSeriesChildren = (children, displayNames) =>
+  normalizeChildren(children).filter((child) => displayNames.includes(getDisplayName(child)))
+
+const getAllValues = (data, seriesChildren) => {
+  const values = data.flatMap((entry) =>
+    seriesChildren.map((child) => Number(entry[child.props.dataKey])).filter((value) => Number.isFinite(value))
+  )
+  return values.length ? values : [0]
+}
+
+const buildPoints = ({ data, dataKey, minValue, maxValue, resolvedWidth, resolvedHeight, padding }) => {
+  const range = maxValue - minValue || 1
+
+  return data.map((entry, index) => {
+    const x = padding + (index / Math.max(data.length - 1, 1)) * (resolvedWidth - padding * 2)
+    const y =
+      resolvedHeight -
+      padding -
+      ((Number(entry[dataKey]) - minValue) / range) * (resolvedHeight - padding * 2)
+    return [x, y]
+  })
+}
+
+const renderChart = ({ children, data, width, height, defaultHeight = 320 }) => {
+  const chartChildren = normalizeChildren(children)
+  const defs = chartChildren.filter((child) => getDisplayName(child) === 'defs')
+  const seriesChildren = getSeriesChildren(chartChildren, ['Area', 'Line'])
+  const values = getAllValues(data, seriesChildren)
+  const minValue = Math.min(...values)
+  const maxValue = Math.max(...values)
+  const { resolvedWidth, resolvedHeight } = getChartSize(width, height ?? defaultHeight)
+  const padding = 28
+
+  return (
+    <svg viewBox={`0 0 ${resolvedWidth} ${resolvedHeight}`} className="h-full w-full" role="img">
+      {defs}
+      <g opacity="0.45">
+        {[0.25, 0.5, 0.75].map((ratio) => (
+          <line
+            key={ratio}
+            x1={padding}
+            x2={resolvedWidth - padding}
+            y1={padding + (resolvedHeight - padding * 2) * ratio}
+            y2={padding + (resolvedHeight - padding * 2) * ratio}
+            stroke="rgba(148, 163, 184, 0.24)"
+            strokeDasharray="4 4"
+          />
+        ))}
+      </g>
+      {seriesChildren.map((child, index) => {
+        const { dataKey, stroke = '#6366f1', fill = 'rgba(99,102,241,0.25)', strokeWidth = 2 } = child.props
+        const points = buildPoints({ data, dataKey, minValue, maxValue, resolvedWidth, resolvedHeight, padding })
+        const linePath = points.map((point, pointIndex) => `${pointIndex === 0 ? 'M' : 'L'} ${point[0]} ${point[1]}`)
+        const isArea = getDisplayName(child) === 'Area'
+        const areaPath = [
+          `M ${points[0]?.[0] ?? padding} ${resolvedHeight - padding}`,
+          ...points.map((point) => `L ${point[0]} ${point[1]}`),
+          `L ${points[points.length - 1]?.[0] ?? resolvedWidth - padding} ${resolvedHeight - padding}`,
+          'Z',
+        ]
+
+        return (
+          <g key={`${dataKey}-${index}`}>
+            {isArea ? <path d={areaPath.join(' ')} fill={fill} stroke="none" /> : null}
+            <path d={linePath.join(' ')} fill="none" stroke={stroke} strokeWidth={strokeWidth} />
+          </g>
+        )
+      })}
+    </svg>
+  )
 }
 
 export function ResponsiveContainer({ width = '100%', height = '100%', children }) {
@@ -17,46 +91,11 @@ export function ResponsiveContainer({ width = '100%', height = '100%', children 
 }
 
 export function AreaChart({ data = [], children, width, height }) {
-  const chartChildren = normalizeChildren(children)
-  const defs = chartChildren.filter((child) => child.type === 'defs' || child.type === 'Defs')
-  const areaChild = chartChildren.find(
-    (child) => child.type?.displayName === 'Area' || child.type?.name === 'Area'
-  )
-  const dataKey = areaChild?.props?.dataKey
-  const stroke = areaChild?.props?.stroke || '#6366f1'
-  const fill = areaChild?.props?.fill || 'rgba(99,102,241,0.25)'
-  const strokeWidth = areaChild?.props?.strokeWidth || 2
-  const values = data.map((entry) => Number(entry[dataKey]))
-  const minValue = Math.min(...values)
-  const maxValue = Math.max(...values)
-  const { resolvedWidth, resolvedHeight } = getChartSize(width, height)
-  const padding = 16
-  const range = maxValue - minValue || 1
+  return renderChart({ children, data, width, height })
+}
 
-  const points = data.map((entry, index) => {
-    const x = padding + (index / Math.max(data.length - 1, 1)) * (resolvedWidth - padding * 2)
-    const y =
-      resolvedHeight -
-      padding -
-      ((Number(entry[dataKey]) - minValue) / range) * (resolvedHeight - padding * 2)
-    return [x, y]
-  })
-
-  const linePath = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point[0]} ${point[1]}`)
-  const areaPath = [
-    `M ${points[0]?.[0] ?? padding} ${resolvedHeight - padding}`,
-    ...points.map((point) => `L ${point[0]} ${point[1]}`),
-    `L ${points[points.length - 1]?.[0] ?? resolvedWidth - padding} ${resolvedHeight - padding}`,
-    'Z',
-  ]
-
-  return (
-    <svg viewBox={`0 0 ${resolvedWidth} ${resolvedHeight}`} className="h-full w-full">
-      {defs}
-      <path d={areaPath.join(' ')} fill={fill} stroke="none" />
-      <path d={linePath.join(' ')} fill="none" stroke={stroke} strokeWidth={strokeWidth} />
-    </svg>
-  )
+export function ComposedChart({ data = [], children, width, height }) {
+  return renderChart({ children, data, width, height })
 }
 
 export function Area() {
@@ -64,6 +103,24 @@ export function Area() {
 }
 
 Area.displayName = 'Area'
+
+export function Line() {
+  return null
+}
+
+Line.displayName = 'Line'
+
+export function CartesianGrid() {
+  return null
+}
+
+export function XAxis() {
+  return null
+}
+
+export function YAxis() {
+  return null
+}
 
 export function Tooltip() {
   return null
@@ -139,7 +196,12 @@ export default {
   ResponsiveContainer,
   AreaChart,
   Area,
+  CartesianGrid,
+  XAxis,
+  YAxis,
   Tooltip,
+  ComposedChart,
+  Line,
   PieChart,
   Pie,
   Cell,
