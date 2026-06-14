@@ -1,1 +1,3 @@
-export { default } from './consendus'
+import Consendus from './consendus'
+
+export default Consendus
