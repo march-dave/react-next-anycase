@@ -695,6 +695,28 @@ export default function Consendus() {
                   <p className="mt-1 text-lg font-semibold text-white">0.02%</p>
                 </div>
               </div>
+
+              <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/40 p-3">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Consensus radar</p>
+                  <span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-200">
+                    guarded
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {consensusRadar.map((item) => (
+                    <div key={item.label}>
+                      <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+                        <span className="text-slate-400">{item.label}</span>
+                        <span className={item.tone}>{item.value}</span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+                        <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: item.width }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         </ViewContainer>
