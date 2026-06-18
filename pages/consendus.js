@@ -598,6 +598,54 @@ export default function Consendus() {
             </div>
           </section>
 
+          <section className="mb-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-100">Control-plane signals</p>
+                  <p className="text-xs text-slate-400">Routing, consensus, and policy health across the swarm mesh.</p>
+                </div>
+                <Network className="h-4 w-4 text-indigo-300" />
+              </div>
+              <div className="mt-4 space-y-3">
+                {controlPlaneSignals.map((signal) => (
+                  <div key={signal.label} className="rounded-lg border border-white/10 bg-slate-900/70 p-3">
+                    <div className="mb-2 flex items-center justify-between text-xs">
+                      <span className="font-medium text-slate-200">{signal.label}</span>
+                      <span className={signal.tone}>{signal.value}</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-950/80">
+                      <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: signal.bar }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-100">Consensus radar</p>
+                  <p className="text-xs text-slate-400">Guarded decisions waiting for final execution.</p>
+                </div>
+                <CheckCircle2 className="h-4 w-4 text-purple-300" />
+              </div>
+              <div className="mt-4 space-y-3">
+                {consensusRadar.map((item) => (
+                  <div key={item.label}>
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="text-slate-300">{item.label}</span>
+                      <span className={item.tone}>{item.value}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-slate-950/80">
+                      <div className="h-full rounded-full bg-purple-400" style={{ width: item.width }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => {
               const Icon = stat.icon
