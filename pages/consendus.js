@@ -258,6 +258,19 @@ const agents = [
   },
 ]
 
+
+const consensusValidators = [
+  { agent: 'Atlas-Orchestrator', vote: 'Approve', confidence: '0.96', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
+  { agent: 'Sentry-Sec', vote: 'Approve', confidence: '0.91', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
+  { agent: 'Pulse-Mediator', vote: 'Pending', confidence: '—', tone: 'border-purple-400/30 bg-purple-500/10 text-purple-200' },
+]
+
+const orchestrationSignals = [
+  { label: 'Quorum threshold', value: '3 validators' },
+  { label: 'Rollback guard', value: 'Armed' },
+  { label: 'Decision mode', value: 'Weighted majority' },
+]
+
 const statusColors = {
   Idle: 'bg-emerald-400',
   Busy: 'bg-amber-400',
@@ -835,6 +848,39 @@ export default function Consendus() {
     if (activeTab === 'orchestration') {
       return (
         <ViewContainer key={activeTab}>
+          <section className="mb-5 grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+            <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-4 backdrop-blur">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-purple-100">Consensus checkpoint</p>
+                  <p className="mt-1 text-xs text-slate-300">TSK-361 requires quorum before the deployment patch can execute.</p>
+                </div>
+                <span className="rounded-full border border-purple-300/30 bg-slate-950/40 px-3 py-1 font-mono text-xs text-purple-100">
+                  2/3 validators ready
+                </span>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {consensusValidators.map((validator) => (
+                  <div key={validator.agent} className={`rounded-lg border px-3 py-2 ${validator.tone}`}>
+                    <p className="truncate text-xs font-semibold">{validator.agent}</p>
+                    <p className="mt-1 font-mono text-[11px]">{validator.vote} · {validator.confidence}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
+              <p className="text-sm font-semibold text-slate-100">Execution policy</p>
+              <div className="mt-3 space-y-2">
+                {orchestrationSignals.map((signal) => (
+                  <div key={signal.label} className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-900/70 px-3 py-2 text-xs">
+                    <span className="text-slate-400">{signal.label}</span>
+                    <span className="font-mono text-slate-100">{signal.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
           <section className="grid gap-4 lg:grid-cols-4">
             {taskStates.map((state) => (
               <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
