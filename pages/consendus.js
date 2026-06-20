@@ -960,6 +960,12 @@ export default function Consendus() {
           name="description"
           content="Consendus.ai is a dark-mode console prototype for orchestrating autonomous AI agent swarms with semantic messaging, consensus voting, and guardian rails."
         />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <div
         className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-indigo-500/30"
@@ -1083,6 +1089,20 @@ await swarm.deploy('migration-api-v2')`}
                       <p className="font-mono text-[10px] text-indigo-200">42ms p95</p>
                     </div>
                   </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {controlPlaneSignals.map((signal) => (
+                    <div key={signal.label} className="rounded-xl border border-white/10 bg-slate-950/35 p-3">
+                      <div className="mb-2 flex items-center justify-between gap-2 text-[11px]">
+                        <span className="text-slate-400">{signal.label}</span>
+                        <span className={signal.tone}>{signal.value}</span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+                        <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: signal.bar }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
