@@ -292,6 +292,12 @@ const statusLegend = [
   { label: 'Error', color: 'bg-red-500' },
 ]
 
+const consoleHealth = [
+  { label: 'Region', value: 'us-east-1' },
+  { label: 'Protocol', value: 'MCP/Swarm' },
+  { label: 'Runtime', value: '99.99%' },
+]
+
 const tabMeta = {
   overview: {
     title: 'Overview',
@@ -559,7 +565,7 @@ export default function Consendus() {
           ...prev,
           {
             ...message,
-            id: prev.length + 1,
+            id: `sim-${Date.now()}-${index}`,
             time: formatSimulationTime(index * 60),
           },
         ])
@@ -1289,7 +1295,25 @@ await swarm.deploy('migration-api-v2')`}
                     <p>msg/min</p>
                   </div>
                 </div>
+                <div className="mt-4 space-y-2 border-t border-white/10 pt-3">
+                  {consoleHealth.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between gap-2">
+                      <span>{item.label}</span>
+                      <span className="font-mono text-slate-100">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              <button
+                onClick={() => {
+                  setInConsole(false)
+                  setSidebarOpen(false)
+                }}
+                className="mt-4 w-full rounded-xl border border-white/10 bg-slate-800/70 px-3 py-2 text-sm text-slate-200 transition hover:border-indigo-300/40 hover:text-white md:hidden"
+              >
+                Back to landing
+              </button>
             </aside>
 
             <main className="w-full p-4 md:p-8">
