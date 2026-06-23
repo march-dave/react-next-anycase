@@ -77,6 +77,13 @@ const quickSignals = [
   { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
+const swarmReadiness = [
+  { label: 'Bus partitions', value: '0', helper: 'all shards routable', tone: 'text-emerald-200' },
+  { label: 'Consensus SLA', value: '312ms', helper: 'p90 decision latency', tone: 'text-indigo-200' },
+  { label: 'Guardrail audits', value: '1.8k', helper: 'checks in last hour', tone: 'text-purple-200' },
+  { label: 'Human escalations', value: '2', helper: 'awaiting approval', tone: 'text-amber-200' },
+]
+
 const controlPlaneSignals = [
   { label: 'Semantic Bus', value: '42ms p95', tone: 'text-indigo-200', bar: '72%' },
   { label: 'Consensus Mesh', value: '3 validators', tone: 'text-purple-200', bar: '100%' },
@@ -918,6 +925,16 @@ export default function Consendus() {
     if (activeTab === 'orchestration') {
       return (
         <ViewContainer key={activeTab}>
+          <section className="mb-5 grid gap-3 md:grid-cols-4">
+            {swarmReadiness.map((item) => (
+              <article key={item.label} className="rounded-xl border border-white/10 bg-slate-800/60 p-3 backdrop-blur">
+                <p className="text-[11px] uppercase tracking-wide text-slate-500">{item.label}</p>
+                <p className={`mt-2 text-xl font-semibold ${item.tone}`}>{item.value}</p>
+                <p className="mt-1 text-xs text-slate-400">{item.helper}</p>
+              </article>
+            ))}
+          </section>
+
           <section className="mb-5 grid gap-4 xl:grid-cols-[1.4fr_1fr]">
             <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-4 backdrop-blur">
               <div className="flex flex-wrap items-start justify-between gap-3">
