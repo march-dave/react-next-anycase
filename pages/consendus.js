@@ -227,6 +227,9 @@ const agents = [
     specialization: 'Workflow Routing',
     uptime: '14d 06h',
     status: 'Idle',
+    model: 'GPT-5.5',
+    region: 'iad-1',
+    permissions: ['route', 'delegate', 'vote'],
   },
   {
     name: 'Codex-Dev',
@@ -234,6 +237,9 @@ const agents = [
     specialization: 'TypeScript & APIs',
     uptime: '9d 02h',
     status: 'Busy',
+    model: 'GPT-5.4-Codex',
+    region: 'sfo-2',
+    permissions: ['code', 'test', 'propose'],
   },
   {
     name: 'Sentry-Sec',
@@ -241,6 +247,9 @@ const agents = [
     specialization: 'Threat Modeling',
     uptime: '21d 18h',
     status: 'Idle',
+    model: 'GPT-5.5',
+    region: 'dub-1',
+    permissions: ['audit', 'block', 'sign'],
   },
   {
     name: 'Nova-Observer',
@@ -248,6 +257,9 @@ const agents = [
     specialization: 'Tracing & Metrics',
     uptime: '5d 11h',
     status: 'Busy',
+    model: 'GPT-5.4-Mini',
+    region: 'fra-1',
+    permissions: ['trace', 'summarize', 'alert'],
   },
   {
     name: 'Pulse-Mediator',
@@ -255,6 +267,9 @@ const agents = [
     specialization: 'Voting Logic',
     uptime: '12d 04h',
     status: 'Error',
+    model: 'GPT-5.5',
+    region: 'iad-1',
+    permissions: ['mediate', 'quorum', 'escalate'],
   },
 ]
 
@@ -290,6 +305,12 @@ const statusLegend = [
   { label: 'Idle', color: 'bg-emerald-400' },
   { label: 'Busy', color: 'bg-amber-400' },
   { label: 'Error', color: 'bg-red-500' },
+]
+
+const fleetHealth = [
+  { label: 'Policy coverage', value: '100%', tone: 'text-emerald-200', bar: '100%' },
+  { label: 'Signed actions', value: '98.7%', tone: 'text-indigo-200', bar: '98.7%' },
+  { label: 'Human escalations', value: '3 open', tone: 'text-amber-200', bar: '34%' },
 ]
 
 const tabMeta = {
@@ -999,14 +1020,29 @@ export default function Consendus() {
 
     return (
       <ViewContainer key={activeTab}>
-        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-4 py-2 text-xs text-slate-300">
-          <span className="text-slate-400">Status legend:</span>
-          {statusLegend.map((item) => (
-            <span key={item.label} className="inline-flex items-center gap-1.5">
-              <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
-              {item.label}
-            </span>
-          ))}
+        <div className="mb-4 grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-4 py-2 text-xs text-slate-300">
+            <span className="text-slate-400">Status legend:</span>
+            {statusLegend.map((item) => (
+              <span key={item.label} className="inline-flex items-center gap-1.5">
+                <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
+                {item.label}
+              </span>
+            ))}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {fleetHealth.map((item) => (
+              <div key={item.label} className="rounded-xl border border-white/10 bg-slate-800/60 px-3 py-2">
+                <div className="mb-1 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-400">{item.label}</span>
+                  <span className={`font-mono ${item.tone}`}>{item.value}</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-slate-950/80">
+                  <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: item.bar }} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {agents.map((agent) => (
@@ -1025,6 +1061,26 @@ export default function Consendus() {
               <p className="text-sm text-slate-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                 {agent.uptime}
               </p>
+              <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wide text-slate-500">Runtime</p>
+                  <p className="mt-1 truncate font-mono text-xs text-indigo-200">{agent.model}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wide text-slate-500">Region</p>
+                  <p className="mt-1 font-mono text-xs text-emerald-200">{agent.region}</p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {agent.permissions.map((permission) => (
+                  <span
+                    key={`${agent.name}-${permission}`}
+                    className="rounded-full border border-purple-400/25 bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-200"
+                  >
+                    {permission}
+                  </span>
+                ))}
+              </div>
               <div className="mt-3">
                 <div className="mb-1 flex items-center justify-between text-xs">
                   <span className="text-slate-400">Current workload</span>
