@@ -77,6 +77,13 @@ const quickSignals = [
   { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
+const swarmReadiness = [
+  { label: 'Bus partitions', value: '0', helper: 'all shards routable', tone: 'text-emerald-200' },
+  { label: 'Consensus SLA', value: '312ms', helper: 'p90 decision latency', tone: 'text-indigo-200' },
+  { label: 'Guardrail audits', value: '1.8k', helper: 'checks in last hour', tone: 'text-purple-200' },
+  { label: 'Human escalations', value: '2', helper: 'awaiting approval', tone: 'text-amber-200' },
+]
+
 const controlPlaneSignals = [
   { label: 'Semantic Bus', value: '42ms p95', tone: 'text-indigo-200', bar: '72%' },
   { label: 'Consensus Mesh', value: '3 validators', tone: 'text-purple-200', bar: '100%' },
@@ -580,7 +587,7 @@ export default function Consendus() {
           ...prev,
           {
             ...message,
-            id: prev.length + 1,
+            id: `sim-${Date.now()}-${index}`,
             time: formatSimulationTime(index * 60),
           },
         ])
@@ -939,6 +946,16 @@ export default function Consendus() {
     if (activeTab === 'orchestration') {
       return (
         <ViewContainer key={activeTab}>
+          <section className="mb-5 grid gap-3 md:grid-cols-4">
+            {swarmReadiness.map((item) => (
+              <article key={item.label} className="rounded-xl border border-white/10 bg-slate-800/60 p-3 backdrop-blur">
+                <p className="text-[11px] uppercase tracking-wide text-slate-500">{item.label}</p>
+                <p className={`mt-2 text-xl font-semibold ${item.tone}`}>{item.value}</p>
+                <p className="mt-1 text-xs text-slate-400">{item.helper}</p>
+              </article>
+            ))}
+          </section>
+
           <section className="mb-5 grid gap-4 xl:grid-cols-[1.4fr_1fr]">
             <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-4 backdrop-blur">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1110,6 +1127,12 @@ export default function Consendus() {
           name="description"
           content="Consendus.ai is a dark-mode console prototype for orchestrating autonomous AI agent swarms with semantic messaging, consensus voting, and guardian rails."
         />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <div
         className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-indigo-500/30"
@@ -1234,6 +1257,20 @@ await swarm.deploy('migration-api-v2')`}
                     </div>
                   </div>
                 </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {controlPlaneSignals.map((signal) => (
+                    <div key={signal.label} className="rounded-xl border border-white/10 bg-slate-950/35 p-3">
+                      <div className="mb-2 flex items-center justify-between gap-2 text-[11px]">
+                        <span className="text-slate-400">{signal.label}</span>
+                        <span className={signal.tone}>{signal.value}</span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+                        <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: signal.bar }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
 
@@ -1325,7 +1362,25 @@ await swarm.deploy('migration-api-v2')`}
                     <p>msg/min</p>
                   </div>
                 </div>
+                <div className="mt-4 space-y-2 border-t border-white/10 pt-3">
+                  {consoleHealth.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between gap-2">
+                      <span>{item.label}</span>
+                      <span className="font-mono text-slate-100">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              <button
+                onClick={() => {
+                  setInConsole(false)
+                  setSidebarOpen(false)
+                }}
+                className="mt-4 w-full rounded-xl border border-white/10 bg-slate-800/70 px-3 py-2 text-sm text-slate-200 transition hover:border-indigo-300/40 hover:text-white md:hidden"
+              >
+                Back to landing
+              </button>
             </aside>
 
             <main className="w-full p-4 md:p-8">
