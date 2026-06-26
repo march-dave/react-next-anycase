@@ -97,6 +97,27 @@ const trustSignals = [
   { label: 'Policy rollbacks prevented', value: '431' },
 ]
 
+const scenarioCards = [
+  {
+    label: 'Deployments',
+    metric: '3.8k',
+    detail: 'guarded releases coordinated this week',
+    tone: 'from-indigo-500/20 to-indigo-300/5 border-indigo-300/20',
+  },
+  {
+    label: 'Security Reviews',
+    metric: '812',
+    detail: 'autonomous audits with human-readable verdicts',
+    tone: 'from-amber-500/20 to-amber-300/5 border-amber-300/20',
+  },
+  {
+    label: 'Incident Rooms',
+    metric: '24/7',
+    detail: 'agent swarms standing by for live escalation',
+    tone: 'from-emerald-500/20 to-emerald-300/5 border-emerald-300/20',
+  },
+]
+
 const swarmTopology = [
   { agent: 'Atlas', role: 'orchestrator', position: 'left-[12%] top-[18%]', tone: 'border-indigo-300/40 bg-indigo-500/20 text-indigo-100' },
   { agent: 'Codex', role: 'builder', position: 'right-[14%] top-[22%]', tone: 'border-emerald-300/40 bg-emerald-500/20 text-emerald-100' },
@@ -1126,6 +1147,18 @@ export default function Consendus() {
                       <p className="text-lg font-semibold text-white">{signal.value}</p>
                       <p className="mt-1 text-[11px] leading-4 text-slate-400">{signal.label}</p>
                     </div>
+                  ))}
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {scenarioCards.map((scenario) => (
+                    <article
+                      key={scenario.label}
+                      className={`rounded-xl border bg-gradient-to-br p-3 shadow-lg shadow-black/10 backdrop-blur ${scenario.tone}`}
+                    >
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{scenario.label}</p>
+                      <p className="mt-2 text-xl font-semibold text-white">{scenario.metric}</p>
+                      <p className="mt-1 text-[11px] leading-4 text-slate-300">{scenario.detail}</p>
+                    </article>
                   ))}
                 </div>
               </div>
