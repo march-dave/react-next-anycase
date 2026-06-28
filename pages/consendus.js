@@ -77,6 +77,12 @@ const quickSignals = [
   { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
+const consoleHealth = [
+  { label: 'Consensus', value: '96.8%' },
+  { label: 'Policy drift', value: '0.02%' },
+  { label: 'Token window', value: '10s' },
+]
+
 const swarmReadiness = [
   { label: 'Bus partitions', value: '0', helper: 'all shards routable', tone: 'text-emerald-200' },
   { label: 'Consensus SLA', value: '312ms', helper: 'p90 decision latency', tone: 'text-indigo-200' },
