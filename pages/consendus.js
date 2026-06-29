@@ -78,9 +78,9 @@ const quickSignals = [
 ]
 
 const consoleHealth = [
-  { label: 'Consensus', value: '96.8%' },
-  { label: 'Policy drift', value: '0.02%' },
-  { label: 'Token window', value: '10s' },
+  { label: 'Consensus rate', value: '96.8%' },
+  { label: 'Policy checks', value: '1.8k/hr' },
+  { label: 'Token window', value: '128 burst' },
 ]
 
 const swarmReadiness = [
