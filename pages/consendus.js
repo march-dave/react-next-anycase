@@ -354,6 +354,13 @@ const fleetHealth = [
   { label: 'Human escalations', value: '3 open', tone: 'text-amber-200', bar: '34%' },
 ]
 
+
+const consoleHealth = [
+  { label: 'Quorum', value: '3/3' },
+  { label: 'Policies', value: '187' },
+  { label: 'Regions', value: '5' },
+]
+
 const tabMeta = {
   overview: {
     title: 'Overview',
