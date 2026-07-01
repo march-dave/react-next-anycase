@@ -77,10 +77,10 @@ const quickSignals = [
   { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
-const consoleHealth = [
-  { label: 'Consensus rate', value: '96.8%' },
-  { label: 'Policy checks', value: '1.8k/hr' },
-  { label: 'Token window', value: '128 burst' },
+const consoleOverviewHealth = [
+  { label: 'Consensus', value: '96.8%', tone: 'text-indigo-200 border-indigo-400/30 bg-indigo-500/10' },
+  { label: 'Policy Drift', value: '0.02%', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
+  { label: 'Token Window', value: '10s', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
 ]
 
 const swarmReadiness = [
@@ -1470,7 +1470,7 @@ await swarm.deploy('migration-api-v2')`}
               </header>
 
               <section className="mb-5 grid gap-2 sm:grid-cols-3">
-                {quickSignals.map((signal) => (
+                {[...quickSignals, ...consoleOverviewHealth].map((signal) => (
                   <article
                     key={signal.label}
                     className={`rounded-xl border px-3 py-2 backdrop-blur ${signal.tone}`}
