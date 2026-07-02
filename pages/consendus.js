@@ -324,6 +324,13 @@ const fleetHealth = [
   { label: 'Human escalations', value: '3 open', tone: 'text-amber-200', bar: '34%' },
 ]
 
+
+const consoleHealth = [
+  { label: 'Quorum', value: '3/3' },
+  { label: 'Policies', value: '187' },
+  { label: 'Regions', value: '5' },
+]
+
 const tabMeta = {
   overview: {
     title: 'Overview',
@@ -1433,7 +1440,7 @@ await town.publishDigest({ review: 'human-required' })`}
               </header>
 
               <section className="mb-5 grid gap-2 sm:grid-cols-3">
-                {quickSignals.map((signal) => (
+                {[...quickSignals, ...consoleOverviewHealth].map((signal) => (
                   <article
                     key={signal.label}
                     className={`rounded-xl border px-3 py-2 backdrop-blur ${signal.tone}`}
