@@ -12,6 +12,8 @@ import {
   RadioTower,
   ShieldCheck,
   Sparkles,
+  Target,
+  TrendingUp,
   Users,
 } from 'lucide-react'
 
@@ -20,6 +22,47 @@ const stats = [
   { value: '200+', label: 'US counties with no local news source' },
   { value: '$171B', label: 'US local advertising market in 2025' },
   { value: '$60–90K', label: 'Modeled ARR per town masthead' },
+]
+
+const proofPoints = [
+  {
+    value: '$85M',
+    label: 'Revenue at just 0.05% of the $171B local ad pool',
+  },
+  {
+    value: '300 towns',
+    label: 'At roughly $70K ARR each, a path to about $20M ARR',
+  },
+  {
+    value: '1M',
+    label: 'PatchAM subscribers reached across 14,000 communities in about a year',
+  },
+]
+
+const whyNow = [
+  'AI collapsed the cost of turning public records into readable daily coverage.',
+  'Council agendas, planning portals, public notices, and school calendars are increasingly digital.',
+  'Newsletter tooling and cheap hosting make a masthead launch a weekend project instead of a capital project.',
+  'PatchAM and Hoodline proved readers will sign up for AI-assembled local information; credibility is now the wedge.',
+]
+
+const competitors = [
+  {
+    name: 'Patch / PatchAM',
+    gap: 'Huge proof of demand, but aggregation-heavy and deliberately light on local politics.',
+  },
+  {
+    name: 'Hoodline',
+    gap: 'Shows the trust danger of fake bylines, opaque AI output, and press-release rewrites.',
+  },
+  {
+    name: '6AM City / Axios Local',
+    gap: 'Strong human newsletters, but aimed at metros rather than small towns and news deserts.',
+  },
+  {
+    name: 'Legacy chains',
+    gap: 'Still cutting and retreating from small markets; they are the vacancy more than the competitor.',
+  },
 ]
 
 const sources = [
@@ -182,6 +225,26 @@ export default function LocalNewsBureau() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:px-16">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-8">
+              <p className="text-sm font-bold uppercase tracking-[0.35em] text-amber-200">Problem</p>
+              <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">The paper died, but the town still needs a watchdog.</h2>
+              <p className="mt-5 text-lg leading-8 text-slate-300">
+                Local newspapers collapsed because printing, distribution, and newsroom payroll stopped matching the revenue base. The demand never disappeared: residents still need council decisions explained, planning rows tracked, school notices surfaced, and local wins celebrated.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {proofPoints.map((point) => (
+                <div key={point.label} className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
+                  <p className="text-3xl font-black text-cyan-100">{point.value}</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-300">{point.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="model" className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:px-16">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
             <div>
@@ -232,6 +295,30 @@ export default function LocalNewsBureau() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:px-16">
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.35em] text-cyan-300">Why now</p>
+              <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">The infrastructure tax protecting incumbents is gone.</h2>
+              <div className="mt-8 space-y-4">
+                {whyNow.map((reason) => (
+                  <div key={reason} className="flex gap-4 rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                    <TrendingUp className="mt-1 shrink-0 text-cyan-200" size={22} />
+                    <p className="leading-7 text-slate-300">{reason}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-8">
+              <Target className="mb-6 text-amber-200" size={38} />
+              <h3 className="text-3xl font-black">The wedge is credibility, not volume.</h3>
+              <p className="mt-5 text-lg leading-8 text-slate-300">
+                The winning product is not the fastest content mill. It is the one residents believe: primary-source summaries, clear sourcing, local judgment, and a real editor willing to put their name on every send.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section id="launch" className="mx-auto grid max-w-7xl gap-8 px-6 py-20 sm:px-10 lg:grid-cols-2 lg:px-16">
           <div className="rounded-[2rem] border border-cyan-300/20 bg-cyan-300/10 p-8">
             <Building2 className="mb-6 text-cyan-200" size={38} />
@@ -247,6 +334,21 @@ export default function LocalNewsBureau() {
                 <p className="pt-2 leading-7 text-slate-300">{step}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="bg-slate-950/70 px-6 py-20 sm:px-10 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <p className="text-sm font-bold uppercase tracking-[0.35em] text-amber-200">Competition</p>
+            <h2 className="mt-4 max-w-3xl text-4xl font-black tracking-tight sm:text-5xl">Everyone proves the need, but leaves the credible small-town lane open.</h2>
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              {competitors.map((competitor) => (
+                <div key={competitor.name} className="rounded-3xl border border-white/10 bg-white/[0.05] p-6">
+                  <h3 className="text-2xl font-black text-slate-100">{competitor.name}</h3>
+                  <p className="mt-4 leading-7 text-slate-400">{competitor.gap}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
