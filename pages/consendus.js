@@ -62,13 +62,7 @@ const quickSignals = [
   { label: 'Digest ETA', value: '42m', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
-const landingHealth = [
-  { label: 'Source freshness', value: '96.8%' },
-  { label: 'Editorial checks', value: '1.8k/hr' },
-  { label: 'Newsletter queue', value: '128 items' },
-]
-
-const bureauReadiness = [
+const swarmReadiness = [
   { label: 'Bus partitions', value: '0', helper: 'all shards routable', tone: 'text-emerald-200' },
   { label: 'Consensus SLA', value: '312ms', helper: 'p90 decision latency', tone: 'text-indigo-200' },
   { label: 'Guardrail audits', value: '1.8k', helper: 'checks in last hour', tone: 'text-purple-200' },
@@ -311,12 +305,6 @@ const statusLegend = [
   { label: 'Error', color: 'bg-red-500' },
 ]
 
-
-const consoleHealth = [
-  { label: 'Sources', value: '37' },
-  { label: 'Review Gate', value: 'Armed' },
-  { label: 'Audit Log', value: 'Signed' },
-]
 
 const fleetHealth = [
   { label: 'Policy coverage', value: '100%', tone: 'text-emerald-200', bar: '100%' },
