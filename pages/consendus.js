@@ -305,7 +305,6 @@ const statusLegend = [
   { label: 'Error', color: 'bg-red-500' },
 ]
 
-
 const fleetHealth = [
   { label: 'Policy coverage', value: '100%', tone: 'text-emerald-200', bar: '100%' },
   { label: 'Signed actions', value: '98.7%', tone: 'text-indigo-200', bar: '98.7%' },
