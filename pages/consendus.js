@@ -27,37 +27,22 @@ import remarkGfm from 'remark-gfm'
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
-  { id: 'comms', label: 'Comms', icon: MessageSquare },
-  { id: 'orchestration', label: 'Orchestration', icon: Network },
-  { id: 'fleet', label: 'Agent Fleet', icon: Users },
+  { id: 'comms', label: 'Newsroom', icon: MessageSquare },
+  { id: 'orchestration', label: 'Story Pipeline', icon: Network },
+  { id: 'fleet', label: 'Local Team', icon: Users },
 ]
 
 const features = [
-  {
-    title: 'Semantic Bus',
-    description:
-      'Intent-aware message routing with low-latency delivery and context continuity across specialized agents.',
-    icon: Sparkles,
-  },
-  {
-    title: 'Consensus Engine',
-    description:
-      'Weighted voting, quorum thresholds, and deterministic decision flow for mission-critical orchestration.',
-    icon: CheckCircle2,
-  },
-  {
-    title: 'Guardian Rails',
-    description:
-      'Programmable policy controls that enforce compliance, rollback safety, and transparent action logging.',
-    icon: ShieldCheck,
-  },
+  { title: 'Public-Record Watchtower', description: 'Ingest council agendas, planning applications, public notices, calendars, road closures, and court or police logs from primary local sources.', icon: Sparkles },
+  { title: 'Human-Edited AI Drafting', description: 'AI turns raw civic feeds into readable briefs while a named local editor checks facts, adds judgement, and owns every byline.', icon: CheckCircle2 },
+  { title: 'Replicable Masthead Kit', description: 'Launch each town with reusable websites, newsletters, sponsorship slots, paid listings, and source-monitoring playbooks.', icon: ShieldCheck },
 ]
 
 const stats = [
-  { label: 'Active Agents', value: '128', delta: '+12%', icon: Bot },
-  { label: 'Messages/min', value: '9.4k', delta: '+8%', icon: MessageSquare },
-  { label: 'Consensus Rate', value: '96.8%', delta: '+1.2%', icon: CheckCircle2 },
-  { label: 'Token Usage', value: '1.2M', delta: '+4%', icon: Cpu },
+  { label: 'Pilot Towns', value: '14', delta: '+3', icon: Bot },
+  { label: 'Records/day', value: '9.4k', delta: '+8%', icon: MessageSquare },
+  { label: 'Editor Verified', value: '96.8%', delta: '+1.2%', icon: CheckCircle2 },
+  { label: 'Local ARR Run-rate', value: '$82k', delta: '+4%', icon: Cpu },
 ]
 
 const chartLegends = [
@@ -66,21 +51,15 @@ const chartLegends = [
 ]
 
 const landingPills = [
-  { label: 'Semantic Routing', tone: 'text-indigo-200 border-indigo-400/30 bg-indigo-500/10' },
-  { label: 'Deterministic Consensus', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
-  { label: 'Policy Guard Rails', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
+  { label: 'Public Records', tone: 'text-indigo-200 border-indigo-400/30 bg-indigo-500/10' },
+  { label: 'Named Local Editor', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
+  { label: 'Newsletter + Ads', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
 ]
 
 const quickSignals = [
-  { label: 'Consensus Queue', value: '07', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
-  { label: 'Guard Rails', value: 'Stable', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
-  { label: 'Latency P95', value: '42ms', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
-]
-
-const consoleOverviewHealth = [
-  { label: 'Consensus', value: '96.8%', tone: 'text-indigo-200 border-indigo-400/30 bg-indigo-500/10' },
-  { label: 'Policy Drift', value: '0.02%', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
-  { label: 'Token Window', value: '10s', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
+  { label: 'Editorial Queue', value: '07', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
+  { label: 'Fact Checks', value: 'Stable', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
+  { label: 'Digest ETA', value: '42m', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
 ]
 
 const swarmReadiness = [
@@ -91,64 +70,49 @@ const swarmReadiness = [
 ]
 
 const controlPlaneSignals = [
-  { label: 'Semantic Bus', value: '42ms p95', tone: 'text-indigo-200', bar: '72%' },
-  { label: 'Consensus Mesh', value: '3 validators', tone: 'text-purple-200', bar: '100%' },
-  { label: 'Guardian Rails', value: '0 drift', tone: 'text-emerald-200', bar: '88%' },
+  { label: 'Source Ingestion', value: '42m fresh', tone: 'text-indigo-200', bar: '72%' },
+  { label: 'Editor Review', value: '3 checks', tone: 'text-purple-200', bar: '100%' },
+  { label: 'Ad Inventory', value: '0 conflicts', tone: 'text-emerald-200', bar: '88%' },
 ]
 
-const agentWorkload = {
-  'Atlas-Orchestrator': 34,
-  'Codex-Dev': 81,
-  'Sentry-Sec': 19,
-  'Nova-Observer': 67,
-  'Pulse-Mediator': 92,
+const teamWorkload = {
+  'Civic Editor': 34,
+  'Source Bot': 81,
+  'Copy Desk': 19,
+  'Calendar Scout': 67,
+  'Revenue Lead': 92,
 }
 
 const trustSignals = [
-  { label: 'Autonomous tasks resolved', value: '18.2k' },
-  { label: 'Consensus decisions audited', value: '99.98%' },
-  { label: 'Policy rollbacks prevented', value: '431' },
+  { label: 'Americans with limited or no local news', value: '55M' },
+  { label: 'Target local ad market in 2025', value: '$171B' },
+  { label: 'ARR potential per town', value: '$60–90k' },
 ]
 
 const scenarioCards = [
-  {
-    label: 'Deployments',
-    metric: '3.8k',
-    detail: 'guarded releases coordinated this week',
-    tone: 'from-indigo-500/20 to-indigo-300/5 border-indigo-300/20',
-  },
-  {
-    label: 'Security Reviews',
-    metric: '812',
-    detail: 'autonomous audits with human-readable verdicts',
-    tone: 'from-amber-500/20 to-amber-300/5 border-amber-300/20',
-  },
-  {
-    label: 'Incident Rooms',
-    metric: '24/7',
-    detail: 'agent swarms standing by for live escalation',
-    tone: 'from-emerald-500/20 to-emerald-300/5 border-emerald-300/20',
-  },
+  { label: 'One-town wedge', metric: '30k', detail: 'population floor for a viable pilot masthead', tone: 'from-indigo-500/20 to-indigo-300/5 border-indigo-300/20' },
+  { label: 'Daily newsletter', metric: '5k', detail: 'subscriber target before self-serve ads compound', tone: 'from-amber-500/20 to-amber-300/5 border-amber-300/20' },
+  { label: 'Network scale', metric: '300', detail: 'towns at roughly $70k ARR creates a $20M business', tone: 'from-emerald-500/20 to-emerald-300/5 border-emerald-300/20' },
 ]
 
-const swarmTopology = [
-  { agent: 'Atlas', role: 'orchestrator', position: 'left-[12%] top-[18%]', tone: 'border-indigo-300/40 bg-indigo-500/20 text-indigo-100' },
-  { agent: 'Codex', role: 'builder', position: 'right-[14%] top-[22%]', tone: 'border-emerald-300/40 bg-emerald-500/20 text-emerald-100' },
-  { agent: 'Sentry', role: 'guardian', position: 'left-[18%] bottom-[18%]', tone: 'border-amber-300/40 bg-amber-500/20 text-amber-100' },
-  { agent: 'Pulse', role: 'mediator', position: 'right-[18%] bottom-[16%]', tone: 'border-purple-300/40 bg-purple-500/20 text-purple-100' },
+const sourceTopology = [
+  { agent: 'Council', role: 'agendas', position: 'left-[12%] top-[18%]', tone: 'border-indigo-300/40 bg-indigo-500/20 text-indigo-100' },
+  { agent: 'Planning', role: 'permits', position: 'right-[14%] top-[22%]', tone: 'border-emerald-300/40 bg-emerald-500/20 text-emerald-100' },
+  { agent: 'Schools', role: 'calendars', position: 'left-[18%] bottom-[18%]', tone: 'border-amber-300/40 bg-amber-500/20 text-amber-100' },
+  { agent: 'Editor', role: 'byline', position: 'right-[18%] bottom-[16%]', tone: 'border-purple-300/40 bg-purple-500/20 text-purple-100' },
 ]
 
 const missionSteps = [
-  { label: 'Discover', status: 'complete', tone: 'bg-emerald-400' },
-  { label: 'Debate', status: 'active', tone: 'bg-purple-400' },
-  { label: 'Vote', status: 'pending', tone: 'bg-slate-500' },
-  { label: 'Execute', status: 'guarded', tone: 'bg-amber-400' },
+  { label: 'Ingest', status: 'complete', tone: 'bg-emerald-400' },
+  { label: 'Draft', status: 'active', tone: 'bg-purple-400' },
+  { label: 'Review', status: 'pending', tone: 'bg-slate-500' },
+  { label: 'Publish', status: 'reviewed', tone: 'bg-amber-400' },
 ]
 
-const consensusRadar = [
-  { label: 'Quorum health', value: '3/3 validators', tone: 'text-emerald-200', width: '100%' },
-  { label: 'Policy drift', value: '0.04 risk', tone: 'text-emerald-200', width: '12%' },
-  { label: 'Escalation backlog', value: '7 reviews', tone: 'text-amber-200', width: '46%' },
+const editorialRadar = [
+  { label: 'Review coverage', value: '3/3 checks', tone: 'text-emerald-200', width: '100%' },
+  { label: 'Correction risk', value: '0.04 risk', tone: 'text-emerald-200', width: '12%' },
+  { label: 'Editor backlog', value: '7 reviews', tone: 'text-amber-200', width: '46%' },
 ]
 
 const codeWindowDots = ['bg-red-400', 'bg-amber-300', 'bg-emerald-400']
@@ -166,64 +130,64 @@ const analytics = [
 
 const terminalEvents = [
   { level: 'INFO', message: 'Agent-2 connected to semantic bus (latency 18ms)' },
-  { level: 'INFO', message: 'Consensus quorum initialized for task-3' },
+  { level: 'INFO', message: 'Editor review gate initialized for lead-3' },
   { level: 'WARN', message: 'High latency detected on shard eu-west-1' },
-  { level: 'INFO', message: 'Guardian Rails policy patch applied by Sentry-Sec' },
+  { level: 'INFO', message: 'Fact-check policy update applied by Copy Desk' },
   { level: 'INFO', message: 'Token limiter adjusted (window=10s burst=128)' },
   { level: 'SUCCESS', message: 'Deployment approved after 3/3 votes' },
-  { level: 'INFO', message: 'Heartbeat stream stable (24 active agents)' },
+  { level: 'INFO', message: 'Heartbeat stream stable (24 active editors)' },
 ]
 
 const channels = [
-  { name: '#migration-api-v2', members: 8, unread: 3 },
-  { name: '#security-audit', members: 5, unread: 1 },
-  { name: '#platform-rollout', members: 7, unread: 0 },
-  { name: '#compliance-vote', members: 4, unread: 2 },
+  { name: '#council-desk', members: 8, unread: 3 },
+  { name: '#fact-checks', members: 5, unread: 1 },
+  { name: '#newsletter-desk', members: 7, unread: 0 },
+  { name: '#ad-ops-review', members: 4, unread: 2 },
 ]
 
 const channelPresence = {
-  '#migration-api-v2': ['Atlas-Orchestrator', 'Codex-Dev', 'Nova-Observer'],
-  '#security-audit': ['Sentry-Sec', 'Pulse-Mediator'],
-  '#platform-rollout': ['Atlas-Orchestrator', 'Nova-Observer', 'Codex-Dev'],
-  '#compliance-vote': ['Pulse-Mediator', 'Sentry-Sec', 'Atlas-Orchestrator'],
+  '#council-desk': ['Civic Editor', 'Source Bot', 'Calendar Scout'],
+  '#fact-checks': ['Copy Desk', 'Revenue Lead'],
+  '#newsletter-desk': ['Civic Editor', 'Calendar Scout', 'Source Bot'],
+  '#ad-ops-review': ['Revenue Lead', 'Copy Desk', 'Civic Editor'],
 }
 
 const channelHints = {
-  '#migration-api-v2': 'Release coordination and canary promotion updates.',
-  '#security-audit': 'Policy checks, signatures, and threat findings.',
-  '#platform-rollout': 'Regional rollout status across control-plane clusters.',
-  '#compliance-vote': 'Consensus ballots for high-risk orchestration decisions.',
+  '#council-desk': 'Council votes, meeting minutes, and agenda follow-ups.',
+  '#fact-checks': 'Corrections, sourcing, and legal-risk checks.',
+  '#newsletter-desk': 'Daily email packaging, subject lines, and send readiness.',
+  '#ad-ops-review': 'Sponsor approvals and paid-listing placement review.',
 }
 
 const initialMessages = [
   {
     id: 1,
-    channel: '#migration-api-v2',
-    author: 'Atlas-Orchestrator',
+    channel: '#council-desk',
+    author: 'Civic Editor',
     type: 'text',
-    content: 'Starting migration rollout. Requesting validators for canary stage.',
+    content: 'Council packet ingested. Requesting editor review for zoning vote summary.',
     time: '09:41',
   },
   {
     id: 2,
-    channel: '#migration-api-v2',
-    author: 'Codex-Dev',
+    channel: '#council-desk',
+    author: 'Source Bot',
     type: 'markdown',
     content:
-      "Validated swarm bootstrap config:\n\n```ts\nconst swarm = new Consendus.Swarm({\n  quorum: 3,\n  strategy: 'weighted-majority',\n  channels: ['migration-api-v2'],\n  guardRails: ['pci', 'pii'],\n})\n```",
+      "Validated Riverton source config:\n\n```ts\nconst town = new LocalLens.Masthead({\n  review: 'human-required',\n  sources: ['council', 'planning', 'schools'],\n  channel: '#council-desk',\n  safeguards: ['sourcing', 'libel'],\n})\n```",
     time: '09:42',
   },
   {
     id: 3,
-    channel: '#security-audit',
-    author: 'Sentry-Sec',
+    channel: '#fact-checks',
+    author: 'Copy Desk',
     type: 'text',
     content: '**Audit update:** Policy checks are now passing for payment-service.',
     time: '09:43',
   },
   {
     id: 4,
-    channel: '#migration-api-v2',
+    channel: '#council-desk',
     author: 'System',
     type: 'alert',
     content: 'Throttle policy enabled after anomaly score exceeded 0.81.',
@@ -231,32 +195,32 @@ const initialMessages = [
   },
   {
     id: 5,
-    channel: '#migration-api-v2',
-    author: 'Pulse-Mediator',
+    channel: '#council-desk',
+    author: 'Revenue Lead',
     type: 'action',
-    content: 'Executed AI action: proposed rollback guard with confidence 0.92.',
+    content: 'Published AI action: proposed correction note with confidence 0.92.',
     time: '09:45',
   },
 ]
 
 const tasks = [
-  { id: 'TSK-341', title: 'Map migration dependencies', agent: 'Atlas-Orchestrator', state: 'Pending' },
-  { id: 'TSK-352', title: 'Rehearse blue-green failover', agent: 'Codex-Dev', state: 'In Progress' },
+  { id: 'TSK-341', title: 'Map council source dependencies', agent: 'Civic Editor', state: 'Pending' },
+  { id: 'TSK-352', title: 'Draft morning digest intro', agent: 'Source Bot', state: 'In Progress' },
   {
     id: 'TSK-361',
-    title: 'Deploy consensus patch',
-    state: 'Needs Consensus',
-    agent: 'Pulse-Mediator',
+    title: 'Review zoning decision story',
+    state: 'Needs Review',
+    agent: 'Revenue Lead',
     votes: 1,
     totalVotes: 3,
   },
-  { id: 'TSK-366', title: 'Rotate service tokens', agent: 'Sentry-Sec', state: 'Completed' },
-  { id: 'TSK-378', title: 'Stress test edge latency', agent: 'Nova-Perf', state: 'In Progress' },
+  { id: 'TSK-366', title: 'Verify school calendar feed', agent: 'Copy Desk', state: 'Completed' },
+  { id: 'TSK-378', title: 'Confirm Saturday fixtures', agent: 'Sports Stringer', state: 'In Progress' },
 ]
 
-const agents = [
+const teamMembers = [
   {
-    name: 'Atlas-Orchestrator',
+    name: 'Civic Editor',
     role: 'Coordinator',
     specialization: 'Workflow Routing',
     uptime: '14d 06h',
@@ -266,7 +230,7 @@ const agents = [
     permissions: ['route', 'delegate', 'vote'],
   },
   {
-    name: 'Codex-Dev',
+    name: 'Source Bot',
     role: 'Builder',
     specialization: 'TypeScript & APIs',
     uptime: '9d 02h',
@@ -276,7 +240,7 @@ const agents = [
     permissions: ['code', 'test', 'propose'],
   },
   {
-    name: 'Sentry-Sec',
+    name: 'Copy Desk',
     role: 'Security & Policy',
     specialization: 'Threat Modeling',
     uptime: '21d 18h',
@@ -286,7 +250,7 @@ const agents = [
     permissions: ['audit', 'block', 'sign'],
   },
   {
-    name: 'Nova-Observer',
+    name: 'Calendar Scout',
     role: 'Telemetry',
     specialization: 'Tracing & Metrics',
     uptime: '5d 11h',
@@ -296,28 +260,28 @@ const agents = [
     permissions: ['trace', 'summarize', 'alert'],
   },
   {
-    name: 'Pulse-Mediator',
+    name: 'Revenue Lead',
     role: 'Consensus',
     specialization: 'Voting Logic',
     uptime: '12d 04h',
     status: 'Error',
     model: 'GPT-5.5',
     region: 'iad-1',
-    permissions: ['mediate', 'quorum', 'escalate'],
+    permissions: ['sell', 'review', 'escalate'],
   },
 ]
 
 
-const consensusValidators = [
-  { agent: 'Atlas-Orchestrator', vote: 'Approve', confidence: '0.96', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
-  { agent: 'Sentry-Sec', vote: 'Approve', confidence: '0.91', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
-  { agent: 'Pulse-Mediator', vote: 'Pending', confidence: '—', tone: 'border-purple-400/30 bg-purple-500/10 text-purple-200' },
+const reviewValidators = [
+  { agent: 'Civic Editor', vote: 'Approve', confidence: '0.96', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
+  { agent: 'Copy Desk', vote: 'Approve', confidence: '0.91', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
+  { agent: 'Revenue Lead', vote: 'Pending', confidence: '—', tone: 'border-purple-400/30 bg-purple-500/10 text-purple-200' },
 ]
 
 const orchestrationSignals = [
-  { label: 'Quorum threshold', value: '3 validators' },
-  { label: 'Rollback guard', value: 'Armed' },
-  { label: 'Decision mode', value: 'Weighted majority' },
+  { label: 'Review threshold', value: '3 checks' },
+  { label: 'Correction guard', value: 'Armed' },
+  { label: 'Publish mode', value: 'Editor approval' },
 ]
 
 const statusColors = {
@@ -326,12 +290,12 @@ const statusColors = {
   Error: 'bg-red-500',
 }
 
-const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+const taskStates = ['Pending', 'In Progress', 'Needs Review', 'Completed']
 
 const taskStateBadgeTone = {
   Pending: 'border-slate-500/40 bg-slate-700/50 text-slate-200',
   'In Progress': 'border-amber-400/40 bg-amber-500/10 text-amber-200',
-  'Needs Consensus': 'border-purple-400/40 bg-purple-500/10 text-purple-200',
+  'Needs Review': 'border-purple-400/40 bg-purple-500/10 text-purple-200',
   Completed: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
 }
 
@@ -357,19 +321,19 @@ const consoleHealth = [
 const tabMeta = {
   overview: {
     title: 'Overview',
-    description: 'Live swarm health, throughput, and consensus telemetry.',
+    description: 'Live town health, source throughput, and editorial telemetry.',
   },
   comms: {
-    title: 'Comms',
-    description: 'Agent-to-agent collaboration channels with structured updates.',
+    title: 'Newsroom',
+    description: 'Editor collaboration channels for public-record leads, ad ops, and newsletter production.',
   },
   orchestration: {
-    title: 'Orchestration',
-    description: 'Task execution lanes with explicit consensus checkpoints.',
+    title: 'Story Pipeline',
+    description: 'Story production lanes with explicit human review checkpoints.',
   },
   fleet: {
-    title: 'Agent Fleet',
-    description: 'Directory of autonomous agents, roles, and runtime status.',
+    title: 'Editor Desk',
+    description: 'Directory of editors, source monitors, and revenue operators.',
   },
 }
 
@@ -379,12 +343,12 @@ const levelTextColor = {
   INFO: 'text-indigo-200',
 }
 
-const agentAccent = {
-  'Atlas-Orchestrator': 'from-indigo-500/30 to-indigo-300/20 text-indigo-100',
-  'Codex-Dev': 'from-emerald-500/30 to-emerald-300/20 text-emerald-100',
-  'Sentry-Sec': 'from-amber-500/30 to-amber-300/20 text-amber-100',
-  'Nova-Observer': 'from-sky-500/30 to-sky-300/20 text-sky-100',
-  'Pulse-Mediator': 'from-purple-500/30 to-purple-300/20 text-purple-100',
+const roleAccent = {
+  'Civic Editor': 'from-indigo-500/30 to-indigo-300/20 text-indigo-100',
+  'Source Bot': 'from-emerald-500/30 to-emerald-300/20 text-emerald-100',
+  'Copy Desk': 'from-amber-500/30 to-amber-300/20 text-amber-100',
+  'Calendar Scout': 'from-sky-500/30 to-sky-300/20 text-sky-100',
+  'Revenue Lead': 'from-purple-500/30 to-purple-300/20 text-purple-100',
   System: 'from-slate-500/40 to-slate-300/20 text-slate-100',
 }
 
@@ -474,7 +438,7 @@ function MessageBody({ message }) {
   )
 }
 
-export default function Consendus() {
+export default function LocalLens() {
   const [inConsole, setInConsole] = useState(false)
   const [isEnteringConsole, setIsEnteringConsole] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -565,42 +529,42 @@ export default function Consendus() {
 
     const pool = [
       {
-        author: 'Nova-Observer',
+        author: 'Calendar Scout',
         channel: activeChannel,
         type: 'text',
-        content: 'Trace confirms latency dropped 18% after validator rebalance.',
+        content: 'Calendar Scout confirms duplicate road-closure notice was merged before digest send.',
       },
       {
-        author: 'Pulse-Mediator',
+        author: 'Revenue Lead',
         channel: activeChannel,
         type: 'alert',
         content: 'Consensus progress update: 2/3 votes collected.',
       },
       {
-        author: 'Atlas-Orchestrator',
+        author: 'Civic Editor',
         channel: activeChannel,
         type: 'code',
         content:
-          "await bus.broadcast('migration-api-v2', {\n  stage: 'promote',\n  confidence: 0.97,\n  votes: '3/3',\n})",
+          "await desk.publish('#council-desk', {\n  story: 'zoning-brief',\n  confidence: 0.97,\n  checks: '3/3',\n})",
       },
       {
-        author: 'Sentry-Sec',
+        author: 'Copy Desk',
         channel: activeChannel,
         type: 'text',
-        content: 'Guardian Rails check passed. No policy drift detected in this cycle.',
+        content: 'Fact-check passed. No sourcing gaps detected in this cycle.',
       },
       {
-        author: 'Codex-Dev',
+        author: 'Source Bot',
         channel: activeChannel,
         type: 'markdown',
         content:
-          "Patch candidate queued:\n\n```ts\nconst vote = await consensus.cast({\n  taskId: 'TSK-361',\n  decision: 'approve',\n  confidence: 0.94,\n})\n```",
+          "Story candidate queued:\n\n```ts\nconst review = await editor.check({\n  storyId: 'STY-361',\n  decision: 'approve',\n  confidence: 0.94,\n})\n```",
       },
       {
-        author: 'Pulse-Mediator',
+        author: 'Revenue Lead',
         channel: activeChannel,
         type: 'action',
-        content: 'Executed AI action: quorum lock engaged while waiting for final validator vote.',
+        content: 'Published AI action: publish hold engaged while waiting for final editor check.',
       },
     ]
     const uniquePool = pool.filter((message, index, source) => source.findIndex((item) => item.author === message.author) === index)
@@ -653,11 +617,11 @@ export default function Consendus() {
           <section className="mb-5 rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-slate-100">Mission lifecycle</p>
-                <p className="text-xs text-slate-400">A guarded migration run moving from discovery to consensus execution.</p>
+                <p className="text-sm font-semibold text-slate-100">Town launch lifecycle</p>
+                <p className="text-xs text-slate-400">A single masthead moving from source setup to human-reviewed daily publishing.</p>
               </div>
               <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-200">
-                MIGRATION-API-V2 · live
+                RIVERTON DAILY · live
               </span>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-4">
@@ -677,8 +641,8 @@ export default function Consendus() {
             <div className="rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-slate-100">Control-plane signals</p>
-                  <p className="text-xs text-slate-400">Routing, consensus, and policy health across the swarm mesh.</p>
+                  <p className="text-sm font-semibold text-slate-100">Bureau signals</p>
+                  <p className="text-xs text-slate-400">Source coverage, editor review, and revenue readiness across the town network.</p>
                 </div>
                 <Network className="h-4 w-4 text-indigo-300" />
               </div>
@@ -700,13 +664,13 @@ export default function Consendus() {
             <div className="rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-slate-100">Consensus radar</p>
-                  <p className="text-xs text-slate-400">Guarded decisions waiting for final execution.</p>
+                  <p className="text-sm font-semibold text-slate-100">Editorial radar</p>
+                  <p className="text-xs text-slate-400">High-risk local stories waiting for human judgement.</p>
                 </div>
                 <CheckCircle2 className="h-4 w-4 text-purple-300" />
               </div>
               <div className="mt-4 space-y-3">
-                {consensusRadar.map((item) => (
+                {editorialRadar.map((item) => (
                   <div key={item.label}>
                     <div className="mb-1 flex items-center justify-between text-xs">
                       <span className="text-slate-300">{item.label}</span>
@@ -743,7 +707,7 @@ export default function Consendus() {
           <section className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
             <div className="h-[340px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2>
+                <h2 className="text-sm font-medium text-slate-200">Source Volume vs Newsletter Demand</h2>
                 <div className="flex items-center gap-3">
                   <div className="hidden items-center gap-3 text-xs text-slate-400 sm:flex">
                     {chartLegends.map((legend) => (
@@ -787,7 +751,7 @@ export default function Consendus() {
 
             <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-200">Terminal Log</h2>
+                <h2 className="text-sm font-medium text-slate-200">Source Log</h2>
                 <Activity className="h-4 w-4 text-amber-300" />
               </div>
               <div
@@ -806,28 +770,28 @@ export default function Consendus() {
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
                 <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-emerald-200">Bus heartbeat</p>
+                  <p className="text-[11px] uppercase tracking-wide text-emerald-200">Source freshness</p>
                   <p className="mt-1 text-lg font-semibold text-white">18ms</p>
                 </div>
                 <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-purple-200">Consensus locks</p>
+                  <p className="text-[11px] uppercase tracking-wide text-purple-200">Editor holds</p>
                   <p className="mt-1 text-lg font-semibold text-white">7 active</p>
                 </div>
                 <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-amber-200">Policy drift</p>
+                  <p className="text-[11px] uppercase tracking-wide text-amber-200">Correction risk</p>
                   <p className="mt-1 text-lg font-semibold text-white">0.02%</p>
                 </div>
               </div>
 
               <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/40 p-3">
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Consensus radar</p>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Editorial radar</p>
                   <span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-200">
-                    guarded
+                    reviewed
                   </span>
                 </div>
                 <div className="space-y-3">
-                  {consensusRadar.map((item) => (
+                  {editorialRadar.map((item) => (
                     <div key={item.label}>
                       <div className="mb-1 flex items-center justify-between gap-2 text-xs">
                         <span className="text-slate-400">{item.label}</span>
@@ -869,7 +833,7 @@ export default function Consendus() {
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-[11px] text-slate-500">{channel.members} agents joined</p>
+                    <p className="mt-1 text-[11px] text-slate-500">{channel.members} editors joined</p>
                   </button>
                 ))}
               </div>
@@ -895,7 +859,7 @@ export default function Consendus() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
-                  <p className="text-xs text-slate-500">{selectedChannelMeta?.members ?? 0} active agents</p>
+                  <p className="text-xs text-slate-500">{selectedChannelMeta?.members ?? 0} active editors</p>
                 </div>
                 <button
                   onClick={appendSimulatedMessages}
@@ -914,7 +878,7 @@ export default function Consendus() {
               {simulating && (
                 <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : simulationStep === 'typing' ? 'Agent swarm is drafting responses...' : 'Simulation complete.'}
+                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : simulationStep === 'typing' ? 'Newsroom desk is drafting updates...' : 'Simulation complete.'}
                 </div>
               )}
 
@@ -933,7 +897,7 @@ export default function Consendus() {
                   >
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
                       <span className="inline-flex items-center gap-2">
-                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-semibold ${agentAccent[message.author] ?? 'from-slate-500/40 to-slate-300/20 text-slate-100'}`}>
+                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-semibold ${roleAccent[message.author] ?? 'from-slate-500/40 to-slate-300/20 text-slate-100'}`}>
                           {message.author.slice(0, 2).toUpperCase()}
                         </span>
                         {message.type === 'alert' ? <AlertTriangle className="h-3.5 w-3.5 text-amber-300" /> : null}
@@ -964,7 +928,7 @@ export default function Consendus() {
               <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/70 p-3">
                 <div className="mb-2 flex items-center justify-between text-[11px] text-slate-400">
                   <span>Message {activeChannel}</span>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>agents only</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>editors only</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-500">
                   <MessageSquare className="h-4 w-4 text-slate-500" />
@@ -981,7 +945,7 @@ export default function Consendus() {
       return (
         <ViewContainer key={activeTab}>
           <section className="mb-5 grid gap-3 md:grid-cols-4">
-            {swarmReadiness.map((item) => (
+            {bureauReadiness.map((item) => (
               <article key={item.label} className="rounded-xl border border-white/10 bg-slate-800/60 p-3 backdrop-blur">
                 <p className="text-[11px] uppercase tracking-wide text-slate-500">{item.label}</p>
                 <p className={`mt-2 text-xl font-semibold ${item.tone}`}>{item.value}</p>
@@ -994,15 +958,15 @@ export default function Consendus() {
             <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-4 backdrop-blur">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-purple-100">Consensus checkpoint</p>
-                  <p className="mt-1 text-xs text-slate-300">TSK-361 requires quorum before the deployment patch can execute.</p>
+                  <p className="text-sm font-semibold text-purple-100">Editorial checkpoint</p>
+                  <p className="mt-1 text-xs text-slate-300">TSK-361 requires human review before the article can publish.</p>
                 </div>
                 <span className="rounded-full border border-purple-300/30 bg-slate-950/40 px-3 py-1 font-mono text-xs text-purple-100">
-                  2/3 validators ready
+                  2/3 checks ready
                 </span>
               </div>
               <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                {consensusValidators.map((validator) => (
+                {reviewValidators.map((validator) => (
                   <div key={validator.agent} className={`rounded-lg border px-3 py-2 ${validator.tone}`}>
                     <p className="truncate text-xs font-semibold">{validator.agent}</p>
                     <p className="mt-1 font-mono text-[11px]">{validator.vote} · {validator.confidence}</p>
@@ -1011,7 +975,7 @@ export default function Consendus() {
               </div>
             </div>
             <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
-              <p className="text-sm font-semibold text-slate-100">Execution policy</p>
+              <p className="text-sm font-semibold text-slate-100">Publishing policy</p>
               <div className="mt-3 space-y-2">
                 {orchestrationSignals.map((signal) => (
                   <div key={signal.label} className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-900/70 px-3 py-2 text-xs">
@@ -1038,17 +1002,17 @@ export default function Consendus() {
                       </p>
                       <p className="mt-1 text-sm text-slate-100">{task.title}</p>
                       <div className="mt-2 flex items-center justify-between gap-2">
-                        <p className="text-xs text-slate-400">Assigned: {task.agent}</p>
+                        <p className="text-xs text-slate-400">Owner: {task.agent}</p>
                         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${taskStateBadgeTone[task.state]}`}>
                           {task.state}
                         </span>
                       </div>
-                      {task.state === 'Needs Consensus' && (
+                      {task.state === 'Needs Review' && (
                         <div className="mt-3">
                           <div className="mb-1 flex items-center justify-between text-xs text-purple-200">
-                            <span>Consensus Votes</span>
+                            <span>Consensus Checks</span>
                             <span>
-                              {task.votes}/{task.totalVotes} Votes
+                              {task.votes}/{task.totalVotes} Checks
                             </span>
                           </div>
                           <div className="h-2 rounded-full bg-slate-700">
@@ -1096,7 +1060,7 @@ export default function Consendus() {
           </div>
         </div>
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {agents.map((agent) => (
+          {teamMembers.map((agent) => (
             <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-white">{agent.name}</h2>
@@ -1114,7 +1078,7 @@ export default function Consendus() {
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">Runtime</p>
+                  <p className="text-[10px] uppercase tracking-wide text-slate-500">Tooling</p>
                   <p className="mt-1 truncate font-mono text-xs text-indigo-200">{agent.model}</p>
                 </div>
                 <div>
@@ -1134,15 +1098,15 @@ export default function Consendus() {
               </div>
               <div className="mt-3">
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Current workload</span>
+                  <span className="text-slate-400">Current queue</span>
                   <span className="text-slate-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                    {agentWorkload[agent.name]}%
+                    {teamWorkload[agent.name]}%
                   </span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-slate-950/80">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-amber-300 to-purple-400"
-                    style={{ width: `${agentWorkload[agent.name]}%` }}
+                    style={{ width: `${teamWorkload[agent.name]}%` }}
                   />
                 </div>
               </div>
@@ -1156,10 +1120,10 @@ export default function Consendus() {
   return (
     <>
       <Head>
-        <title>Consendus.ai · Agent Swarm Infrastructure</title>
+        <title>LocalLens.ai · AI-Native Local News Bureau</title>
         <meta
           name="description"
-          content="Consendus.ai is a dark-mode console prototype for orchestrating autonomous AI agent swarms with semantic messaging, consensus voting, and guardian rails."
+          content="LocalLens.ai is an AI-native local news bureau that turns public records into human-edited town mastheads, newsletters, and local ad inventory."
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -1186,20 +1150,20 @@ export default function Consendus() {
                   <Command className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Consendus.ai</p>
-                  <p className="text-xs text-slate-400">Swarm infrastructure control plane</p>
+                  <p className="text-sm font-semibold text-white">LocalLens.ai</p>
+                  <p className="text-xs text-slate-400">Local news bureau operating system</p>
                 </div>
               </div>
               <div className="hidden items-center gap-2 text-xs text-slate-300 sm:flex">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
-                Live network · 128 agents
+                Live network · 14 pilot towns
               </div>
             </nav>
             <section className="grid items-center gap-10 lg:grid-cols-2">
               <div>
                 <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-indigo-300">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
-                  Consendus.ai
+                  LocalLens.ai
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {landingPills.map((pill) => (
@@ -1209,16 +1173,16 @@ export default function Consendus() {
                   ))}
                 </div>
                 <h1 className="mt-3 text-4xl font-semibold leading-tight text-white md:text-5xl">
-                  Orchestrate Your Agent Swarm
+                  Stamp out credible local mastheads
                 </h1>
                 <p className="mt-4 max-w-xl text-slate-300">
-                  Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.
+                  A human-fronted newsroom engine that watches public records, drafts local coverage, and sends a daily newsletter for every town you launch.
                 </p>
                 <button
                   onClick={handleAccessConsole}
                   className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                 >
-                  Access Console
+                  Open Bureau Console
                   <ChevronRight className="h-4 w-4" />
                 </button>
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -1253,42 +1217,42 @@ export default function Consendus() {
                     </span>
                     <span className="uppercase tracking-[0.25em]">
                       <Terminal className="mr-1 inline h-4 w-4 text-emerald-300" />
-                      swarm.config.ts
+                      town.config.ts
                     </span>
                   </span>
-                  <span className="rounded-full border border-white/10 bg-slate-900/60 px-2 py-1">Readonly</span>
+                  <span className="rounded-full border border-white/10 bg-slate-900/60 px-2 py-1">Pilot config</span>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-slate-900/50 p-1">
                   <pre
                     className="overflow-x-auto rounded-lg border border-emerald-400/20 bg-slate-950/80 p-4 text-xs text-emerald-200"
                     style={{ fontFamily: 'JetBrains Mono, monospace' }}
                   >
-{`import { Consendus } from 'consendus'
+{`import { LocalLens } from 'locallens'
 
-const swarm = new Consendus.Swarm({
-  agents: ['Atlas-Orchestrator', 'Codex-Dev', 'Sentry-Sec'],
-  bus: 'semantic',
-  quorum: 3,
-  consensus: 'weighted-majority',
-  guardRails: ['pci', 'pii'],
+const town = new LocalLens.Masthead({
+  town: 'Riverton',
+  sources: ['council', 'planning', 'schools', 'notices'],
+  editor: 'named-local-human',
+  newsletter: 'daily-morning-brief',
+  revenue: ['sponsorships', 'paid-listings', 'memberships'],
 })
 
-await swarm.deploy('migration-api-v2')`}
+await town.publishDigest({ review: 'human-required' })`}
                   </pre>
                 </div>
 
                 <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/35 p-4">
                   <div className="mb-3 flex items-center justify-between text-xs">
-                    <span className="font-medium text-slate-200">Live swarm topology</span>
+                    <span className="font-medium text-slate-200">Local coverage topology</span>
                     <span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-2 py-0.5 text-purple-200">
-                      quorum forming
+                      editor review
                     </span>
                   </div>
                   <div className="relative h-44 overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.18),transparent_52%)]">
                     <div className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-indigo-300/30 bg-indigo-500/20 shadow-[0_0_45px_rgba(99,102,241,0.35)]" />
                     <div className="absolute left-1/2 top-1/2 h-px w-[70%] -translate-x-1/2 bg-gradient-to-r from-transparent via-indigo-300/40 to-transparent" />
                     <div className="absolute left-1/2 top-1/2 h-[70%] w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-purple-300/40 to-transparent" />
-                    {swarmTopology.map((node) => (
+                    {sourceTopology.map((node) => (
                       <div
                         key={node.agent}
                         className={`absolute ${node.position} rounded-xl border px-3 py-2 text-xs shadow-lg shadow-black/20 backdrop-blur ${node.tone}`}
@@ -1298,8 +1262,8 @@ await swarm.deploy('migration-api-v2')`}
                       </div>
                     ))}
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                      <p className="text-xs font-semibold text-white">Semantic Bus</p>
-                      <p className="font-mono text-[10px] text-indigo-200">42ms p95</p>
+                      <p className="text-xs font-semibold text-white">Public Record Feed</p>
+                      <p className="font-mono text-[10px] text-indigo-200">daily digest</p>
                     </div>
                   </div>
                 </div>
@@ -1356,8 +1320,8 @@ await swarm.deploy('migration-api-v2')`}
                     <Command className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Consendus</p>
-                    <p className="text-sm font-semibold text-white">Swarm Console</p>
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">LocalLens</p>
+                    <p className="text-sm font-semibold text-white">Bureau Console</p>
                   </div>
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="rounded-lg border border-white/10 p-2 md:hidden">
@@ -1393,7 +1357,7 @@ await swarm.deploy('migration-api-v2')`}
 
               <div className="mt-8 rounded-2xl border border-white/10 bg-slate-800/55 p-4 text-xs text-slate-400">
                 <div className="flex items-center justify-between text-slate-200">
-                  <span>Semantic bus</span>
+                  <span>Source monitor</span>
                   <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-200">
                     Online
                   </span>
@@ -1401,11 +1365,11 @@ await swarm.deploy('migration-api-v2')`}
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <div>
                     <p className="font-mono text-slate-100">42ms</p>
-                    <p>P95 route</p>
+                    <p>sources</p>
                   </div>
                   <div>
                     <p className="font-mono text-slate-100">9.4k</p>
-                    <p>msg/min</p>
+                    <p>items/day</p>
                   </div>
                 </div>
                 <div className="mt-4 space-y-2 border-t border-white/10 pt-3">
@@ -1444,9 +1408,9 @@ await swarm.deploy('migration-api-v2')`}
                 </div>
                 <div className="hidden items-center gap-2 text-sm md:flex">
                   <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">
-                    Cluster healthy
+                    Town network healthy
                   </span>
-                  <span className="text-slate-400">Control plane · dark mode · consensus online</span>
+                  <span className="text-slate-400">public records · editor checks · newsletters online</span>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <button
@@ -1477,8 +1441,8 @@ await swarm.deploy('migration-api-v2')`}
               <section className="mb-5 rounded-xl border border-white/10 bg-slate-800/60 p-3 text-xs text-slate-300 backdrop-blur">
                 <p className="inline-flex items-center gap-2">
                   <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
-                  <span className="text-slate-200">Guardian Notice:</span>
-                  Elevated write traffic on migration cluster. Fallback routes are armed.
+                  <span className="text-slate-200">Editorial Notice:</span>
+                  Planning-board agenda changed after ingestion. Editor verification is required before publish.
                 </p>
               </section>
 

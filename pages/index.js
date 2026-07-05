@@ -1,3 +1,3 @@
-import LocalNewsBureau from './local-news'
+import Consendus from './consendus'
 
-export default LocalNewsBureau
+export default Consendus
