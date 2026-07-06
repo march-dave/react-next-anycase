@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   Activity,
   AlertTriangle,
@@ -10,345 +11,140 @@ import {
   Command,
   Cpu,
   Gauge,
+  GitBranch,
   LayoutGrid,
+  Lock,
   Menu,
   MessageSquare,
   Network,
   Play,
+  RadioTower,
   ShieldCheck,
   Sparkles,
   Terminal,
   UserCircle2,
   Users,
   X,
+  Zap,
 } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import remarkGfm from 'remark-gfm'
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
-  { id: 'comms', label: 'Newsroom', icon: MessageSquare },
-  { id: 'orchestration', label: 'Story Pipeline', icon: Network },
-  { id: 'fleet', label: 'Local Team', icon: Users },
+  { id: 'comms', label: 'Comms', icon: MessageSquare },
+  { id: 'orchestration', label: 'Orchestration', icon: GitBranch },
+  { id: 'fleet', label: 'Agent Fleet', icon: Users },
 ]
 
 const features = [
-  { title: 'Public-Record Watchtower', description: 'Ingest council agendas, planning applications, public notices, calendars, road closures, and court or police logs from primary local sources.', icon: Sparkles },
-  { title: 'Human-Edited AI Drafting', description: 'AI turns raw civic feeds into readable briefs while a named local editor checks facts, adds judgement, and owns every byline.', icon: CheckCircle2 },
-  { title: 'Replicable Masthead Kit', description: 'Launch each town with reusable websites, newsletters, sponsorship slots, paid listings, and source-monitoring playbooks.', icon: ShieldCheck },
+  {
+    title: 'Semantic Bus',
+    description: 'Typed channels, vector-aware routing, and durable memory streams let agents exchange intent instead of raw noise.',
+    icon: RadioTower,
+  },
+  {
+    title: 'Consensus Engine',
+    description: 'Quorum policies, vote weighting, and conflict resolution primitives help autonomous swarms converge safely.',
+    icon: CheckCircle2,
+  },
+  {
+    title: 'Guardian Rails',
+    description: 'Policy gates, tool permissions, audit logs, and human escalation paths wrap every agent action.',
+    icon: ShieldCheck,
+  },
 ]
 
 const stats = [
-  { label: 'Pilot Towns', value: '14', delta: '+3', icon: Bot },
-  { label: 'Records/day', value: '9.4k', delta: '+8%', icon: MessageSquare },
-  { label: 'Editor Verified', value: '96.8%', delta: '+1.2%', icon: CheckCircle2 },
-  { label: 'Local ARR Run-rate', value: '$82k', delta: '+4%', icon: Cpu },
+  { label: 'Active Agents', value: '128', delta: '+12', icon: Bot },
+  { label: 'Messages/min', value: '4.8k', delta: '+18%', icon: MessageSquare },
+  { label: 'Consensus Rate', value: '97.4%', delta: '+2.1%', icon: CheckCircle2 },
+  { label: 'Token Usage', value: '12.7M', delta: '-6%', icon: Cpu },
 ]
-
-const chartLegends = [
-  { label: 'System Load', color: '#6366f1' },
-  { label: 'Token Consumption', color: '#10b981' },
-]
-
-const landingPills = [
-  { label: 'Public Records', tone: 'text-indigo-200 border-indigo-400/30 bg-indigo-500/10' },
-  { label: 'Named Local Editor', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
-  { label: 'Newsletter + Ads', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
-]
-
-const quickSignals = [
-  { label: 'Editorial Queue', value: '07', tone: 'text-purple-200 border-purple-400/30 bg-purple-500/10' },
-  { label: 'Fact Checks', value: 'Stable', tone: 'text-emerald-200 border-emerald-400/30 bg-emerald-500/10' },
-  { label: 'Digest ETA', value: '42m', tone: 'text-amber-200 border-amber-400/30 bg-amber-500/10' },
-]
-
-const swarmReadiness = [
-  { label: 'Bus partitions', value: '0', helper: 'all shards routable', tone: 'text-emerald-200' },
-  { label: 'Consensus SLA', value: '312ms', helper: 'p90 decision latency', tone: 'text-indigo-200' },
-  { label: 'Guardrail audits', value: '1.8k', helper: 'checks in last hour', tone: 'text-purple-200' },
-  { label: 'Human escalations', value: '2', helper: 'awaiting approval', tone: 'text-amber-200' },
-]
-
-const controlPlaneSignals = [
-  { label: 'Source Ingestion', value: '42m fresh', tone: 'text-indigo-200', bar: '72%' },
-  { label: 'Editor Review', value: '3 checks', tone: 'text-purple-200', bar: '100%' },
-  { label: 'Ad Inventory', value: '0 conflicts', tone: 'text-emerald-200', bar: '88%' },
-]
-
-const teamWorkload = {
-  'Civic Editor': 34,
-  'Source Bot': 81,
-  'Copy Desk': 19,
-  'Calendar Scout': 67,
-  'Revenue Lead': 92,
-}
-
-const trustSignals = [
-  { label: 'Americans with limited or no local news', value: '55M' },
-  { label: 'Target local ad market in 2025', value: '$171B' },
-  { label: 'ARR potential per town', value: '$60–90k' },
-]
-
-const scenarioCards = [
-  { label: 'One-town wedge', metric: '30k', detail: 'population floor for a viable pilot masthead', tone: 'from-indigo-500/20 to-indigo-300/5 border-indigo-300/20' },
-  { label: 'Daily newsletter', metric: '5k', detail: 'subscriber target before self-serve ads compound', tone: 'from-amber-500/20 to-amber-300/5 border-amber-300/20' },
-  { label: 'Network scale', metric: '300', detail: 'towns at roughly $70k ARR creates a $20M business', tone: 'from-emerald-500/20 to-emerald-300/5 border-emerald-300/20' },
-]
-
-const sourceTopology = [
-  { agent: 'Council', role: 'agendas', position: 'left-[12%] top-[18%]', tone: 'border-indigo-300/40 bg-indigo-500/20 text-indigo-100' },
-  { agent: 'Planning', role: 'permits', position: 'right-[14%] top-[22%]', tone: 'border-emerald-300/40 bg-emerald-500/20 text-emerald-100' },
-  { agent: 'Schools', role: 'calendars', position: 'left-[18%] bottom-[18%]', tone: 'border-amber-300/40 bg-amber-500/20 text-amber-100' },
-  { agent: 'Editor', role: 'byline', position: 'right-[18%] bottom-[16%]', tone: 'border-purple-300/40 bg-purple-500/20 text-purple-100' },
-]
-
-const missionSteps = [
-  { label: 'Ingest', status: 'complete', tone: 'bg-emerald-400' },
-  { label: 'Draft', status: 'active', tone: 'bg-purple-400' },
-  { label: 'Review', status: 'pending', tone: 'bg-slate-500' },
-  { label: 'Publish', status: 'reviewed', tone: 'bg-amber-400' },
-]
-
-const editorialRadar = [
-  { label: 'Review coverage', value: '3/3 checks', tone: 'text-emerald-200', width: '100%' },
-  { label: 'Correction risk', value: '0.04 risk', tone: 'text-emerald-200', width: '12%' },
-  { label: 'Editor backlog', value: '7 reviews', tone: 'text-amber-200', width: '46%' },
-]
-
-const codeWindowDots = ['bg-red-400', 'bg-amber-300', 'bg-emerald-400']
 
 const analytics = [
-  { time: '00:00', load: 32, tokens: 56 },
-  { time: '02:00', load: 41, tokens: 64 },
-  { time: '04:00', load: 37, tokens: 61 },
-  { time: '06:00', load: 54, tokens: 79 },
-  { time: '08:00', load: 61, tokens: 91 },
-  { time: '10:00', load: 58, tokens: 88 },
-  { time: '12:00', load: 72, tokens: 111 },
-  { time: '14:00', load: 65, tokens: 96 },
+  { time: '00:00', load: 31, tokens: 48 },
+  { time: '02:00', load: 42, tokens: 61 },
+  { time: '04:00', load: 37, tokens: 57 },
+  { time: '06:00', load: 58, tokens: 81 },
+  { time: '08:00', load: 71, tokens: 104 },
+  { time: '10:00', load: 64, tokens: 96 },
+  { time: '12:00', load: 79, tokens: 126 },
+  { time: '14:00', load: 68, tokens: 111 },
 ]
 
 const terminalEvents = [
   { level: 'INFO', message: 'Agent-2 connected to semantic bus (latency 18ms)' },
-  { level: 'INFO', message: 'Editor review gate initialized for lead-3' },
-  { level: 'WARN', message: 'High latency detected on shard eu-west-1' },
-  { level: 'INFO', message: 'Fact-check policy update applied by Copy Desk' },
-  { level: 'INFO', message: 'Token limiter adjusted (window=10s burst=128)' },
-  { level: 'SUCCESS', message: 'Deployment approved after 3/3 votes' },
-  { level: 'INFO', message: 'Heartbeat stream stable (24 active editors)' },
+  { level: 'INFO', message: 'Swarm migration-api-v2 acquired quorum policy qrm_9fd2' },
+  { level: 'WARN', message: 'High latency detected on shard us-east-2.semantic.events' },
+  { level: 'SUCCESS', message: 'Consensus reached for deploy plan after 3/3 votes' },
+  { level: 'INFO', message: 'Guardian rail blocked external write: missing canary approval' },
+  { level: 'INFO', message: 'Codex-Dev emitted patch proposal prp_81aa' },
+  { level: 'SUCCESS', message: 'Sentry-Sec verified policy bundle pol_443a' },
 ]
 
 const channels = [
-  { name: '#council-desk', members: 8, unread: 3 },
-  { name: '#fact-checks', members: 5, unread: 1 },
-  { name: '#newsletter-desk', members: 7, unread: 0 },
-  { name: '#ad-ops-review', members: 4, unread: 2 },
+  { name: '#migration-api-v2', members: 12, unread: 4 },
+  { name: '#security-audit', members: 6, unread: 2 },
+  { name: '#release-consensus', members: 9, unread: 0 },
+  { name: '#incident-room', members: 5, unread: 1 },
 ]
 
-const channelPresence = {
-  '#council-desk': ['Civic Editor', 'Source Bot', 'Calendar Scout'],
-  '#fact-checks': ['Copy Desk', 'Revenue Lead'],
-  '#newsletter-desk': ['Civic Editor', 'Calendar Scout', 'Source Bot'],
-  '#ad-ops-review': ['Revenue Lead', 'Copy Desk', 'Civic Editor'],
-}
-
 const channelHints = {
-  '#council-desk': 'Council votes, meeting minutes, and agenda follow-ups.',
-  '#fact-checks': 'Corrections, sourcing, and legal-risk checks.',
-  '#newsletter-desk': 'Daily email packaging, subject lines, and send readiness.',
-  '#ad-ops-review': 'Sponsor approvals and paid-listing placement review.',
+  '#migration-api-v2': 'Schema migration planning, code generation, and rollout coordination.',
+  '#security-audit': 'Threat-modeling, permission checks, and policy attestation.',
+  '#release-consensus': 'Voting room for deploy approvals and risk tradeoffs.',
+  '#incident-room': 'Real-time diagnosis channel for anomalous agent behavior.',
 }
 
 const initialMessages = [
-  {
-    id: 1,
-    channel: '#council-desk',
-    author: 'Civic Editor',
-    type: 'text',
-    content: 'Council packet ingested. Requesting editor review for zoning vote summary.',
-    time: '09:41',
-  },
+  { id: 1, channel: '#migration-api-v2', author: 'Atlas-Orchestrator', type: 'text', content: 'Opened plan graph for payment-service migration. Codex-Dev, draft adapter boundary.', time: '09:41' },
   {
     id: 2,
-    channel: '#council-desk',
-    author: 'Source Bot',
+    channel: '#migration-api-v2',
+    author: 'Codex-Dev',
     type: 'markdown',
-    content:
-      "Validated Riverton source config:\n\n```ts\nconst town = new LocalLens.Masthead({\n  review: 'human-required',\n  sources: ['council', 'planning', 'schools'],\n  channel: '#council-desk',\n  safeguards: ['sourcing', 'libel'],\n})\n```",
+    content: "Proposed swarm config:\n\n```ts\nconst swarm = new Consendus.Swarm({\n  id: 'migration-api-v2',\n  quorum: { required: 3, strategy: 'weighted' },\n  bus: 'semantic://prod/us-east',\n  guardrails: ['no-prod-write-without-vote'],\n})\n```",
     time: '09:42',
   },
-  {
-    id: 3,
-    channel: '#fact-checks',
-    author: 'Copy Desk',
-    type: 'text',
-    content: '**Audit update:** Policy checks are now passing for payment-service.',
-    time: '09:43',
-  },
-  {
-    id: 4,
-    channel: '#council-desk',
-    author: 'System',
-    type: 'alert',
-    content: 'Throttle policy enabled after anomaly score exceeded 0.81.',
-    time: '09:44',
-  },
-  {
-    id: 5,
-    channel: '#council-desk',
-    author: 'Revenue Lead',
-    type: 'action',
-    content: 'Published AI action: proposed correction note with confidence 0.92.',
-    time: '09:45',
-  },
+  { id: 3, channel: '#security-audit', author: 'Sentry-Sec', type: 'text', content: '**Audit update:** tool scope for payment-service is least-privilege compliant.', time: '09:43' },
+  { id: 4, channel: '#migration-api-v2', author: 'System', type: 'alert', content: 'Consensus required: migration touches regulated data boundary.', time: '09:44' },
+  { id: 5, channel: '#migration-api-v2', author: 'Muse-Research', type: 'action', content: 'AI action: summarized 38 prior incidents and attached rollback heuristics.', time: '09:45' },
 ]
 
 const tasks = [
-  { id: 'TSK-341', title: 'Map council source dependencies', agent: 'Civic Editor', state: 'Pending' },
-  { id: 'TSK-352', title: 'Draft morning digest intro', agent: 'Source Bot', state: 'In Progress' },
-  {
-    id: 'TSK-361',
-    title: 'Review zoning decision story',
-    state: 'Needs Review',
-    agent: 'Revenue Lead',
-    votes: 1,
-    totalVotes: 3,
-  },
-  { id: 'TSK-366', title: 'Verify school calendar feed', agent: 'Copy Desk', state: 'Completed' },
-  { id: 'TSK-378', title: 'Confirm Saturday fixtures', agent: 'Sports Stringer', state: 'In Progress' },
+  { id: 'TSK-341', title: 'Map event-bus dependencies', agent: 'Atlas-Orchestrator', state: 'Pending' },
+  { id: 'TSK-352', title: 'Generate TypeScript migration adapter', agent: 'Codex-Dev', state: 'In Progress' },
+  { id: 'TSK-361', title: 'Approve production rollout window', agent: 'Quorum-Lead', state: 'Needs Consensus', votes: 1, totalVotes: 3 },
+  { id: 'TSK-366', title: 'Verify guardian rail coverage', agent: 'Sentry-Sec', state: 'Completed' },
+  { id: 'TSK-378', title: 'Profile token burst budget', agent: 'Vector-Mem', state: 'In Progress' },
 ]
 
-const teamMembers = [
-  {
-    name: 'Civic Editor',
-    role: 'Coordinator',
-    specialization: 'Workflow Routing',
-    uptime: '14d 06h',
-    status: 'Idle',
-    model: 'GPT-5.5',
-    region: 'iad-1',
-    permissions: ['route', 'delegate', 'vote'],
-  },
-  {
-    name: 'Source Bot',
-    role: 'Builder',
-    specialization: 'TypeScript & APIs',
-    uptime: '9d 02h',
-    status: 'Busy',
-    model: 'GPT-5.4-Codex',
-    region: 'sfo-2',
-    permissions: ['code', 'test', 'propose'],
-  },
-  {
-    name: 'Copy Desk',
-    role: 'Security & Policy',
-    specialization: 'Threat Modeling',
-    uptime: '21d 18h',
-    status: 'Idle',
-    model: 'GPT-5.5',
-    region: 'dub-1',
-    permissions: ['audit', 'block', 'sign'],
-  },
-  {
-    name: 'Calendar Scout',
-    role: 'Telemetry',
-    specialization: 'Tracing & Metrics',
-    uptime: '5d 11h',
-    status: 'Busy',
-    model: 'GPT-5.4-Mini',
-    region: 'fra-1',
-    permissions: ['trace', 'summarize', 'alert'],
-  },
-  {
-    name: 'Revenue Lead',
-    role: 'Consensus',
-    specialization: 'Voting Logic',
-    uptime: '12d 04h',
-    status: 'Error',
-    model: 'GPT-5.5',
-    region: 'iad-1',
-    permissions: ['sell', 'review', 'escalate'],
-  },
+const agents = [
+  { name: 'Atlas-Orchestrator', role: 'Coordinator', specialization: 'Plan graphs & delegation', uptime: '14d 06h', status: 'Idle', model: 'GPT-5.5', region: 'iad-1' },
+  { name: 'Codex-Dev', role: 'Builder', specialization: 'TypeScript, tests & patches', uptime: '9d 02h', status: 'Busy', model: 'GPT-5.3-Codex', region: 'sfo-2' },
+  { name: 'Sentry-Sec', role: 'Security', specialization: 'Threat modeling & policies', uptime: '21d 18h', status: 'Idle', model: 'GPT-5.5', region: 'dub-1' },
+  { name: 'Vector-Mem', role: 'Memory', specialization: 'Retrieval & embeddings', uptime: '5d 11h', status: 'Busy', model: 'GPT-5.4-Mini', region: 'fra-1' },
+  { name: 'Quorum-Lead', role: 'Consensus', specialization: 'Voting logic & arbitration', uptime: '12d 04h', status: 'Error', model: 'GPT-5.5', region: 'iad-1' },
+  { name: 'Muse-Research', role: 'Research', specialization: 'Context synthesis', uptime: '7d 19h', status: 'Idle', model: 'GPT-5.4', region: 'lhr-1' },
 ]
 
-
-const reviewValidators = [
-  { agent: 'Civic Editor', vote: 'Approve', confidence: '0.96', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
-  { agent: 'Copy Desk', vote: 'Approve', confidence: '0.91', tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
-  { agent: 'Revenue Lead', vote: 'Pending', confidence: '—', tone: 'border-purple-400/30 bg-purple-500/10 text-purple-200' },
-]
-
-const orchestrationSignals = [
-  { label: 'Review threshold', value: '3 checks' },
-  { label: 'Correction guard', value: 'Armed' },
-  { label: 'Publish mode', value: 'Editor approval' },
-]
-
-const statusColors = {
-  Idle: 'bg-emerald-400',
-  Busy: 'bg-amber-400',
-  Error: 'bg-red-500',
-}
-
-const taskStates = ['Pending', 'In Progress', 'Needs Review', 'Completed']
-
-const taskStateBadgeTone = {
+const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
+const codeWindowDots = ['bg-red-400', 'bg-amber-300', 'bg-emerald-400']
+const levelTextColor = { SUCCESS: 'text-emerald-300', WARN: 'text-amber-300', INFO: 'text-indigo-200' }
+const statusColors = { Idle: 'bg-emerald-400', Busy: 'bg-amber-400', Error: 'bg-red-500' }
+const taskTone = {
   Pending: 'border-slate-500/40 bg-slate-700/50 text-slate-200',
   'In Progress': 'border-amber-400/40 bg-amber-500/10 text-amber-200',
-  'Needs Review': 'border-purple-400/40 bg-purple-500/10 text-purple-200',
+  'Needs Consensus': 'border-purple-400/40 bg-purple-500/10 text-purple-200',
   Completed: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
 }
-
-const statusLegend = [
-  { label: 'Idle', color: 'bg-emerald-400' },
-  { label: 'Busy', color: 'bg-amber-400' },
-  { label: 'Error', color: 'bg-red-500' },
-]
-
-const fleetHealth = [
-  { label: 'Policy coverage', value: '100%', tone: 'text-emerald-200', bar: '100%' },
-  { label: 'Signed actions', value: '98.7%', tone: 'text-indigo-200', bar: '98.7%' },
-  { label: 'Human escalations', value: '3 open', tone: 'text-amber-200', bar: '34%' },
-]
-
-
-const consoleHealth = [
-  { label: 'Quorum', value: '3/3' },
-  { label: 'Policies', value: '187' },
-  { label: 'Regions', value: '5' },
-]
-
-const tabMeta = {
-  overview: {
-    title: 'Overview',
-    description: 'Live town health, source throughput, and editorial telemetry.',
-  },
-  comms: {
-    title: 'Newsroom',
-    description: 'Editor collaboration channels for public-record leads, ad ops, and newsletter production.',
-  },
-  orchestration: {
-    title: 'Story Pipeline',
-    description: 'Story production lanes with explicit human review checkpoints.',
-  },
-  fleet: {
-    title: 'Editor Desk',
-    description: 'Directory of editors, source monitors, and revenue operators.',
-  },
-}
-
-const levelTextColor = {
-  SUCCESS: 'text-emerald-300',
-  WARN: 'text-amber-300',
-  INFO: 'text-indigo-200',
-}
-
 const roleAccent = {
-  'Civic Editor': 'from-indigo-500/30 to-indigo-300/20 text-indigo-100',
-  'Source Bot': 'from-emerald-500/30 to-emerald-300/20 text-emerald-100',
-  'Copy Desk': 'from-amber-500/30 to-amber-300/20 text-amber-100',
-  'Calendar Scout': 'from-sky-500/30 to-sky-300/20 text-sky-100',
-  'Revenue Lead': 'from-purple-500/30 to-purple-300/20 text-purple-100',
+  'Atlas-Orchestrator': 'from-indigo-500/30 to-indigo-300/20 text-indigo-100',
+  'Codex-Dev': 'from-emerald-500/30 to-emerald-300/20 text-emerald-100',
+  'Sentry-Sec': 'from-amber-500/30 to-amber-300/20 text-amber-100',
+  'Vector-Mem': 'from-sky-500/30 to-sky-300/20 text-sky-100',
+  'Quorum-Lead': 'from-purple-500/30 to-purple-300/20 text-purple-100',
+  'Muse-Research': 'from-fuchsia-500/30 to-fuchsia-300/20 text-fuchsia-100',
   System: 'from-slate-500/40 to-slate-300/20 text-slate-100',
 }
 
@@ -357,88 +153,23 @@ function ViewContainer({ children }) {
 }
 
 function MessageBody({ message }) {
-  const markdownComponents = {
+  const components = {
     p: ({ children }) => <p className="text-sm text-slate-100">{children}</p>,
     strong: ({ children }) => <strong className="font-semibold text-indigo-100">{children}</strong>,
-    code: ({ inline, className, children }) => {
-      const match = /language-(\w+)/.exec(className || '')
-
-      if (inline) {
-        return (
-          <code
-            className="rounded bg-slate-950/80 px-1.5 py-0.5 text-[12px] text-emerald-200"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
-            {children}
-          </code>
-        )
-      }
-
-      return (
-        <pre
-          className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-xs text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
-          data-language={match?.[1] ?? 'typescript'}
-          style={{ fontFamily: 'JetBrains Mono, monospace' }}
-        >
-          <code>{String(children).replace(/\n$/, '')}</code>
-        </pre>
-      )
-    },
+    code: ({ inline, children }) => inline ? (
+      <code className="rounded bg-slate-950/80 px-1.5 py-0.5 font-mono text-[12px] text-emerald-200">{children}</code>
+    ) : (
+      <pre className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 font-mono text-xs text-emerald-200"><code>{String(children).replace(/\n$/, '')}</code></pre>
+    ),
   }
 
-  if (message.type === 'code') {
-    return (
-      <pre
-        className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 text-emerald-200 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.08)]"
-        style={{ fontFamily: 'JetBrains Mono, monospace' }}
-      >
-        {message.content}
-      </pre>
-    )
-  }
-
-  if (message.type === 'action') {
-    return <p className="text-sm text-purple-100">{message.content}</p>
-  }
-
-  if (message.type === 'markdown') {
-    return (
-      <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2">
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-          {message.content}
-        </ReactMarkdown>
-      </div>
-    )
-  }
-
-  if (message.type === 'text') {
-    return (
-      <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2">
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-          {message.content}
-        </ReactMarkdown>
-      </div>
-    )
-  }
-
-  const segments = message.content.split(/(\*\*.*?\*\*)/g)
-
-  return (
-    <p className={`text-sm ${message.type === 'alert' ? 'text-amber-100' : 'text-slate-100'}`}>
-      {segments.map((segment, index) =>
-        segment.startsWith('**') && segment.endsWith('**') ? (
-          <strong key={`${segment}-${index}`} className="font-semibold text-slate-50">
-            {segment.slice(2, -2)}
-          </strong>
-        ) : (
-          <span key={`${segment}-${index}`}>{segment}</span>
-        )
-      )}
-    </p>
-  )
+  if (message.type === 'code') return <pre className="overflow-x-auto rounded-md border border-emerald-400/20 bg-slate-950 p-3 font-mono text-xs text-emerald-200">{message.content}</pre>
+  if (message.type === 'alert') return <p className="text-sm text-amber-100">{message.content}</p>
+  if (message.type === 'action') return <p className="text-sm text-purple-100">{message.content}</p>
+  return <div className="prose prose-invert max-w-none prose-p:my-1 prose-pre:my-2"><ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{message.content}</ReactMarkdown></div>
 }
 
-export default function LocalLens() {
+export default function Consendus() {
   const [inConsole, setInConsole] = useState(false)
   const [isEnteringConsole, setIsEnteringConsole] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -447,73 +178,32 @@ export default function LocalLens() {
   const [activeChannel, setActiveChannel] = useState(channels[0].name)
   const [messages, setMessages] = useState(initialMessages)
   const [simulating, setSimulating] = useState(false)
-  const [simulationStep, setSimulationStep] = useState('idle')
   const [typingAgents, setTypingAgents] = useState([])
   const chatScrollRef = useRef(null)
-  const simulationTimersRef = useRef([])
+  const timers = useRef([])
 
-  const tasksByState = useMemo(
-    () =>
-      taskStates.reduce((acc, state) => {
-        acc[state] = tasks.filter((task) => task.state === state)
-        return acc
-      }, {}),
-    []
-  )
-
+  const tasksByState = useMemo(() => taskStates.reduce((acc, state) => ({ ...acc, [state]: tasks.filter((task) => task.state === state) }), {}), [])
   const channelMessages = messages.filter((message) => message.channel === activeChannel)
   const selectedChannelMeta = channels.find((channel) => channel.name === activeChannel)
 
   useEffect(() => {
     if (activeTab !== 'comms') return
-
-    chatScrollRef.current?.scrollTo({
-      top: chatScrollRef.current.scrollHeight,
-      behavior: 'smooth',
-    })
+    chatScrollRef.current?.scrollTo({ top: chatScrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, typingAgents, activeChannel, activeTab])
 
-  useEffect(
-    () => () => {
-      simulationTimersRef.current.forEach((timerId) => clearTimeout(timerId))
-      simulationTimersRef.current = []
-    },
-    []
-  )
-
-
+  useEffect(() => () => timers.current.forEach(clearTimeout), [])
   useEffect(() => {
-    const onEscape = (event) => {
-      if (event.key === 'Escape') {
-        setSidebarOpen(false)
-      }
-    }
-
+    const onEscape = (event) => event.key === 'Escape' && setSidebarOpen(false)
     window.addEventListener('keydown', onEscape)
     return () => window.removeEventListener('keydown', onEscape)
   }, [])
 
-  useEffect(() => {
-    if (!inConsole || typeof document === 'undefined') return
-
-    document.body.style.overflow = sidebarOpen ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [sidebarOpen, inConsole])
-
-  const scheduleSimulation = (callback, delay) => {
-    const timerId = setTimeout(() => {
+  const schedule = (callback, delay) => {
+    const timer = setTimeout(() => {
       callback()
-      simulationTimersRef.current = simulationTimersRef.current.filter((id) => id !== timerId)
+      timers.current = timers.current.filter((id) => id !== timer)
     }, delay)
-    simulationTimersRef.current.push(timerId)
-  }
-
-  const formatSimulationTime = (offset = 0) => {
-    const now = new Date()
-    now.setSeconds(now.getSeconds() + offset)
-    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+    timers.current.push(timer)
   }
 
   const handleAccessConsole = () => {
@@ -526,961 +216,71 @@ export default function LocalLens() {
 
   const appendSimulatedMessages = () => {
     if (simulating) return
-
     const pool = [
-      {
-        author: 'Calendar Scout',
-        channel: activeChannel,
-        type: 'text',
-        content: 'Calendar Scout confirms duplicate road-closure notice was merged before digest send.',
-      },
-      {
-        author: 'Revenue Lead',
-        channel: activeChannel,
-        type: 'alert',
-        content: 'Consensus progress update: 2/3 votes collected.',
-      },
-      {
-        author: 'Civic Editor',
-        channel: activeChannel,
-        type: 'code',
-        content:
-          "await desk.publish('#council-desk', {\n  story: 'zoning-brief',\n  confidence: 0.97,\n  checks: '3/3',\n})",
-      },
-      {
-        author: 'Copy Desk',
-        channel: activeChannel,
-        type: 'text',
-        content: 'Fact-check passed. No sourcing gaps detected in this cycle.',
-      },
-      {
-        author: 'Source Bot',
-        channel: activeChannel,
-        type: 'markdown',
-        content:
-          "Story candidate queued:\n\n```ts\nconst review = await editor.check({\n  storyId: 'STY-361',\n  decision: 'approve',\n  confidence: 0.94,\n})\n```",
-      },
-      {
-        author: 'Revenue Lead',
-        channel: activeChannel,
-        type: 'action',
-        content: 'Published AI action: publish hold engaged while waiting for final editor check.',
-      },
-    ]
-    const uniquePool = pool.filter((message, index, source) => source.findIndex((item) => item.author === message.author) === index)
-    const targetCount = Math.random() > 0.5 ? 3 : 2
-    const generated = uniquePool.sort(() => Math.random() - 0.5).slice(0, targetCount)
-
+      { author: 'Sentry-Sec', type: 'alert', content: 'Guardian rail triggered: deploy requires second security vote.' },
+      { author: 'Codex-Dev', type: 'code', content: "await swarm.vote('TSK-361', {\n  decision: 'approve',\n  risk: 'medium',\n  rollback: true,\n})" },
+      { author: 'Atlas-Orchestrator', type: 'text', content: 'Plan graph updated. Blocking edge removed after rollback path validation.' },
+      { author: 'Vector-Mem', type: 'markdown', content: "Retrieved matching incident pattern:\n\n```ts\nconfidence: 0.91\nrecommendedAction: 'canary-first'\n```" },
+      { author: 'Quorum-Lead', type: 'action', content: 'AI action: opened consensus vote and requested final arbitration from Sentry-Sec.' },
+    ].sort(() => Math.random() - 0.5).slice(0, Math.random() > 0.5 ? 3 : 2)
     setSimulating(true)
-    setSimulationStep('typing')
     setTypingAgents([])
-
-    generated.forEach((message, index) => {
-      scheduleSimulation(() => {
-        setTypingAgents((prev) => (prev.includes(message.author) ? prev : [...prev, message.author]))
-      }, index * 700 + 260)
-
-      scheduleSimulation(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            ...message,
-            id: `sim-${Date.now()}-${index}`,
-            time: formatSimulationTime(index * 60),
-          },
-        ])
+    pool.forEach((message, index) => {
+      schedule(() => setTypingAgents((prev) => [...prev, message.author]), index * 750 + 180)
+      schedule(() => {
+        setMessages((prev) => [...prev, { ...message, id: `sim-${Date.now()}-${index}`, channel: activeChannel, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }])
         setTypingAgents((prev) => prev.filter((agent) => agent !== message.author))
-
-        if (index === generated.length - 1) {
-          scheduleSimulation(() => {
-            setSimulating(false)
-            setSimulationStep('idle')
-          }, 260)
-        }
-      }, (index + 1) * 700)
+        if (index === pool.length - 1) schedule(() => setSimulating(false), 250)
+      }, (index + 1) * 780)
     })
   }
 
   const changeTab = (tabId) => {
     if (tabId === activeTab) return
     setTabVisible(false)
-    setTimeout(() => {
-      setActiveTab(tabId)
-      setTabVisible(true)
-    }, 140)
+    setTimeout(() => { setActiveTab(tabId); setTabVisible(true) }, 140)
   }
 
   const renderTab = () => {
-    if (activeTab === 'overview') {
-      return (
-        <ViewContainer key={activeTab}>
-          <section className="mb-5 rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-slate-100">Town launch lifecycle</p>
-                <p className="text-xs text-slate-400">A single masthead moving from source setup to human-reviewed daily publishing.</p>
-              </div>
-              <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-200">
-                RIVERTON DAILY · live
-              </span>
-            </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-4">
-              {missionSteps.map((step, index) => (
-                <div key={step.label} className="rounded-lg border border-white/10 bg-slate-900/70 p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-slate-200">{step.label}</span>
-                    <span className={`h-2.5 w-2.5 rounded-full ${step.tone} ${step.status === 'active' ? 'animate-pulse' : ''}`} />
-                  </div>
-                  <p className="mt-2 font-mono text-[11px] uppercase text-slate-500">0{index + 1} · {step.status}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="mb-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-100">Bureau signals</p>
-                  <p className="text-xs text-slate-400">Source coverage, editor review, and revenue readiness across the town network.</p>
-                </div>
-                <Network className="h-4 w-4 text-indigo-300" />
-              </div>
-              <div className="mt-4 space-y-3">
-                {controlPlaneSignals.map((signal) => (
-                  <div key={signal.label} className="rounded-lg border border-white/10 bg-slate-900/70 p-3">
-                    <div className="mb-2 flex items-center justify-between text-xs">
-                      <span className="font-medium text-slate-200">{signal.label}</span>
-                      <span className={signal.tone}>{signal.value}</span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-950/80">
-                      <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: signal.bar }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-100">Editorial radar</p>
-                  <p className="text-xs text-slate-400">High-risk local stories waiting for human judgement.</p>
-                </div>
-                <CheckCircle2 className="h-4 w-4 text-purple-300" />
-              </div>
-              <div className="mt-4 space-y-3">
-                {editorialRadar.map((item) => (
-                  <div key={item.label}>
-                    <div className="mb-1 flex items-center justify-between text-xs">
-                      <span className="text-slate-300">{item.label}</span>
-                      <span className={item.tone}>{item.value}</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-slate-950/80">
-                      <div className="h-full rounded-full bg-purple-400" style={{ width: item.width }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {stats.map((stat) => {
-              const Icon = stat.icon
-              return (
-                <article
-                  key={stat.label}
-                  className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur transition duration-200 hover:border-indigo-400/30 hover:bg-slate-800/85"
-                >
-                  <div className="flex items-start justify-between">
-                    <p className="text-sm text-slate-400">{stat.label}</p>
-                    <Icon className="h-4 w-4 text-indigo-300" />
-                  </div>
-                  <p className="mt-3 text-2xl font-semibold text-white">{stat.value}</p>
-                  <p className="mt-1 text-xs text-emerald-300">{stat.delta} vs last hour</p>
-                </article>
-              )
-            })}
-          </section>
-
-          <section className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
-            <div className="h-[340px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-200">Source Volume vs Newsletter Demand</h2>
-                <div className="flex items-center gap-3">
-                  <div className="hidden items-center gap-3 text-xs text-slate-400 sm:flex">
-                    {chartLegends.map((legend) => (
-                      <span key={legend.label} className="inline-flex items-center gap-1.5">
-                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: legend.color }} />
-                        {legend.label}
-                      </span>
-                    ))}
-                  </div>
-                  <Gauge className="h-4 w-4 text-indigo-300" />
-                </div>
-              </div>
-              <ResponsiveContainer width="100%" height="92%">
-                <AreaChart data={analytics}>
-                  <defs>
-                    <linearGradient id="load" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0.02} />
-                    </linearGradient>
-                    <linearGradient id="tokens" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.03} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" />
-                  <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
-                  <YAxis stroke="#94a3b8" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0f172a',
-                      border: '1px solid rgba(148, 163, 184, 0.3)',
-                      borderRadius: '10px',
-                      color: '#e2e8f0',
-                    }}
-                  />
-                  <Area type="monotone" dataKey="load" stroke="#6366f1" fill="url(#load)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="tokens" stroke="#10b981" fill="url(#tokens)" strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-medium text-slate-200">Source Log</h2>
-                <Activity className="h-4 w-4 text-amber-300" />
-              </div>
-              <div
-                className="h-[280px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 text-xs leading-6 text-slate-300"
-                style={{ fontFamily: 'JetBrains Mono, monospace' }}
-              >
-                {terminalEvents.map((event, idx) => (
-                  <p key={`${event.level}-${idx}`} className={event.level === 'WARN' ? 'text-amber-200' : ''}>
-                    <span className={levelTextColor[event.level] ?? 'text-indigo-200'}>
-                      [{event.level}]
-                    </span>{' '}
-                    {event.message}
-                  </p>
-                ))}
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-emerald-200">Source freshness</p>
-                  <p className="mt-1 text-lg font-semibold text-white">18ms</p>
-                </div>
-                <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-purple-200">Editor holds</p>
-                  <p className="mt-1 text-lg font-semibold text-white">7 active</p>
-                </div>
-                <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-amber-200">Correction risk</p>
-                  <p className="mt-1 text-lg font-semibold text-white">0.02%</p>
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/40 p-3">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Editorial radar</p>
-                  <span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-200">
-                    reviewed
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {editorialRadar.map((item) => (
-                    <div key={item.label}>
-                      <div className="mb-1 flex items-center justify-between gap-2 text-xs">
-                        <span className="text-slate-400">{item.label}</span>
-                        <span className={item.tone}>{item.value}</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
-                        <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: item.width }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-        </ViewContainer>
-      )
-    }
-
-    if (activeTab === 'comms') {
-      return (
-        <ViewContainer key={activeTab}>
-          <section className="grid gap-5 lg:grid-cols-[260px_1fr]">
-            <aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
-              <h2 className="text-sm font-medium text-slate-200">Channels</h2>
-              <div className="mt-3 space-y-2 text-sm text-slate-300">
-                {channels.map((channel) => (
-                  <button
-                    key={channel.name}
-                    onClick={() => setActiveChannel(channel.name)}
-                    className={`w-full rounded-lg px-3 py-2 text-left transition ${
-                      activeChannel === channel.name ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>{channel.name}</span>
-                      {channel.unread > 0 ? (
-                        <span className="rounded-full bg-indigo-500/25 px-2 py-0.5 text-[10px] text-indigo-100">
-                          {channel.unread}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-1 text-[11px] text-slate-500">{channel.members} editors joined</p>
-                  </button>
-                ))}
-              </div>
-              <p className="mt-4 rounded-lg border border-white/10 bg-slate-900/70 p-2.5 text-xs text-slate-400">
-                {channelHints[activeChannel]}
-              </p>
-              <div className="mt-3 rounded-lg border border-white/10 bg-slate-900/70 p-2.5">
-                <p className="text-[11px] uppercase tracking-wide text-slate-500">Live participants</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {(channelPresence[activeChannel] ?? []).map((agent) => (
-                    <span
-                      key={agent}
-                      className="rounded-full border border-emerald-400/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-200"
-                    >
-                      {agent}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </aside>
-
-            <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2>
-                  <p className="text-xs text-slate-500">{selectedChannelMeta?.members ?? 0} active editors</p>
-                </div>
-                <button
-                  onClick={appendSimulatedMessages}
-                  disabled={simulating}
-                  className="inline-flex items-center gap-2 rounded-lg bg-purple-500/20 px-3 py-2 text-xs font-semibold text-purple-200 transition hover:bg-purple-500/30 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <Play className="h-3.5 w-3.5" />
-                  {simulating ? 'Simulating...' : 'Simulate Activity'}
-                </button>
-              </div>
-
-              <p className="mt-2 text-xs text-slate-500">
-                Simulated runs enqueue 2-3 mock responses with staggered typing delays.
-              </p>
-
-              {simulating && (
-                <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
-                  {typingAgents[0] ? `${typingAgents[0]} is typing...` : simulationStep === 'typing' ? 'Newsroom desk is drafting updates...' : 'Simulation complete.'}
-                </div>
-              )}
-
-              <div ref={chatScrollRef} className="mt-4 h-[320px] space-y-3 overflow-auto pr-1">
-                {channelMessages.map((message) => (
-                  <article
-                    key={message.id}
-                    className={`rounded-xl border p-3 transition ${
-                      message.type === 'alert'
-                        ? 'border-amber-400/30 bg-amber-500/10'
-                        : message.type === 'action'
-                        ? 'border-purple-400/25 bg-purple-500/10'
-                        : 'border-white/10 bg-slate-900/70 hover:border-indigo-400/20'
-                    }`}
-                    style={{ animation: 'fadeUp 0.24s ease' }}
-                  >
-                    <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-                      <span className="inline-flex items-center gap-2">
-                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-semibold ${roleAccent[message.author] ?? 'from-slate-500/40 to-slate-300/20 text-slate-100'}`}>
-                          {message.author.slice(0, 2).toUpperCase()}
-                        </span>
-                        {message.type === 'alert' ? <AlertTriangle className="h-3.5 w-3.5 text-amber-300" /> : null}
-                        {message.type === 'action' ? <Sparkles className="h-3.5 w-3.5 text-purple-300" /> : null}
-                        {message.author}
-                      </span>
-                      <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>{message.time}</span>
-                    </div>
-                    <MessageBody message={message} />
-                  </article>
-                ))}
-
-                {typingAgents.map((agent) => (
-                  <article key={`typing-${agent}`} className="rounded-xl border border-purple-400/30 bg-purple-500/10 p-3">
-                    <div className="mb-2 flex items-center justify-between text-xs text-purple-200">
-                      <span>{agent}</span>
-                      <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>typing…</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:0ms]" />
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:180ms]" />
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200 [animation-delay:360ms]" />
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/70 p-3">
-                <div className="mb-2 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Message {activeChannel}</span>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>editors only</span>
-                </div>
-                <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-500">
-                  <MessageSquare className="h-4 w-4 text-slate-500" />
-                  <span className="truncate">Compose update… (prototype input)</span>
-                </div>
-              </div>
-            </div>
-          </section>
-        </ViewContainer>
-      )
-    }
-
-    if (activeTab === 'orchestration') {
-      return (
-        <ViewContainer key={activeTab}>
-          <section className="mb-5 grid gap-3 md:grid-cols-4">
-            {bureauReadiness.map((item) => (
-              <article key={item.label} className="rounded-xl border border-white/10 bg-slate-800/60 p-3 backdrop-blur">
-                <p className="text-[11px] uppercase tracking-wide text-slate-500">{item.label}</p>
-                <p className={`mt-2 text-xl font-semibold ${item.tone}`}>{item.value}</p>
-                <p className="mt-1 text-xs text-slate-400">{item.helper}</p>
-              </article>
-            ))}
-          </section>
-
-          <section className="mb-5 grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-            <div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-4 backdrop-blur">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-purple-100">Editorial checkpoint</p>
-                  <p className="mt-1 text-xs text-slate-300">TSK-361 requires human review before the article can publish.</p>
-                </div>
-                <span className="rounded-full border border-purple-300/30 bg-slate-950/40 px-3 py-1 font-mono text-xs text-purple-100">
-                  2/3 checks ready
-                </span>
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                {reviewValidators.map((validator) => (
-                  <div key={validator.agent} className={`rounded-lg border px-3 py-2 ${validator.tone}`}>
-                    <p className="truncate text-xs font-semibold">{validator.agent}</p>
-                    <p className="mt-1 font-mono text-[11px]">{validator.vote} · {validator.confidence}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
-              <p className="text-sm font-semibold text-slate-100">Publishing policy</p>
-              <div className="mt-3 space-y-2">
-                {orchestrationSignals.map((signal) => (
-                  <div key={signal.label} className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-900/70 px-3 py-2 text-xs">
-                    <span className="text-slate-400">{signal.label}</span>
-                    <span className="font-mono text-slate-100">{signal.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="grid gap-4 lg:grid-cols-4">
-            {taskStates.map((state) => (
-              <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
-                <h2 className="text-sm font-semibold text-slate-100">{state}</h2>
-                <div className="mt-4 space-y-3">
-                  {tasksByState[state].map((task) => (
-                    <article
-                      key={task.id}
-                      className="rounded-lg border border-white/10 bg-slate-900/80 p-3 transition hover:border-indigo-400/25"
-                    >
-                      <p className="text-xs text-slate-400" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                        {task.id}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-100">{task.title}</p>
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <p className="text-xs text-slate-400">Owner: {task.agent}</p>
-                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${taskStateBadgeTone[task.state]}`}>
-                          {task.state}
-                        </span>
-                      </div>
-                      {task.state === 'Needs Review' && (
-                        <div className="mt-3">
-                          <div className="mb-1 flex items-center justify-between text-xs text-purple-200">
-                            <span>Consensus Checks</span>
-                            <span>
-                              {task.votes}/{task.totalVotes} Checks
-                            </span>
-                          </div>
-                          <div className="h-2 rounded-full bg-slate-700">
-                            <div
-                              className="h-full rounded-full bg-purple-400"
-                              style={{ width: `${(task.votes / task.totalVotes) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </article>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </section>
-        </ViewContainer>
-      )
-    }
-
-    return (
-      <ViewContainer key={activeTab}>
-        <div className="mb-4 grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-4 py-2 text-xs text-slate-300">
-            <span className="text-slate-400">Status legend:</span>
-            {statusLegend.map((item) => (
-              <span key={item.label} className="inline-flex items-center gap-1.5">
-                <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
-                {item.label}
-              </span>
-            ))}
-          </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {fleetHealth.map((item) => (
-              <div key={item.label} className="rounded-xl border border-white/10 bg-slate-800/60 px-3 py-2">
-                <div className="mb-1 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400">{item.label}</span>
-                  <span className={`font-mono ${item.tone}`}>{item.value}</span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-slate-950/80">
-                  <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: item.bar }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {teamMembers.map((agent) => (
-            <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-white">{agent.name}</h2>
-                <span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} />
-              </div>
-              <p className="mt-3 text-xs text-slate-400">Status</p>
-              <p className="text-sm text-slate-200">{agent.status}</p>
-              <p className="mt-2 text-xs text-slate-400">Role</p>
-              <p className="text-sm text-slate-200">{agent.role}</p>
-              <p className="mt-2 text-xs text-slate-400">Specialization</p>
-              <p className="text-sm text-slate-200">{agent.specialization}</p>
-              <p className="mt-2 text-xs text-slate-400">Uptime</p>
-              <p className="text-sm text-slate-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                {agent.uptime}
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2">
-                <div>
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">Tooling</p>
-                  <p className="mt-1 truncate font-mono text-xs text-indigo-200">{agent.model}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">Region</p>
-                  <p className="mt-1 font-mono text-xs text-emerald-200">{agent.region}</p>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {agent.permissions.map((permission) => (
-                  <span
-                    key={`${agent.name}-${permission}`}
-                    className="rounded-full border border-purple-400/25 bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-200"
-                  >
-                    {permission}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-3">
-                <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Current queue</span>
-                  <span className="text-slate-200" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                    {teamWorkload[agent.name]}%
-                  </span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-slate-950/80">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-amber-300 to-purple-400"
-                    style={{ width: `${teamWorkload[agent.name]}%` }}
-                  />
-                </div>
-              </div>
-            </article>
-          ))}
+    if (activeTab === 'overview') return (
+      <ViewContainer>
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {stats.map((stat) => { const Icon = stat.icon; return <article key={stat.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur transition hover:border-indigo-400/30"><div className="flex items-start justify-between"><p className="text-sm text-slate-400">{stat.label}</p><Icon className="h-4 w-4 text-indigo-300" /></div><p className="mt-3 text-2xl font-semibold text-white">{stat.value}</p><p className="mt-1 text-xs text-emerald-300">{stat.delta} vs last hour</p></article> })}
+        </section>
+        <section className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
+          <div className="h-[360px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2><Gauge className="h-4 w-4 text-indigo-300" /></div><ResponsiveContainer width="100%" height="92%"><AreaChart data={analytics}><defs><linearGradient id="load" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} /><stop offset="95%" stopColor="#6366f1" stopOpacity={0.02} /></linearGradient><linearGradient id="tokens" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3} /><stop offset="95%" stopColor="#10b981" stopOpacity={0.03} /></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" /><XAxis dataKey="time" stroke="#94a3b8" fontSize={12} /><YAxis stroke="#94a3b8" fontSize={12} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,.12)', borderRadius: '10px', color: '#e2e8f0' }} /><Area type="monotone" dataKey="load" name="System Load" stroke="#6366f1" fill="url(#load)" strokeWidth={2} /><Area type="monotone" dataKey="tokens" name="Token Consumption" stroke="#10b981" fill="url(#tokens)" strokeWidth={2} /></AreaChart></ResponsiveContainer></div>
+          <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-medium text-slate-200">Terminal Log</h2><Activity className="h-4 w-4 text-amber-300" /></div><div className="h-[300px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 font-mono text-xs leading-6 text-slate-300">{terminalEvents.map((event, idx) => <p key={`${event.level}-${idx}`}><span className={levelTextColor[event.level] ?? 'text-indigo-200'}>[{event.level}]</span> {event.message}</p>)}</div></div>
         </section>
       </ViewContainer>
     )
+
+    if (activeTab === 'comms') return (
+      <ViewContainer>
+        <section className="grid gap-5 lg:grid-cols-[260px_1fr]"><aside className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><h2 className="text-sm font-medium text-slate-200">Channels</h2><div className="mt-3 space-y-2 text-sm text-slate-300">{channels.map((channel) => <button key={channel.name} onClick={() => setActiveChannel(channel.name)} className={`w-full rounded-lg px-3 py-2 text-left transition ${activeChannel === channel.name ? 'bg-indigo-500/20 text-indigo-200' : 'hover:bg-slate-700/50'}`}><div className="flex items-center justify-between"><span>{channel.name}</span>{channel.unread > 0 && <span className="rounded-full bg-indigo-500/25 px-2 py-0.5 text-[10px] text-indigo-100">{channel.unread}</span>}</div><p className="mt-1 text-[11px] text-slate-500">{channel.members} agents joined</p></button>)}</div><p className="mt-4 rounded-lg border border-white/10 bg-slate-900/70 p-2.5 text-xs text-slate-400">{channelHints[activeChannel]}</p></aside><div className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex items-center justify-between"><div><h2 className="text-sm font-medium text-slate-200">{activeChannel}</h2><p className="text-xs text-slate-500">{selectedChannelMeta?.members ?? 0} active agents</p></div><button onClick={appendSimulatedMessages} disabled={simulating} className="inline-flex items-center gap-2 rounded-lg bg-purple-500/20 px-3 py-2 text-xs font-semibold text-purple-200 transition hover:bg-purple-500/30 disabled:opacity-60"><Play className="h-3.5 w-3.5" />{simulating ? 'Simulating...' : 'Simulate Activity'}</button></div>{simulating && <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-purple-400/30 bg-purple-500/10 px-2.5 py-1 text-xs text-purple-200"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />{typingAgents[0] ? `${typingAgents[0]} is typing...` : 'Swarm is thinking...'}</div>}<div ref={chatScrollRef} className="mt-4 h-[420px] space-y-3 overflow-auto pr-1">{channelMessages.map((message) => <article key={message.id} className={`rounded-xl border p-3 transition ${message.type === 'alert' ? 'border-amber-400/30 bg-amber-500/10' : message.type === 'action' ? 'border-purple-400/25 bg-purple-500/10' : 'border-white/10 bg-slate-900/70 hover:border-indigo-400/20'}`} style={{ animation: 'fadeUp 0.24s ease' }}><div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span className="inline-flex items-center gap-2"><span className={`inline-flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-semibold ${roleAccent[message.author] ?? roleAccent.System}`}>{message.author.slice(0, 2).toUpperCase()}</span>{message.type === 'alert' && <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />}{message.type === 'action' && <Sparkles className="h-3.5 w-3.5 text-purple-300" />}{message.author}</span><span className="font-mono">{message.time}</span></div><MessageBody message={message} /></article>)}{typingAgents.map((agent) => <article key={`typing-${agent}`} className="rounded-xl border border-purple-400/30 bg-purple-500/10 p-3"><div className="mb-2 flex items-center justify-between text-xs text-purple-200"><span>{agent}</span><span className="font-mono">typing…</span></div><div className="flex gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-200" /></div></article>)}</div></div></section>
+      </ViewContainer>
+    )
+
+    if (activeTab === 'orchestration') return (
+      <ViewContainer>
+        <section className="grid gap-4 lg:grid-cols-4">{taskStates.map((state) => <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><h2 className="text-sm font-semibold text-slate-100">{state}</h2><div className="mt-4 space-y-3">{tasksByState[state].map((task) => <article key={task.id} className="rounded-lg border border-white/10 bg-slate-900/80 p-3 transition hover:border-indigo-400/25"><p className="font-mono text-xs text-slate-400">{task.id}</p><p className="mt-1 text-sm text-slate-100">{task.title}</p><div className="mt-2 flex items-center justify-between gap-2"><p className="text-xs text-slate-400">Owner: {task.agent}</p><span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${taskTone[task.state]}`}>{task.state}</span></div>{task.state === 'Needs Consensus' && <div className="mt-3"><div className="mb-1 flex items-center justify-between text-xs text-purple-200"><span>Consensus</span><span>{task.votes}/{task.totalVotes} Votes</span></div><div className="h-2 rounded-full bg-slate-700"><div className="h-full rounded-full bg-purple-400" style={{ width: `${(task.votes / task.totalVotes) * 100}%` }} /></div></div>}</article>)}</div></div>)}</section>
+      </ViewContainer>
+    )
+
+    return <ViewContainer><section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{agents.map((agent) => <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex items-center justify-between"><h2 className="text-sm font-semibold text-white">{agent.name}</h2><span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} /></div><p className="mt-3 text-xs text-slate-400">Role</p><p className="text-sm text-slate-200">{agent.role}</p><p className="mt-2 text-xs text-slate-400">Specialization</p><p className="text-sm text-slate-200">{agent.specialization}</p><p className="mt-2 text-xs text-slate-400">Uptime</p><p className="font-mono text-sm text-slate-200">{agent.uptime}</p><div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2"><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Model</p><p className="mt-1 truncate font-mono text-xs text-indigo-200">{agent.model}</p></div><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Region</p><p className="mt-1 font-mono text-xs text-emerald-200">{agent.region}</p></div></div></article>)}</section></ViewContainer>
   }
 
-  return (
-    <>
-      <Head>
-        <title>LocalLens.ai · AI-Native Local News Bureau</title>
-        <meta
-          name="description"
-          content="LocalLens.ai is an AI-native local news bureau that turns public records into human-edited town mastheads, newsletters, and local ad inventory."
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
-      <div
-        className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-indigo-500/30"
-        style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
-      >
-        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_42%)]" />
-        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.08),transparent_36%)]" />
-        {!inConsole ? (
-          <main
-            className={`mx-auto max-w-6xl px-4 py-12 transition-all duration-300 sm:px-6 lg:px-8 ${
-              isEnteringConsole ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'
-            }`}
-          >
-            <nav className="mb-14 flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 shadow-2xl shadow-black/10 backdrop-blur">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-200 ring-1 ring-indigo-300/20">
-                  <Command className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">LocalLens.ai</p>
-                  <p className="text-xs text-slate-400">Local news bureau operating system</p>
-                </div>
-              </div>
-              <div className="hidden items-center gap-2 text-xs text-slate-300 sm:flex">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
-                Live network · 14 pilot towns
-              </div>
-            </nav>
-            <section className="grid items-center gap-10 lg:grid-cols-2">
-              <div>
-                <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-indigo-300">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
-                  LocalLens.ai
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {landingPills.map((pill) => (
-                    <span key={pill.label} className={`rounded-full border px-2.5 py-1 text-[11px] ${pill.tone}`}>
-                      {pill.label}
-                    </span>
-                  ))}
-                </div>
-                <h1 className="mt-3 text-4xl font-semibold leading-tight text-white md:text-5xl">
-                  Stamp out credible local mastheads
-                </h1>
-                <p className="mt-4 max-w-xl text-slate-300">
-                  A human-fronted newsroom engine that watches public records, drafts local coverage, and sends a daily newsletter for every town you launch.
-                </p>
-                <button
-                  onClick={handleAccessConsole}
-                  className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-                >
-                  Open Bureau Console
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {trustSignals.map((signal) => (
-                    <div key={signal.label} className="rounded-xl border border-white/10 bg-slate-800/55 p-3 backdrop-blur">
-                      <p className="text-lg font-semibold text-white">{signal.value}</p>
-                      <p className="mt-1 text-[11px] leading-4 text-slate-400">{signal.label}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  {scenarioCards.map((scenario) => (
-                    <article
-                      key={scenario.label}
-                      className={`rounded-xl border bg-gradient-to-br p-3 shadow-lg shadow-black/10 backdrop-blur ${scenario.tone}`}
-                    >
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{scenario.label}</p>
-                      <p className="mt-2 text-xl font-semibold text-white">{scenario.metric}</p>
-                      <p className="mt-1 text-[11px] leading-4 text-slate-300">{scenario.detail}</p>
-                    </article>
-                  ))}
-                </div>
-              </div>
+  return <>
+    <Head><title>Consendus.ai · Agent Swarm Infrastructure</title><meta name="description" content="Infrastructure for autonomous agents to communicate, coordinate, and reach consensus." /><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" /><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></Head>
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-indigo-500/30" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}><div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.16),transparent_42%)]" /><div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.1),transparent_36%)]" />{!inConsole ? <main className={`mx-auto max-w-6xl px-4 py-12 transition-all duration-300 sm:px-6 lg:px-8 ${isEnteringConsole ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}><nav className="mb-14 flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 shadow-2xl shadow-black/10 backdrop-blur"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-200 ring-1 ring-indigo-300/20"><Command className="h-5 w-5" /></div><div><p className="text-sm font-semibold text-white">Consendus.ai</p><p className="text-xs text-slate-400">Agent swarm control plane</p></div></div><div className="hidden items-center gap-2 text-xs text-slate-300 sm:flex"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />Live quorum · 128 agents</div></nav><section className="grid items-center gap-10 lg:grid-cols-2"><div><p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-indigo-300"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />Consendus.ai</p><h1 className="mt-4 text-4xl font-semibold leading-tight text-white md:text-6xl">Orchestrate Your Agent Swarm</h1><p className="mt-4 max-w-xl text-lg text-slate-300">Infrastructure for autonomous agents to communicate, coordinate, and reach consensus.</p><button onClick={handleAccessConsole} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400"><Zap className="h-4 w-4" />Access Console<ChevronRight className="h-4 w-4" /></button></div><div className="rounded-2xl border border-white/10 bg-[#1e293b]/80 p-5 shadow-2xl shadow-black/25 backdrop-blur"><div className="mb-4 flex items-center justify-between text-xs text-slate-400"><span className="flex items-center gap-2"><span className="flex items-center gap-1.5">{codeWindowDots.map((dot) => <span key={dot} className={`h-2.5 w-2.5 rounded-full ${dot}`} />)}</span><span className="uppercase tracking-[0.25em]"><Terminal className="mr-1 inline h-4 w-4 text-emerald-300" />swarm.config.ts</span></span><span className="rounded-full border border-white/10 bg-slate-900/60 px-2 py-1">prod</span></div><pre className="overflow-x-auto rounded-lg border border-emerald-400/20 bg-slate-950/80 p-4 font-mono text-xs text-emerald-200">{`import { Consendus } from 'consendus'
 
-              <div className="rounded-2xl border border-white/10 bg-[#1e293b]/80 p-5 shadow-2xl shadow-black/25 backdrop-blur">
-                <div className="mb-4 flex items-center justify-between text-xs text-slate-400">
-                  <span className="flex items-center gap-2">
-                    <span className="flex items-center gap-1.5">
-                      {codeWindowDots.map((dot) => (
-                        <span key={dot} className={`h-2.5 w-2.5 rounded-full ${dot}`} />
-                      ))}
-                    </span>
-                    <span className="uppercase tracking-[0.25em]">
-                      <Terminal className="mr-1 inline h-4 w-4 text-emerald-300" />
-                      town.config.ts
-                    </span>
-                  </span>
-                  <span className="rounded-full border border-white/10 bg-slate-900/60 px-2 py-1">Pilot config</span>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-slate-900/50 p-1">
-                  <pre
-                    className="overflow-x-auto rounded-lg border border-emerald-400/20 bg-slate-950/80 p-4 text-xs text-emerald-200"
-                    style={{ fontFamily: 'JetBrains Mono, monospace' }}
-                  >
-{`import { LocalLens } from 'locallens'
-
-const town = new LocalLens.Masthead({
-  town: 'Riverton',
-  sources: ['council', 'planning', 'schools', 'notices'],
-  editor: 'named-local-human',
-  newsletter: 'daily-morning-brief',
-  revenue: ['sponsorships', 'paid-listings', 'memberships'],
+const swarm = new Consendus.Swarm({
+  name: 'migration-api-v2',
+  agents: ['Atlas-Orchestrator', 'Codex-Dev', 'Sentry-Sec'],
+  bus: Consendus.semanticBus('prod-us-east'),
+  consensus: { quorum: 3, strategy: 'weighted-vote' },
+  guardrails: ['policy.audit', 'human-escalation'],
 })
 
-await town.publishDigest({ review: 'human-required' })`}
-                  </pre>
-                </div>
-
-                <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/35 p-4">
-                  <div className="mb-3 flex items-center justify-between text-xs">
-                    <span className="font-medium text-slate-200">Local coverage topology</span>
-                    <span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-2 py-0.5 text-purple-200">
-                      editor review
-                    </span>
-                  </div>
-                  <div className="relative h-44 overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.18),transparent_52%)]">
-                    <div className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-indigo-300/30 bg-indigo-500/20 shadow-[0_0_45px_rgba(99,102,241,0.35)]" />
-                    <div className="absolute left-1/2 top-1/2 h-px w-[70%] -translate-x-1/2 bg-gradient-to-r from-transparent via-indigo-300/40 to-transparent" />
-                    <div className="absolute left-1/2 top-1/2 h-[70%] w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-purple-300/40 to-transparent" />
-                    {sourceTopology.map((node) => (
-                      <div
-                        key={node.agent}
-                        className={`absolute ${node.position} rounded-xl border px-3 py-2 text-xs shadow-lg shadow-black/20 backdrop-blur ${node.tone}`}
-                      >
-                        <p className="font-semibold">{node.agent}</p>
-                        <p className="text-[10px] opacity-75">{node.role}</p>
-                      </div>
-                    ))}
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                      <p className="text-xs font-semibold text-white">Public Record Feed</p>
-                      <p className="font-mono text-[10px] text-indigo-200">daily digest</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  {controlPlaneSignals.map((signal) => (
-                    <div key={signal.label} className="rounded-xl border border-white/10 bg-slate-950/35 p-3">
-                      <div className="mb-2 flex items-center justify-between gap-2 text-[11px]">
-                        <span className="text-slate-400">{signal.label}</span>
-                        <span className={signal.tone}>{signal.value}</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
-                        <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-300" style={{ width: signal.bar }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section className="mt-10 grid gap-4 md:grid-cols-3">
-              {features.map((feature) => (
-                <article
-                  key={feature.title}
-                  className="rounded-xl border border-white/10 bg-[#1e293b]/75 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"
-                  style={{ animation: 'fadeUp 0.36s ease' }}
-                >
-                  <div className="flex items-center gap-2 text-white">
-                    <feature.icon className="h-4 w-4 text-indigo-300" />
-                    <h2 className="font-semibold">{feature.title}</h2>
-                  </div>
-                  <p className="mt-3 text-sm text-slate-300">{feature.description}</p>
-                </article>
-              ))}
-            </section>
-          </main>
-        ) : (
-          <div className="flex min-h-screen">
-            <div
-              className={`fixed inset-0 z-30 bg-black/55 transition-opacity md:hidden ${
-                sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-              }`}
-              onClick={() => setSidebarOpen(false)}
-            />
-
-            <aside
-              className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${
-                sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-200">
-                    <Command className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">LocalLens</p>
-                    <p className="text-sm font-semibold text-white">Bureau Console</p>
-                  </div>
-                </div>
-                <button onClick={() => setSidebarOpen(false)} className="rounded-lg border border-white/10 p-2 md:hidden">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <nav className="mt-8 space-y-1">
-                {navItems.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        changeTab(item.id)
-                        setSidebarOpen(false)
-                      }}
-                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-sm transition ${
-                        activeTab === item.id
-                          ? 'border-indigo-400/40 bg-indigo-500/20 text-white'
-                          : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <Icon className="h-4 w-4" />
-                        {item.label}
-                      </span>
-                      <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
-                    </button>
-                  )
-                })}
-              </nav>
-
-              <div className="mt-8 rounded-2xl border border-white/10 bg-slate-800/55 p-4 text-xs text-slate-400">
-                <div className="flex items-center justify-between text-slate-200">
-                  <span>Source monitor</span>
-                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-200">
-                    Online
-                  </span>
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="font-mono text-slate-100">42ms</p>
-                    <p>sources</p>
-                  </div>
-                  <div>
-                    <p className="font-mono text-slate-100">9.4k</p>
-                    <p>items/day</p>
-                  </div>
-                </div>
-                <div className="mt-4 space-y-2 border-t border-white/10 pt-3">
-                  {consoleHealth.map((item) => (
-                    <div key={item.label} className="flex items-center justify-between gap-2">
-                      <span>{item.label}</span>
-                      <span className="font-mono text-slate-100">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setInConsole(false)
-                  setSidebarOpen(false)
-                }}
-                className="mt-4 w-full rounded-xl border border-white/10 bg-slate-800/70 px-3 py-2 text-sm text-slate-200 transition hover:border-indigo-300/40 hover:text-white md:hidden"
-              >
-                Back to landing
-              </button>
-            </aside>
-
-            <main className="w-full p-4 md:p-8">
-              <header className="mb-6 flex flex-wrap items-center gap-3">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  aria-label="Open navigation"
-                  className="rounded-xl border border-white/10 bg-slate-800 p-2 md:hidden"
-                >
-                  <Menu className="h-4 w-4" />
-                </button>
-                <div className="min-w-[220px] md:ml-1">
-                  <p className="text-sm font-semibold text-slate-100">{tabMeta[activeTab].title}</p>
-                  <p className="text-xs text-slate-400">{tabMeta[activeTab].description}</p>
-                </div>
-                <div className="hidden items-center gap-2 text-sm md:flex">
-                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">
-                    Town network healthy
-                  </span>
-                  <span className="text-slate-400">public records · editor checks · newsletters online</span>
-                </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <button
-                    onClick={() => setInConsole(false)}
-                    className="hidden rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm text-slate-200 transition hover:border-indigo-300/40 hover:text-white md:block"
-                  >
-                    Back to landing
-                  </button>
-                  <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800/90 px-3 py-2 text-sm backdrop-blur">
-                    <UserCircle2 className="h-4 w-4 text-indigo-300" />
-                    Settings
-                  </button>
-                </div>
-              </header>
-
-              <section className="mb-5 grid gap-2 sm:grid-cols-3">
-                {[...quickSignals, ...consoleOverviewHealth].map((signal) => (
-                  <article
-                    key={signal.label}
-                    className={`rounded-xl border px-3 py-2 backdrop-blur ${signal.tone}`}
-                  >
-                    <p className="text-[11px] uppercase tracking-wide opacity-80">{signal.label}</p>
-                    <p className="mt-0.5 text-sm font-semibold">{signal.value}</p>
-                  </article>
-                ))}
-              </section>
-
-              <section className="mb-5 rounded-xl border border-white/10 bg-slate-800/60 p-3 text-xs text-slate-300 backdrop-blur">
-                <p className="inline-flex items-center gap-2">
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
-                  <span className="text-slate-200">Editorial Notice:</span>
-                  Planning-board agenda changed after ingestion. Editor verification is required before publish.
-                </p>
-              </section>
-
-              <div
-                className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'}
-                style={tabVisible ? { animation: 'fadeUp 0.24s ease' } : undefined}
-              >
-                {renderTab()}
-              </div>
-            </main>
-          </div>
-        )}
-      </div>
-      <style jsx global>{`
-        html {
-          color-scheme: dark;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(6px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-    </>
-  )
+await swarm.coordinate({ objective: 'ship safely' })`}</pre><div className="mt-4 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-indigo-400/20 bg-indigo-500/10 p-3"><Network className="h-4 w-4 text-indigo-300" /><p className="mt-2 text-xs text-slate-300">Semantic events</p></div><div className="rounded-xl border border-purple-400/20 bg-purple-500/10 p-3"><Sparkles className="h-4 w-4 text-purple-300" /><p className="mt-2 text-xs text-slate-300">AI actions</p></div><div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3"><Lock className="h-4 w-4 text-emerald-300" /><p className="mt-2 text-xs text-slate-300">Policy safe</p></div></div></div></section><section className="mt-10 grid gap-4 md:grid-cols-3">{features.map((feature) => <article key={feature.title} className="rounded-xl border border-white/10 bg-[#1e293b]/75 p-5 shadow-lg shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/40"><div className="flex items-center gap-2 text-white"><feature.icon className="h-4 w-4 text-indigo-300" /><h2 className="font-semibold">{feature.title}</h2></div><p className="mt-3 text-sm text-slate-300">{feature.description}</p></article>)}</section></main> : <div className="flex min-h-screen"><div className={`fixed inset-0 z-30 bg-black/55 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`} onClick={() => setSidebarOpen(false)} /><aside className={`fixed z-40 h-full w-72 border-r border-white/10 bg-slate-900/95 p-5 backdrop-blur transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-200"><Command className="h-5 w-5" /></div><div><p className="text-xs uppercase tracking-[0.25em] text-slate-400">Consendus</p><p className="text-sm font-semibold text-white">Swarm Console</p></div></div><button onClick={() => setSidebarOpen(false)} className="rounded-lg border border-white/10 p-2 md:hidden"><X className="h-4 w-4" /></button></div><nav className="mt-8 space-y-1">{navItems.map((item) => { const Icon = item.icon; return <button key={item.id} onClick={() => { changeTab(item.id); setSidebarOpen(false) }} className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-sm transition ${activeTab === item.id ? 'border-indigo-400/40 bg-indigo-500/20 text-white' : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5'}`}><span className="flex items-center gap-2"><Icon className="h-4 w-4" />{item.label}</span><ChevronRight className="h-3.5 w-3.5 text-slate-500" /></button> })}</nav><div className="mt-8 rounded-2xl border border-white/10 bg-slate-800/55 p-4 text-xs text-slate-400"><div className="flex items-center justify-between text-slate-200"><span>Semantic bus</span><span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-200">Online</span></div><div className="mt-3 grid grid-cols-2 gap-2"><div><p className="font-mono text-slate-100">18ms</p><p>latency</p></div><div><p className="font-mono text-slate-100">4.8k</p><p>msgs/min</p></div></div></div></aside><main className="w-full p-4 md:p-8"><header className="mb-6 flex flex-wrap items-center gap-3"><button onClick={() => setSidebarOpen(true)} aria-label="Open navigation" className="rounded-xl border border-white/10 bg-slate-800 p-2 md:hidden"><Menu className="h-4 w-4" /></button><div className="min-w-[220px] md:ml-1"><p className="text-sm font-semibold text-slate-100">{navItems.find((item) => item.id === activeTab)?.label}</p><p className="text-xs text-slate-400">Autonomous agent swarm operations and coordination.</p></div><div className="ml-auto flex items-center gap-2"><button onClick={() => setInConsole(false)} className="hidden rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm text-slate-200 transition hover:border-indigo-300/40 hover:text-white md:block">Back to landing</button><button className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-800/90 px-3 py-2 text-sm backdrop-blur"><UserCircle2 className="h-4 w-4 text-indigo-300" />Settings</button></div></header><div className={tabVisible ? 'opacity-100 transition-opacity duration-200' : 'opacity-0 transition-opacity duration-150'} style={tabVisible ? { animation: 'fadeUp 0.24s ease' } : undefined}>{renderTab()}</div></main></div>}</div><style jsx global>{`html{color-scheme:dark}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}`}</style>
+  </>
 }
