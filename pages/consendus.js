@@ -74,6 +74,12 @@ const swarmPulse = [
   { label: 'Guardrail blocks', value: '23', tone: 'text-amber-300' },
 ]
 
+const topologyNodes = [
+  { label: 'Semantic Bus', value: '24 topics', icon: RadioTower, tone: 'border-indigo-400/30 bg-indigo-500/10 text-indigo-200' },
+  { label: 'Consensus Engine', value: '7 open votes', icon: CheckCircle2, tone: 'border-purple-400/30 bg-purple-500/10 text-purple-200' },
+  { label: 'Guardian Rails', value: '23 blocks', icon: ShieldCheck, tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
+]
+
 const analytics = [
   { time: '00:00', load: 31, tokens: 48 },
   { time: '02:00', load: 42, tokens: 61 },
@@ -270,7 +276,33 @@ export default function Consendus() {
         </section>
         <section className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
           <div className="h-[360px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2><Gauge className="h-4 w-4 text-indigo-300" /></div><ResponsiveContainer width="100%" height="92%"><AreaChart data={analytics}><defs><linearGradient id="load" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} /><stop offset="95%" stopColor="#6366f1" stopOpacity={0.02} /></linearGradient><linearGradient id="tokens" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3} /><stop offset="95%" stopColor="#10b981" stopOpacity={0.03} /></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" /><XAxis dataKey="time" stroke="#94a3b8" fontSize={12} /><YAxis stroke="#94a3b8" fontSize={12} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,.12)', borderRadius: '10px', color: '#e2e8f0' }} /><Area type="monotone" dataKey="load" name="System Load" stroke="#6366f1" fill="url(#load)" strokeWidth={2} /><Area type="monotone" dataKey="tokens" name="Token Consumption" stroke="#10b981" fill="url(#tokens)" strokeWidth={2} /></AreaChart></ResponsiveContainer></div>
-          <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-medium text-slate-200">Terminal Log</h2><Activity className="h-4 w-4 text-amber-300" /></div><div className="h-[300px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 font-mono text-xs leading-6 text-slate-300">{terminalEvents.map((event, idx) => <p key={`${event.level}-${idx}`}><span className={levelTextColor[event.level] ?? 'text-indigo-200'}>[{event.level}]</span> {event.message}</p>)}</div></div>
+          <div className="space-y-6">
+            <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-sm font-medium text-slate-200">Swarm Topology</h2>
+                <Network className="h-4 w-4 text-purple-300" />
+              </div>
+              <div className="space-y-3">
+                {topologyNodes.map((node, index) => {
+                  const Icon = node.icon
+                  return (
+                    <div key={node.label} className={`relative rounded-xl border p-3 ${node.tone}`}>
+                      {index < topologyNodes.length - 1 && <span className="absolute -bottom-3 left-6 h-3 w-px bg-white/20" />}
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center gap-2 text-sm font-medium">
+                          <Icon className="h-4 w-4" />
+                          {node.label}
+                        </span>
+                        <span className="font-mono text-xs">{node.value}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              <p className="mt-3 rounded-lg border border-white/10 bg-slate-950/50 p-2 font-mono text-[11px] text-slate-400">route://agent.intent → quorum.vote → policy.attest</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-medium text-slate-200">Terminal Log</h2><Activity className="h-4 w-4 text-amber-300" /></div><div className="h-[300px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 font-mono text-xs leading-6 text-slate-300">{terminalEvents.map((event, idx) => <p key={`${event.level}-${idx}`}><span className={levelTextColor[event.level] ?? 'text-indigo-200'}>[{event.level}]</span> {event.message}</p>)}</div></div>
+          </div>
         </section>
       </ViewContainer>
     )
