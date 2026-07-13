@@ -2,8 +2,11 @@ import Head from 'next/head'
 import {
   AlertTriangle,
   ArrowRight,
+  BadgeDollarSign,
+  BarChart3,
   CheckCircle2,
   Dumbbell,
+  Egg,
   Flame,
   PackageCheck,
   ShieldCheck,
@@ -11,6 +14,7 @@ import {
   Sparkles,
   Target,
   TrendingUp,
+  Users,
 } from 'lucide-react'
 
 const stats = [
@@ -18,6 +22,39 @@ const stats = [
   { value: '2.5g', label: 'carbs target', detail: 'Macro-efficient enough for protein-maxxers and GLP-1 users.' },
   { value: '$4.20', label: 'Greek benchmark', detail: 'A proven shelf price for the product this concept geo-arbitrages.' },
   { value: '70%', label: 'US adults chasing protein', detail: 'A mainstream demand wave layered on top of fitness buyers.' },
+]
+
+const solutionPillars = [
+  {
+    title: 'One clean carton',
+    body: 'Roughly 94% pasteurised egg white, cocoa, and not much else: 50g+ protein with a simpler label than most chilled shakes.',
+  },
+  {
+    title: 'Egg supply, not whey supply',
+    body: 'Partner with a major egg producer for supply and co-manufacturing so the product is insulated from whey trader volatility.',
+  },
+  {
+    title: 'Narrow launch, wider market',
+    body: 'Start with premium DTC and gym buyers, then expand into lactose-intolerant shoppers, GLP-1 users, and grocery velocity.',
+  },
+]
+
+const marketNumbers = [
+  {
+    title: 'Multi-billion-dollar pool',
+    body: 'Protein supplements and RTD shakes are already huge; the first wedge only needs a defensible niche inside existing demand.',
+    icon: BarChart3,
+  },
+  {
+    title: '$29M subscription math',
+    body: '50,000 subscribers buying a monthly 12-pack at roughly $4 per carton implies about $2.4M monthly revenue.',
+    icon: BadgeDollarSign,
+  },
+  {
+    title: 'Egg protein tailwind',
+    body: 'Egg white protein is positioned as fat-free, cholesterol-free, complete, and highly digestible versus many plant alternatives.',
+    icon: Egg,
+  },
 ]
 
 const modelCards = [
@@ -45,11 +82,19 @@ const whyNow = [
   'The product has already been de-risked in Greece; the English-speaking market gap is distribution and brand.',
 ]
 
+const competitors = [
+  { name: 'Whey RTD incumbents', note: 'Premier Protein and Fairlife-style brands have scale, but their margin stack is exposed when whey inputs spike.' },
+  { name: 'Plant-based RTDs', note: 'Pea, soy, and oat formats avoid whey, but still fight taste and amino-acid perception versus complete egg white protein.' },
+  { name: 'Egg producers', note: 'The biggest copy risk is a scaled egg company deciding to ship a mainstream RTD before a startup owns the slot.' },
+  { name: 'Egg white powder tubs', note: 'Existing powders serve bakers and hardcore lifters, not the mainstream grab-and-go chilled drink occasion.' },
+]
+
 const risks = [
   'Taste and texture must beat the eggy, chalky reputation of older egg protein formats.',
   'Avian flu can still shock egg supply, so contracts and redundancy matter.',
   'Large whey RTD brands or egg producers can copy once the wedge is visible.',
   'Egg allergen labelling, pasteurisation, and cold-chain compliance add operational complexity.',
+  'If new whey capacity normalises prices, the brand must stand on taste and utility rather than arbitrage alone.',
 ]
 
 const launchSteps = [
@@ -77,8 +122,9 @@ export default function EggWhiteProteinDrinks() {
             Egg White Protein Drinks
           </a>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
+            <a href="#problem" className="hover:text-stone-950">Problem</a>
+            <a href="#market" className="hover:text-stone-950">Numbers</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
-            <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
           </nav>
@@ -111,7 +157,7 @@ export default function EggWhiteProteinDrinks() {
             </div>
 
             <div className="relative z-10 mx-auto w-full max-w-md">
-              <div className="rounded-[2.5rem] border-4 border-stone-950 bg-white p-6 shadow-2xl shadow-amber-900/20 rotate-2">
+              <div className="rotate-2 rounded-[2.5rem] border-4 border-stone-950 bg-white p-6 shadow-2xl shadow-amber-900/20">
                 <div className="rounded-[2rem] bg-gradient-to-br from-amber-100 via-white to-stone-100 p-6">
                   <div className="flex items-center justify-between">
                     <span className="rounded-full bg-stone-950 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-white">Chocolate</span>
@@ -144,6 +190,43 @@ export default function EggWhiteProteinDrinks() {
                 <p className="mt-2 text-sm leading-6 text-stone-600">{stat.detail}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section id="problem" className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="rounded-[2rem] bg-stone-950 p-8 text-white">
+              <Users className="h-10 w-10 text-amber-300" />
+              <h2 className="mt-5 text-4xl font-black tracking-tight">Protein demand has gone mainstream and medical.</h2>
+              <p className="mt-5 text-lg leading-8 text-stone-300">
+                Protein-maxxing is no longer just a gym behaviour. It now includes mainstream grocery shoppers, lactose-avoidant buyers,
+                and a growing GLP-1 cohort that is being told to protect lean mass while losing weight.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {solutionPillars.map((pillar) => (
+                <article key={pillar.title} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+                  <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+                  <h3 className="mt-4 text-xl font-black">{pillar.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-600">{pillar.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="market" className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-[2rem] border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
+            <p className="font-black uppercase tracking-[0.25em] text-amber-700">Key numbers</p>
+            <div className="mt-6 grid gap-5 md:grid-cols-3">
+              {marketNumbers.map((item) => (
+                <article key={item.title} className="rounded-3xl bg-amber-50 p-6">
+                  <item.icon className="h-9 w-9 text-amber-700" />
+                  <h3 className="mt-5 text-2xl font-black">{item.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-700">{item.body}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -181,6 +264,21 @@ export default function EggWhiteProteinDrinks() {
                 <p className="mt-3 leading-7 text-stone-600">{card.body}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-[2rem] bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
+            <p className="font-black uppercase tracking-[0.25em] text-amber-700">Competition</p>
+            <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-tight">The category leader slot is still empty.</h2>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {competitors.map((competitor) => (
+                <article key={competitor.name} className="rounded-3xl border border-stone-200 p-6">
+                  <h3 className="text-xl font-black">{competitor.name}</h3>
+                  <p className="mt-3 leading-7 text-stone-600">{competitor.note}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
