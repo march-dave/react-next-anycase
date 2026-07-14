@@ -14,6 +14,7 @@ import {
   Sparkles,
   Target,
   TrendingUp,
+  Trophy,
   Users,
 } from 'lucide-react'
 
@@ -104,6 +105,27 @@ const launchSteps = [
   { step: '04', title: 'Prove taste in public', body: 'Run blind taste tests against Premier Protein, Fairlife-style shakes, and plant-based RTDs before grocery meetings.' },
 ]
 
+const marketSignals = [
+  { value: '$1.7B', label: 'egg white powder market in 2025', detail: 'A growing input market projected toward $2.4B by 2030 before counting finished RTD cartons.' },
+  { value: '$8B+', label: 'broader egg protein market', detail: 'A mid-single-digit growth category with egg white as the largest, fastest-growing type.' },
+  { value: '$29M', label: 'DTC run-rate scenario', detail: '50,000 subscribers buying a 12-pack monthly at roughly $4 per carton.' },
+]
+
+const competitors = [
+  {
+    title: 'Whey RTD incumbents',
+    body: 'Premier Protein, Fairlife-style shakes, and other leaders own shelf space, but their input curve is exposed while whey prices remain elevated.',
+  },
+  {
+    title: 'Plant-based RTDs',
+    body: 'Pea, soy, and Ripple-style alternatives avoid dairy but still fight taste perception and amino-acid skepticism that egg white can sidestep.',
+  },
+  {
+    title: 'Egg producers and powders',
+    body: 'The Greek original, large egg companies, and powder tubs prove supply and demand exist, but nobody has made the mainstream English-market carton yet.',
+  },
+]
+
 export default function EggWhiteProteinDrinks() {
   return (
     <div className="min-h-screen bg-[#fff8ec] text-stone-950">
@@ -125,6 +147,8 @@ export default function EggWhiteProteinDrinks() {
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#market" className="hover:text-stone-950">Numbers</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
+            <a href="#market" className="hover:text-stone-950">Market</a>
+            <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
           </nav>
@@ -248,6 +272,41 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
+        <section id="market" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-black text-amber-900">
+                <Users className="h-4 w-4" /> Market map
+              </div>
+              <h2 className="mt-6 text-4xl font-black tracking-tight md:text-5xl">
+                A big RTD protein pool with an empty egg-white lane.
+              </h2>
+              <p className="mt-5 text-lg leading-8 text-stone-600">
+                The target is not to outspend every incumbent on day one. It is to own a defensible niche
+                while whey-based shakes absorb historic input pressure and shoppers search for cleaner,
+                lactose-free, complete-protein formats.
+              </p>
+              <div className="mt-8 rounded-3xl border border-stone-200 bg-stone-950 p-6 text-white">
+                <p className="text-sm font-black uppercase tracking-[0.25em] text-amber-300">ARR potential</p>
+                <p className="mt-3 text-2xl font-black">A $20M–$40M DTC-plus-gym brand is plausible before grocery unlocks the ceiling.</p>
+                <p className="mt-3 leading-7 text-stone-300">
+                  Capturing even a small share of RTD protein shake spend can create a nine-figure opportunity,
+                  but the realistic first milestone is subscription retention, gym-fridge velocity, and proof that the hero SKU reorders.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-4">
+              {marketSignals.map((signal) => (
+                <article key={signal.label} className="rounded-3xl border border-amber-900/10 bg-white p-6 shadow-sm">
+                  <p className="text-4xl font-black tracking-tight text-stone-950">{signal.value}</p>
+                  <h3 className="mt-2 text-xl font-black text-stone-800">{signal.label}</h3>
+                  <p className="mt-2 leading-7 text-stone-600">{signal.detail}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="model" className="mx-auto max-w-7xl px-6 py-16">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
@@ -268,14 +327,23 @@ export default function EggWhiteProteinDrinks() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 pb-16">
-          <div className="rounded-[2rem] bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
-            <p className="font-black uppercase tracking-[0.25em] text-amber-700">Competition</p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-tight">The category leader slot is still empty.</h2>
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <div className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
+            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-sm font-black text-amber-900">
+                  <Trophy className="h-4 w-4" /> Competition
+                </div>
+                <h2 className="mt-5 text-4xl font-black tracking-tight">The category leader slot is still empty.</h2>
+              </div>
+              <p className="max-w-xl text-lg leading-8 text-stone-600">
+                The threat is not that egg white RTD fails. The threat is that a major egg producer or whey incumbent sees the same arbitrage and ships first.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
               {competitors.map((competitor) => (
-                <article key={competitor.name} className="rounded-3xl border border-stone-200 p-6">
-                  <h3 className="text-xl font-black">{competitor.name}</h3>
-                  <p className="mt-3 leading-7 text-stone-600">{competitor.note}</p>
+                <article key={competitor.title} className="rounded-3xl bg-stone-50 p-6">
+                  <h3 className="text-2xl font-black">{competitor.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-600">{competitor.body}</p>
                 </article>
               ))}
             </div>
@@ -324,6 +392,20 @@ export default function EggWhiteProteinDrinks() {
                 <p className="font-semibold leading-7">• A clean-label, lactose-free alternative that remains useful even if whey normalises.</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="border-t border-amber-900/10 bg-white">
+          <div className="mx-auto max-w-5xl px-6 py-16 text-center">
+            <p className="font-black uppercase tracking-[0.3em] text-amber-700">Validation sprint</p>
+            <h2 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">Source cartons, serve 100 protein obsessives, measure finish rate and reorder.</h2>
+            <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-stone-600">
+              The cheapest proof is not a national launch. It is the Greek carton, a white-label pilot, or a small co-manufactured batch in front of the buyers who already read nutrition labels like spec sheets.
+              If they finish the drink, share the macro screenshot, and subscribe, the grocery story writes itself.
+            </p>
+            <a href="#top" className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3 font-bold text-white shadow-xl shadow-stone-900/20 hover:bg-stone-800">
+              Crack on <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </section>
       </main>
