@@ -11,6 +11,7 @@ import {
   PackageCheck,
   ShieldCheck,
   ShoppingCart,
+  Stethoscope,
   Sparkles,
   Target,
   TrendingUp,
@@ -22,6 +23,7 @@ const stats = [
   { value: '2.5g', label: 'carbs target', detail: 'Macro-efficient enough for protein-maxxers and GLP-1 users.' },
   { value: '$4.20', label: 'Greek benchmark', detail: 'A proven shelf price for the product this concept geo-arbitrages.' },
   { value: '70%', label: 'US adults chasing protein', detail: 'A mainstream demand wave layered on top of fitness buyers.' },
+  { value: '~12%', label: 'Americans on GLP-1s', detail: 'A new medicalised cohort being coached to protect lean mass.' },
 ]
 
 const solutionPillars = [
@@ -47,13 +49,18 @@ const marketNumbers = [
   },
   {
     title: '$29M subscription math',
-    body: '50,000 subscribers buying a monthly 12-pack at roughly $4 per carton implies about $2.4M monthly revenue.',
+    body: '50,000 subscribers buying a monthly 12-pack at roughly $4 per carton implies about $2.4M monthly revenue, or roughly $29M ARR before grocery.',
     icon: BadgeDollarSign,
   },
   {
     title: 'Egg protein tailwind',
-    body: 'Egg white protein is positioned as fat-free, cholesterol-free, complete, and highly digestible versus many plant alternatives.',
+    body: 'Egg white powder alone is estimated around $1.7B in 2025 and heading toward $2.4B by 2030, before finished RTD formats are counted.',
     icon: Egg,
+  },
+  {
+    title: 'Nine-figure upside',
+    body: 'Capturing even 1% of US RTD protein shake spend can become a nine-figure line; the first goal is a defensible $20M-$40M DTC-plus-gym wedge.',
+    icon: TrendingUp,
   },
 ]
 
@@ -65,7 +72,7 @@ const modelCards = [
   },
   {
     title: 'Gym fridge wholesale',
-    body: 'Put the 55g-for-low-carb stat sheet exactly where macro-trackers discover and evangelise new protein formats.',
+    body: 'Put the 55g-for-2.5g-carbs stat sheet exactly where macro-trackers discover and evangelise new protein formats.',
     icon: Dumbbell,
   },
   {
@@ -76,10 +83,10 @@ const modelCards = [
 ]
 
 const whyNow = [
-  'Whey concentrate and isolate pricing has broken the incumbent margin model.',
-  'GLP-1 weight-loss users are being told to protein-load to protect lean mass.',
+  'Standard whey powder is up more than 50% since January, concentrate has roughly tripled from pre-shortage ranges, and isolate has moved beyond $11/lb.',
+  'GLP-1 weight-loss users are being told to protein-load to protect lean mass, adding medical demand to the existing fitness base.',
   'Clean-label positioning favours a five-ingredient egg white drink over complex shake formulas.',
-  'The product has already been de-risked in Greece; the English-speaking market gap is distribution and brand.',
+  'The product has already been de-risked in Greece; the US, UK, and Australia gap is distribution, taste localisation, and brand.',
 ]
 
 const competitors = [
@@ -143,7 +150,7 @@ export default function EggWhiteProteinDrinks() {
                 The clean carton hiding in the whey crisis.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-700 md:text-xl">
-                Clone the proven Greek egg-white protein drink playbook for the US and UK: one chilled Tetra Pak,
+                Clone the proven Greek egg-white protein drink playbook for the US, UK, and Australia: one chilled Tetra Pak,
                 50g+ complete protein, ultra-low carbs, and a supply chain built with egg producers instead of whey traders.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -182,7 +189,7 @@ export default function EggWhiteProteinDrinks() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 pb-16">
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-5">
             {stats.map((stat) => (
               <article key={stat.label} className="rounded-3xl border border-amber-900/10 bg-white p-6 shadow-sm">
                 <p className="text-4xl font-black tracking-tight text-stone-950">{stat.value}</p>
@@ -302,6 +309,26 @@ export default function EggWhiteProteinDrinks() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-5 md:grid-cols-3">
+            <article className="rounded-3xl border border-stone-200 bg-white p-7 shadow-lg shadow-amber-900/5">
+              <Stethoscope className="h-9 w-9 text-amber-700" />
+              <h3 className="mt-5 text-2xl font-black">Medicalised protein demand</h3>
+              <p className="mt-3 leading-7 text-stone-600">The GLP-1 cohort changes the buyer map: protein is no longer only a performance goal, it is part of preserving lean mass during rapid weight loss.</p>
+            </article>
+            <article className="rounded-3xl border border-stone-200 bg-white p-7 shadow-lg shadow-amber-900/5">
+              <Flame className="h-9 w-9 text-amber-700" />
+              <h3 className="mt-5 text-2xl font-black">Whey crisis as marketing</h3>
+              <p className="mt-3 leading-7 text-stone-600">The message is simple: the protein shake that does not care about the whey crisis. Every incumbent price hike makes the contrast easier to explain.</p>
+            </article>
+            <article className="rounded-3xl border border-stone-200 bg-white p-7 shadow-lg shadow-amber-900/5">
+              <PackageCheck className="h-9 w-9 text-amber-700" />
+              <h3 className="mt-5 text-2xl font-black">Cheap validation path</h3>
+              <p className="mt-3 leading-7 text-stone-600">Source Greek cartons or a white-label pilot, put them in front of 100 protein-maxxers, and measure finish rate, taste feedback, and reorder intent.</p>
+            </article>
           </div>
         </section>
 
