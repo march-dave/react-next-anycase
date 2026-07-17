@@ -90,13 +90,6 @@ const whyNow = [
   'The product has already been de-risked in Greece; the US, UK, and Australia gap is distribution, taste localisation, and brand.',
 ]
 
-const competitors = [
-  { name: 'Whey RTD incumbents', note: 'Premier Protein and Fairlife-style brands have scale, but their margin stack is exposed when whey inputs spike.' },
-  { name: 'Plant-based RTDs', note: 'Pea, soy, and oat formats avoid whey, but still fight taste and amino-acid perception versus complete egg white protein.' },
-  { name: 'Egg producers', note: 'The biggest copy risk is a scaled egg company deciding to ship a mainstream RTD before a startup owns the slot.' },
-  { name: 'Egg white powder tubs', note: 'Existing powders serve bakers and hardcore lifters, not the mainstream grab-and-go chilled drink occasion.' },
-]
-
 const risks = [
   'Taste and texture must beat the eggy, chalky reputation of older egg protein formats.',
   'Avian flu can still shock egg supply, so contracts and redundancy matter.',
@@ -152,7 +145,7 @@ export default function EggWhiteProteinDrinks() {
           </a>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
-            <a href="#market" className="hover:text-stone-950">Numbers</a>
+            <a href="#numbers" className="hover:text-stone-950">Numbers</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
             <a href="#market" className="hover:text-stone-950">Market</a>
             <a href="#model" className="hover:text-stone-950">Model</a>
@@ -246,7 +239,7 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <section id="market" className="mx-auto max-w-7xl px-6 pb-16">
+        <section id="numbers" className="mx-auto max-w-7xl px-6 pb-16">
           <div className="rounded-[2rem] border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
             <p className="font-black uppercase tracking-[0.25em] text-amber-700">Key numbers</p>
             <div className="mt-6 grid gap-5 md:grid-cols-3">
