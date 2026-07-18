@@ -83,13 +83,6 @@ const whyNow = [
   'The product has already been de-risked in Greece; the English-speaking market gap is distribution and brand.',
 ]
 
-const competitors = [
-  { name: 'Whey RTD incumbents', note: 'Premier Protein and Fairlife-style brands have scale, but their margin stack is exposed when whey inputs spike.' },
-  { name: 'Plant-based RTDs', note: 'Pea, soy, and oat formats avoid whey, but still fight taste and amino-acid perception versus complete egg white protein.' },
-  { name: 'Egg producers', note: 'The biggest copy risk is a scaled egg company deciding to ship a mainstream RTD before a startup owns the slot.' },
-  { name: 'Egg white powder tubs', note: 'Existing powders serve bakers and hardcore lifters, not the mainstream grab-and-go chilled drink occasion.' },
-]
-
 const risks = [
   'Taste and texture must beat the eggy, chalky reputation of older egg protein formats.',
   'Avian flu can still shock egg supply, so contracts and redundancy matter.',
