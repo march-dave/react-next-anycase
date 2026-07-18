@@ -87,7 +87,7 @@ const whyNow = [
   'Standard whey powder is up more than 50% since January, concentrate has roughly tripled from pre-shortage ranges, and isolate has moved beyond $11/lb.',
   'GLP-1 weight-loss users are being told to protein-load to protect lean mass, adding medical demand to the existing fitness base.',
   'Clean-label positioning favours a five-ingredient egg white drink over complex shake formulas.',
-  'The product has already been de-risked in Greece; the US, UK, and Australia gap is distribution, taste localisation, and brand.',
+  'The product has already been de-risked in Greece; the English-speaking market gap is distribution and brand.',
 ]
 
 const risks = [
