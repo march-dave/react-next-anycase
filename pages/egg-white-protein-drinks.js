@@ -87,7 +87,7 @@ const whyNow = [
   'Standard whey powder is up more than 50% since January, concentrate has roughly tripled from pre-shortage ranges, and isolate has moved beyond $11/lb.',
   'GLP-1 weight-loss users are being told to protein-load to protect lean mass, adding medical demand to the existing fitness base.',
   'Clean-label positioning favours a five-ingredient egg white drink over complex shake formulas.',
-  'The product has already been de-risked in Greece; the English-speaking market gap is distribution and brand.',
+  'The product has already been de-risked in Greece; the US, UK, and Australia gap is distribution, taste localisation, and brand.',
 ]
 
 const risks = [
@@ -145,7 +145,6 @@ export default function EggWhiteProteinDrinks() {
           </a>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
-            <a href="#numbers" className="hover:text-stone-950">Numbers</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
             <a href="#market" className="hover:text-stone-950">Market</a>
             <a href="#model" className="hover:text-stone-950">Model</a>
@@ -242,7 +241,7 @@ export default function EggWhiteProteinDrinks() {
         <section id="numbers" className="mx-auto max-w-7xl px-6 pb-16">
           <div className="rounded-[2rem] border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
             <p className="font-black uppercase tracking-[0.25em] text-amber-700">Key numbers</p>
-            <div className="mt-6 grid gap-5 md:grid-cols-3">
+            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {marketNumbers.map((item) => (
                 <article key={item.title} className="rounded-3xl bg-amber-50 p-6">
                   <item.icon className="h-9 w-9 text-amber-700" />
@@ -272,7 +271,7 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <section id="market" className="mx-auto max-w-7xl px-6 py-16">
+        <section id="opportunity" className="mx-auto max-w-7xl px-6 py-16">
           <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-black text-amber-900">
