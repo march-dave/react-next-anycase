@@ -238,7 +238,7 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <section id="market" className="mx-auto max-w-7xl px-6 pb-16">
+        <section id="numbers" className="mx-auto max-w-7xl px-6 pb-16">
           <div className="rounded-[2rem] border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
             <p className="font-black uppercase tracking-[0.25em] text-amber-700">Key numbers</p>
             <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
