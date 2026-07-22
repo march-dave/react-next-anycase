@@ -140,8 +140,8 @@ export default function EggWhiteProteinDrinks() {
       <header className="sticky top-0 z-40 border-b border-amber-900/10 bg-[#fff8ec]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <a href="#top" className="flex items-center gap-2 text-lg font-black tracking-tight">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-stone-950 text-amber-100">EW</span>
-            Egg White Protein Drinks
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-stone-950 text-amber-100">O/</span>
+            <span>OVO<span className="text-amber-700">/</span>PROTEIN</span>
           </a>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
@@ -152,10 +152,20 @@ export default function EggWhiteProteinDrinks() {
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
           </nav>
+          <a href="#launch" className="rounded-full bg-stone-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white md:hidden">The plan</a>
         </div>
       </header>
 
       <main id="top">
+        <div className="overflow-hidden border-b border-amber-900/10 bg-amber-300 py-2.5 text-stone-950">
+          <div className="flex min-w-max animate-marquee items-center gap-8 whitespace-nowrap text-xs font-black uppercase tracking-[0.18em]">
+            {[0, 1].map((group) => (
+              <div key={group} className="flex items-center gap-8" aria-hidden={group === 1}>
+                <span>55g complete protein</span><span>◆</span><span>2.5g carbs</span><span>◆</span><span>5 ingredients</span><span>◆</span><span>zero whey</span><span>◆</span><span>built for the protein economy</span><span>◆</span>
+              </div>
+            ))}
+          </div>
+        </div>
         <section className="relative overflow-hidden">
           <div className="absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full bg-yellow-300/30 blur-3xl" />
           <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.05fr_0.95fr] md:items-center md:py-24">
@@ -180,15 +190,23 @@ export default function EggWhiteProteinDrinks() {
               </div>
             </div>
 
-            <div className="relative z-10 mx-auto w-full max-w-md">
-              <div className="rotate-2 rounded-[2.5rem] border-4 border-stone-950 bg-white p-6 shadow-2xl shadow-amber-900/20">
-                <div className="rounded-[2rem] bg-gradient-to-br from-amber-100 via-white to-stone-100 p-6">
+            <div className="relative z-10 mx-auto w-full max-w-md py-6">
+              <div className="absolute -left-7 top-1/3 hidden rounded-2xl bg-stone-950 px-4 py-3 text-white shadow-xl sm:block">
+                <p className="text-2xl font-black">94%</p><p className="text-[10px] font-bold uppercase tracking-widest text-stone-300">egg white</p>
+              </div>
+              <div className="absolute -right-7 bottom-16 z-20 hidden rotate-6 rounded-2xl bg-amber-300 px-4 py-3 shadow-xl sm:block">
+                <p className="text-2xl font-black">$4.20</p><p className="text-[10px] font-bold uppercase tracking-widest">benchmark</p>
+              </div>
+              <div className="rotate-2 rounded-[2.5rem_2.5rem_1.25rem_1.25rem] border-4 border-stone-950 bg-white p-3 shadow-2xl shadow-amber-900/20">
+                <div className="rounded-[2rem_2rem_0.85rem_0.85rem] bg-gradient-to-br from-amber-100 via-white to-stone-100 p-6">
                   <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-stone-950 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-white">Chocolate</span>
+                    <span className="text-xl font-black tracking-tighter">OVO<span className="text-amber-700">/</span></span>
+                    <span className="rounded-full bg-stone-950 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-white">Chocolate 500ml</span>
                     <Sparkles className="h-6 w-6 text-amber-600" />
                   </div>
                   <div className="mt-10 text-center">
-                    <p className="text-sm font-black uppercase tracking-[0.35em] text-amber-800">Pasteurised egg white</p>
+                    <div className="mx-auto mb-5 h-16 w-12 rounded-[50%] border-4 border-stone-950 bg-white shadow-[inset_0_-10px_0_#fcd34d]" />
+                    <p className="text-sm font-black uppercase tracking-[0.35em] text-amber-800">Protein, hatched.</p>
                     <p className="mt-3 text-8xl font-black tracking-tighter text-stone-950">55g</p>
                     <p className="text-2xl font-black text-stone-700">complete protein</p>
                   </div>
@@ -197,7 +215,7 @@ export default function EggWhiteProteinDrinks() {
                     <div className="rounded-2xl bg-white p-4 shadow-sm"><p className="text-2xl font-black">5</p><p className="text-xs font-bold uppercase text-stone-500">ingredients</p></div>
                   </div>
                   <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-950">
-                    Not a whey shake. Not a powder tub. A ready-to-drink egg white carton for mainstream protein demand.
+                    Pasteurised egg white · cocoa · ready to drink<br/><span className="text-xs font-black uppercase tracking-widest">No whey. No lactose. No powder.</span>
                   </div>
                 </div>
               </div>
