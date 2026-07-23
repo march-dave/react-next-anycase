@@ -5,6 +5,7 @@ import {
   BadgeDollarSign,
   BarChart3,
   CheckCircle2,
+  ClipboardCheck,
   Dumbbell,
   Egg,
   Flame,
@@ -111,6 +112,27 @@ const marketSignals = [
   { value: '$29M', label: 'DTC run-rate scenario', detail: '50,000 subscribers buying a 12-pack monthly at roughly $4 per carton.' },
 ]
 
+const validationChecks = [
+  {
+    title: 'Import or white-label first',
+    body: 'Use Greek cartons, a white-label pilot, or a small co-manufactured batch before committing to a national manufacturing run.',
+  },
+  {
+    title: 'Test with 100 sharp buyers',
+    body: 'Serve protein-maxxers who already compare grams, carbs, taste, and price; measure finish rate before surveying intent.',
+  },
+  {
+    title: 'Only scale on reorder proof',
+    body: 'The milestone is not first-purchase curiosity. It is repeat orders, macro screenshot sharing, and willingness to subscribe.',
+  },
+]
+
+const summaryBullets = [
+  'A proven Greek egg-white RTD format can be geo-arbitraged into English-speaking markets before a category leader exists.',
+  'The timing is unusually attractive because whey supply is constrained while mainstream, fitness, lactose-avoidant, and GLP-1 protein demand keeps expanding.',
+  'The first strategic asset is the egg-producer supply and co-manufacturing relationship; taste and brand become the long-term defence.',
+]
+
 const competitors = [
   {
     title: 'Whey RTD incumbents',
@@ -151,6 +173,7 @@ export default function EggWhiteProteinDrinks() {
             <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
+            <a href="#summary" className="hover:text-stone-950">Summary</a>
           </nav>
         </div>
       </header>
@@ -415,11 +438,43 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <section className="border-t border-amber-900/10 bg-white">
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-[2rem] border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
+            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-sm font-black text-amber-100">
+                  <ClipboardCheck className="h-4 w-4" /> Validation plan
+                </div>
+                <h2 className="mt-5 text-4xl font-black tracking-tight">Validate cheaply before building the factory story.</h2>
+              </div>
+              <p className="max-w-xl text-lg leading-8 text-stone-600">
+                The lowest-risk test is brutally practical: source drinkable product, put it in front of obsessive buyers, and see whether they finish and reorder.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {validationChecks.map((check) => (
+                <article key={check.title} className="rounded-3xl bg-amber-50 p-6">
+                  <h3 className="text-2xl font-black">{check.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-600">{check.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="summary" className="border-t border-amber-900/10 bg-white">
           <div className="mx-auto max-w-5xl px-6 py-16 text-center">
             <p className="font-black uppercase tracking-[0.3em] text-amber-700">Validation sprint</p>
             <h2 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">Source cartons, serve 100 protein obsessives, measure finish rate and reorder.</h2>
-            <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-stone-600">
+            <div className="mx-auto mt-8 grid max-w-4xl gap-4 text-left md:grid-cols-3">
+              {summaryBullets.map((bullet) => (
+                <article key={bullet} className="rounded-3xl border border-stone-200 bg-stone-50 p-6">
+                  <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                  <p className="mt-4 font-semibold leading-7 text-stone-700">{bullet}</p>
+                </article>
+              ))}
+            </div>
+            <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-stone-600">
               The cheapest proof is not a national launch. It is the Greek carton, a white-label pilot, or a small co-manufactured batch in front of the buyers who already read nutrition labels like spec sheets.
               If they finish the drink, share the macro screenshot, and subscribe, the grocery story writes itself.
             </p>
