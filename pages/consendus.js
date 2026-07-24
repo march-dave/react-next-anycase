@@ -157,6 +157,11 @@ const taskStates = ['Pending', 'In Progress', 'Needs Consensus', 'Completed']
 const codeWindowDots = ['bg-red-400', 'bg-amber-300', 'bg-emerald-400']
 const levelTextColor = { SUCCESS: 'text-emerald-300', WARN: 'text-amber-300', INFO: 'text-indigo-200' }
 const statusColors = { Idle: 'bg-emerald-400', Busy: 'bg-amber-400', Error: 'bg-red-500' }
+const statusLabels = [
+  { label: 'Idle', className: 'bg-emerald-400', description: 'Ready for assignment' },
+  { label: 'Busy', className: 'bg-amber-400', description: 'Executing a task' },
+  { label: 'Error', className: 'bg-red-500', description: 'Needs intervention' },
+]
 const taskTone = {
   Pending: 'border-slate-500/40 bg-slate-700/50 text-slate-200',
   'In Progress': 'border-amber-400/40 bg-amber-500/10 text-amber-200',
@@ -325,7 +330,7 @@ export default function Consendus() {
       </ViewContainer>
     )
 
-    return <ViewContainer><section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{agents.map((agent) => <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex items-center justify-between"><h2 className="text-sm font-semibold text-white">{agent.name}</h2><span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} /></div><p className="mt-3 text-xs text-slate-400">Role</p><p className="text-sm text-slate-200">{agent.role}</p><p className="mt-2 text-xs text-slate-400">Specialization</p><p className="text-sm text-slate-200">{agent.specialization}</p><p className="mt-2 text-xs text-slate-400">Uptime</p><p className="font-mono text-sm text-slate-200">{agent.uptime}</p><div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2"><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Model</p><p className="mt-1 truncate font-mono text-xs text-indigo-200">{agent.model}</p></div><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Region</p><p className="mt-1 font-mono text-xs text-emerald-200">{agent.region}</p></div></div></article>)}</section></ViewContainer>
+    return <ViewContainer><section className="mb-5 grid gap-3 md:grid-cols-3">{statusLabels.map((status) => <article key={status.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-3 backdrop-blur"><div className="flex items-center gap-2 text-sm font-medium text-slate-100"><span className={`h-2.5 w-2.5 rounded-full ${status.className}`} />{status.label}</div><p className="mt-1 text-xs text-slate-400">{status.description}</p></article>)}</section><section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{agents.map((agent) => <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex items-center justify-between"><h2 className="text-sm font-semibold text-white">{agent.name}</h2><span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} /></div><p className="mt-3 text-xs text-slate-400">Role</p><p className="text-sm text-slate-200">{agent.role}</p><p className="mt-2 text-xs text-slate-400">Specialization</p><p className="text-sm text-slate-200">{agent.specialization}</p><p className="mt-2 text-xs text-slate-400">Uptime</p><p className="font-mono text-sm text-slate-200">{agent.uptime}</p><div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2"><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Model</p><p className="mt-1 truncate font-mono text-xs text-indigo-200">{agent.model}</p></div><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Region</p><p className="mt-1 font-mono text-xs text-emerald-200">{agent.region}</p></div></div></article>)}</section></ViewContainer>
   }
 
   return <>
