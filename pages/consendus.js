@@ -87,6 +87,12 @@ const topologyNodes = [
   { label: 'Guardian Rails', value: '23 blocks', icon: ShieldCheck, tone: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' },
 ]
 
+const readinessChecks = [
+  { label: 'Policy coverage', value: '100%', helper: 'Every privileged action is gated before execution.', tone: 'from-emerald-500/20 to-emerald-300/5 text-emerald-200' },
+  { label: 'Human escalations', value: '4 open', helper: 'Queued for production-owner review.', tone: 'from-amber-500/20 to-amber-300/5 text-amber-200' },
+  { label: 'Autonomy budget', value: '82%', helper: 'Remaining spend for the current swarm objective.', tone: 'from-indigo-500/20 to-purple-300/5 text-indigo-200' },
+]
+
 const analytics = [
   { time: '00:00', load: 31, tokens: 48 },
   { time: '02:00', load: 42, tokens: 61 },
@@ -290,6 +296,7 @@ export default function Consendus() {
         <section className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
           <div className="h-[360px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2><Gauge className="h-4 w-4 text-indigo-300" /></div><ResponsiveContainer width="100%" height="92%"><AreaChart data={analytics}><defs><linearGradient id="load" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} /><stop offset="95%" stopColor="#6366f1" stopOpacity={0.02} /></linearGradient><linearGradient id="tokens" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3} /><stop offset="95%" stopColor="#10b981" stopOpacity={0.03} /></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" /><XAxis dataKey="time" stroke="#94a3b8" fontSize={12} /><YAxis stroke="#94a3b8" fontSize={12} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,.12)', borderRadius: '10px', color: '#e2e8f0' }} /><Area type="monotone" dataKey="load" name="System Load" stroke="#6366f1" fill="url(#load)" strokeWidth={2} /><Area type="monotone" dataKey="tokens" name="Token Consumption" stroke="#10b981" fill="url(#tokens)" strokeWidth={2} /></AreaChart></ResponsiveContainer></div>
           <div className="space-y-6">
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">{readinessChecks.map((check) => <article key={check.label} className={`rounded-xl border border-white/10 bg-gradient-to-br ${check.tone} p-4 backdrop-blur`}><div className="flex items-center justify-between gap-3"><p className="text-sm font-medium text-slate-100">{check.label}</p><span className="font-mono text-lg font-semibold">{check.value}</span></div><p className="mt-2 text-xs leading-5 text-slate-400">{check.helper}</p></article>)}</div>
             <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-slate-200">Swarm Topology</h2>
