@@ -26,6 +26,7 @@ const stats = [
   { value: '$4.20', label: 'Greek benchmark', detail: 'A proven shelf price for the product this concept geo-arbitrages.' },
   { value: '70%', label: 'US adults chasing protein', detail: 'A mainstream demand wave layered on top of fitness buyers.' },
   { value: '~12%', label: 'Americans on GLP-1s', detail: 'A new medicalised cohort being coached to protect lean mass.' },
+  { value: '2026–27', label: 'whey capacity relief window', detail: 'New expansion plants are expected too late to rescue near-term RTD margins.' },
 ]
 
 const solutionPillars = [
@@ -101,9 +102,10 @@ const risks = [
 
 const launchSteps = [
   { step: '01', title: 'Lock the egg partner', body: 'The supply agreement is the moat: co-manufacturing, pricing, volume priority, and whey-independent input costs.' },
-  { step: '02', title: 'Win the obsessive buyer', body: 'Seed DTC drops with gym-bro, r/protein, and macro-tracking communities who care about grams, carbs, and reorder value.' },
-  { step: '03', title: 'Turn the whey crisis into media', body: 'Every whey price hike becomes a campaign for a shake that does not care about the whey curve.' },
-  { step: '04', title: 'Prove taste in public', body: 'Run blind taste tests against Premier Protein, Fairlife-style shakes, and plant-based RTDs before grocery meetings.' },
+  { step: '02', title: 'Validate with imported cartons', body: 'Source Greek cartons or a white-label pilot, then put them in front of 100 protein obsessives to measure finish rate and reorder intent.' },
+  { step: '03', title: 'Win the obsessive buyer', body: 'Seed DTC drops with gym-bro, r/protein, and macro-tracking communities who care about grams, carbs, and reorder value.' },
+  { step: '04', title: 'Turn the whey crisis into media', body: 'Every whey price hike becomes a campaign for a shake that does not care about the whey curve.' },
+  { step: '05', title: 'Prove taste in public', body: 'Run blind taste tests against Premier Protein, Fairlife-style shakes, and plant-based RTDs before grocery meetings.' },
 ]
 
 const marketSignals = [
@@ -155,7 +157,7 @@ export default function EggWhiteProteinDrinks() {
         <title>Egg White Protein Drinks | Anycase</title>
         <meta
           name="description"
-          content="A market map and launch plan for a clean-label egg white ready-to-drink protein brand in the US and UK."
+          content="A market map and launch plan for a clean-label egg white ready-to-drink protein brand in the US, UK, and Australia."
         />
       </Head>
 
@@ -246,7 +248,7 @@ export default function EggWhiteProteinDrinks() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 pb-16">
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {stats.map((stat) => (
               <article key={stat.label} className="rounded-3xl border border-amber-900/10 bg-white p-6 shadow-sm">
                 <p className="text-4xl font-black tracking-tight text-stone-950">{stat.value}</p>
@@ -263,8 +265,12 @@ export default function EggWhiteProteinDrinks() {
               <Users className="h-10 w-10 text-amber-300" />
               <h2 className="mt-5 text-4xl font-black tracking-tight">Protein demand has gone mainstream and medical.</h2>
               <p className="mt-5 text-lg leading-8 text-stone-300">
-                Protein-maxxing is no longer just a gym behaviour. It now includes mainstream grocery shoppers, lactose-avoidant buyers,
-                and a growing GLP-1 cohort that is being told to protect lean mass while losing weight.
+                Protein-maxxing is no longer just a gym behaviour. Protein claims now show up across the supermarket, and a growing
+                GLP-1 cohort is being told to protect lean mass while losing weight. Demand broadened just as whey supply tightened.
+              </p>
+              <p className="mt-4 text-lg leading-8 text-stone-300">
+                The arbitrage is simple: bring a proven Greek egg-white carton to English-speaking markets before incumbents
+                retool their supply chains.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -312,7 +318,7 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <section id="opportunity" className="mx-auto max-w-7xl px-6 py-16">
+        <section id="market" className="mx-auto max-w-7xl px-6 py-16">
           <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-black text-amber-900">
