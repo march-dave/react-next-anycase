@@ -112,6 +112,21 @@ const marketSignals = [
   { value: '$29M', label: 'DTC run-rate scenario', detail: '50,000 subscribers buying a 12-pack monthly at roughly $4 per carton.' },
 ]
 
+const proofPoints = [
+  {
+    title: 'Greek shelf proof',
+    body: 'A five-ingredient chocolate egg-white drink from a major Greek egg producer shows the format can already be manufactured, packaged, priced, and consumed.',
+  },
+  {
+    title: 'Supply-chain arbitrage',
+    body: 'The strategic gap is not another flavour of whey. It is a complete-protein carton whose input cost is negotiated with egg producers rather than whey traders.',
+  },
+  {
+    title: 'English-market whitespace',
+    body: 'The US, UK, and Australia have protein RTDs everywhere, but no obvious mainstream chilled egg-white carton claiming the category-leader slot.',
+  },
+]
+
 const validationChecks = [
   {
     title: 'Import or white-label first',
@@ -312,7 +327,7 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <section id="opportunity" className="mx-auto max-w-7xl px-6 py-16">
+        <section id="market" className="mx-auto max-w-7xl px-6 py-16">
           <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-black text-amber-900">
@@ -347,13 +362,25 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-5 md:grid-cols-3">
+            {proofPoints.map((point) => (
+              <article key={point.title} className="rounded-3xl border border-amber-900/10 bg-white p-7 shadow-lg shadow-amber-900/5">
+                <Egg className="h-9 w-9 text-amber-700" />
+                <h3 className="mt-5 text-2xl font-black">{point.title}</h3>
+                <p className="mt-3 leading-7 text-stone-600">{point.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section id="model" className="mx-auto max-w-7xl px-6 py-16">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               <p className="font-black uppercase tracking-[0.25em] text-amber-700">Business model</p>
               <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">Start narrow. Own supply. Widen into grocery.</h2>
             </div>
-            <p className="max-w-xl text-lg leading-8 text-stone-600">The wedge is one great-tasting carton for obsessive buyers. The platform is a protein input curve that does not move with whey.</p>
+            <p className="max-w-xl text-lg leading-8 text-stone-600">The wedge is one great-tasting carton for obsessive buyers. The moat is a signed egg-producer co-manufacturing relationship with pricing, capacity, and priority volume locked before incumbents move.</p>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {modelCards.map((card) => (
