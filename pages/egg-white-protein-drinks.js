@@ -26,6 +26,7 @@ const stats = [
   { value: '$4.20', label: 'Greek benchmark', detail: 'A proven shelf price for the product this concept geo-arbitrages.' },
   { value: '70%', label: 'US adults chasing protein', detail: 'A mainstream demand wave layered on top of fitness buyers.' },
   { value: '~12%', label: 'Americans on GLP-1s', detail: 'A new medicalised cohort being coached to protect lean mass.' },
+  { value: '2026–27', label: 'whey capacity relief window', detail: 'New expansion plants are expected too late to rescue near-term RTD margins.' },
 ]
 
 const solutionPillars = [
@@ -101,15 +102,31 @@ const risks = [
 
 const launchSteps = [
   { step: '01', title: 'Lock the egg partner', body: 'The supply agreement is the moat: co-manufacturing, pricing, volume priority, and whey-independent input costs.' },
-  { step: '02', title: 'Win the obsessive buyer', body: 'Seed DTC drops with gym-bro, r/protein, and macro-tracking communities who care about grams, carbs, and reorder value.' },
-  { step: '03', title: 'Turn the whey crisis into media', body: 'Every whey price hike becomes a campaign for a shake that does not care about the whey curve.' },
-  { step: '04', title: 'Prove taste in public', body: 'Run blind taste tests against Premier Protein, Fairlife-style shakes, and plant-based RTDs before grocery meetings.' },
+  { step: '02', title: 'Validate with imported cartons', body: 'Source Greek cartons or a white-label pilot, then put them in front of 100 protein obsessives to measure finish rate and reorder intent.' },
+  { step: '03', title: 'Win the obsessive buyer', body: 'Seed DTC drops with gym-bro, r/protein, and macro-tracking communities who care about grams, carbs, and reorder value.' },
+  { step: '04', title: 'Turn the whey crisis into media', body: 'Every whey price hike becomes a campaign for a shake that does not care about the whey curve.' },
+  { step: '05', title: 'Prove taste in public', body: 'Run blind taste tests against Premier Protein, Fairlife-style shakes, and plant-based RTDs before grocery meetings.' },
 ]
 
 const marketSignals = [
   { value: '$1.7B', label: 'egg white powder market in 2025', detail: 'A growing input market projected toward $2.4B by 2030 before counting finished RTD cartons.' },
   { value: '$8B+', label: 'broader egg protein market', detail: 'A mid-single-digit growth category with egg white as the largest, fastest-growing type.' },
   { value: '$29M', label: 'DTC run-rate scenario', detail: '50,000 subscribers buying a 12-pack monthly at roughly $4 per carton.' },
+]
+
+const proofPoints = [
+  {
+    title: 'Greek shelf proof',
+    body: 'A five-ingredient chocolate egg-white drink from a major Greek egg producer shows the format can already be manufactured, packaged, priced, and consumed.',
+  },
+  {
+    title: 'Supply-chain arbitrage',
+    body: 'The strategic gap is not another flavour of whey. It is a complete-protein carton whose input cost is negotiated with egg producers rather than whey traders.',
+  },
+  {
+    title: 'English-market whitespace',
+    body: 'The US, UK, and Australia have protein RTDs everywhere, but no obvious mainstream chilled egg-white carton claiming the category-leader slot.',
+  },
 ]
 
 const validationChecks = [
@@ -155,7 +172,7 @@ export default function EggWhiteProteinDrinks() {
         <title>Egg White Protein Drinks | Anycase</title>
         <meta
           name="description"
-          content="A market map and launch plan for a clean-label egg white ready-to-drink protein brand in the US and UK."
+          content="A market map and launch plan for a clean-label egg white ready-to-drink protein brand in the US, UK, and Australia."
         />
       </Head>
 
@@ -168,7 +185,7 @@ export default function EggWhiteProteinDrinks() {
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
-            <a href="#market" className="hover:text-stone-950">Market</a>
+            <a href="#opportunity" className="hover:text-stone-950">Market</a>
             <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
@@ -246,7 +263,7 @@ export default function EggWhiteProteinDrinks() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 pb-16">
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {stats.map((stat) => (
               <article key={stat.label} className="rounded-3xl border border-amber-900/10 bg-white p-6 shadow-sm">
                 <p className="text-4xl font-black tracking-tight text-stone-950">{stat.value}</p>
@@ -263,8 +280,12 @@ export default function EggWhiteProteinDrinks() {
               <Users className="h-10 w-10 text-amber-300" />
               <h2 className="mt-5 text-4xl font-black tracking-tight">Protein demand has gone mainstream and medical.</h2>
               <p className="mt-5 text-lg leading-8 text-stone-300">
-                Protein-maxxing is no longer just a gym behaviour. It now includes mainstream grocery shoppers, lactose-avoidant buyers,
-                and a growing GLP-1 cohort that is being told to protect lean mass while losing weight.
+                Protein-maxxing is no longer just a gym behaviour. Protein claims now show up across the supermarket, and a growing
+                GLP-1 cohort is being told to protect lean mass while losing weight. Demand broadened just as whey supply tightened.
+              </p>
+              <p className="mt-4 text-lg leading-8 text-stone-300">
+                The arbitrage is simple: bring a proven Greek egg-white carton to English-speaking markets before incumbents
+                retool their supply chains.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -312,7 +333,7 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <section id="opportunity" className="mx-auto max-w-7xl px-6 py-16">
+        <section id="market" className="mx-auto max-w-7xl px-6 py-16">
           <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-black text-amber-900">
@@ -347,13 +368,25 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-5 md:grid-cols-3">
+            {proofPoints.map((point) => (
+              <article key={point.title} className="rounded-3xl border border-amber-900/10 bg-white p-7 shadow-lg shadow-amber-900/5">
+                <Egg className="h-9 w-9 text-amber-700" />
+                <h3 className="mt-5 text-2xl font-black">{point.title}</h3>
+                <p className="mt-3 leading-7 text-stone-600">{point.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section id="model" className="mx-auto max-w-7xl px-6 py-16">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               <p className="font-black uppercase tracking-[0.25em] text-amber-700">Business model</p>
               <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">Start narrow. Own supply. Widen into grocery.</h2>
             </div>
-            <p className="max-w-xl text-lg leading-8 text-stone-600">The wedge is one great-tasting carton for obsessive buyers. The platform is a protein input curve that does not move with whey.</p>
+            <p className="max-w-xl text-lg leading-8 text-stone-600">The wedge is one great-tasting carton for obsessive buyers. The moat is a signed egg-producer co-manufacturing relationship with pricing, capacity, and priority volume locked before incumbents move.</p>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {modelCards.map((card) => (
