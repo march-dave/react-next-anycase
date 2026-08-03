@@ -161,6 +161,13 @@ export default function EggWhiteProteinDrinks() {
         />
       </Head>
 
+      <a
+        href="#main-content"
+        className="fixed left-4 top-4 z-50 -translate-y-24 rounded-full bg-stone-950 px-5 py-3 font-bold text-white shadow-xl transition-transform focus:translate-y-0"
+      >
+        Skip to content
+      </a>
+
       <header className="sticky top-0 z-40 border-b border-amber-900/10 bg-[#fff8ec]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <a href="#top" className="flex items-center gap-2 text-lg font-black tracking-tight">
@@ -170,7 +177,7 @@ export default function EggWhiteProteinDrinks() {
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
-            <a href="#opportunity" className="hover:text-stone-950">Market</a>
+            <a href="#market" className="hover:text-stone-950">Market</a>
             <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
@@ -180,7 +187,8 @@ export default function EggWhiteProteinDrinks() {
         </div>
       </header>
 
-      <main id="top">
+      <main id="main-content" tabIndex="-1">
+        <div id="top" />
         <div className="overflow-hidden border-b border-amber-900/10 bg-amber-300 py-2.5 text-stone-950">
           <div className="flex min-w-max animate-marquee items-center gap-8 whitespace-nowrap text-xs font-black uppercase tracking-[0.18em]">
             {[0, 1].map((group) => (
@@ -507,6 +515,25 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
       </main>
+
+      <footer className="border-t border-white/10 bg-stone-950 text-stone-300">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <a href="#top" className="text-xl font-black tracking-tight text-white">
+              OVO<span className="text-amber-300">/</span>PROTEIN
+            </a>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-stone-400">
+              An early-stage market concept for a whey-independent, ready-to-drink egg white protein brand.
+              Validate formulation, supply, regulation, and consumer demand before launch.
+            </p>
+          </div>
+          <div className="flex gap-5 text-sm font-bold">
+            <a href="#market" className="hover:text-white">Market</a>
+            <a href="#launch" className="hover:text-white">Launch plan</a>
+            <a href="#risks" className="hover:text-white">Risks</a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
