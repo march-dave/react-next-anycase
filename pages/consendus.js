@@ -233,13 +233,15 @@ export default function Consendus() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeChannel, setActiveChannel] = useState(channels[0].name)
   const [messages, setMessages] = useState(initialMessages)
+  const [boardTasks, setBoardTasks] = useState(tasks)
+  const [voteNotice, setVoteNotice] = useState('')
   const [simulating, setSimulating] = useState(false)
   const [typingAgents, setTypingAgents] = useState([])
   const [lastSynced, setLastSynced] = useState('just now')
   const chatScrollRef = useRef(null)
   const timers = useRef([])
 
-  const tasksByState = useMemo(() => taskStates.reduce((acc, state) => ({ ...acc, [state]: tasks.filter((task) => task.state === state) }), {}), [])
+  const tasksByState = useMemo(() => taskStates.reduce((acc, state) => ({ ...acc, [state]: boardTasks.filter((task) => task.state === state) }), {}), [boardTasks])
   const channelMessages = messages.filter((message) => message.channel === activeChannel)
   const selectedChannelMeta = channels.find((channel) => channel.name === activeChannel)
 
@@ -305,6 +307,18 @@ export default function Consendus() {
     setTimeout(() => { setActiveTab(tabId); setTabVisible(true) }, 140)
   }
 
+  const castConsensusVote = (taskId) => {
+    setBoardTasks((current) => current.map((task) => {
+      if (task.id !== taskId || task.votes >= task.totalVotes) return task
+      const nextVotes = task.votes + 1
+      setVoteNotice(nextVotes === task.totalVotes ? `${taskId} reached quorum and moved to Completed.` : `Approval recorded for ${taskId}. ${nextVotes}/${task.totalVotes} votes captured.`)
+      return nextVotes === task.totalVotes
+        ? { ...task, votes: nextVotes, state: 'Completed' }
+        : { ...task, votes: nextVotes }
+    }))
+    schedule(() => setVoteNotice(''), 3600)
+  }
+
   const renderTab = () => {
     if (activeTab === 'overview') return (
       <ViewContainer>
@@ -353,7 +367,8 @@ export default function Consendus() {
 
     if (activeTab === 'orchestration') return (
       <ViewContainer>
-        <section className="grid gap-4 lg:grid-cols-4">{taskStates.map((state) => <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><h2 className="text-sm font-semibold text-slate-100">{state}</h2><div className="mt-4 space-y-3">{tasksByState[state].map((task) => <article key={task.id} className="rounded-lg border border-white/10 bg-slate-900/80 p-3 transition hover:border-indigo-400/25"><p className="font-mono text-xs text-slate-400">{task.id}</p><p className="mt-1 text-sm text-slate-100">{task.title}</p><div className="mt-2 flex items-center justify-between gap-2"><p className="text-xs text-slate-400">Owner: {task.agent}</p><span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${taskTone[task.state]}`}>{task.state}</span></div>{task.state === 'Needs Consensus' && <div className="mt-3"><div className="mb-1 flex items-center justify-between text-xs text-purple-200"><span>Consensus</span><span>{task.votes}/{task.totalVotes} Votes</span></div><div className="h-2 rounded-full bg-slate-700"><div className="h-full rounded-full bg-purple-400" style={{ width: `${(task.votes / task.totalVotes) * 100}%` }} /></div></div>}</article>)}</div></div>)}</section><section className="mt-5 rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-sm font-semibold text-slate-100">Live Consensus Snapshot</h2><p className="mt-1 text-xs text-slate-400">TSK-361 requires a weighted 3-agent quorum before production rollout.</p></div><span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-3 py-1 font-mono text-xs text-purple-200">1/3 votes captured</span></div><div className="mt-4 grid gap-3 md:grid-cols-3">{quorumVotes.map((vote) => <article key={vote.agent} className="rounded-lg border border-white/10 bg-slate-900/70 p-3"><div className="flex items-center justify-between gap-2"><p className="text-sm font-medium text-slate-100">{vote.agent}</p><span className="text-xs text-slate-400">{vote.decision}</span></div><div className="mt-3 h-2 rounded-full bg-slate-700"><div className="h-full rounded-full bg-gradient-to-r from-purple-400 to-indigo-400" style={{ width: `${vote.confidence}%` }} /></div><p className="mt-2 font-mono text-xs text-purple-200">{vote.confidence}% confidence</p></article>)}</div></section>
+        {voteNotice && <div role="status" className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100"><CheckCircle2 className="h-4 w-4" />{voteNotice}</div>}
+        <section className="grid gap-4 lg:grid-cols-4">{taskStates.map((state) => <div key={state} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex items-center justify-between"><h2 className="text-sm font-semibold text-slate-100">{state}</h2><span className="rounded-full bg-slate-950/60 px-2 py-0.5 font-mono text-[10px] text-slate-400">{tasksByState[state].length}</span></div><div className="mt-4 space-y-3">{tasksByState[state].map((task) => <article key={task.id} className="rounded-lg border border-white/10 bg-slate-900/80 p-3 transition hover:border-indigo-400/25"><p className="font-mono text-xs text-slate-400">{task.id}</p><p className="mt-1 text-sm text-slate-100">{task.title}</p><div className="mt-2 flex items-center justify-between gap-2"><p className="text-xs text-slate-400">Owner: {task.agent}</p><span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${taskTone[task.state]}`}>{task.state}</span></div>{task.state === 'Needs Consensus' && <div className="mt-3"><div className="mb-1 flex items-center justify-between text-xs text-purple-200"><span>Consensus</span><span>{task.votes}/{task.totalVotes} Votes</span></div><div className="h-2 rounded-full bg-slate-700"><div className="h-full rounded-full bg-purple-400 transition-all duration-500" style={{ width: `${(task.votes / task.totalVotes) * 100}%` }} /></div><button type="button" onClick={() => castConsensusVote(task.id)} className="mt-3 w-full rounded-lg border border-purple-400/30 bg-purple-500/10 px-3 py-2 text-xs font-semibold text-purple-100 transition hover:bg-purple-500/20">Cast approval vote</button></div>}</article>)}</div></div>)}</section><section className="mt-5 rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-sm font-semibold text-slate-100">Live Consensus Snapshot</h2><p className="mt-1 text-xs text-slate-400">TSK-361 requires a weighted 3-agent quorum before production rollout.</p></div><span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-3 py-1 font-mono text-xs text-purple-200">Interactive quorum simulation</span></div><div className="mt-4 grid gap-3 md:grid-cols-3">{quorumVotes.map((vote) => <article key={vote.agent} className="rounded-lg border border-white/10 bg-slate-900/70 p-3"><div className="flex items-center justify-between gap-2"><p className="text-sm font-medium text-slate-100">{vote.agent}</p><span className="text-xs text-slate-400">{vote.decision}</span></div><div className="mt-3 h-2 rounded-full bg-slate-700"><div className="h-full rounded-full bg-gradient-to-r from-purple-400 to-indigo-400" style={{ width: `${vote.confidence}%` }} /></div><p className="mt-2 font-mono text-xs text-purple-200">{vote.confidence}% confidence</p></article>)}</div></section>
       </ViewContainer>
     )
 
