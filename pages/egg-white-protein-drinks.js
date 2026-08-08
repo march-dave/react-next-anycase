@@ -550,18 +550,38 @@ export default function EggWhiteProteinDrinks() {
             </a>
           </div>
         </section>
+
+        <footer className="border-t border-white/10 bg-stone-950 text-white">
+          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-amber-300 font-black text-stone-950">O/</span>
+              <div>
+                <p className="font-black tracking-tight">OVO/PROTEIN</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">Protein, hatched.</p>
+              </div>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-stone-400 sm:text-right">
+              A market concept for the next complete-protein category. Validate formulation, supply, claims, and regulatory requirements before launch.
+            </p>
+          </div>
+        </footer>
       </main>
 
-      <footer className="border-t border-white/10 bg-stone-950 text-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
+      <footer className="border-t border-white/10 bg-stone-950 text-stone-300">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-lg font-black tracking-tight">OVO<span className="text-amber-300">/</span>PROTEIN</p>
-            <p className="mt-1 text-sm text-stone-400">A market-entry concept for the next protein supply chain.</p>
+            <a href="#top" className="text-xl font-black tracking-tight text-white">
+              OVO<span className="text-amber-300">/</span>PROTEIN
+            </a>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-stone-400">
+              An early-stage market concept for a whey-independent, ready-to-drink egg white protein brand.
+              Validate formulation, supply, regulation, and consumer demand before launch.
+            </p>
           </div>
-          <div className="flex items-center gap-5 text-xs font-black uppercase tracking-[0.16em] text-stone-300">
-            <a href="#market" className="hover:text-amber-300">The market</a>
-            <a href="#launch" className="hover:text-amber-300">The plan</a>
-            <a href="#top" className="hover:text-amber-300">Back to top ↑</a>
+          <div className="flex gap-5 text-sm font-bold">
+            <a href="#market" className="hover:text-white">Market</a>
+            <a href="#launch" className="hover:text-white">Launch plan</a>
+            <a href="#risks" className="hover:text-white">Risks</a>
           </div>
         </div>
       </footer>
