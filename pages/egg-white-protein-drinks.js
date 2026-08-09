@@ -185,7 +185,7 @@ export default function EggWhiteProteinDrinks() {
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
-            <a href="#opportunity" className="hover:text-stone-950">Market</a>
+            <a href="#market" className="hover:text-stone-950">Market</a>
             <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
