@@ -21,6 +21,7 @@ import {
   Play,
   RadioTower,
   ShieldCheck,
+  ServerCog,
   Sparkles,
   Terminal,
   UserCircle2,
@@ -105,6 +106,7 @@ const readinessChecks = [
   { label: 'Policy coverage', value: '100%', helper: 'Every privileged action is gated before execution.', tone: 'from-emerald-500/20 to-emerald-300/5 text-emerald-200' },
   { label: 'Human escalations', value: '4 open', helper: 'Queued for production-owner review.', tone: 'from-amber-500/20 to-amber-300/5 text-amber-200' },
   { label: 'Autonomy budget', value: '82%', helper: 'Remaining spend for the current swarm objective.', tone: 'from-indigo-500/20 to-purple-300/5 text-indigo-200' },
+  { label: 'Tool permissions', value: '42/42', helper: 'Every agent tool scope is bound to a signed approval policy.', tone: 'from-purple-500/20 to-indigo-300/5 text-purple-200' },
 ]
 
 const analytics = [
@@ -239,6 +241,7 @@ export default function Consendus() {
   const [simulating, setSimulating] = useState(false)
   const [typingAgents, setTypingAgents] = useState([])
   const [lastSynced, setLastSynced] = useState('just now')
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const chatScrollRef = useRef(null)
   const timers = useRef([])
 
@@ -260,7 +263,11 @@ export default function Consendus() {
   }, [])
 
   useEffect(() => {
-    const onEscape = (event) => event.key === 'Escape' && setSidebarOpen(false)
+    const onEscape = (event) => {
+      if (event.key !== 'Escape') return
+      setSidebarOpen(false)
+      setSettingsOpen(false)
+    }
     window.addEventListener('keydown', onEscape)
     return () => window.removeEventListener('keydown', onEscape)
   }, [])
@@ -329,7 +336,8 @@ export default function Consendus() {
         <section className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
           <div className="h-[360px] rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="mb-2 flex items-center justify-between"><div><h2 className="text-sm font-medium text-slate-200">System Load vs Token Consumption</h2><p className="mt-1 text-xs text-slate-500">Normalized utilization · last 14 hours</p></div><Gauge className="h-4 w-4 text-indigo-300" /></div><ResponsiveContainer width="100%" height="88%"><AreaChart data={analytics} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}><defs><linearGradient id="load" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} /><stop offset="95%" stopColor="#6366f1" stopOpacity={0.02} /></linearGradient><linearGradient id="tokens" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3} /><stop offset="95%" stopColor="#10b981" stopOpacity={0.03} /></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" vertical={false} /><XAxis dataKey="time" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} /><YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} /><Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,.12)', borderRadius: '10px', color: '#e2e8f0' }} /><Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: '11px', color: '#cbd5e1' }} /><Area type="monotone" dataKey="load" name="System Load" stroke="#6366f1" fill="url(#load)" strokeWidth={2} /><Area type="monotone" dataKey="tokens" name="Token Consumption" stroke="#10b981" fill="url(#tokens)" strokeWidth={2} /></AreaChart></ResponsiveContainer></div>
           <div className="space-y-6">
-            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">{readinessChecks.map((check) => <article key={check.label} className={`rounded-xl border border-white/10 bg-gradient-to-br ${check.tone} p-4 backdrop-blur`}><div className="flex items-center justify-between gap-3"><p className="text-sm font-medium text-slate-100">{check.label}</p><span className="font-mono text-lg font-semibold">{check.value}</span></div><p className="mt-2 text-xs leading-5 text-slate-400">{check.helper}</p></article>)}</div>
+            <div className="rounded-xl border border-indigo-400/20 bg-indigo-500/10 p-4 backdrop-blur"><div className="flex items-center justify-between gap-3"><div><h2 className="text-sm font-medium text-indigo-100">Control Plane Health</h2><p className="mt-1 text-xs leading-5 text-slate-400">Policy, autonomy, and permission posture before the next swarm action.</p></div><ServerCog className="h-5 w-5 text-indigo-300" /></div></div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">{readinessChecks.map((check) => <article key={check.label} className={`rounded-xl border border-white/10 bg-gradient-to-br ${check.tone} p-4 backdrop-blur`}><div className="flex items-center justify-between gap-3"><p className="text-sm font-medium text-slate-100">{check.label}</p><span className="font-mono text-lg font-semibold">{check.value}</span></div><p className="mt-2 text-xs leading-5 text-slate-400">{check.helper}</p></article>)}</div>
             <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-slate-200">Swarm Topology</h2>
