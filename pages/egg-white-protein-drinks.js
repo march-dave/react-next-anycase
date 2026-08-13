@@ -178,18 +178,18 @@ export default function EggWhiteProteinDrinks() {
 
       <a
         href="#main-content"
-        className="fixed left-4 top-4 z-50 -translate-y-24 rounded-full bg-stone-950 px-5 py-3 font-bold text-white shadow-xl transition-transform focus:translate-y-0"
+        className="fixed left-4 top-4 z-50 -translate-y-24 rounded-full bg-stone-950 px-5 py-3 text-sm font-black text-white shadow-xl transition-transform focus:translate-y-0"
       >
         Skip to content
       </a>
 
       <header className="sticky top-0 z-40 border-b border-amber-900/10 bg-[#fff8ec]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <a href="#top" className="flex items-center gap-2 text-lg font-black tracking-tight">
+          <a href="#top" className="flex items-center gap-2 text-lg font-black tracking-tight" aria-label="OVO Protein, back to top">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-stone-950 text-amber-100">O/</span>
             <span>OVO<span className="text-amber-700">/</span>PROTEIN</span>
           </a>
-          <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex">
+          <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex" aria-label="Primary navigation">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
             <a href="#market" className="hover:text-stone-950">Market</a>
@@ -202,8 +202,8 @@ export default function EggWhiteProteinDrinks() {
         </div>
       </header>
 
-      <main id="main-content" tabIndex="-1">
-        <div id="top" />
+      <main id="main-content">
+        <span id="top" className="block scroll-mt-24" aria-hidden="true" />
         <div className="overflow-hidden border-b border-amber-900/10 bg-amber-300 py-2.5 text-stone-950">
           <div className="flex min-w-max animate-marquee items-center gap-8 whitespace-nowrap text-xs font-black uppercase tracking-[0.18em]">
             {[0, 1].map((group) => (
@@ -551,20 +551,6 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <footer className="border-t border-white/10 bg-stone-950 text-white">
-          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-amber-300 font-black text-stone-950">O/</span>
-              <div>
-                <p className="font-black tracking-tight">OVO/PROTEIN</p>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">Protein, hatched.</p>
-              </div>
-            </div>
-            <p className="max-w-xl text-sm leading-6 text-stone-400 sm:text-right">
-              A market concept for the next complete-protein category. Validate formulation, supply, claims, and regulatory requirements before launch.
-            </p>
-          </div>
-        </footer>
       </main>
 
       <footer className="border-t border-white/10 bg-stone-950 text-stone-300">
