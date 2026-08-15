@@ -200,13 +200,14 @@ export default function EggWhiteProteinDrinks() {
           </nav>
           <a href="#launch" className="rounded-full bg-stone-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white md:hidden">Launch plan</a>
         </div>
-        <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.16em] text-stone-600 md:hidden" aria-label="Mobile navigation">
-          <a href="#problem" className="shrink-0 hover:text-stone-950">Problem</a>
-          <a href="#why-now" className="shrink-0 hover:text-stone-950">Why now</a>
-          <a href="#market" className="shrink-0 hover:text-stone-950">Market</a>
-          <a href="#model" className="shrink-0 hover:text-stone-950">Model</a>
-          <a href="#launch" className="shrink-0 hover:text-stone-950">Launch</a>
-          <a href="#risks" className="shrink-0 hover:text-stone-950">Risks</a>
+        <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.14em] text-stone-600 md:hidden" aria-label="Mobile navigation">
+          <a href="#problem" className="whitespace-nowrap hover:text-stone-950">Problem</a>
+          <a href="#why-now" className="whitespace-nowrap hover:text-stone-950">Why now</a>
+          <a href="#market" className="whitespace-nowrap hover:text-stone-950">Market</a>
+          <a href="#model" className="whitespace-nowrap hover:text-stone-950">Model</a>
+          <a href="#launch" className="whitespace-nowrap hover:text-stone-950">Launch</a>
+          <a href="#risks" className="whitespace-nowrap hover:text-stone-950">Risks</a>
+          <a href="#summary" className="whitespace-nowrap hover:text-stone-950">Summary</a>
         </nav>
       </header>
 
