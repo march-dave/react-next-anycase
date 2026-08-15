@@ -200,6 +200,15 @@ export default function EggWhiteProteinDrinks() {
           </nav>
           <a href="#launch" className="rounded-full bg-stone-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white md:hidden">Launch plan</a>
         </div>
+        <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.14em] text-stone-600 md:hidden" aria-label="Mobile navigation">
+          <a href="#problem" className="whitespace-nowrap hover:text-stone-950">Problem</a>
+          <a href="#why-now" className="whitespace-nowrap hover:text-stone-950">Why now</a>
+          <a href="#market" className="whitespace-nowrap hover:text-stone-950">Market</a>
+          <a href="#model" className="whitespace-nowrap hover:text-stone-950">Model</a>
+          <a href="#launch" className="whitespace-nowrap hover:text-stone-950">Launch</a>
+          <a href="#risks" className="whitespace-nowrap hover:text-stone-950">Risks</a>
+          <a href="#summary" className="whitespace-nowrap hover:text-stone-950">Summary</a>
+        </nav>
       </header>
 
       <main id="main-content">
@@ -551,20 +560,6 @@ export default function EggWhiteProteinDrinks() {
           </div>
         </section>
 
-        <footer className="border-t border-white/10 bg-stone-950 text-white">
-          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-amber-300 font-black text-stone-950">O/</span>
-              <div>
-                <p className="font-black tracking-tight">OVO/PROTEIN</p>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">Protein, hatched.</p>
-              </div>
-            </div>
-            <p className="max-w-xl text-sm leading-6 text-stone-400 sm:text-right">
-              A market concept for the next complete-protein category. Validate formulation, supply, claims, and regulatory requirements before launch.
-            </p>
-          </div>
-        </footer>
       </main>
 
       <footer className="border-t border-white/10 bg-stone-950 text-stone-300">
