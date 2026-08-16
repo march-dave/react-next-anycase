@@ -92,6 +92,25 @@ const whyNow = [
   'The product has already been de-risked in Greece; the US, UK, and Australia gap is distribution, taste localisation, and brand.',
 ]
 
+const supplyComparison = [
+  {
+    label: 'Whey-based RTDs',
+    status: 'Constrained',
+    headline: 'Historic input pressure',
+    body: 'Capacity is sold forward while concentrate and isolate pricing squeeze the category’s default formulation.',
+    accent: 'bg-red-400',
+    badge: 'border-red-300/30 bg-red-300/10 text-red-200',
+  },
+  {
+    label: 'Egg-white RTD',
+    status: 'Open lane',
+    headline: 'A separate supply curve',
+    body: 'Direct egg-producer partnerships create a complete-protein alternative with economics independent of whey traders.',
+    accent: 'bg-amber-300',
+    badge: 'border-amber-300/30 bg-amber-300/10 text-amber-200',
+  },
+]
+
 const risks = [
   'Taste and texture must beat the eggy, chalky reputation of older egg protein formats.',
   'Avian flu can still shock egg supply, so contracts and redundancy matter.',
@@ -342,18 +361,34 @@ export default function EggWhiteProteinDrinks() {
         </section>
 
         <section id="why-now" className="bg-stone-950 text-white">
-          <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[0.8fr_1.2fr]">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-stone-950"><TrendingUp className="h-4 w-4" /> Why now</div>
-              <h2 className="mt-6 text-4xl font-black tracking-tight md:text-5xl">Demand is rising while whey supply is on fire.</h2>
-              <p className="mt-5 text-lg leading-8 text-stone-300">Protein has gone mainstream, GLP-1 users need muscle-preserving nutrition, and whey brands are facing historic input pressure. Egg white protein creates a supply-chain arbitrage with real consumer utility.</p>
+          <div className="mx-auto max-w-7xl px-6 py-16">
+            <div className="grid gap-10 md:grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-stone-950"><TrendingUp className="h-4 w-4" /> Why now</div>
+                <h2 className="mt-6 text-4xl font-black tracking-tight md:text-5xl">Demand is rising while whey supply is on fire.</h2>
+                <p className="mt-5 text-lg leading-8 text-stone-300">Protein has gone mainstream, GLP-1 users need muscle-preserving nutrition, and whey brands are facing historic input pressure. Egg white protein creates a supply-chain arbitrage with real consumer utility.</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {whyNow.map((item) => (
+                  <div key={item} className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                    <CheckCircle2 className="h-6 w-6 text-emerald-300" />
+                    <p className="mt-4 font-semibold leading-7 text-stone-100">{item}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {whyNow.map((item) => (
-                <div key={item} className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-300" />
-                  <p className="mt-4 font-semibold leading-7 text-stone-100">{item}</p>
-                </div>
+
+            <div className="mt-10 grid gap-4 border-t border-white/10 pt-10 md:grid-cols-2">
+              {supplyComparison.map((item) => (
+                <article key={item.label} className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.07] p-6 md:p-8">
+                  <div className={`absolute inset-y-0 left-0 w-1.5 ${item.accent}`} />
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-stone-400">{item.label}</p>
+                    <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${item.badge}`}>{item.status}</span>
+                  </div>
+                  <h3 className="mt-5 text-2xl font-black">{item.headline}</h3>
+                  <p className="mt-3 max-w-xl leading-7 text-stone-300">{item.body}</p>
+                </article>
               ))}
             </div>
           </div>
