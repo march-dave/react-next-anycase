@@ -144,6 +144,13 @@ const validationChecks = [
   },
 ]
 
+const pilotScorecard = [
+  { metric: '80%+', label: 'finish rate', note: 'The carton has to be enjoyable, not merely tolerable.' },
+  { metric: '40%+', label: 'reorder intent', note: 'Purchase intent is measured after tasting at the target price.' },
+  { metric: '< $4', label: 'landed COGS', note: 'A pilot must preserve room for DTC fulfilment and gym wholesale.' },
+  { metric: '2', label: 'supply routes', note: 'Qualify a primary egg partner and one credible fallback.' },
+]
+
 const summaryBullets = [
   'A proven Greek egg-white RTD format can be geo-arbitraged into English-speaking markets before a category leader exists.',
   'The timing is unusually attractive because whey supply is constrained while mainstream, fitness, lactose-avoidant, and GLP-1 protein demand keeps expanding.',
@@ -531,6 +538,34 @@ export default function EggWhiteProteinDrinks() {
                 <article key={check.title} className="rounded-3xl bg-amber-50 p-6">
                   <h3 className="text-2xl font-black">{check.title}</h3>
                   <p className="mt-3 leading-7 text-stone-600">{check.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16" aria-labelledby="pilot-scorecard-title">
+          <div className="overflow-hidden rounded-[2rem] border-2 border-stone-950 bg-stone-950 text-white shadow-2xl shadow-amber-900/10">
+            <div className="grid gap-6 border-b border-white/10 bg-[linear-gradient(120deg,#1c1917_0%,#292524_55%,#78350f_140%)] p-7 md:grid-cols-[1fr_auto] md:items-end md:p-10">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-300">30-day pilot scorecard</p>
+                <h2 id="pilot-scorecard-title" className="mt-3 max-w-3xl text-3xl font-black tracking-tight md:text-5xl">
+                  Four gates before the first serious production run.
+                </h2>
+              </div>
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm font-black text-emerald-200">
+                <span className="h-2 w-2 rounded-full bg-emerald-300" /> Go only when all four pass
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4">
+              {pilotScorecard.map((item, index) => (
+                <article key={item.label} className="border-white/10 p-7 [&:not(:last-child)]:border-b sm:[&:not(:last-child)]:border-b-0 sm:[&:not(:nth-child(2n))]:border-r lg:[&:not(:last-child)]:border-r">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-4xl font-black tracking-tight text-amber-300">{item.metric}</p>
+                    <span className="text-xs font-black text-stone-500">0{index + 1}</span>
+                  </div>
+                  <h3 className="mt-2 text-lg font-black uppercase tracking-wide">{item.label}</h3>
+                  <p className="mt-3 text-sm leading-6 text-stone-400">{item.note}</p>
                 </article>
               ))}
             </div>
