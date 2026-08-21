@@ -133,6 +133,13 @@ const marketSignals = [
   { value: '$29M', label: 'DTC run-rate scenario', detail: '50,000 subscribers buying a 12-pack monthly at roughly $4 per carton.' },
 ]
 
+const subscriptionMath = [
+  { value: '12', label: 'cartons / month', note: 'A simple starter subscription built around one daily-use hero format.' },
+  { value: '$48', label: 'monthly basket', note: 'Twelve cartons at the roughly $4 benchmark retail price.' },
+  { value: '50K', label: 'subscribers', note: 'A focused audience, not a mass-market share assumption.' },
+  { value: '~$29M', label: 'annual run-rate', note: 'Before gym wholesale, grocery distribution, or additional flavours.' },
+]
+
 const proofPoints = [
   {
     title: 'Greek shelf proof',
@@ -219,6 +226,7 @@ export default function EggWhiteProteinDrinks() {
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
             <a href="#market" className="hover:text-stone-950">Market</a>
+            <a href="#economics" className="hover:text-stone-950">Economics</a>
             <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
             <a href="#risks" className="hover:text-stone-950">Risks</a>
@@ -226,14 +234,14 @@ export default function EggWhiteProteinDrinks() {
           </nav>
           <a href="#launch" className="rounded-full bg-stone-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white md:hidden">Launch plan</a>
         </div>
-        <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.14em] text-stone-600 md:hidden" aria-label="Mobile navigation">
-          <a href="#problem" className="whitespace-nowrap hover:text-stone-950">Problem</a>
-          <a href="#why-now" className="whitespace-nowrap hover:text-stone-950">Why now</a>
-          <a href="#market" className="whitespace-nowrap hover:text-stone-950">Market</a>
-          <a href="#model" className="whitespace-nowrap hover:text-stone-950">Model</a>
-          <a href="#launch" className="whitespace-nowrap hover:text-stone-950">Launch</a>
-          <a href="#risks" className="whitespace-nowrap hover:text-stone-950">Risks</a>
-          <a href="#summary" className="whitespace-nowrap hover:text-stone-950">Summary</a>
+        <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.16em] text-stone-600 md:hidden" aria-label="Mobile navigation">
+          <a href="#problem" className="shrink-0 hover:text-stone-950">Problem</a>
+          <a href="#why-now" className="shrink-0 hover:text-stone-950">Why now</a>
+          <a href="#market" className="shrink-0 hover:text-stone-950">Market</a>
+          <a href="#economics" className="shrink-0 hover:text-stone-950">Economics</a>
+          <a href="#model" className="shrink-0 hover:text-stone-950">Model</a>
+          <a href="#launch" className="shrink-0 hover:text-stone-950">Launch</a>
+          <a href="#risks" className="shrink-0 hover:text-stone-950">Risks</a>
         </nav>
       </header>
 
@@ -445,6 +453,35 @@ export default function EggWhiteProteinDrinks() {
                 <p className="mt-3 leading-7 text-stone-600">{point.body}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section id="economics" className="mx-auto max-w-7xl scroll-mt-28 px-6 pb-16">
+          <div className="overflow-hidden rounded-[2rem] bg-stone-950 text-white shadow-2xl shadow-amber-900/10">
+            <div className="grid border-b border-white/10 lg:grid-cols-[0.75fr_1.25fr]">
+              <div className="p-7 md:p-10">
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-300">Subscription math</p>
+                <h2 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">A narrow wedge can still build a meaningful business.</h2>
+                <p className="mt-5 max-w-xl text-lg leading-8 text-stone-300">
+                  The base case does not need grocery scale. A premium monthly carton habit among 50,000 focused buyers creates a credible launch platform and negotiating leverage with retail.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2">
+                {subscriptionMath.map((item, index) => (
+                  <article
+                    key={item.label}
+                    className={`p-7 md:p-8 ${index % 2 === 0 ? 'sm:border-r sm:border-white/10' : ''} ${index < 2 ? 'border-b border-white/10' : ''}`}
+                  >
+                    <p className="text-4xl font-black tracking-tight text-amber-300">{item.value}</p>
+                    <h3 className="mt-2 font-black uppercase tracking-[0.16em] text-white">{item.label}</h3>
+                    <p className="mt-3 text-sm leading-6 text-stone-400">{item.note}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <p className="px-7 py-4 text-xs font-semibold leading-5 text-stone-400 md:px-10">
+              Illustrative scenario based on the concept assumptions, not a forecast. Excludes discounts, churn, shipping, taxes, wholesale mix, and returns.
+            </p>
           </div>
         </section>
 
