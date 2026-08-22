@@ -9,6 +9,7 @@ import {
   Dumbbell,
   Egg,
   Flame,
+  Gauge,
   PackageCheck,
   ShieldCheck,
   ShoppingCart,
@@ -160,6 +161,24 @@ const validationChecks = [
   {
     title: 'Only scale on reorder proof',
     body: 'The milestone is not first-purchase curiosity. It is repeat orders, macro screenshot sharing, and willingness to subscribe.',
+  },
+]
+
+const decisionGates = [
+  {
+    value: '70%+',
+    label: 'finish rate',
+    body: 'The carton has to get finished, not merely sampled. Track this before asking whether someone liked it.',
+  },
+  {
+    value: '4.2/5',
+    label: 'taste score',
+    body: 'Chocolate must clear the eggy-texture objection with the target buyer before a second flavour is funded.',
+  },
+  {
+    value: '30%+',
+    label: 'reorder intent',
+    body: 'A meaningful share of testers should choose a paid 12-pack deposit or subscription waitlist over a survey promise.',
   },
 ]
 
@@ -569,6 +588,35 @@ export default function EggWhiteProteinDrinks() {
                   <p className="mt-3 leading-7 text-stone-600">{check.body}</p>
                 </article>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-20" aria-labelledby="decision-gates-title">
+          <div className="overflow-hidden rounded-[2rem] bg-stone-950 text-white shadow-2xl shadow-amber-900/10">
+            <div className="grid gap-8 p-7 md:grid-cols-[0.75fr_1.25fr] md:p-10">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-stone-950">
+                  <Gauge className="h-4 w-4" /> Pilot scorecard
+                </div>
+                <h2 id="decision-gates-title" className="mt-5 text-4xl font-black tracking-tight">Three gates before the first big production run.</h2>
+                <p className="mt-4 leading-7 text-stone-300">
+                  Treat the first 100 cartons as an investment decision, not a launch party. These targets turn taste and curiosity into evidence a supply partner can underwrite.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {decisionGates.map((gate) => (
+                  <article key={gate.label} className="rounded-3xl border border-white/10 bg-white/[0.07] p-6">
+                    <p className="text-4xl font-black tracking-tight text-amber-300">{gate.value}</p>
+                    <h3 className="mt-2 text-sm font-black uppercase tracking-[0.18em] text-white">{gate.label}</h3>
+                    <p className="mt-4 text-sm leading-6 text-stone-300">{gate.body}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 border-t border-white/10 bg-white/[0.04] px-7 py-5 text-sm text-stone-300 sm:flex-row sm:items-center sm:justify-between md:px-10">
+              <p><span className="font-black text-white">Go / no-go:</span> require product love and paid intent before scaling operations.</p>
+              <a href="#launch" className="inline-flex items-center gap-2 font-black text-amber-300 hover:text-amber-200">Review the launch sequence <ArrowRight className="h-4 w-4" /></a>
             </div>
           </div>
         </section>
