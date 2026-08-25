@@ -169,12 +169,12 @@ const tasks = [
 ]
 
 const agents = [
-  { name: 'Atlas-Orchestrator', role: 'Coordinator', specialization: 'Plan graphs & delegation', uptime: '14d 06h', status: 'Idle', model: 'GPT-5.5', region: 'iad-1' },
-  { name: 'Codex-Dev', role: 'Builder', specialization: 'TypeScript, tests & patches', uptime: '9d 02h', status: 'Busy', model: 'GPT-5.3-Codex', region: 'sfo-2' },
-  { name: 'Sentry-Sec', role: 'Security', specialization: 'Threat modeling & policies', uptime: '21d 18h', status: 'Idle', model: 'GPT-5.5', region: 'dub-1' },
-  { name: 'Vector-Mem', role: 'Memory', specialization: 'Retrieval & embeddings', uptime: '5d 11h', status: 'Busy', model: 'GPT-5.4-Mini', region: 'fra-1' },
-  { name: 'Quorum-Lead', role: 'Consensus', specialization: 'Voting logic & arbitration', uptime: '12d 04h', status: 'Error', model: 'GPT-5.5', region: 'iad-1' },
-  { name: 'Muse-Research', role: 'Research', specialization: 'Context synthesis', uptime: '7d 19h', status: 'Idle', model: 'GPT-5.4', region: 'lhr-1' },
+  { name: 'Atlas-Orchestrator', role: 'Coordinator', specialization: 'Plan graphs & delegation', uptime: '14d 06h', status: 'Idle', model: 'GPT-5.5', region: 'iad-1', load: 18, tasks: 341 },
+  { name: 'Codex-Dev', role: 'Builder', specialization: 'TypeScript, tests & patches', uptime: '9d 02h', status: 'Busy', model: 'GPT-5.3-Codex', region: 'sfo-2', load: 76, tasks: 892 },
+  { name: 'Sentry-Sec', role: 'Security', specialization: 'Threat modeling & policies', uptime: '21d 18h', status: 'Idle', model: 'GPT-5.5', region: 'dub-1', load: 24, tasks: 517 },
+  { name: 'Vector-Mem', role: 'Memory', specialization: 'Retrieval & embeddings', uptime: '5d 11h', status: 'Busy', model: 'GPT-5.4-Mini', region: 'fra-1', load: 63, tasks: 1248 },
+  { name: 'Quorum-Lead', role: 'Consensus', specialization: 'Voting logic & arbitration', uptime: '12d 04h', status: 'Error', model: 'GPT-5.5', region: 'iad-1', load: 0, tasks: 208 },
+  { name: 'Muse-Research', role: 'Research', specialization: 'Context synthesis', uptime: '7d 19h', status: 'Idle', model: 'GPT-5.4', region: 'lhr-1', load: 31, tasks: 634 },
 ]
 
 const quorumVotes = [
@@ -382,7 +382,19 @@ export default function Consendus() {
       </ViewContainer>
     )
 
-    return <ViewContainer><section className="mb-5 grid gap-3 md:grid-cols-3">{statusLabels.map((status) => <article key={status.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-3 backdrop-blur"><div className="flex items-center gap-2 text-sm font-medium text-slate-100"><span className={`h-2.5 w-2.5 rounded-full ${status.className}`} />{status.label}</div><p className="mt-1 text-xs text-slate-400">{status.description}</p></article>)}</section><section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{agents.map((agent) => <article key={agent.name} className="rounded-xl border border-white/10 bg-slate-800/70 p-4 backdrop-blur"><div className="flex items-center justify-between"><h2 className="text-sm font-semibold text-white">{agent.name}</h2><span className={`h-2.5 w-2.5 rounded-full ${statusColors[agent.status]}`} /></div><p className="mt-3 text-xs text-slate-400">Role</p><p className="text-sm text-slate-200">{agent.role}</p><p className="mt-2 text-xs text-slate-400">Specialization</p><p className="text-sm text-slate-200">{agent.specialization}</p><p className="mt-2 text-xs text-slate-400">Uptime</p><p className="font-mono text-sm text-slate-200">{agent.uptime}</p><div className="mt-3 grid grid-cols-2 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2"><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Model</p><p className="mt-1 truncate font-mono text-xs text-indigo-200">{agent.model}</p></div><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Region</p><p className="mt-1 font-mono text-xs text-emerald-200">{agent.region}</p></div></div></article>)}</section></ViewContainer>
+    return <ViewContainer>
+      <section className="mb-5 grid gap-3 md:grid-cols-3">{statusLabels.map((status) => <article key={status.label} className="rounded-xl border border-white/10 bg-slate-800/70 p-3 backdrop-blur"><div className="flex items-center gap-2 text-sm font-medium text-slate-100"><span className={`h-2.5 w-2.5 rounded-full ${status.className}`} />{status.label}</div><p className="mt-1 text-xs text-slate-400">{status.description}</p></article>)}</section>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{agents.map((agent) => <article key={agent.name} className="group overflow-hidden rounded-xl border border-white/10 bg-slate-800/70 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-400/30 hover:shadow-xl hover:shadow-indigo-950/20">
+        <div className="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400" style={{ opacity: agent.status === 'Error' ? 0.3 : 0.8 }} />
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br font-mono text-xs font-semibold ring-1 ring-white/10 ${roleAccent[agent.name]}`}>{agent.name.split('-').map((word) => word[0]).join('').slice(0, 2)}</span><div className="min-w-0"><h2 className="truncate text-sm font-semibold text-white">{agent.name}</h2><p className="text-xs text-slate-400">{agent.role}</p></div></div><span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-950/40 px-2 py-1 text-[10px] text-slate-300"><span className={`h-1.5 w-1.5 rounded-full ${statusColors[agent.status]}`} />{agent.status}</span></div>
+          <p className="mt-4 text-xs uppercase tracking-wide text-slate-500">Specialization</p><p className="mt-1 text-sm text-slate-200">{agent.specialization}</p>
+          <div className="mt-4"><div className="mb-1.5 flex items-center justify-between text-xs"><span className="text-slate-400">Current workload</span><span className="font-mono text-slate-200">{agent.load}%</span></div><div className="h-1.5 overflow-hidden rounded-full bg-slate-950/70"><div className={`h-full rounded-full transition-all duration-500 ${agent.status === 'Error' ? 'bg-red-400' : agent.load > 60 ? 'bg-amber-400' : 'bg-emerald-400'}`} style={{ width: `${agent.load}%` }} /></div></div>
+          <div className="mt-4 grid grid-cols-3 gap-2 rounded-lg border border-white/10 bg-slate-950/35 p-2.5"><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Model</p><p className="mt-1 truncate font-mono text-[11px] text-indigo-200">{agent.model}</p></div><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Region</p><p className="mt-1 font-mono text-[11px] text-emerald-200">{agent.region}</p></div><div><p className="text-[10px] uppercase tracking-wide text-slate-500">Tasks</p><p className="mt-1 font-mono text-[11px] text-slate-200">{agent.tasks}</p></div></div>
+          <div className="mt-3 flex items-center justify-between text-xs text-slate-500"><span>Uptime</span><span className="font-mono text-slate-300">{agent.uptime}</span></div>
+        </div>
+      </article>)}</section>
+    </ViewContainer>
   }
 
   return <>
