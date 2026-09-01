@@ -210,6 +210,14 @@ const competitors = [
   },
 ]
 
+const formatComparison = [
+  { factor: 'Protein source', egg: 'Pasteurised egg white', whey: 'Milk-derived whey', plant: 'Pea, soy, or blends' },
+  { factor: 'Hero carton target', egg: '50g+ protein', whey: 'Typically 20–42g', plant: 'Typically 20–30g' },
+  { factor: 'Lactose', egg: 'None', whey: 'Varies by formulation', plant: 'None' },
+  { factor: 'Supply exposure', egg: 'Egg market', whey: 'Constrained whey market', plant: 'Crop and blend inputs' },
+  { factor: 'Key hurdle', egg: 'Taste + egg allergen', whey: 'Input cost pressure', plant: 'Taste perception' },
+]
+
 export default function EggWhiteProteinDrinks() {
   return (
     <div className="min-h-screen bg-[#fff8ec] text-stone-950">
@@ -238,6 +246,7 @@ export default function EggWhiteProteinDrinks() {
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
             <a href="#market" className="hover:text-stone-950">Market</a>
+            <a href="#comparison" className="hover:text-stone-950">Compare</a>
             <a href="#economics" className="hover:text-stone-950">Economics</a>
             <a href="#model" className="hover:text-stone-950">Model</a>
             <a href="#launch" className="hover:text-stone-950">Launch</a>
@@ -250,6 +259,7 @@ export default function EggWhiteProteinDrinks() {
           <a href="#problem" className="shrink-0 hover:text-stone-950">Problem</a>
           <a href="#why-now" className="shrink-0 hover:text-stone-950">Why now</a>
           <a href="#market" className="shrink-0 hover:text-stone-950">Market</a>
+          <a href="#comparison" className="shrink-0 hover:text-stone-950">Compare</a>
           <a href="#economics" className="shrink-0 hover:text-stone-950">Economics</a>
           <a href="#model" className="shrink-0 hover:text-stone-950">Model</a>
           <a href="#launch" className="shrink-0 hover:text-stone-950">Launch</a>
@@ -465,6 +475,41 @@ export default function EggWhiteProteinDrinks() {
                 <p className="mt-3 leading-7 text-stone-600">{point.body}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section id="comparison" className="mx-auto max-w-7xl scroll-mt-28 px-6 pb-16">
+          <div className="overflow-hidden rounded-[2rem] border border-amber-900/10 bg-white shadow-xl shadow-amber-900/5">
+            <div className="flex flex-col gap-4 border-b border-stone-200 p-7 md:flex-row md:items-end md:justify-between md:p-10">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Format comparison</p>
+                <h2 className="mt-3 text-4xl font-black tracking-tight">A new lane, not another shake flavour.</h2>
+              </div>
+              <p className="max-w-xl leading-7 text-stone-600">Egg white combines the lactose-free appeal of plant drinks with a familiar complete-protein source—but only if formulation solves taste and texture.</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] border-collapse text-left">
+                <caption className="sr-only">Comparison of egg-white, whey, and plant-based ready-to-drink protein formats</caption>
+                <thead>
+                  <tr className="bg-stone-950 text-white">
+                    <th scope="col" className="px-7 py-5 text-xs font-black uppercase tracking-[0.18em] md:px-10">Decision factor</th>
+                    <th scope="col" className="bg-amber-300 px-7 py-5 text-xs font-black uppercase tracking-[0.18em] text-stone-950">Egg-white RTD</th>
+                    <th scope="col" className="px-7 py-5 text-xs font-black uppercase tracking-[0.18em]">Whey RTD</th>
+                    <th scope="col" className="px-7 py-5 text-xs font-black uppercase tracking-[0.18em]">Plant RTD</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formatComparison.map((row) => (
+                    <tr key={row.factor} className="border-b border-stone-200 last:border-0">
+                      <th scope="row" className="px-7 py-5 font-black text-stone-950 md:px-10">{row.factor}</th>
+                      <td className="bg-amber-50 px-7 py-5 font-bold text-amber-950">{row.egg}</td>
+                      <td className="px-7 py-5 text-stone-600">{row.whey}</td>
+                      <td className="px-7 py-5 text-stone-600">{row.plant}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
