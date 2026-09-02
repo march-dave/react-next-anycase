@@ -223,6 +223,7 @@ export default function EggWhiteProteinDrinks() {
     <div className="min-h-screen bg-[#fff8ec] text-stone-950">
       <Head>
         <title>Egg White Protein Drinks | Anycase</title>
+        <meta name="theme-color" content="#fff8ec" />
         <meta
           name="description"
           content="A market map and launch plan for a clean-label egg white ready-to-drink protein brand in the US, UK, and Australia."
@@ -245,6 +246,7 @@ export default function EggWhiteProteinDrinks() {
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex" aria-label="Primary navigation">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
+            <a href="#numbers" className="hover:text-stone-950">Numbers</a>
             <a href="#market" className="hover:text-stone-950">Market</a>
             <a href="#comparison" className="hover:text-stone-950">Compare</a>
             <a href="#economics" className="hover:text-stone-950">Economics</a>
@@ -258,6 +260,7 @@ export default function EggWhiteProteinDrinks() {
         <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.16em] text-stone-600 md:hidden" aria-label="Mobile navigation">
           <a href="#problem" className="shrink-0 hover:text-stone-950">Problem</a>
           <a href="#why-now" className="shrink-0 hover:text-stone-950">Why now</a>
+          <a href="#numbers" className="shrink-0 hover:text-stone-950">Numbers</a>
           <a href="#market" className="shrink-0 hover:text-stone-950">Market</a>
           <a href="#comparison" className="shrink-0 hover:text-stone-950">Compare</a>
           <a href="#economics" className="shrink-0 hover:text-stone-950">Economics</a>
