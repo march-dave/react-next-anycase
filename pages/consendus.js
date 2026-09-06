@@ -253,7 +253,6 @@ export default function Consendus() {
   const [lastSynced, setLastSynced] = useState('just now')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [fleetFilter, setFleetFilter] = useState('All')
-  const [draftMessage, setDraftMessage] = useState('')
   const chatScrollRef = useRef(null)
   const timers = useRef([])
 
