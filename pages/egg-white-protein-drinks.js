@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Trophy,
   Users,
+  Zap,
 } from 'lucide-react'
 
 const stats = [
@@ -236,6 +237,7 @@ export default function EggWhiteProteinDrinks() {
     <div className="min-h-screen bg-[#fff8ec] text-stone-950">
       <Head>
         <title>Egg White Protein Drinks | Anycase</title>
+        <meta name="theme-color" content="#fff8ec" />
         <meta
           name="description"
           content="A market map and launch plan for a clean-label egg white ready-to-drink protein brand in the US, UK, and Australia."
@@ -258,6 +260,7 @@ export default function EggWhiteProteinDrinks() {
           <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex" aria-label="Primary navigation">
             <a href="#problem" className="hover:text-stone-950">Problem</a>
             <a href="#why-now" className="hover:text-stone-950">Why now</a>
+            <a href="#numbers" className="hover:text-stone-950">Numbers</a>
             <a href="#market" className="hover:text-stone-950">Market</a>
             <a href="#comparison" className="hover:text-stone-950">Compare</a>
             <a href="#economics" className="hover:text-stone-950">Economics</a>
@@ -271,6 +274,7 @@ export default function EggWhiteProteinDrinks() {
         <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.16em] text-stone-600 md:hidden" aria-label="Mobile navigation">
           <a href="#problem" className="shrink-0 hover:text-stone-950">Problem</a>
           <a href="#why-now" className="shrink-0 hover:text-stone-950">Why now</a>
+          <a href="#numbers" className="shrink-0 hover:text-stone-950">Numbers</a>
           <a href="#market" className="shrink-0 hover:text-stone-950">Market</a>
           <a href="#comparison" className="shrink-0 hover:text-stone-950">Compare</a>
           <a href="#economics" className="shrink-0 hover:text-stone-950">Economics</a>
@@ -308,8 +312,8 @@ export default function EggWhiteProteinDrinks() {
                 50g+ complete protein, ultra-low carbs, and a supply chain built with egg producers instead of whey traders.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a href="#launch" className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3 font-bold text-white shadow-xl shadow-stone-900/20 hover:bg-stone-800">
-                  Map the launch <ArrowRight className="h-4 w-4" />
+                <a href="#waitlist" className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3 font-bold text-white shadow-xl shadow-stone-900/20 hover:bg-stone-800">
+                  Join the first drop <ArrowRight className="h-4 w-4" />
                 </a>
                 <a href="#model" className="inline-flex items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-3 font-bold text-stone-900 hover:border-stone-500">
                   See the business model
@@ -782,6 +786,49 @@ export default function EggWhiteProteinDrinks() {
             <a href="#top" className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3 font-bold text-white shadow-xl shadow-stone-900/20 hover:bg-stone-800">
               Crack on <ArrowRight className="h-4 w-4" />
             </a>
+          </div>
+        </section>
+
+        <section id="waitlist" className="bg-amber-300 px-6 py-16">
+          <div className="mx-auto grid max-w-5xl gap-10 rounded-[2rem] border-4 border-stone-950 bg-[#fff8ec] p-7 shadow-[10px_10px_0_#1c1917] md:grid-cols-[0.9fr_1.1fr] md:p-10">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-amber-300">
+                <Zap className="h-4 w-4" /> Founding batch
+              </div>
+              <h2 className="mt-5 text-4xl font-black tracking-tight">Be first to crack one open.</h2>
+              <p className="mt-4 leading-7 text-stone-600">
+                Join the tasting list for pilot drops, blind taste tests, and the first 12-carton release. No powder tubs. No whey. Just the carton.
+              </p>
+            </div>
+            <div className="flex items-center">
+              {joined ? (
+                <div className="w-full rounded-3xl border border-emerald-300 bg-emerald-50 p-6" role="status" aria-live="polite">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-700" />
+                  <p className="mt-3 text-2xl font-black text-emerald-950">You’re on the tasting list.</p>
+                  <p className="mt-2 text-emerald-900">We’ll use <strong>{email}</strong> to share the first pilot drop.</p>
+                </div>
+              ) : (
+                <form className="w-full" onSubmit={handleWaitlistSubmit}>
+                  <label htmlFor="waitlist-email" className="text-sm font-black uppercase tracking-[0.16em] text-stone-700">Email address</label>
+                  <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                    <input
+                      id="waitlist-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="you@example.com"
+                      className="min-w-0 flex-1 rounded-full border-2 border-stone-300 bg-white px-5 py-3.5 text-stone-950 placeholder:text-stone-400 focus:border-stone-950 focus:outline-none"
+                    />
+                    <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3.5 font-black text-white hover:bg-stone-800">
+                      Save my spot <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-stone-500">Pilot updates only. Unsubscribe whenever you like.</p>
+                </form>
+              )}
+            </div>
           </div>
         </section>
 
