@@ -156,6 +156,24 @@ const proofPoints = [
   },
 ]
 
+const operatingThesis = [
+  {
+    eyebrow: 'Supply',
+    title: 'Egg producer',
+    body: 'Secure liquid egg white, co-manufacturing capacity, and priority volume at the source.',
+  },
+  {
+    eyebrow: 'Product',
+    title: 'One hero carton',
+    body: 'Turn that supply into a great-tasting chocolate SKU with a 50g+ protein headline.',
+  },
+  {
+    eyebrow: 'Demand',
+    title: 'DTC to grocery',
+    body: 'Prove repeat purchase with macro-trackers, then widen distribution with real velocity data.',
+  },
+]
+
 const validationChecks = [
   {
     title: 'Import or white-label first',
@@ -478,6 +496,32 @@ export default function EggWhiteProteinDrinks() {
                 <p className="mt-3 leading-7 text-stone-600">{point.body}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16" aria-labelledby="operating-thesis-title">
+          <div className="overflow-hidden rounded-[2rem] border border-amber-900/10 bg-amber-100 shadow-xl shadow-amber-900/5">
+            <div className="border-b border-amber-900/10 px-7 py-7 md:px-10">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-800">The operating thesis</p>
+              <h2 id="operating-thesis-title" className="mt-3 text-3xl font-black tracking-tight md:text-4xl">
+                The deal is the product before the drink is the product.
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-3">
+              {operatingThesis.map((item, index) => (
+                <article key={item.eyebrow} className="relative p-7 md:p-8 md:not-last:border-r md:not-last:border-amber-900/10">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-xs font-black uppercase tracking-[0.22em] text-amber-800">{item.eyebrow}</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-stone-950 text-xs font-black text-amber-100">0{index + 1}</span>
+                  </div>
+                  <h3 className="mt-6 text-2xl font-black">{item.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-700">{item.body}</p>
+                  {index < operatingThesis.length - 1 && (
+                    <ArrowRight className="absolute -bottom-4 left-1/2 z-10 h-8 w-8 -translate-x-1/2 rounded-full bg-amber-300 p-2 text-stone-950 md:-right-4 md:bottom-auto md:left-auto md:top-1/2 md:-translate-y-1/2 md:translate-x-0" aria-hidden="true" />
+                  )}
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
