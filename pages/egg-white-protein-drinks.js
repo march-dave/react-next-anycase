@@ -223,6 +223,18 @@ const formatComparison = [
 export default function EggWhiteProteinDrinks() {
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(false)
+  const [subscribers, setSubscribers] = useState(50000)
+  const [cartons, setCartons] = useState(12)
+  const [cartonPrice, setCartonPrice] = useState(4)
+
+  const monthlyRevenue = subscribers * cartons * cartonPrice
+  const annualRevenue = monthlyRevenue * 12
+  const compactCurrency = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  })
 
   function handleWaitlistSubmit(event) {
     event.preventDefault()
@@ -547,6 +559,37 @@ export default function EggWhiteProteinDrinks() {
                     <p className="mt-3 text-sm leading-6 text-stone-400">{item.note}</p>
                   </article>
                 ))}
+              </div>
+            </div>
+            <div className="grid gap-8 border-b border-white/10 bg-amber-300 p-7 text-stone-950 md:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+              <div>
+                <div className="flex items-center justify-between gap-4">
+                  <label htmlFor="subscriber-count" className="font-black">Subscribers</label>
+                  <output htmlFor="subscriber-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{subscribers.toLocaleString('en-US')}</output>
+                </div>
+                <input id="subscriber-count" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
+
+                <div className="mt-6 flex items-center justify-between gap-4">
+                  <label htmlFor="carton-count" className="font-black">Cartons per subscriber / month</label>
+                  <output htmlFor="carton-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{cartons}</output>
+                </div>
+                <input id="carton-count" type="range" min="6" max="24" step="6" value={cartons} onChange={(event) => setCartons(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
+
+                <div className="mt-6 flex items-center justify-between gap-4">
+                  <label htmlFor="carton-price" className="font-black">Average revenue per carton</label>
+                  <output htmlFor="carton-price" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">${cartonPrice.toFixed(2)}</output>
+                </div>
+                <input id="carton-price" type="range" min="3" max="6" step="0.25" value={cartonPrice} onChange={(event) => setCartonPrice(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
+              </div>
+              <div className="rounded-3xl bg-stone-950 p-7 text-white shadow-xl" aria-live="polite">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Your scenario</p>
+                <p className="mt-4 text-5xl font-black tracking-tight">{compactCurrency.format(annualRevenue)}</p>
+                <p className="mt-1 font-black text-stone-300">illustrative annual revenue</p>
+                <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm">
+                  <span className="text-stone-400">Monthly revenue</span>
+                  <strong>{compactCurrency.format(monthlyRevenue)}</strong>
+                </div>
+                <p className="mt-5 text-xs leading-5 text-stone-400">Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, taxes, and operating costs are excluded.</p>
               </div>
             </div>
             <p className="px-7 py-4 text-xs font-semibold leading-5 text-stone-400 md:px-10">
