@@ -253,14 +253,12 @@ export default function Consendus() {
   const [lastSynced, setLastSynced] = useState('just now')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [fleetFilter, setFleetFilter] = useState('All')
-  const [draftMessage, setDraftMessage] = useState('')
   const chatScrollRef = useRef(null)
   const timers = useRef([])
 
   const tasksByState = useMemo(() => taskStates.reduce((acc, state) => ({ ...acc, [state]: boardTasks.filter((task) => task.state === state) }), {}), [boardTasks])
   const channelMessages = messages.filter((message) => message.channel === activeChannel)
   const selectedChannelMeta = channels.find((channel) => channel.name === activeChannel)
-  const visibleAgents = fleetFilter === 'All' ? agents : agents.filter((agent) => agent.status === fleetFilter)
 
   useEffect(() => {
     if (activeTab !== 'comms') return
