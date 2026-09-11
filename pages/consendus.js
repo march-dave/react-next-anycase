@@ -259,7 +259,6 @@ export default function Consendus() {
   const tasksByState = useMemo(() => taskStates.reduce((acc, state) => ({ ...acc, [state]: boardTasks.filter((task) => task.state === state) }), {}), [boardTasks])
   const channelMessages = messages.filter((message) => message.channel === activeChannel)
   const selectedChannelMeta = channels.find((channel) => channel.name === activeChannel)
-  const visibleAgents = fleetFilter === 'All' ? agents : agents.filter((agent) => agent.status === fleetFilter)
 
   useEffect(() => {
     if (activeTab !== 'comms') return
