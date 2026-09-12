@@ -132,6 +132,14 @@ const terminalEvents = [
   { level: 'SUCCESS', message: 'Sentry-Sec verified policy bundle pol_443a' },
 ]
 
+const liveTerminalEvents = [
+  { level: 'INFO', message: 'Vector-Mem compacted 1,284 embeddings on shard fra-1' },
+  { level: 'SUCCESS', message: 'Guardian policy proof persisted for run run_b82f' },
+  { level: 'INFO', message: 'Atlas-Orchestrator delegated validation edge to Sentry-Sec' },
+  { level: 'WARN', message: 'Token burst at 82% of configured autonomy budget' },
+  { level: 'SUCCESS', message: 'Semantic bus checkpoint replicated across 3 regions' },
+]
+
 const channels = [
   { name: '#migration-api-v2', members: 12, unread: 4 },
   { name: '#security-audit', members: 6, unread: 2 },
@@ -253,7 +261,13 @@ export default function Consendus() {
   const [lastSynced, setLastSynced] = useState('just now')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [fleetFilter, setFleetFilter] = useState('All')
+  const [terminalEntries, setTerminalEntries] = useState(() => terminalEvents.map((event, index) => ({
+    ...event,
+    id: `boot-${index}`,
+    time: `09:${String(38 + index).padStart(2, '0')}:0${index % 10}`,
+  })))
   const chatScrollRef = useRef(null)
+  const terminalScrollRef = useRef(null)
   const timers = useRef([])
 
   const tasksByState = useMemo(() => taskStates.reduce((acc, state) => ({ ...acc, [state]: boardTasks.filter((task) => task.state === state) }), {}), [boardTasks])
@@ -272,6 +286,24 @@ export default function Consendus() {
     const interval = setInterval(updateSyncLabel, 30000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    if (!inConsole || activeTab !== 'overview') return undefined
+    const interval = setInterval(() => {
+      const event = liveTerminalEvents[Math.floor(Math.random() * liveTerminalEvents.length)]
+      setTerminalEntries((current) => [...current.slice(-19), {
+        ...event,
+        id: `live-${Date.now()}`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+      }])
+    }, 4200)
+    return () => clearInterval(interval)
+  }, [inConsole, activeTab])
+
+  useEffect(() => {
+    if (activeTab !== 'overview') return
+    terminalScrollRef.current?.scrollTo({ top: terminalScrollRef.current.scrollHeight, behavior: 'smooth' })
+  }, [terminalEntries, activeTab])
 
   useEffect(() => {
     const onEscape = (event) => {
@@ -388,7 +420,7 @@ export default function Consendus() {
               </div>
               <p className="mt-3 rounded-lg border border-white/10 bg-slate-950/50 p-2 font-mono text-[11px] text-slate-400">route://agent.intent → quorum.vote → policy.attest</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-medium text-slate-200">Terminal Log</h2><Activity aria-hidden="true" className="h-4 w-4 text-amber-300" /></div><div role="log" aria-label="Recent system events" className="h-[300px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 font-mono text-xs leading-6 text-slate-300">{terminalEvents.map((event, idx) => <p key={`${event.level}-${idx}`}><span className={levelTextColor[event.level] ?? 'text-indigo-200'}>[{event.level}]</span> {event.message}</p>)}</div></div>
+            <div className="rounded-xl border border-white/10 bg-slate-900/80 p-4"><div className="mb-3 flex items-center justify-between"><div><h2 className="text-sm font-medium text-slate-200">Terminal Log</h2><p className="mt-1 inline-flex items-center gap-1.5 text-[11px] text-emerald-300"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" />Streaming control-plane events</p></div><Activity aria-hidden="true" className="h-4 w-4 text-amber-300" /></div><div ref={terminalScrollRef} role="log" aria-live="polite" aria-label="Recent system events" className="h-[300px] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-3 font-mono text-xs leading-6 text-slate-300">{terminalEntries.map((event) => <p key={event.id} className="whitespace-pre-wrap"><span className="text-slate-600">{event.time}</span> <span className={levelTextColor[event.level] ?? 'text-indigo-200'}>[{event.level}]</span> {event.message}</p>)}</div></div>
           </div>
         </section>
       </ViewContainer>
