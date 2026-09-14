@@ -239,16 +239,23 @@ const formatComparison = [
 ]
 
 export default function EggWhiteProteinDrinks() {
+  const [subscribers, setSubscribers] = useState(50000)
+  const [cartonsPerMonth, setCartonsPerMonth] = useState(12)
+  const [pricePerCarton, setPricePerCarton] = useState(4)
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(false)
-  const [packSize, setPackSize] = useState(12)
+  const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
+  const annualRevenue = monthlyRevenue * 12
+  const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value)
 
-  const cartonPrice = 4
-  const monthlyBasket = packSize * cartonPrice
-  const annualRunRate = monthlyBasket * 50000 * 12
-
-  function handleWaitlistSubmit(event) {
+  const handleWaitlistSubmit = (event) => {
     event.preventDefault()
+    setEmail(email.trim())
     setJoined(true)
   }
 
