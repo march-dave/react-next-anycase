@@ -239,23 +239,23 @@ const formatComparison = [
 ]
 
 export default function EggWhiteProteinDrinks() {
+  const [subscribers, setSubscribers] = useState(50000)
+  const [cartonsPerMonth, setCartonsPerMonth] = useState(12)
+  const [pricePerCarton, setPricePerCarton] = useState(4)
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(false)
-  const [subscribers, setSubscribers] = useState(50000)
-  const [cartons, setCartons] = useState(12)
-  const [cartonPrice, setCartonPrice] = useState(4)
-
-  const monthlyRevenue = subscribers * cartons * cartonPrice
+  const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
   const annualRevenue = monthlyRevenue * 12
-  const compactCurrency = new Intl.NumberFormat('en-US', {
+  const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     notation: 'compact',
     maximumFractionDigits: 1,
-  })
+  }).format(value)
 
-  function handleWaitlistSubmit(event) {
+  const handleWaitlistSubmit = (event) => {
     event.preventDefault()
+    setEmail(email.trim())
     setJoined(true)
   }
 
@@ -640,7 +640,6 @@ export default function EggWhiteProteinDrinks() {
               Illustrative scenario based on the concept assumptions, not a forecast. Excludes discounts, churn, shipping, taxes, wholesale mix, and returns.
             </p>
           </div>
-        </section>
 
         <section id="model" className="mx-auto max-w-7xl px-6 py-16">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
