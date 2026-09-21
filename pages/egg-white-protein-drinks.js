@@ -605,78 +605,9 @@ export default function EggWhiteProteinDrinks() {
                 ))}
               </div>
             </div>
-            <div className="grid gap-8 border-b border-white/10 bg-amber-300 p-7 text-stone-950 md:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-              <div>
-                <div className="flex items-center justify-between gap-4">
-                  <label htmlFor="subscriber-count" className="font-black">Subscribers</label>
-                  <output htmlFor="subscriber-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{subscribers.toLocaleString('en-US')}</output>
-                </div>
-                <input id="subscriber-count" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-
-                <div className="mt-6 flex items-center justify-between gap-4">
-                  <label htmlFor="carton-count" className="font-black">Cartons per subscriber / month</label>
-                  <output htmlFor="carton-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{cartons}</output>
-                </div>
-                <input id="carton-count" type="range" min="6" max="24" step="6" value={cartons} onChange={(event) => setCartons(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-
-                <div className="mt-6 flex items-center justify-between gap-4">
-                  <label htmlFor="carton-price" className="font-black">Average revenue per carton</label>
-                  <output htmlFor="carton-price" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">${cartonPrice.toFixed(2)}</output>
-                </div>
-                <input id="carton-price" type="range" min="3" max="6" step="0.25" value={cartonPrice} onChange={(event) => setCartonPrice(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-              </div>
-              <div className="rounded-3xl bg-stone-950 p-7 text-white shadow-xl" aria-live="polite">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Your scenario</p>
-                <p className="mt-4 text-5xl font-black tracking-tight">{compactCurrency.format(annualRevenue)}</p>
-                <p className="mt-1 font-black text-stone-300">illustrative annual revenue</p>
-                <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm">
-                  <span className="text-stone-400">Monthly revenue</span>
-                  <strong>{compactCurrency.format(monthlyRevenue)}</strong>
-                </div>
-                <p className="mt-5 text-xs leading-5 text-stone-400">Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, taxes, and operating costs are excluded.</p>
-              </div>
-            </div>
             <p className="px-7 py-4 text-xs font-semibold leading-5 text-stone-400 md:px-10">
               Illustrative scenario based on the concept assumptions, not a forecast. Excludes discounts, churn, shipping, taxes, wholesale mix, and returns.
             </p>
-          </div>
-
-          <div className="mt-5 grid overflow-hidden rounded-[2rem] border border-amber-900/10 bg-white shadow-xl shadow-amber-900/5 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="border-b border-stone-200 p-7 lg:border-b-0 lg:border-r md:p-10">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Scenario dial</p>
-              <h3 className="mt-3 text-3xl font-black tracking-tight">What does the carton habit look like?</h3>
-              <p className="mt-4 leading-7 text-stone-600">Toggle the monthly pack to pressure-test the simple revenue wedge at the concept’s $4 carton benchmark and 50,000 subscribers.</p>
-              <div className="mt-6 inline-flex rounded-full bg-stone-100 p-1" aria-label="Choose cartons per monthly pack">
-                {[12, 24].map((size) => (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => setPackSize(size)}
-                    aria-pressed={packSize === size}
-                    className={`rounded-full px-5 py-2.5 text-sm font-black transition-colors ${packSize === size ? 'bg-stone-950 text-white shadow-lg' : 'text-stone-600 hover:text-stone-950'}`}
-                  >
-                    {size} cartons
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-3" aria-live="polite">
-              <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Monthly basket</p>
-                <p className="mt-3 text-5xl font-black tracking-tight">${monthlyBasket}</p>
-                <p className="mt-2 text-sm text-stone-500">at ${cartonPrice} per carton</p>
-              </div>
-              <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Cartons / year</p>
-                <p className="mt-3 text-5xl font-black tracking-tight">{(packSize * 50000 * 12 / 1000000).toFixed(1)}M</p>
-                <p className="mt-2 text-sm text-stone-500">at 50K subscribers</p>
-              </div>
-              <div className="bg-amber-300 p-7 md:p-8">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-950/70">Annual run-rate</p>
-                <p className="mt-3 text-5xl font-black tracking-tight">${annualRunRate / 1000000}M</p>
-                <p className="mt-2 text-sm font-semibold text-amber-950/70">illustrative revenue</p>
-              </div>
-            </div>
           </div>
         </section>
 
