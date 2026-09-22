@@ -242,10 +242,13 @@ export default function EggWhiteProteinDrinks() {
   const [subscribers, setSubscribers] = useState(50000)
   const [cartonsPerMonth, setCartonsPerMonth] = useState(12)
   const [pricePerCarton, setPricePerCarton] = useState(4)
+  const [packSize, setPackSize] = useState(12)
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(false)
   const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
   const annualRevenue = monthlyRevenue * 12
+  const monthlyBasket = packSize * pricePerCarton
+  const annualRunRate = monthlyBasket * 50000 * 12
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -605,6 +608,37 @@ export default function EggWhiteProteinDrinks() {
                 ))}
               </div>
             </div>
+            <div className="grid gap-8 border-b border-white/10 bg-amber-300 p-7 text-stone-950 md:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+              <div>
+                <div className="flex items-center justify-between gap-4">
+                  <label htmlFor="subscriber-count" className="font-black">Subscribers</label>
+                  <output htmlFor="subscriber-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{subscribers.toLocaleString('en-US')}</output>
+                </div>
+                <input id="subscriber-count" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
+
+                <div className="mt-6 flex items-center justify-between gap-4">
+                  <label htmlFor="carton-count" className="font-black">Cartons per subscriber / month</label>
+                  <output htmlFor="carton-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{cartonsPerMonth}</output>
+                </div>
+                <input id="carton-count" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
+
+                <div className="mt-6 flex items-center justify-between gap-4">
+                  <label htmlFor="carton-price" className="font-black">Average revenue per carton</label>
+                  <output htmlFor="carton-price" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">${pricePerCarton.toFixed(2)}</output>
+                </div>
+                <input id="carton-price" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
+              </div>
+              <div className="rounded-3xl bg-stone-950 p-7 text-white shadow-xl" aria-live="polite">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Your scenario</p>
+                <p className="mt-4 text-5xl font-black tracking-tight">{formatCurrency(annualRevenue)}</p>
+                <p className="mt-1 font-black text-stone-300">illustrative annual revenue</p>
+                <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm">
+                  <span className="text-stone-400">Monthly revenue</span>
+                  <strong>{formatCurrency(monthlyRevenue)}</strong>
+                </div>
+                <p className="mt-5 text-xs leading-5 text-stone-400">Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, taxes, and operating costs are excluded.</p>
+              </div>
+            </div>
             <p className="px-7 py-4 text-xs font-semibold leading-5 text-stone-400 md:px-10">
               Illustrative scenario based on the concept assumptions, not a forecast. Excludes discounts, churn, shipping, taxes, wholesale mix, and returns.
             </p>
@@ -637,19 +671,21 @@ export default function EggWhiteProteinDrinks() {
                 </label>
               </div>
             </div>
-            <div className="flex flex-col justify-center bg-amber-300 p-7 md:p-10" aria-live="polite">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-950">Illustrative topline</p>
-              <p className="mt-4 text-6xl font-black tracking-tighter text-stone-950 md:text-7xl">{formatCurrency(annualRevenue)}</p>
-              <p className="mt-1 text-xl font-black text-stone-800">annualised revenue</p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <div className="rounded-2xl bg-white/70 p-5">
-                  <p className="text-2xl font-black">{formatCurrency(monthlyRevenue)}</p>
-                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">monthly revenue</p>
-                </div>
-                <div className="rounded-2xl bg-white/70 p-5">
-                  <p className="text-2xl font-black">{(subscribers * cartonsPerMonth).toLocaleString()}</p>
-                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">cartons / month</p>
-                </div>
+            <div className="grid sm:grid-cols-3" aria-live="polite">
+              <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Monthly basket</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">${monthlyBasket}</p>
+                <p className="mt-2 text-sm text-stone-500">at ${pricePerCarton.toFixed(2)} per carton</p>
+              </div>
+              <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Cartons / year</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{(packSize * 50000 * 12 / 1000000).toFixed(1)}M</p>
+                <p className="mt-2 text-sm text-stone-500">at 50K subscribers</p>
+              </div>
+              <div className="bg-amber-300 p-7 md:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-950/70">Annual run-rate</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{formatCurrency(annualRunRate)}</p>
+                <p className="mt-2 text-sm font-semibold text-amber-950/70">illustrative revenue</p>
               </div>
               <p className="mt-6 text-sm font-semibold leading-6 text-stone-700">
                 Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, tax, cost of goods, and acquisition spend are excluded.
