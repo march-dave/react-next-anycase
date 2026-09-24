@@ -98,6 +98,12 @@ const deploymentStages = [
   { label: 'Attest', description: 'Capture votes and policy proofs', icon: ShieldCheck, tone: 'border-emerald-400/20 bg-emerald-500/10 text-emerald-200' },
 ]
 
+const liveTraffic = [
+  { route: 'planner.intent', from: 'Atlas', to: 'Codex', latency: '12ms', tone: 'bg-indigo-400' },
+  { route: 'policy.attest', from: 'Sentry', to: 'Quorum', latency: '21ms', tone: 'bg-emerald-400' },
+  { route: 'memory.recall', from: 'Vector', to: 'Atlas', latency: '8ms', tone: 'bg-purple-400' },
+]
+
 const topologyNodes = [
   { label: 'Semantic Bus', value: '24 topics', icon: RadioTower, tone: 'border-indigo-400/30 bg-indigo-500/10 text-indigo-200' },
   { label: 'Consensus Engine', value: '7 open votes', icon: CheckCircle2, tone: 'border-purple-400/30 bg-purple-500/10 text-purple-200' },
@@ -239,6 +245,32 @@ const roleAccent = {
 
 function ViewContainer({ children }) {
   return <section style={{ animation: 'fadeIn 0.32s ease' }}>{children}</section>
+}
+
+function LandingStatusFooter({ onLaunch }) {
+  return (
+    <footer className="mt-10 flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-900/60 p-5 shadow-2xl shadow-black/10 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-200">
+          <Activity aria-hidden="true" className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-white">All control-plane systems operational</p>
+          <p className="mt-1 font-mono text-[11px] text-slate-500">iad-1 · sfo-2 · dub-1 · fra-1</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="inline-flex items-center gap-2 text-xs text-slate-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+          99.98% consensus SLA
+        </span>
+        <button type="button" onClick={onLaunch} className="inline-flex items-center gap-2 rounded-xl border border-indigo-400/30 bg-indigo-500/10 px-4 py-2.5 text-xs font-semibold text-indigo-100 transition hover:bg-indigo-500/20">
+          Launch workspace
+          <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5 rotate-180" />
+        </button>
+      </div>
+    </footer>
+  )
 }
 
 function MessageBody({ message }) {
