@@ -247,7 +247,7 @@ export default function EggWhiteProteinDrinks() {
   const [joined, setJoined] = useState(false)
   const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
   const annualRevenue = monthlyRevenue * 12
-  const monthlyBasket = packSize * pricePerCarton
+  const monthlyBasket = packSize * 4
   const annualRunRate = monthlyBasket * 50000 * 12
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -675,7 +675,7 @@ export default function EggWhiteProteinDrinks() {
               <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Monthly basket</p>
                 <p className="mt-3 text-5xl font-black tracking-tight">${monthlyBasket}</p>
-                <p className="mt-2 text-sm text-stone-500">at ${pricePerCarton.toFixed(2)} per carton</p>
+                <p className="mt-2 text-sm text-stone-500">at $4 per carton</p>
               </div>
               <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Cartons / year</p>
