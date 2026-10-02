@@ -1,3 +1,3 @@
-import Consendus from './consendus'
+import EggWhiteProteinDrinks from './egg-white-protein-drinks'
 
-export default Consendus
+export default EggWhiteProteinDrinks
