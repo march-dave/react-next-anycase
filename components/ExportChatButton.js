@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 
-export default function ExportChatButton({ messages, label = 'Export', systemPrompt = '' }) {
+export default function ExportChatButton({
+  messages,
+  label = 'Export',
+  systemPrompt = '',
+  insightsText = '',
+}) {
   const [status, setStatus] = useState('');
 
   const handleExport = async () => {
-    const formatted = buildTranscript(messages, systemPrompt);
+    const formatted = buildTranscript(messages, systemPrompt, insightsText);
     try {
       await navigator.clipboard.writeText(formatted);
       setStatus('Copied!');
@@ -25,8 +30,13 @@ export default function ExportChatButton({ messages, label = 'Export', systemPro
   );
 }
 
-function buildTranscript(messages, systemPrompt) {
+function buildTranscript(messages, systemPrompt, insightsText) {
   const trimmedPrompt = typeof systemPrompt === 'string' ? systemPrompt.trim() : '';
+  const trimmedInsights = typeof insightsText === 'string' ? insightsText.trim() : '';
+  const sections = [];
+  if (trimmedInsights) {
+    sections.push(trimmedInsights);
+  }
   const lines = [];
   if (trimmedPrompt) {
     lines.push(`system: ${trimmedPrompt}`);
@@ -35,7 +45,10 @@ function buildTranscript(messages, systemPrompt) {
     const timeLabel = formatMessageTimestamp(m);
     lines.push(`${m.role}${timeLabel ? ` (${timeLabel})` : ''}: ${m.text}`);
   }
-  return lines.join('\n');
+  if (lines.length > 0) {
+    sections.push(lines.join('\n'));
+  }
+  return sections.join('\n\n');
 }
 
 function formatMessageTimestamp(message) {

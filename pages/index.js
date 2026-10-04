@@ -1,2 +1,3 @@
-// Use the persistent ChatGPT UI as the landing page
-export { default } from './chatgpt-ui'
+import EggWhiteProteinDrinks from './egg-white-protein-drinks'
+
+export default EggWhiteProteinDrinks
