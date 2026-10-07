@@ -238,6 +238,12 @@ const formatComparison = [
   { factor: 'Key hurdle', egg: 'Taste + egg allergen', whey: 'Input cost pressure', plant: 'Taste perception' },
 ]
 
+const revenueScenarios = [
+  { label: 'Pilot', subscribers: 5000, cartons: 6, price: 4.5 },
+  { label: 'Base case', subscribers: 50000, cartons: 12, price: 4 },
+  { label: 'Scale', subscribers: 100000, cartons: 24, price: 3.5 },
+]
+
 export default function EggWhiteProteinDrinks() {
   const [subscribers, setSubscribers] = useState(50000)
   const [cartonsPerMonth, setCartonsPerMonth] = useState(12)
@@ -246,6 +252,13 @@ export default function EggWhiteProteinDrinks() {
   const [joined, setJoined] = useState(false)
   const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
   const annualRevenue = monthlyRevenue * 12
+  const annualCartons = subscribers * cartonsPerMonth * 12
+  const monthlyBasket = cartonsPerMonth * pricePerCarton
+  const activeScenario = revenueScenarios.find((scenario) => (
+    scenario.subscribers === subscribers
+    && scenario.cartons === cartonsPerMonth
+    && scenario.price === pricePerCarton
+  ))?.label
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -257,6 +270,12 @@ export default function EggWhiteProteinDrinks() {
     event.preventDefault()
     setEmail(email.trim())
     setJoined(true)
+  }
+
+  const applyRevenueScenario = (scenario) => {
+    setSubscribers(scenario.subscribers)
+    setCartonsPerMonth(scenario.cartons)
+    setPricePerCarton(scenario.price)
   }
 
   return (
@@ -605,40 +624,84 @@ export default function EggWhiteProteinDrinks() {
                 ))}
               </div>
             </div>
-            <div className="grid gap-8 border-b border-white/10 bg-amber-300 p-7 text-stone-950 md:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-              <div>
-                <div className="flex items-center justify-between gap-4">
-                  <label htmlFor="subscriber-count" className="font-black">Subscribers</label>
-                  <output htmlFor="subscriber-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{subscribers.toLocaleString('en-US')}</output>
-                </div>
-                <input id="subscriber-count" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-
-                <div className="mt-6 flex items-center justify-between gap-4">
-                  <label htmlFor="carton-count" className="font-black">Cartons per subscriber / month</label>
-                  <output htmlFor="carton-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{cartonsPerMonth}</output>
-                </div>
-                <input id="carton-count" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-
-                <div className="mt-6 flex items-center justify-between gap-4">
-                  <label htmlFor="carton-price" className="font-black">Average revenue per carton</label>
-                  <output htmlFor="carton-price" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">${pricePerCarton.toFixed(2)}</output>
-                </div>
-                <input id="carton-price" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-              </div>
-              <div className="rounded-3xl bg-stone-950 p-7 text-white shadow-xl" aria-live="polite">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Your scenario</p>
-                <p className="mt-4 text-5xl font-black tracking-tight">{formatCurrency(annualRevenue)}</p>
-                <p className="mt-1 font-black text-stone-300">illustrative annual revenue</p>
-                <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm">
-                  <span className="text-stone-400">Monthly revenue</span>
-                  <strong>{formatCurrency(monthlyRevenue)}</strong>
-                </div>
-                <p className="mt-5 text-xs leading-5 text-stone-400">Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, taxes, and operating costs are excluded.</p>
-              </div>
-            </div>
             <p className="px-7 py-4 text-xs font-semibold leading-5 text-stone-400 md:px-10">
               Illustrative scenario based on the concept assumptions, not a forecast. Excludes discounts, churn, shipping, taxes, wholesale mix, and returns.
             </p>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16" aria-labelledby="revenue-model-title">
+          <div className="grid overflow-hidden rounded-[2rem] border border-amber-900/10 bg-white shadow-xl shadow-amber-900/5 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="p-7 md:p-10">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Scenario builder</p>
+              <h2 id="revenue-model-title" className="mt-3 text-4xl font-black tracking-tight">Pressure-test the subscription wedge.</h2>
+              <p className="mt-4 max-w-2xl leading-7 text-stone-600">
+                Move the three commercial levers to see how a focused subscriber base translates into topline revenue before wholesale or grocery.
+              </p>
+              <div className="mt-6" aria-label="Revenue scenario presets">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Start with a scenario</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {revenueScenarios.map((scenario) => (
+                    <button
+                      key={scenario.label}
+                      type="button"
+                      onClick={() => applyRevenueScenario(scenario)}
+                      aria-pressed={activeScenario === scenario.label}
+                      className={`rounded-full border px-4 py-2 text-sm font-black transition-colors ${
+                        activeScenario === scenario.label
+                          ? 'border-stone-950 bg-stone-950 text-white'
+                          : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-400 hover:bg-white'
+                      }`}
+                    >
+                      {scenario.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-8 space-y-7">
+                <label className="block" htmlFor="scenario-subscribers">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Subscribers</span><output htmlFor="scenario-subscribers" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{subscribers.toLocaleString()}</output></span>
+                  <input id="scenario-subscribers" className="mt-3 w-full accent-amber-600" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} />
+                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>5K</span><span>100K</span></span>
+                </label>
+                <label className="block" htmlFor="scenario-cartons">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Cartons per month</span><output htmlFor="scenario-cartons" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{cartonsPerMonth}</output></span>
+                  <input id="scenario-cartons" className="mt-3 w-full accent-amber-600" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} />
+                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>6</span><span>24</span></span>
+                </label>
+                <label className="block" htmlFor="scenario-price">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Price per carton</span><output htmlFor="scenario-price" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">${pricePerCarton.toFixed(2)}</output></span>
+                  <input id="scenario-price" className="mt-3 w-full accent-amber-600" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} />
+                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>$3</span><span>$6</span></span>
+                </label>
+              </div>
+            </div>
+            <div className="flex flex-col justify-center bg-amber-300 p-7 md:p-10" aria-live="polite">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-950">Illustrative topline</p>
+              <p className="mt-4 text-6xl font-black tracking-tighter text-stone-950 md:text-7xl">{formatCurrency(annualRevenue)}</p>
+              <p className="mt-1 text-xl font-black text-stone-800">annualised revenue</p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{formatCurrency(monthlyBasket)}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">monthly basket</p>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{formatCurrency(monthlyRevenue)}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">monthly revenue</p>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{(subscribers * cartonsPerMonth).toLocaleString()}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">cartons / month</p>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{(annualCartons / 1000000).toFixed(1)}M</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">cartons / year</p>
+                </div>
+              </div>
+              <p className="mt-6 text-sm font-semibold leading-6 text-stone-700">
+                Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, tax, cost of goods, and acquisition spend are excluded.
+              </p>
+            </div>
           </div>
         </section>
 
