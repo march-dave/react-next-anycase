@@ -196,6 +196,24 @@ const carePathway = [
   },
 ]
 
+const acquisitionFit = [
+  {
+    title: 'Earliest intent capture',
+    description:
+      'Manetain identifies users before they are shopping for severe-loss solutions, creating a new top-of-funnel entry point.',
+  },
+  {
+    title: 'Higher-conviction referrals',
+    description:
+      'Clinics and telehealth partners receive objective progression data, making consultations more urgent and conversion-ready.',
+  },
+  {
+    title: 'Retention-rich data moat',
+    description:
+      'Weekly tracking builds longitudinal user history that increases personalization, trust, and downstream monetization value.',
+  },
+]
+
 const faqs = [
   {
     question: 'How often should I scan my scalp?',
