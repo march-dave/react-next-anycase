@@ -471,75 +471,6 @@ const PR_REFERENCE_SNIPPETS = [
   },
 ];
 
-const PR_PLACEHOLDER_RULES = [
-  {
-    id: 'file-citation',
-    pattern: /F:path\/to\/file†L#/,
-    summaryLabel: 'file citation placeholder',
-    summaryLabelPlural: 'file citation placeholders',
-    example: 'F:path/to/file†L#',
-    guidance: 'Swap in the actual path and line range.',
-  },
-  {
-    id: 'chunk-citation',
-    pattern: /chunk†L#/,
-    summaryLabel: 'chunk citation placeholder',
-    summaryLabelPlural: 'chunk citation placeholders',
-    example: 'chunk†L#',
-    guidance: 'Replace with the terminal output reference that backs the change.',
-  },
-  {
-    id: 'generic-link',
-    pattern: /https:\/\/link/,
-    summaryLabel: 'link placeholder',
-    summaryLabelPlural: 'link placeholders',
-    example: 'https://link',
-    guidance: 'Point to the real document, dashboard, or ticket URL.',
-  },
-  {
-    id: 'screenshot',
-    pattern: /artifacts\/filename\.png/,
-    summaryLabel: 'screenshot placeholder',
-    summaryLabelPlural: 'screenshot placeholders',
-    example: 'artifacts/filename.png',
-    guidance: 'Update with the saved image path before sharing.',
-  },
-  {
-    id: 'testing-command',
-    pattern: /command or suite/,
-    summaryLabel: 'testing placeholder',
-    summaryLabelPlural: 'testing placeholders',
-    example: '`command or suite`',
-    guidance: 'List the exact command or suite that ran.',
-  },
-  {
-    id: 'ticket',
-    pattern: /ABC-123/,
-    summaryLabel: 'ticket placeholder',
-    summaryLabelPlural: 'ticket placeholders',
-    example: 'ABC-123',
-    guidance: 'Reference the actual tracking ID and link.',
-  },
-  {
-    id: 'feature-flag',
-    pattern: /flag_name/,
-    summaryLabel: 'feature flag placeholder',
-    summaryLabelPlural: 'feature flag placeholders',
-    example: 'flag_name',
-    guidance: 'Document the real flag identifier and default.',
-  },
-  {
-    id: 'dependency',
-    pattern: /package@version/,
-    summaryLabel: 'dependency placeholder',
-    summaryLabelPlural: 'dependency placeholders',
-    example: 'package@version',
-    guidance: 'Note the actual package and version bump.',
-  },
-];
-
-const PR_PLACEHOLDER_PATTERNS = PR_PLACEHOLDER_RULES.map((rule) => rule.pattern);
-
 const KEY_CAP_CLASS =
   'inline-flex items-center rounded border border-gray-300 bg-white px-1.5 py-0.5 text-[0.65rem] font-semibold text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200';
 
@@ -3318,29 +3249,15 @@ export default function ChatGptUIPersist() {
   );
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
-
-    const handleShortcut = (event) => {
-      if (
-        event.defaultPrevented ||
-        event.repeat ||
-        !event.altKey ||
-        !event.shiftKey ||
-        event.ctrlKey ||
-        event.metaKey
-      ) {
+    const shortcutHandler = (e) => {
+      if (!e.altKey || !e.shiftKey) {
         return;
       }
 
-      const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
-      if (!key) {
-        return;
-      }
+      const key = e.key.toLowerCase();
 
       if (key === 'c') {
-        event.preventDefault();
+        e.preventDefault();
         if (window.confirm('Clear chat history?')) {
           handleClear();
         }
@@ -3348,7 +3265,7 @@ export default function ChatGptUIPersist() {
       }
 
       if (key === 'p') {
-        event.preventDefault();
+        e.preventDefault();
         setShowPromptLibrary(true);
         setShowPrHelper(false);
         setShowInsights(false);
@@ -3356,7 +3273,7 @@ export default function ChatGptUIPersist() {
       }
 
       if (key === 'h') {
-        event.preventDefault();
+        e.preventDefault();
         setShowPrHelper(true);
         setShowPromptLibrary(false);
         setShowInsights(false);
@@ -3364,15 +3281,15 @@ export default function ChatGptUIPersist() {
       }
 
       if (key === 'i') {
-        event.preventDefault();
+        e.preventDefault();
         setShowInsights(true);
         setShowPromptLibrary(false);
         setShowPrHelper(false);
       }
     };
 
-    window.addEventListener('keydown', handleShortcut);
-    return () => window.removeEventListener('keydown', handleShortcut);
+    window.addEventListener('keydown', shortcutHandler);
+    return () => window.removeEventListener('keydown', shortcutHandler);
   }, [handleClear, setShowInsights, setShowPrHelper, setShowPromptLibrary]);
 
   // Load messages from local storage on mount
@@ -3765,16 +3682,8 @@ export default function ChatGptUIPersist() {
             ariaLabel="Clear conversation (Alt+Shift+C)"
             title="Alt+Shift+C"
           />
-          <ExportChatButton
-            messages={messages}
-            systemPrompt={systemPrompt}
-            insightsText={exportInsightsText}
-          />
-          <DownloadChatButton
-            messages={messages}
-            systemPrompt={systemPrompt}
-            insightsText={exportInsightsText}
-          />
+          <ExportChatButton messages={messages} systemPrompt={systemPrompt} />
+          <DownloadChatButton messages={messages} systemPrompt={systemPrompt} />
           <button
             type="button"
             ref={promptLibraryButtonRef}
@@ -3796,8 +3705,8 @@ export default function ChatGptUIPersist() {
             aria-haspopup="dialog"
             aria-expanded={showPrHelper}
             aria-controls="pr-helper"
-            aria-label={prHelperButtonAriaLabel}
-            title={prHelperButtonTitle}
+            aria-label="PR helper (Alt+Shift+H)"
+            title="Alt+Shift+H"
           >
             <span>PR helper</span>
             {showPrHelperBadge && (
@@ -4313,6 +4222,33 @@ export default function ChatGptUIPersist() {
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Preparing a pull request? The <span className="font-medium">PR helper</span> button now surfaces live word and character counts plus summary and testing previews before you copy, and offers a ready-to-edit template with bold section headings, citation placeholders, quick copy shortcuts for the Summary and Testing sections, quick-add buttons for Impact, Security & Privacy, Accessibility, User Experience, Performance, Analytics & Monitoring, Release notes, Dependencies, Feature flags, Tickets & Tracking, Rollout, Documentation, evidence bullets (files, logs, metrics, screenshots, docs, videos), or additional test results—and it now accepts the Insights summary directly so your draft stays in sync with the latest conversation, alongside a shortcut to link the external release notes draft. A badge on the header button highlights how many placeholders still need attention (and flips to a "Ready" label once everything's filled in) so you know when the template is review-ready at a glance. Use the new <span className="font-medium">Trim placeholder text</span> button inside the helper to strip template boilerplate before copying or inserting your notes.
+                </p>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Prefer shortcuts? Press{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>P</kbd>
+                  {' '}for the Prompt library,{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>H</kbd>
+                  {' '}for the PR helper,{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>I</kbd>
+                  {' '}for Insights, or{' '}
+                  <kbd className={KEY_CAP_CLASS}>Alt</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>Shift</kbd>
+                  {' + '}
+                  <kbd className={KEY_CAP_CLASS}>C</kbd>
+                  {' '}to clear the conversation from anywhere.
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   Prefer shortcuts? Press{' '}

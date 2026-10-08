@@ -1,0 +1,956 @@
+import Head from 'next/head'
+import { useState } from 'react'
+import {
+  AlertTriangle,
+  ArrowRight,
+  BadgeDollarSign,
+  BarChart3,
+  CheckCircle2,
+  ClipboardCheck,
+  Dumbbell,
+  Egg,
+  Flame,
+  Gauge,
+  PackageCheck,
+  ShieldCheck,
+  ShoppingCart,
+  Stethoscope,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Trophy,
+  Users,
+  Zap,
+} from 'lucide-react'
+
+const stats = [
+  { value: '50g+', label: 'protein per carton', detail: 'A single clean-label Tetra Pak built around pasteurised egg white.' },
+  { value: '2.5g', label: 'carbs target', detail: 'Macro-efficient enough for protein-maxxers and GLP-1 users.' },
+  { value: '$4.20', label: 'Greek benchmark', detail: 'A proven shelf price for the product this concept geo-arbitrages.' },
+  { value: '70%', label: 'US adults chasing protein', detail: 'A mainstream demand wave layered on top of fitness buyers.' },
+  { value: '~12%', label: 'Americans on GLP-1s', detail: 'A new medicalised cohort being coached to protect lean mass.' },
+  { value: '2026–27', label: 'whey capacity relief window', detail: 'New expansion plants are expected too late to rescue near-term RTD margins.' },
+]
+
+const solutionPillars = [
+  {
+    title: 'One clean carton',
+    body: 'Roughly 94% pasteurised egg white, cocoa, and not much else: 50g+ protein with a simpler label than most chilled shakes.',
+  },
+  {
+    title: 'Egg supply, not whey supply',
+    body: 'Partner with a major egg producer for supply and co-manufacturing so the product is insulated from whey trader volatility.',
+  },
+  {
+    title: 'Narrow launch, wider market',
+    body: 'Start with premium DTC and gym buyers, then expand into lactose-intolerant shoppers, GLP-1 users, and grocery velocity.',
+  },
+]
+
+const marketNumbers = [
+  {
+    title: 'Multi-billion-dollar pool',
+    body: 'Protein supplements and RTD shakes are already huge; the first wedge only needs a defensible niche inside existing demand.',
+    icon: BarChart3,
+  },
+  {
+    title: '$29M subscription math',
+    body: '50,000 subscribers buying a monthly 12-pack at roughly $4 per carton implies about $2.4M monthly revenue, or roughly $29M ARR before grocery.',
+    icon: BadgeDollarSign,
+  },
+  {
+    title: 'Egg protein tailwind',
+    body: 'Egg white powder alone is estimated around $1.7B in 2025 and heading toward $2.4B by 2030, before finished RTD formats are counted.',
+    icon: Egg,
+  },
+  {
+    title: 'Nine-figure upside',
+    body: 'Capturing even 1% of US RTD protein shake spend can become a nine-figure line; the first goal is a defensible $20M-$40M DTC-plus-gym wedge.',
+    icon: TrendingUp,
+  },
+]
+
+const modelCards = [
+  {
+    title: 'DTC subscription',
+    body: 'Monthly 12 or 24 carton packs create the recurring-revenue engine, flavour data, and premium-margin launch base.',
+    icon: PackageCheck,
+  },
+  {
+    title: 'Gym fridge wholesale',
+    body: 'Put the 55g-for-2.5g-carbs stat sheet exactly where macro-trackers discover and evangelise new protein formats.',
+    icon: Dumbbell,
+  },
+  {
+    title: 'Phase-two grocery',
+    body: 'Scale into lactose-intolerant and GLP-1 shoppers once taste, reorder, and supply economics are proven.',
+    icon: ShoppingCart,
+  },
+]
+
+const whyNow = [
+  'Standard whey powder is up more than 50% since January, concentrate has roughly tripled from pre-shortage ranges, and isolate has moved beyond $11/lb.',
+  'GLP-1 weight-loss users are being told to protein-load to protect lean mass, adding medical demand to the existing fitness base.',
+  'Clean-label positioning favours a five-ingredient egg white drink over complex shake formulas.',
+  'The product has already been de-risked in Greece; the US, UK, and Australia gap is distribution, taste localisation, and brand.',
+]
+
+const supplyComparison = [
+  {
+    label: 'Whey-based RTDs',
+    status: 'Constrained',
+    headline: 'Historic input pressure',
+    body: 'Capacity is sold forward while concentrate and isolate pricing squeeze the category’s default formulation.',
+    accent: 'bg-red-400',
+    badge: 'border-red-300/30 bg-red-300/10 text-red-200',
+  },
+  {
+    label: 'Egg-white RTD',
+    status: 'Open lane',
+    headline: 'A separate supply curve',
+    body: 'Direct egg-producer partnerships create a complete-protein alternative with economics independent of whey traders.',
+    accent: 'bg-amber-300',
+    badge: 'border-amber-300/30 bg-amber-300/10 text-amber-200',
+  },
+]
+
+const risks = [
+  'Taste and texture must beat the eggy, chalky reputation of older egg protein formats.',
+  'Avian flu can still shock egg supply, so contracts and redundancy matter.',
+  'Large whey RTD brands or egg producers can copy once the wedge is visible.',
+  'Egg allergen labelling, pasteurisation, and cold-chain compliance add operational complexity.',
+  'If new whey capacity normalises prices, the brand must stand on taste and utility rather than arbitrage alone.',
+]
+
+const launchSteps = [
+  { step: '01', title: 'Lock the egg partner', body: 'The supply agreement is the moat: co-manufacturing, pricing, volume priority, and whey-independent input costs.' },
+  { step: '02', title: 'Validate with imported cartons', body: 'Source Greek cartons or a white-label pilot, then put them in front of 100 protein obsessives to measure finish rate and reorder intent.' },
+  { step: '03', title: 'Win the obsessive buyer', body: 'Seed DTC drops with gym-bro, r/protein, and macro-tracking communities who care about grams, carbs, and reorder value.' },
+  { step: '04', title: 'Turn the whey crisis into media', body: 'Every whey price hike becomes a campaign for a shake that does not care about the whey curve.' },
+  { step: '05', title: 'Prove taste in public', body: 'Run blind taste tests against Premier Protein, Fairlife-style shakes, and plant-based RTDs before grocery meetings.' },
+]
+
+const marketSignals = [
+  { value: '$1.7B', label: 'egg white powder market in 2025', detail: 'A growing input market projected toward $2.4B by 2030 before counting finished RTD cartons.' },
+  { value: '$8B+', label: 'broader egg protein market', detail: 'A mid-single-digit growth category with egg white as the largest, fastest-growing type.' },
+  { value: '$29M', label: 'DTC run-rate scenario', detail: '50,000 subscribers buying a 12-pack monthly at roughly $4 per carton.' },
+]
+
+const subscriptionMath = [
+  { value: '12', label: 'cartons / month', note: 'A simple starter subscription built around one daily-use hero format.' },
+  { value: '$48', label: 'monthly basket', note: 'Twelve cartons at the roughly $4 benchmark retail price.' },
+  { value: '50K', label: 'subscribers', note: 'A focused audience, not a mass-market share assumption.' },
+  { value: '~$29M', label: 'annual run-rate', note: 'Before gym wholesale, grocery distribution, or additional flavours.' },
+]
+
+const proofPoints = [
+  {
+    title: 'Greek shelf proof',
+    body: 'A five-ingredient chocolate egg-white drink from a major Greek egg producer shows the format can already be manufactured, packaged, priced, and consumed.',
+  },
+  {
+    title: 'Supply-chain arbitrage',
+    body: 'The strategic gap is not another flavour of whey. It is a complete-protein carton whose input cost is negotiated with egg producers rather than whey traders.',
+  },
+  {
+    title: 'English-market whitespace',
+    body: 'The US, UK, and Australia have protein RTDs everywhere, but no obvious mainstream chilled egg-white carton claiming the category-leader slot.',
+  },
+]
+
+const operatingThesis = [
+  {
+    eyebrow: 'Supply',
+    title: 'Egg producer',
+    body: 'Secure liquid egg white, co-manufacturing capacity, and priority volume at the source.',
+  },
+  {
+    eyebrow: 'Product',
+    title: 'One hero carton',
+    body: 'Turn that supply into a great-tasting chocolate SKU with a 50g+ protein headline.',
+  },
+  {
+    eyebrow: 'Demand',
+    title: 'DTC to grocery',
+    body: 'Prove repeat purchase with macro-trackers, then widen distribution with real velocity data.',
+  },
+]
+
+const validationChecks = [
+  {
+    title: 'Import or white-label first',
+    body: 'Use Greek cartons, a white-label pilot, or a small co-manufactured batch before committing to a national manufacturing run.',
+  },
+  {
+    title: 'Test with 100 sharp buyers',
+    body: 'Serve protein-maxxers who already compare grams, carbs, taste, and price; measure finish rate before surveying intent.',
+  },
+  {
+    title: 'Only scale on reorder proof',
+    body: 'The milestone is not first-purchase curiosity. It is repeat orders, macro screenshot sharing, and willingness to subscribe.',
+  },
+]
+
+const decisionGates = [
+  {
+    value: '70%+',
+    label: 'finish rate',
+    body: 'The carton has to get finished, not merely sampled. Track this before asking whether someone liked it.',
+  },
+  {
+    value: '4.2/5',
+    label: 'taste score',
+    body: 'Chocolate must clear the eggy-texture objection with the target buyer before a second flavour is funded.',
+  },
+  {
+    value: '30%+',
+    label: 'reorder intent',
+    body: 'A meaningful share of testers should choose a paid 12-pack deposit or subscription waitlist over a survey promise.',
+  },
+]
+
+const summaryBullets = [
+  'A proven Greek egg-white RTD format can be geo-arbitraged into English-speaking markets before a category leader exists.',
+  'The timing is unusually attractive because whey supply is constrained while mainstream, fitness, lactose-avoidant, and GLP-1 protein demand keeps expanding.',
+  'The first strategic asset is the egg-producer supply and co-manufacturing relationship; taste and brand become the long-term defence.',
+]
+
+const competitors = [
+  {
+    title: 'Whey RTD incumbents',
+    body: 'Premier Protein, Fairlife-style shakes, and other leaders own shelf space, but their input curve is exposed while whey prices remain elevated.',
+  },
+  {
+    title: 'Plant-based RTDs',
+    body: 'Pea, soy, and Ripple-style alternatives avoid dairy but still fight taste perception and amino-acid skepticism that egg white can sidestep.',
+  },
+  {
+    title: 'Egg producers and powders',
+    body: 'The Greek original, large egg companies, and powder tubs prove supply and demand exist, but nobody has made the mainstream English-market carton yet.',
+  },
+]
+
+const formatComparison = [
+  { factor: 'Protein source', egg: 'Pasteurised egg white', whey: 'Milk-derived whey', plant: 'Pea, soy, or blends' },
+  { factor: 'Hero carton target', egg: '50g+ protein', whey: 'Typically 20–42g', plant: 'Typically 20–30g' },
+  { factor: 'Lactose', egg: 'None', whey: 'Varies by formulation', plant: 'None' },
+  { factor: 'Supply exposure', egg: 'Egg market', whey: 'Constrained whey market', plant: 'Crop and blend inputs' },
+  { factor: 'Key hurdle', egg: 'Taste + egg allergen', whey: 'Input cost pressure', plant: 'Taste perception' },
+]
+
+const revenueScenarios = [
+  { label: 'Pilot', subscribers: 5000, cartons: 6, price: 4.5 },
+  { label: 'Base case', subscribers: 50000, cartons: 12, price: 4 },
+  { label: 'Scale', subscribers: 100000, cartons: 24, price: 3.5 },
+]
+
+export default function EggWhiteProteinDrinks() {
+  const [subscribers, setSubscribers] = useState(50000)
+  const [cartonsPerMonth, setCartonsPerMonth] = useState(12)
+  const [pricePerCarton, setPricePerCarton] = useState(4)
+  const [email, setEmail] = useState('')
+  const [joined, setJoined] = useState(false)
+  const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
+  const annualRevenue = monthlyRevenue * 12
+  const annualCartons = subscribers * cartonsPerMonth * 12
+  const monthlyBasket = cartonsPerMonth * pricePerCarton
+  const activeScenario = revenueScenarios.find((scenario) => (
+    scenario.subscribers === subscribers
+    && scenario.cartons === cartonsPerMonth
+    && scenario.price === pricePerCarton
+  ))?.label
+  const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value)
+
+  const handleWaitlistSubmit = (event) => {
+    event.preventDefault()
+    setEmail(email.trim())
+    setJoined(true)
+  }
+
+  const applyRevenueScenario = (scenario) => {
+    setSubscribers(scenario.subscribers)
+    setCartonsPerMonth(scenario.cartons)
+    setPricePerCarton(scenario.price)
+  }
+
+  return (
+    <div className="min-h-screen bg-[#fff8ec] text-stone-950">
+      <Head>
+        <title>Egg White Protein Drinks | Anycase</title>
+        <meta name="theme-color" content="#fff8ec" />
+        <meta
+          name="description"
+          content="A market map and launch plan for a clean-label egg white ready-to-drink protein brand in the US, UK, and Australia."
+        />
+      </Head>
+
+      <a
+        href="#main-content"
+        className="fixed left-4 top-4 z-50 -translate-y-24 rounded-full bg-stone-950 px-5 py-3 text-sm font-black text-white shadow-xl transition-transform focus:translate-y-0"
+      >
+        Skip to content
+      </a>
+
+      <header className="sticky top-0 z-40 border-b border-amber-900/10 bg-[#fff8ec]/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <a href="#top" className="flex items-center gap-2 text-lg font-black tracking-tight" aria-label="OVO Protein, back to top">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-stone-950 text-amber-100">O/</span>
+            <span>OVO<span className="text-amber-700">/</span>PROTEIN</span>
+          </a>
+          <nav className="hidden items-center gap-7 text-sm font-semibold text-stone-700 md:flex" aria-label="Primary navigation">
+            <a href="#problem" className="hover:text-stone-950">Problem</a>
+            <a href="#why-now" className="hover:text-stone-950">Why now</a>
+            <a href="#numbers" className="hover:text-stone-950">Numbers</a>
+            <a href="#market" className="hover:text-stone-950">Market</a>
+            <a href="#comparison" className="hover:text-stone-950">Compare</a>
+            <a href="#economics" className="hover:text-stone-950">Economics</a>
+            <a href="#model" className="hover:text-stone-950">Model</a>
+            <a href="#launch" className="hover:text-stone-950">Launch</a>
+            <a href="#risks" className="hover:text-stone-950">Risks</a>
+            <a href="#summary" className="hover:text-stone-950">Summary</a>
+          </nav>
+          <a href="#launch" className="rounded-full bg-stone-950 px-4 py-2 text-xs font-black uppercase tracking-wider text-white md:hidden">Launch plan</a>
+        </div>
+        <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-amber-900/10 px-6 py-3 text-xs font-black uppercase tracking-[0.16em] text-stone-600 md:hidden" aria-label="Mobile navigation">
+          <a href="#problem" className="shrink-0 hover:text-stone-950">Problem</a>
+          <a href="#why-now" className="shrink-0 hover:text-stone-950">Why now</a>
+          <a href="#numbers" className="shrink-0 hover:text-stone-950">Numbers</a>
+          <a href="#market" className="shrink-0 hover:text-stone-950">Market</a>
+          <a href="#comparison" className="shrink-0 hover:text-stone-950">Compare</a>
+          <a href="#economics" className="shrink-0 hover:text-stone-950">Economics</a>
+          <a href="#model" className="shrink-0 hover:text-stone-950">Model</a>
+          <a href="#launch" className="shrink-0 hover:text-stone-950">Launch</a>
+          <a href="#risks" className="shrink-0 hover:text-stone-950">Risks</a>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        <span id="top" className="block scroll-mt-24" aria-hidden="true" />
+        <div className="overflow-hidden border-b border-amber-900/10 bg-amber-300 py-2.5 text-stone-950">
+          <div className="flex min-w-max animate-marquee items-center gap-8 whitespace-nowrap text-xs font-black uppercase tracking-[0.18em]">
+            {[0, 1].map((group) => (
+              <div key={group} className="flex items-center gap-8" aria-hidden={group === 1}>
+                <span>55g complete protein</span><span>◆</span><span>2.5g carbs</span><span>◆</span><span>5 ingredients</span><span>◆</span><span>zero whey</span><span>◆</span><span>built for the protein economy</span><span>◆</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <section className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 opacity-[0.16] [background-image:linear-gradient(to_right,#92400e_1px,transparent_1px),linear-gradient(to_bottom,#92400e_1px,transparent_1px)] [background-size:48px_48px]" />
+          <div className="absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full bg-yellow-300/30 blur-3xl" />
+          <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.05fr_0.95fr] md:items-center md:py-24">
+            <div className="relative z-10">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white/70 px-4 py-2 text-sm font-bold text-amber-900 shadow-sm">
+                <Flame className="h-4 w-4" /> Whey-independent protein for a whey-constrained market
+              </div>
+              <p className="mb-4 text-xs font-black uppercase tracking-[0.28em] text-stone-500">Market entry thesis · US / UK / Australia</p>
+              <h1 className="max-w-4xl text-5xl font-black leading-[0.95] tracking-tight md:text-7xl">
+                The clean carton hiding in the whey crisis.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-700 md:text-xl">
+                Clone the proven Greek egg-white protein drink playbook for the US, UK, and Australia: one chilled Tetra Pak,
+                50g+ complete protein, ultra-low carbs, and a supply chain built with egg producers instead of whey traders.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a href="#waitlist" className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3 font-bold text-white shadow-xl shadow-stone-900/20 hover:bg-stone-800">
+                  Join the first drop <ArrowRight className="h-4 w-4" />
+                </a>
+                <a href="#model" className="inline-flex items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-3 font-bold text-stone-900 hover:border-stone-500">
+                  See the business model
+                </a>
+              </div>
+              <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t border-stone-900/10 pt-5 text-xs font-black uppercase tracking-[0.16em] text-stone-600">
+                <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-700" /> Complete protein</span>
+                <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-700" /> Lactose-free</span>
+                <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-700" /> Ready to drink</span>
+              </div>
+            </div>
+
+            <div className="relative z-10 mx-auto w-full max-w-md py-6">
+              <div className="absolute -left-7 top-1/3 hidden rounded-2xl bg-stone-950 px-4 py-3 text-white shadow-xl sm:block">
+                <p className="text-2xl font-black">94%</p><p className="text-[10px] font-bold uppercase tracking-widest text-stone-300">egg white</p>
+              </div>
+              <div className="absolute -right-7 bottom-16 z-20 hidden rotate-6 rounded-2xl bg-amber-300 px-4 py-3 shadow-xl sm:block">
+                <p className="text-2xl font-black">$4.20</p><p className="text-[10px] font-bold uppercase tracking-widest">benchmark</p>
+              </div>
+              <div className="relative rotate-2 rounded-[2.5rem_2.5rem_1.25rem_1.25rem] border-4 border-stone-950 bg-white p-3 shadow-2xl shadow-amber-900/20">
+                <div className="absolute -top-4 left-1/2 h-7 w-20 -translate-x-1/2 rounded-t-xl border-4 border-b-0 border-stone-950 bg-amber-200" />
+                <div className="rounded-[2rem_2rem_0.85rem_0.85rem] bg-gradient-to-br from-amber-100 via-white to-stone-100 p-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-black tracking-tighter">OVO<span className="text-amber-700">/</span></span>
+                    <span className="rounded-full bg-stone-950 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-white">Chocolate 500ml</span>
+                    <Sparkles className="h-6 w-6 text-amber-600" />
+                  </div>
+                  <div className="mt-10 text-center">
+                    <div className="mx-auto mb-5 h-16 w-12 rounded-[50%] border-4 border-stone-950 bg-white shadow-[inset_0_-10px_0_#fcd34d]" />
+                    <p className="text-sm font-black uppercase tracking-[0.35em] text-amber-800">Protein, hatched.</p>
+                    <p className="mt-3 text-8xl font-black tracking-tighter text-stone-950">55g</p>
+                    <p className="text-2xl font-black text-stone-700">complete protein</p>
+                  </div>
+                  <div className="mt-10 grid grid-cols-2 gap-3 text-center">
+                    <div className="rounded-2xl bg-white p-4 shadow-sm"><p className="text-2xl font-black">2.5g</p><p className="text-xs font-bold uppercase text-stone-500">carbs</p></div>
+                    <div className="rounded-2xl bg-white p-4 shadow-sm"><p className="text-2xl font-black">5</p><p className="text-xs font-bold uppercase text-stone-500">ingredients</p></div>
+                  </div>
+                  <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-950">
+                    Pasteurised egg white · cocoa · ready to drink<br/><span className="text-xs font-black uppercase tracking-widest">No whey. No lactose. No powder.</span>
+                  </div>
+                  <p className="mt-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">Contains egg · serve chilled</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {stats.map((stat) => (
+              <article key={stat.label} className="rounded-3xl border border-amber-900/10 bg-white p-6 shadow-sm">
+                <p className="text-4xl font-black tracking-tight text-stone-950">{stat.value}</p>
+                <h2 className="mt-2 font-black text-stone-800">{stat.label}</h2>
+                <p className="mt-2 text-sm leading-6 text-stone-600">{stat.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="problem" className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="rounded-[2rem] bg-stone-950 p-8 text-white">
+              <Users className="h-10 w-10 text-amber-300" />
+              <h2 className="mt-5 text-4xl font-black tracking-tight">Protein demand has gone mainstream and medical.</h2>
+              <p className="mt-5 text-lg leading-8 text-stone-300">
+                Protein-maxxing is no longer just a gym behaviour. Protein claims now show up across the supermarket, and a growing
+                GLP-1 cohort is being told to protect lean mass while losing weight. Demand broadened just as whey supply tightened.
+              </p>
+              <p className="mt-4 text-lg leading-8 text-stone-300">
+                The arbitrage is simple: bring a proven Greek egg-white carton to English-speaking markets before incumbents
+                retool their supply chains.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {solutionPillars.map((pillar) => (
+                <article key={pillar.title} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+                  <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+                  <h3 className="mt-4 text-xl font-black">{pillar.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-600">{pillar.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="numbers" className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-[2rem] border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
+            <p className="font-black uppercase tracking-[0.25em] text-amber-700">Key numbers</p>
+            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {marketNumbers.map((item) => (
+                <article key={item.title} className="rounded-3xl bg-amber-50 p-6">
+                  <item.icon className="h-9 w-9 text-amber-700" />
+                  <h3 className="mt-5 text-2xl font-black">{item.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-700">{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="why-now" className="bg-stone-950 text-white">
+          <div className="mx-auto max-w-7xl px-6 py-16">
+            <div className="grid gap-10 md:grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-stone-950"><TrendingUp className="h-4 w-4" /> Why now</div>
+                <h2 className="mt-6 text-4xl font-black tracking-tight md:text-5xl">Demand is rising while whey supply is on fire.</h2>
+                <p className="mt-5 text-lg leading-8 text-stone-300">Protein has gone mainstream, GLP-1 users need muscle-preserving nutrition, and whey brands are facing historic input pressure. Egg white protein creates a supply-chain arbitrage with real consumer utility.</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {whyNow.map((item) => (
+                  <div key={item} className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                    <CheckCircle2 className="h-6 w-6 text-emerald-300" />
+                    <p className="mt-4 font-semibold leading-7 text-stone-100">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-10 grid gap-4 border-t border-white/10 pt-10 md:grid-cols-2">
+              {supplyComparison.map((item) => (
+                <article key={item.label} className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.07] p-6 md:p-8">
+                  <div className={`absolute inset-y-0 left-0 w-1.5 ${item.accent}`} />
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-stone-400">{item.label}</p>
+                    <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${item.badge}`}>{item.status}</span>
+                  </div>
+                  <h3 className="mt-5 text-2xl font-black">{item.headline}</h3>
+                  <p className="mt-3 max-w-xl leading-7 text-stone-300">{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="market" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-black text-amber-900">
+                <Users className="h-4 w-4" /> Market map
+              </div>
+              <h2 className="mt-6 text-4xl font-black tracking-tight md:text-5xl">
+                A big RTD protein pool with an empty egg-white lane.
+              </h2>
+              <p className="mt-5 text-lg leading-8 text-stone-600">
+                The target is not to outspend every incumbent on day one. It is to own a defensible niche
+                while whey-based shakes absorb historic input pressure and shoppers search for cleaner,
+                lactose-free, complete-protein formats.
+              </p>
+              <div className="mt-8 rounded-3xl border border-stone-200 bg-stone-950 p-6 text-white">
+                <p className="text-sm font-black uppercase tracking-[0.25em] text-amber-300">ARR potential</p>
+                <p className="mt-3 text-2xl font-black">A $20M–$40M DTC-plus-gym brand is plausible before grocery unlocks the ceiling.</p>
+                <p className="mt-3 leading-7 text-stone-300">
+                  Capturing even a small share of RTD protein shake spend can create a nine-figure opportunity,
+                  but the realistic first milestone is subscription retention, gym-fridge velocity, and proof that the hero SKU reorders.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-4">
+              {marketSignals.map((signal) => (
+                <article key={signal.label} className="rounded-3xl border border-amber-900/10 bg-white p-6 shadow-sm">
+                  <p className="text-4xl font-black tracking-tight text-stone-950">{signal.value}</p>
+                  <h3 className="mt-2 text-xl font-black text-stone-800">{signal.label}</h3>
+                  <p className="mt-2 leading-7 text-stone-600">{signal.detail}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-5 md:grid-cols-3">
+            {proofPoints.map((point) => (
+              <article key={point.title} className="rounded-3xl border border-amber-900/10 bg-white p-7 shadow-lg shadow-amber-900/5">
+                <Egg className="h-9 w-9 text-amber-700" />
+                <h3 className="mt-5 text-2xl font-black">{point.title}</h3>
+                <p className="mt-3 leading-7 text-stone-600">{point.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16" aria-labelledby="operating-thesis-title">
+          <div className="overflow-hidden rounded-[2rem] border border-amber-900/10 bg-amber-100 shadow-xl shadow-amber-900/5">
+            <div className="border-b border-amber-900/10 px-7 py-7 md:px-10">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-800">The operating thesis</p>
+              <h2 id="operating-thesis-title" className="mt-3 text-3xl font-black tracking-tight md:text-4xl">
+                The deal is the product before the drink is the product.
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-3">
+              {operatingThesis.map((item, index) => (
+                <article key={item.eyebrow} className="relative p-7 md:p-8 md:not-last:border-r md:not-last:border-amber-900/10">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-xs font-black uppercase tracking-[0.22em] text-amber-800">{item.eyebrow}</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-stone-950 text-xs font-black text-amber-100">0{index + 1}</span>
+                  </div>
+                  <h3 className="mt-6 text-2xl font-black">{item.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-700">{item.body}</p>
+                  {index < operatingThesis.length - 1 && (
+                    <ArrowRight className="absolute -bottom-4 left-1/2 z-10 h-8 w-8 -translate-x-1/2 rounded-full bg-amber-300 p-2 text-stone-950 md:-right-4 md:bottom-auto md:left-auto md:top-1/2 md:-translate-y-1/2 md:translate-x-0" aria-hidden="true" />
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="comparison" className="mx-auto max-w-7xl scroll-mt-28 px-6 pb-16">
+          <div className="overflow-hidden rounded-[2rem] border border-amber-900/10 bg-white shadow-xl shadow-amber-900/5">
+            <div className="flex flex-col gap-4 border-b border-stone-200 p-7 md:flex-row md:items-end md:justify-between md:p-10">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Format comparison</p>
+                <h2 className="mt-3 text-4xl font-black tracking-tight">A new lane, not another shake flavour.</h2>
+              </div>
+              <p className="max-w-xl leading-7 text-stone-600">Egg white combines the lactose-free appeal of plant drinks with a familiar complete-protein source—but only if formulation solves taste and texture.</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] border-collapse text-left">
+                <caption className="sr-only">Comparison of egg-white, whey, and plant-based ready-to-drink protein formats</caption>
+                <thead>
+                  <tr className="bg-stone-950 text-white">
+                    <th scope="col" className="px-7 py-5 text-xs font-black uppercase tracking-[0.18em] md:px-10">Decision factor</th>
+                    <th scope="col" className="bg-amber-300 px-7 py-5 text-xs font-black uppercase tracking-[0.18em] text-stone-950">Egg-white RTD</th>
+                    <th scope="col" className="px-7 py-5 text-xs font-black uppercase tracking-[0.18em]">Whey RTD</th>
+                    <th scope="col" className="px-7 py-5 text-xs font-black uppercase tracking-[0.18em]">Plant RTD</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formatComparison.map((row) => (
+                    <tr key={row.factor} className="border-b border-stone-200 last:border-0">
+                      <th scope="row" className="px-7 py-5 font-black text-stone-950 md:px-10">{row.factor}</th>
+                      <td className="bg-amber-50 px-7 py-5 font-bold text-amber-950">{row.egg}</td>
+                      <td className="px-7 py-5 text-stone-600">{row.whey}</td>
+                      <td className="px-7 py-5 text-stone-600">{row.plant}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="economics" className="mx-auto max-w-7xl scroll-mt-28 px-6 pb-16">
+          <div className="overflow-hidden rounded-[2rem] bg-stone-950 text-white shadow-2xl shadow-amber-900/10">
+            <div className="grid border-b border-white/10 lg:grid-cols-[0.75fr_1.25fr]">
+              <div className="p-7 md:p-10">
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-300">Subscription math</p>
+                <h2 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">A narrow wedge can still build a meaningful business.</h2>
+                <p className="mt-5 max-w-xl text-lg leading-8 text-stone-300">
+                  The base case does not need grocery scale. A premium monthly carton habit among 50,000 focused buyers creates a credible launch platform and negotiating leverage with retail.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2">
+                {subscriptionMath.map((item, index) => (
+                  <article
+                    key={item.label}
+                    className={`p-7 md:p-8 ${index % 2 === 0 ? 'sm:border-r sm:border-white/10' : ''} ${index < 2 ? 'border-b border-white/10' : ''}`}
+                  >
+                    <p className="text-4xl font-black tracking-tight text-amber-300">{item.value}</p>
+                    <h3 className="mt-2 font-black uppercase tracking-[0.16em] text-white">{item.label}</h3>
+                    <p className="mt-3 text-sm leading-6 text-stone-400">{item.note}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <p className="px-7 py-4 text-xs font-semibold leading-5 text-stone-400 md:px-10">
+              Illustrative scenario based on the concept assumptions, not a forecast. Excludes discounts, churn, shipping, taxes, wholesale mix, and returns.
+            </p>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16" aria-labelledby="revenue-model-title">
+          <div className="grid overflow-hidden rounded-[2rem] border border-amber-900/10 bg-white shadow-xl shadow-amber-900/5 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="p-7 md:p-10">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-700">Scenario builder</p>
+              <h2 id="revenue-model-title" className="mt-3 text-4xl font-black tracking-tight">Pressure-test the subscription wedge.</h2>
+              <p className="mt-4 max-w-2xl leading-7 text-stone-600">
+                Move the three commercial levers to see how a focused subscriber base translates into topline revenue before wholesale or grocery.
+              </p>
+              <div className="mt-6" aria-label="Revenue scenario presets">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Start with a scenario</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {revenueScenarios.map((scenario) => (
+                    <button
+                      key={scenario.label}
+                      type="button"
+                      onClick={() => applyRevenueScenario(scenario)}
+                      aria-pressed={activeScenario === scenario.label}
+                      className={`rounded-full border px-4 py-2 text-sm font-black transition-colors ${
+                        activeScenario === scenario.label
+                          ? 'border-stone-950 bg-stone-950 text-white'
+                          : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-400 hover:bg-white'
+                      }`}
+                    >
+                      {scenario.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-8 space-y-7">
+                <label className="block" htmlFor="scenario-subscribers">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Subscribers</span><output htmlFor="scenario-subscribers" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{subscribers.toLocaleString()}</output></span>
+                  <input id="scenario-subscribers" className="mt-3 w-full accent-amber-600" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} />
+                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>5K</span><span>100K</span></span>
+                </label>
+                <label className="block" htmlFor="scenario-cartons">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Cartons per month</span><output htmlFor="scenario-cartons" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{cartonsPerMonth}</output></span>
+                  <input id="scenario-cartons" className="mt-3 w-full accent-amber-600" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} />
+                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>6</span><span>24</span></span>
+                </label>
+                <label className="block" htmlFor="scenario-price">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Price per carton</span><output htmlFor="scenario-price" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">${pricePerCarton.toFixed(2)}</output></span>
+                  <input id="scenario-price" className="mt-3 w-full accent-amber-600" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} />
+                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>$3</span><span>$6</span></span>
+                </label>
+              </div>
+            </div>
+            <div className="flex flex-col justify-center bg-amber-300 p-7 md:p-10" aria-live="polite">
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-950">Illustrative topline</p>
+              <p className="mt-4 text-6xl font-black tracking-tighter text-stone-950 md:text-7xl">{formatCurrency(annualRevenue)}</p>
+              <p className="mt-1 text-xl font-black text-stone-800">annualised revenue</p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{formatCurrency(monthlyBasket)}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">monthly basket</p>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{formatCurrency(monthlyRevenue)}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">monthly revenue</p>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{(subscribers * cartonsPerMonth).toLocaleString()}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">cartons / month</p>
+                </div>
+                <div className="rounded-2xl bg-white/70 p-5">
+                  <p className="text-2xl font-black">{(annualCartons / 1000000).toFixed(1)}M</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">cartons / year</p>
+                </div>
+              </div>
+              <p className="mt-6 text-sm font-semibold leading-6 text-stone-700">
+                Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, tax, cost of goods, and acquisition spend are excluded.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="model" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="font-black uppercase tracking-[0.25em] text-amber-700">Business model</p>
+              <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">Start narrow. Own supply. Widen into grocery.</h2>
+            </div>
+            <p className="max-w-xl text-lg leading-8 text-stone-600">The wedge is one great-tasting carton for obsessive buyers. The moat is a signed egg-producer co-manufacturing relationship with pricing, capacity, and priority volume locked before incumbents move.</p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {modelCards.map((card) => (
+              <article key={card.title} className="rounded-3xl border border-stone-200 bg-white p-7 shadow-lg shadow-amber-900/5">
+                <card.icon className="h-9 w-9 text-amber-700" />
+                <h3 className="mt-5 text-2xl font-black">{card.title}</h3>
+                <p className="mt-3 leading-7 text-stone-600">{card.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
+            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-sm font-black text-amber-900">
+                  <Trophy className="h-4 w-4" /> Competition
+                </div>
+                <h2 className="mt-5 text-4xl font-black tracking-tight">The category leader slot is still empty.</h2>
+              </div>
+              <p className="max-w-xl text-lg leading-8 text-stone-600">
+                The threat is not that egg white RTD fails. The threat is that a major egg producer or whey incumbent sees the same arbitrage and ships first.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {competitors.map((competitor) => (
+                <article key={competitor.title} className="rounded-3xl bg-stone-50 p-6">
+                  <h3 className="text-2xl font-black">{competitor.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-600">{competitor.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="launch" className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-[2rem] bg-amber-300 p-6 md:p-10">
+            <div className="grid gap-8 md:grid-cols-[0.7fr_1.3fr]">
+              <div>
+                <Target className="h-10 w-10" />
+                <h2 className="mt-5 text-4xl font-black tracking-tight">Go-to-market sequence</h2>
+                <p className="mt-4 leading-7 text-stone-800">Validate taste and reorder before chasing broad retail. The fastest route is supply lock-in first, audience proof second, grocery leverage third.</p>
+              </div>
+              <div className="grid gap-4">
+                {launchSteps.map((step) => (
+                  <article key={step.step} className="rounded-3xl bg-white p-5 shadow-sm md:flex md:gap-5">
+                    <span className="text-3xl font-black text-amber-700">{step.step}</span>
+                    <div>
+                      <h3 className="text-xl font-black">{step.title}</h3>
+                      <p className="mt-2 leading-7 text-stone-600">{step.body}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="grid gap-5 md:grid-cols-3">
+            <article className="rounded-3xl border border-stone-200 bg-white p-7 shadow-lg shadow-amber-900/5">
+              <Stethoscope className="h-9 w-9 text-amber-700" />
+              <h3 className="mt-5 text-2xl font-black">Medicalised protein demand</h3>
+              <p className="mt-3 leading-7 text-stone-600">The GLP-1 cohort changes the buyer map: protein is no longer only a performance goal, it is part of preserving lean mass during rapid weight loss.</p>
+            </article>
+            <article className="rounded-3xl border border-stone-200 bg-white p-7 shadow-lg shadow-amber-900/5">
+              <Flame className="h-9 w-9 text-amber-700" />
+              <h3 className="mt-5 text-2xl font-black">Whey crisis as marketing</h3>
+              <p className="mt-3 leading-7 text-stone-600">The message is simple: the protein shake that does not care about the whey crisis. Every incumbent price hike makes the contrast easier to explain.</p>
+            </article>
+            <article className="rounded-3xl border border-stone-200 bg-white p-7 shadow-lg shadow-amber-900/5">
+              <PackageCheck className="h-9 w-9 text-amber-700" />
+              <h3 className="mt-5 text-2xl font-black">Cheap validation path</h3>
+              <p className="mt-3 leading-7 text-stone-600">Source Greek cartons or a white-label pilot, put them in front of 100 protein-maxxers, and measure finish rate, taste feedback, and reorder intent.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="risks" className="mx-auto max-w-7xl px-6 pb-20">
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="rounded-3xl border border-red-200 bg-red-50 p-8">
+              <AlertTriangle className="h-9 w-9 text-red-600" />
+              <h2 className="mt-4 text-3xl font-black">Risks to underwrite</h2>
+              <div className="mt-6 space-y-4">
+                {risks.map((risk) => <p key={risk} className="font-semibold leading-7 text-red-950">• {risk}</p>)}
+              </div>
+            </div>
+            <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8">
+              <ShieldCheck className="h-9 w-9 text-emerald-700" />
+              <h2 className="mt-4 text-3xl font-black">What makes it defensible</h2>
+              <div className="mt-6 space-y-4 text-emerald-950">
+                <p className="font-semibold leading-7">• Supply contracts with major egg producers before incumbents care.</p>
+                <p className="font-semibold leading-7">• A hero chocolate SKU that publicly beats taste objections.</p>
+                <p className="font-semibold leading-7">• DTC community proof and gym-fridge velocity before grocery expansion.</p>
+                <p className="font-semibold leading-7">• A clean-label, lactose-free alternative that remains useful even if whey normalises.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <div className="rounded-[2rem] border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-900/5 md:p-10">
+            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-sm font-black text-amber-100">
+                  <ClipboardCheck className="h-4 w-4" /> Validation plan
+                </div>
+                <h2 className="mt-5 text-4xl font-black tracking-tight">Validate cheaply before building the factory story.</h2>
+              </div>
+              <p className="max-w-xl text-lg leading-8 text-stone-600">
+                The lowest-risk test is brutally practical: source drinkable product, put it in front of obsessive buyers, and see whether they finish and reorder.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {validationChecks.map((check) => (
+                <article key={check.title} className="rounded-3xl bg-amber-50 p-6">
+                  <h3 className="text-2xl font-black">{check.title}</h3>
+                  <p className="mt-3 leading-7 text-stone-600">{check.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 pb-20" aria-labelledby="decision-gates-title">
+          <div className="overflow-hidden rounded-[2rem] bg-stone-950 text-white shadow-2xl shadow-amber-900/10">
+            <div className="grid gap-8 p-7 md:grid-cols-[0.75fr_1.25fr] md:p-10">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-4 py-2 text-sm font-black text-stone-950">
+                  <Gauge className="h-4 w-4" /> Pilot scorecard
+                </div>
+                <h2 id="decision-gates-title" className="mt-5 text-4xl font-black tracking-tight">Three gates before the first big production run.</h2>
+                <p className="mt-4 leading-7 text-stone-300">
+                  Treat the first 100 cartons as an investment decision, not a launch party. These targets turn taste and curiosity into evidence a supply partner can underwrite.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {decisionGates.map((gate) => (
+                  <article key={gate.label} className="rounded-3xl border border-white/10 bg-white/[0.07] p-6">
+                    <p className="text-4xl font-black tracking-tight text-amber-300">{gate.value}</p>
+                    <h3 className="mt-2 text-sm font-black uppercase tracking-[0.18em] text-white">{gate.label}</h3>
+                    <p className="mt-4 text-sm leading-6 text-stone-300">{gate.body}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 border-t border-white/10 bg-white/[0.04] px-7 py-5 text-sm text-stone-300 sm:flex-row sm:items-center sm:justify-between md:px-10">
+              <p><span className="font-black text-white">Go / no-go:</span> require product love and paid intent before scaling operations.</p>
+              <a href="#launch" className="inline-flex items-center gap-2 font-black text-amber-300 hover:text-amber-200">Review the launch sequence <ArrowRight className="h-4 w-4" /></a>
+            </div>
+          </div>
+        </section>
+
+        <section id="summary" className="border-t border-amber-900/10 bg-white">
+          <div className="mx-auto max-w-5xl px-6 py-16 text-center">
+            <p className="font-black uppercase tracking-[0.3em] text-amber-700">Validation sprint</p>
+            <h2 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">Source cartons, serve 100 protein obsessives, measure finish rate and reorder.</h2>
+            <div className="mx-auto mt-8 grid max-w-4xl gap-4 text-left md:grid-cols-3">
+              {summaryBullets.map((bullet) => (
+                <article key={bullet} className="rounded-3xl border border-stone-200 bg-stone-50 p-6">
+                  <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                  <p className="mt-4 font-semibold leading-7 text-stone-700">{bullet}</p>
+                </article>
+              ))}
+            </div>
+            <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-stone-600">
+              The cheapest proof is not a national launch. It is the Greek carton, a white-label pilot, or a small co-manufactured batch in front of the buyers who already read nutrition labels like spec sheets.
+              If they finish the drink, share the macro screenshot, and subscribe, the grocery story writes itself.
+            </p>
+            <a href="#top" className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3 font-bold text-white shadow-xl shadow-stone-900/20 hover:bg-stone-800">
+              Crack on <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        </section>
+
+        <section id="waitlist" className="bg-amber-300 px-6 py-16">
+          <div className="mx-auto grid max-w-5xl gap-10 rounded-[2rem] border-4 border-stone-950 bg-[#fff8ec] p-7 shadow-[10px_10px_0_#1c1917] md:grid-cols-[0.9fr_1.1fr] md:p-10">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-amber-300">
+                <Zap className="h-4 w-4" /> Founding batch
+              </div>
+              <h2 className="mt-5 text-4xl font-black tracking-tight">Be first to crack one open.</h2>
+              <p className="mt-4 leading-7 text-stone-600">
+                Join the tasting list for pilot drops, blind taste tests, and the first 12-carton release. No powder tubs. No whey. Just the carton.
+              </p>
+            </div>
+            <div className="flex items-center">
+              {joined ? (
+                <div className="w-full rounded-3xl border border-emerald-300 bg-emerald-50 p-6" role="status" aria-live="polite">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-700" />
+                  <p className="mt-3 text-2xl font-black text-emerald-950">You’re on the tasting list.</p>
+                  <p className="mt-2 text-emerald-900">We’ll use <strong>{email}</strong> to share the first pilot drop.</p>
+                </div>
+              ) : (
+                <form className="w-full" onSubmit={handleWaitlistSubmit}>
+                  <label htmlFor="waitlist-email" className="text-sm font-black uppercase tracking-[0.16em] text-stone-700">Email address</label>
+                  <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                    <input
+                      id="waitlist-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="you@example.com"
+                      className="min-w-0 flex-1 rounded-full border-2 border-stone-300 bg-white px-5 py-3.5 text-stone-950 placeholder:text-stone-400 focus:border-stone-950 focus:outline-none"
+                    />
+                    <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3.5 font-black text-white hover:bg-stone-800">
+                      Save my spot <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-stone-500">Pilot updates only. Unsubscribe whenever you like.</p>
+                </form>
+              )}
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <footer className="border-t border-white/10 bg-stone-950 text-stone-300">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <a href="#top" className="text-xl font-black tracking-tight text-white">
+              OVO<span className="text-amber-300">/</span>PROTEIN
+            </a>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-stone-400">
+              An early-stage market concept for a whey-independent, ready-to-drink egg white protein brand.
+              Validate formulation, supply, regulation, and consumer demand before launch.
+            </p>
+          </div>
+          <div className="flex gap-5 text-sm font-bold">
+            <a href="#market" className="hover:text-white">Market</a>
+            <a href="#launch" className="hover:text-white">Launch plan</a>
+            <a href="#risks" className="hover:text-white">Risks</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
