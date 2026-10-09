@@ -638,8 +638,8 @@ export default function EggWhiteProteinDrinks() {
               <p className="mt-4 max-w-2xl leading-7 text-stone-600">
                 Move the three commercial levers to see how a focused subscriber base translates into topline revenue before wholesale or grocery.
               </p>
-              <div className="mt-6" aria-label="Revenue scenario presets">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Start with a scenario</p>
+              <fieldset className="mt-6">
+                <legend className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Start with a scenario</legend>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {revenueScenarios.map((scenario) => (
                     <button
@@ -657,29 +657,32 @@ export default function EggWhiteProteinDrinks() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </fieldset>
               <div className="mt-8 space-y-7">
                 <label className="block" htmlFor="scenario-subscribers">
                   <span className="flex items-center justify-between gap-4 font-black"><span>Subscribers</span><output htmlFor="scenario-subscribers" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{subscribers.toLocaleString()}</output></span>
-                  <input id="scenario-subscribers" className="mt-3 w-full accent-amber-600" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} />
-                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>5K</span><span>100K</span></span>
+                  <input id="scenario-subscribers" aria-describedby="scenario-subscribers-range" className="mt-3 w-full accent-amber-600" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} />
+                  <span id="scenario-subscribers-range" className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>5K minimum</span><span>100K maximum</span></span>
                 </label>
                 <label className="block" htmlFor="scenario-cartons">
                   <span className="flex items-center justify-between gap-4 font-black"><span>Cartons per month</span><output htmlFor="scenario-cartons" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{cartonsPerMonth}</output></span>
-                  <input id="scenario-cartons" className="mt-3 w-full accent-amber-600" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} />
-                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>6</span><span>24</span></span>
+                  <input id="scenario-cartons" aria-describedby="scenario-cartons-range" className="mt-3 w-full accent-amber-600" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} />
+                  <span id="scenario-cartons-range" className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>6 minimum</span><span>24 maximum</span></span>
                 </label>
                 <label className="block" htmlFor="scenario-price">
                   <span className="flex items-center justify-between gap-4 font-black"><span>Price per carton</span><output htmlFor="scenario-price" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">${pricePerCarton.toFixed(2)}</output></span>
-                  <input id="scenario-price" className="mt-3 w-full accent-amber-600" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} />
-                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>$3</span><span>$6</span></span>
+                  <input id="scenario-price" aria-describedby="scenario-price-range" className="mt-3 w-full accent-amber-600" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} />
+                  <span id="scenario-price-range" className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>$3 minimum</span><span>$6 maximum</span></span>
                 </label>
               </div>
             </div>
-            <div className="flex flex-col justify-center bg-amber-300 p-7 md:p-10" aria-live="polite">
+            <div className="flex flex-col justify-center bg-amber-300 p-7 md:p-10">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-950">Illustrative topline</p>
-              <p className="mt-4 text-6xl font-black tracking-tighter text-stone-950 md:text-7xl">{formatCurrency(annualRevenue)}</p>
+              <p className="mt-4 text-6xl font-black tracking-tighter text-stone-950 md:text-7xl" aria-hidden="true">{formatCurrency(annualRevenue)}</p>
               <p className="mt-1 text-xl font-black text-stone-800">annualised revenue</p>
+              <p className="sr-only" aria-live="polite" aria-atomic="true">
+                Scenario updated: {formatCurrency(annualRevenue)} annualised revenue, {formatCurrency(monthlyRevenue)} monthly revenue, and {annualCartons.toLocaleString()} cartons per year.
+              </p>
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl bg-white/70 p-5">
                   <p className="text-2xl font-black">{formatCurrency(monthlyBasket)}</p>
