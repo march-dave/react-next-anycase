@@ -145,21 +145,6 @@ const goToMarket = [
   },
 ]
 
-const whyNowPoints = [
-  {
-    title: 'Consumer AI trust',
-    detail: 'Users now expect camera-based coaching and personalized recommendations in everyday health workflows.',
-  },
-  {
-    title: 'Telehealth distribution',
-    detail: 'Remote consults make it easier to convert early detection signals into treatment-ready action.',
-  },
-  {
-    title: 'Prevention demand',
-    detail: 'Younger customers are looking for objective tracking before visible thinning becomes emotionally costly.',
-  },
-]
-
 const recommendationTracks = [
   {
     title: 'Medical track',
@@ -208,6 +193,24 @@ const carePathway = [
   {
     stage: 'Escalate',
     detail: 'When thresholds are crossed, users can instantly book a specialist consult in-app.',
+  },
+]
+
+const acquisitionFit = [
+  {
+    title: 'Earliest intent capture',
+    description:
+      'Manetain identifies users before they are shopping for severe-loss solutions, creating a new top-of-funnel entry point.',
+  },
+  {
+    title: 'Higher-conviction referrals',
+    description:
+      'Clinics and telehealth partners receive objective progression data, making consultations more urgent and conversion-ready.',
+  },
+  {
+    title: 'Retention-rich data moat',
+    description:
+      'Weekly tracking builds longitudinal user history that increases personalization, trust, and downstream monetization value.',
   },
 ]
 

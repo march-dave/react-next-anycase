@@ -238,6 +238,12 @@ const formatComparison = [
   { factor: 'Key hurdle', egg: 'Taste + egg allergen', whey: 'Input cost pressure', plant: 'Taste perception' },
 ]
 
+const revenueScenarios = [
+  { label: 'Pilot', subscribers: 5000, cartons: 6, price: 4.5 },
+  { label: 'Base case', subscribers: 50000, cartons: 12, price: 4 },
+  { label: 'Scale', subscribers: 100000, cartons: 24, price: 3.5 },
+]
+
 export default function EggWhiteProteinDrinks() {
   const [subscribers, setSubscribers] = useState(50000)
   const [cartonsPerMonth, setCartonsPerMonth] = useState(12)
@@ -259,6 +265,12 @@ export default function EggWhiteProteinDrinks() {
     event.preventDefault()
     setEmail(email.trim())
     setJoined(true)
+  }
+
+  const applyRevenueScenario = (scenario) => {
+    setSubscribers(scenario.subscribers)
+    setCartonsPerMonth(scenario.cartons)
+    setPricePerCarton(scenario.price)
   }
 
   return (
@@ -607,37 +619,6 @@ export default function EggWhiteProteinDrinks() {
                 ))}
               </div>
             </div>
-            <div className="grid gap-8 border-b border-white/10 bg-amber-300 p-7 text-stone-950 md:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-              <div>
-                <div className="flex items-center justify-between gap-4">
-                  <label htmlFor="subscriber-count" className="font-black">Subscribers</label>
-                  <output htmlFor="subscriber-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{subscribers.toLocaleString('en-US')}</output>
-                </div>
-                <input id="subscriber-count" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-
-                <div className="mt-6 flex items-center justify-between gap-4">
-                  <label htmlFor="carton-count" className="font-black">Cartons per subscriber / month</label>
-                  <output htmlFor="carton-count" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">{cartonsPerMonth}</output>
-                </div>
-                <input id="carton-count" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-
-                <div className="mt-6 flex items-center justify-between gap-4">
-                  <label htmlFor="carton-price" className="font-black">Average revenue per carton</label>
-                  <output htmlFor="carton-price" className="rounded-full bg-stone-950 px-3 py-1 text-sm font-black text-white">${pricePerCarton.toFixed(2)}</output>
-                </div>
-                <input id="carton-price" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} className="mt-3 w-full accent-stone-950" />
-              </div>
-              <div className="rounded-3xl bg-stone-950 p-7 text-white shadow-xl" aria-live="polite">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">Your scenario</p>
-                <p className="mt-4 text-5xl font-black tracking-tight">{formatCurrency(annualRevenue)}</p>
-                <p className="mt-1 font-black text-stone-300">illustrative annual revenue</p>
-                <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm">
-                  <span className="text-stone-400">Monthly revenue</span>
-                  <strong>{formatCurrency(monthlyRevenue)}</strong>
-                </div>
-                <p className="mt-5 text-xs leading-5 text-stone-400">Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, taxes, and operating costs are excluded.</p>
-              </div>
-            </div>
             <p className="px-7 py-4 text-xs font-semibold leading-5 text-stone-400 md:px-10">
               Illustrative scenario based on the concept assumptions, not a forecast. Excludes discounts, churn, shipping, taxes, wholesale mix, and returns.
             </p>
@@ -652,21 +633,41 @@ export default function EggWhiteProteinDrinks() {
               <p className="mt-4 max-w-2xl leading-7 text-stone-600">
                 Move the three commercial levers to see how a focused subscriber base translates into topline revenue before wholesale or grocery.
               </p>
+              <fieldset className="mt-6">
+                <legend className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Start with a scenario</legend>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {revenueScenarios.map((scenario) => (
+                    <button
+                      key={scenario.label}
+                      type="button"
+                      onClick={() => applyRevenueScenario(scenario)}
+                      aria-pressed={activeScenario === scenario.label}
+                      className={`rounded-full border px-4 py-2 text-sm font-black transition-colors ${
+                        activeScenario === scenario.label
+                          ? 'border-stone-950 bg-stone-950 text-white'
+                          : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-400 hover:bg-white'
+                      }`}
+                    >
+                      {scenario.label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
               <div className="mt-8 space-y-7">
-                <label className="block">
-                  <span className="flex items-center justify-between gap-4 font-black"><span>Subscribers</span><output className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{subscribers.toLocaleString()}</output></span>
-                  <input className="mt-3 w-full accent-amber-600" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} />
-                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>5K</span><span>100K</span></span>
+                <label className="block" htmlFor="scenario-subscribers">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Subscribers</span><output htmlFor="scenario-subscribers" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{subscribers.toLocaleString()}</output></span>
+                  <input id="scenario-subscribers" aria-describedby="scenario-subscribers-range" className="mt-3 w-full accent-amber-600" type="range" min="5000" max="100000" step="5000" value={subscribers} onChange={(event) => setSubscribers(Number(event.target.value))} />
+                  <span id="scenario-subscribers-range" className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>5K minimum</span><span>100K maximum</span></span>
                 </label>
-                <label className="block">
-                  <span className="flex items-center justify-between gap-4 font-black"><span>Cartons per month</span><output className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{cartonsPerMonth}</output></span>
-                  <input className="mt-3 w-full accent-amber-600" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} />
-                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>6</span><span>24</span></span>
+                <label className="block" htmlFor="scenario-cartons">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Cartons per month</span><output htmlFor="scenario-cartons" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{cartonsPerMonth}</output></span>
+                  <input id="scenario-cartons" aria-describedby="scenario-cartons-range" className="mt-3 w-full accent-amber-600" type="range" min="6" max="24" step="6" value={cartonsPerMonth} onChange={(event) => setCartonsPerMonth(Number(event.target.value))} />
+                  <span id="scenario-cartons-range" className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>6 minimum</span><span>24 maximum</span></span>
                 </label>
-                <label className="block">
-                  <span className="flex items-center justify-between gap-4 font-black"><span>Price per carton</span><output className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">${pricePerCarton.toFixed(2)}</output></span>
-                  <input className="mt-3 w-full accent-amber-600" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} />
-                  <span className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>$3</span><span>$6</span></span>
+                <label className="block" htmlFor="scenario-price">
+                  <span className="flex items-center justify-between gap-4 font-black"><span>Price per carton</span><output htmlFor="scenario-price" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">${pricePerCarton.toFixed(2)}</output></span>
+                  <input id="scenario-price" aria-describedby="scenario-price-range" className="mt-3 w-full accent-amber-600" type="range" min="3" max="6" step="0.25" value={pricePerCarton} onChange={(event) => setPricePerCarton(Number(event.target.value))} />
+                  <span id="scenario-price-range" className="mt-1 flex justify-between text-xs font-semibold text-stone-400"><span>$3 minimum</span><span>$6 maximum</span></span>
                 </label>
               </div>
             </div>
