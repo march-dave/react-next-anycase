@@ -242,13 +242,12 @@ export default function EggWhiteProteinDrinks() {
   const [subscribers, setSubscribers] = useState(50000)
   const [cartonsPerMonth, setCartonsPerMonth] = useState(12)
   const [pricePerCarton, setPricePerCarton] = useState(4)
-  const [packSize, setPackSize] = useState(12)
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(false)
   const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
   const annualRevenue = monthlyRevenue * 12
-  const monthlyBasket = packSize * 4
-  const annualRunRate = monthlyBasket * 50000 * 12
+  const monthlyBasket = cartonsPerMonth * pricePerCarton
+  const annualCartons = subscribers * cartonsPerMonth * 12
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -674,20 +673,20 @@ export default function EggWhiteProteinDrinks() {
             <div className="grid sm:grid-cols-3" aria-live="polite">
               <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Monthly basket</p>
-                <p className="mt-3 text-5xl font-black tracking-tight">${monthlyBasket}</p>
-                <p className="mt-2 text-sm text-stone-500">at $4 per carton</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{formatCurrency(monthlyBasket)}</p>
+                <p className="mt-2 text-sm text-stone-500">per subscriber</p>
               </div>
               <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Cartons / year</p>
-                <p className="mt-3 text-5xl font-black tracking-tight">{(packSize * 50000 * 12 / 1000000).toFixed(1)}M</p>
-                <p className="mt-2 text-sm text-stone-500">at 50K subscribers</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{annualCartons >= 1000000 ? `${(annualCartons / 1000000).toFixed(1)}M` : `${Math.round(annualCartons / 1000)}K`}</p>
+                <p className="mt-2 text-sm text-stone-500">across the subscriber base</p>
               </div>
               <div className="bg-amber-300 p-7 md:p-8">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-950/70">Annual run-rate</p>
-                <p className="mt-3 text-5xl font-black tracking-tight">{formatCurrency(annualRunRate)}</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{formatCurrency(annualRevenue)}</p>
                 <p className="mt-2 text-sm font-semibold text-amber-950/70">illustrative revenue</p>
               </div>
-              <p className="mt-6 text-sm font-semibold leading-6 text-stone-700">
+              <p className="border-t border-stone-200 p-7 text-sm font-semibold leading-6 text-stone-700 sm:col-span-3 md:p-8">
                 Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, tax, cost of goods, and acquisition spend are excluded.
               </p>
             </div>
