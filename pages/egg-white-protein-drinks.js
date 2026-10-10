@@ -252,13 +252,8 @@ export default function EggWhiteProteinDrinks() {
   const [joined, setJoined] = useState(false)
   const monthlyRevenue = subscribers * cartonsPerMonth * pricePerCarton
   const annualRevenue = monthlyRevenue * 12
-  const annualCartons = subscribers * cartonsPerMonth * 12
   const monthlyBasket = cartonsPerMonth * pricePerCarton
-  const activeScenario = revenueScenarios.find((scenario) => (
-    scenario.subscribers === subscribers
-    && scenario.cartons === cartonsPerMonth
-    && scenario.price === pricePerCarton
-  ))?.label
+  const annualCartons = subscribers * cartonsPerMonth * 12
   const formatCurrency = (value) => new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -676,32 +671,23 @@ export default function EggWhiteProteinDrinks() {
                 </label>
               </div>
             </div>
-            <div className="flex flex-col justify-center bg-amber-300 p-7 md:p-10">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-950">Illustrative topline</p>
-              <p className="mt-4 text-6xl font-black tracking-tighter text-stone-950 md:text-7xl" aria-hidden="true">{formatCurrency(annualRevenue)}</p>
-              <p className="mt-1 text-xl font-black text-stone-800">annualised revenue</p>
-              <p className="sr-only" aria-live="polite" aria-atomic="true">
-                Scenario updated: {formatCurrency(annualRevenue)} annualised revenue, {formatCurrency(monthlyRevenue)} monthly revenue, and {annualCartons.toLocaleString()} cartons per year.
-              </p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl bg-white/70 p-5">
-                  <p className="text-2xl font-black">{formatCurrency(monthlyBasket)}</p>
-                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">monthly basket</p>
-                </div>
-                <div className="rounded-2xl bg-white/70 p-5">
-                  <p className="text-2xl font-black">{formatCurrency(monthlyRevenue)}</p>
-                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">monthly revenue</p>
-                </div>
-                <div className="rounded-2xl bg-white/70 p-5">
-                  <p className="text-2xl font-black">{(subscribers * cartonsPerMonth).toLocaleString()}</p>
-                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">cartons / month</p>
-                </div>
-                <div className="rounded-2xl bg-white/70 p-5">
-                  <p className="text-2xl font-black">{(annualCartons / 1000000).toFixed(1)}M</p>
-                  <p className="mt-1 text-xs font-black uppercase tracking-wider text-stone-600">cartons / year</p>
-                </div>
+            <div className="grid sm:grid-cols-3" aria-live="polite">
+              <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Monthly basket</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{formatCurrency(monthlyBasket)}</p>
+                <p className="mt-2 text-sm text-stone-500">per subscriber</p>
               </div>
-              <p className="mt-6 text-sm font-semibold leading-6 text-stone-700">
+              <div className="border-b border-stone-200 p-7 sm:border-b-0 sm:border-r md:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Cartons / year</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{annualCartons >= 1000000 ? `${(annualCartons / 1000000).toFixed(1)}M` : `${Math.round(annualCartons / 1000)}K`}</p>
+                <p className="mt-2 text-sm text-stone-500">across the subscriber base</p>
+              </div>
+              <div className="bg-amber-300 p-7 md:p-8">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-950/70">Annual run-rate</p>
+                <p className="mt-3 text-5xl font-black tracking-tight">{formatCurrency(annualRevenue)}</p>
+                <p className="mt-2 text-sm font-semibold text-amber-950/70">illustrative revenue</p>
+              </div>
+              <p className="border-t border-stone-200 p-7 text-sm font-semibold leading-6 text-stone-700 sm:col-span-3 md:p-8">
                 Revenue only—not profit or a forecast. Shipping, discounts, churn, returns, tax, cost of goods, and acquisition spend are excluded.
               </p>
             </div>
