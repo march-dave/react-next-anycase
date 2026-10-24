@@ -1,4 +1,4 @@
-# Titanium Cutting Board Site.
+# Titanium Cutting Board Site
 
 A simple Next.js website showcasing a titanium cutting board. Styled with Tailwind CSS.
 
